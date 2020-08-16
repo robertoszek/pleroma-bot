@@ -28,6 +28,7 @@
 # https://github.com/halcy/Mastodon.py
 
 import os
+import sys
 import requests
 import shutil
 import re
@@ -45,6 +46,14 @@ from datetime import datetime
 
 # TODO: Add parameter to allow choosing to update bio, avatar and banner or not - save some bandwidth
 # TODO: Refactor main function and split it up in smaller pieces
+
+try:
+    arg = sys.argv[1]
+except IndexError:
+    arg = ""
+    print(f"Usage: {sys.argv[0]} [noProfile]")
+
+
 def guess_type(media_file):
     mime_type = None
     try:
@@ -126,7 +135,7 @@ def main():
                                              '%Y-%m-%d %H:%M:%S')
             if date_twitter > date_pleroma:
                 tweets_to_post.append(tweet)
-        print(tweets_to_post)
+        print('tweets:', tweets_to_post)
         for tweet in tweets_to_post:
             id = tweet['id_str']
             try:
@@ -156,56 +165,58 @@ def main():
             # TODO: Implement upload and update of media
             # https://docs.joinmastodon.org/methods/statuses/media/
             # media_ids must be a tuple
+            text = text + '\n 🐦🔗: https://twitter.com/' + user['username'] + '/status/' + id
+
             data = {"status": text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
             response = requests.post(base_post_url, data, headers=header_pleroma)
         
         """
         Update user info in Pleroma
         """
+        if not arg == "noProfile":
+            base_desc = '🤖 BEEP BOOP 🤖 \n I\'m a bot that mirrors ' + user['username'] + \
+                        ' Twitter\'s account. \n Any issues please contact @robertoszek \n \n '
+            description = base_desc + user_twitter['description']
 
-        base_desc = '🤖 BEEP BOOP 🤖 \n I\'m a bot that mirrors ' + user['username'] + ' Twitter\'s account. \n ' \
-                                                                                       'Any issues please contact @robertoszek \n \n '
-        description = base_desc + user_twitter['description']
-        
-        # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
-        profile_img_big = re.sub(r"normal", "400x400", user_twitter['profile_image_url'])
-        response = requests.get(profile_img_big, stream=True)
-        response.raw.decode_content = True
-        with open(avatar_path, 'wb') as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+            # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
+            profile_img_big = re.sub(r"normal", "400x400", user_twitter['profile_image_url'])
+            response = requests.get(profile_img_big, stream=True)
+            response.raw.decode_content = True
+            with open(avatar_path, 'wb') as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
-        response = requests.get(user_twitter['profile_banner_url'], stream=True)
-        response.raw.decode_content = True
-        with open(header_path, 'wb') as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+            response = requests.get(user_twitter['profile_banner_url'], stream=True)
+            response.raw.decode_content = True
+            with open(header_path, 'wb') as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
-        # Set it on Pleroma
-        cred_url = 'https://pleroma.robertoszek.xyz/api/v1/accounts/update_credentials'
-        head = {"Authorization": "Bearer " + user['token']}
-        twitter_url = "http://nitter.net/" + user['username']
-        fields = [(":googlebird: Birdsite", twitter_url),
-                  ("Status", "Text-only :blobcry: 2.0.50-develop broke it somehow"),
-                  ("Source", "https://github.com/yogthos/mastodon-bot")]
-        data = {"note": description, "avatar": avatar_path, "header": header_path, "display_name": user_twitter['name']}
-        fields_attributes = []
-        if len(fields) > 4:
-            raise Exception("Maximum number of fields is 4. Exiting...")
-        for idx, (field_name, field_value) in enumerate(fields):
-            data['fields_attributes[' + str(idx) + '][name]'] = field_name
-            data['fields_attributes[' + str(idx) + '][value]'] = field_value
+            # Set it on Pleroma
+            cred_url = 'https://pleroma.robertoszek.xyz/api/v1/accounts/update_credentials'
+            head = {"Authorization": "Bearer " + user['token']}
+            twitter_url = "http://nitter.net/" + user['username']
+            fields = [(":googlebird: Birdsite", twitter_url),
+                      ("Status", "Text-only :blobcry: 2.0.50-develop broke it somehow"),
+                      ("Source", "https://github.com/yogthos/mastodon-bot")]
+            data = {"note": description, "avatar": avatar_path, "header": header_path, "display_name": user_twitter['name']}
+            fields_attributes = []
+            if len(fields) > 4:
+                raise Exception("Maximum number of fields is 4. Exiting...")
+            for idx, (field_name, field_value) in enumerate(fields):
+                data['fields_attributes[' + str(idx) + '][name]'] = field_name
+                data['fields_attributes[' + str(idx) + '][value]'] = field_value
 
-        avatar = open(avatar_path, 'rb')
-        avatar_mime_type = guess_type(avatar_path)
-        avatar_file_name = "mastodonpyupload_" + mimetypes.guess_extension(avatar_mime_type)
+            avatar = open(avatar_path, 'rb')
+            avatar_mime_type = guess_type(avatar_path)
+            avatar_file_name = "mastodonpyupload_" + mimetypes.guess_extension(avatar_mime_type)
 
-        header = open(header_path, 'rb')
-        header_mime_type = guess_type(header_path)
-        header_file_name = "mastodonpyheaderupload" + mimetypes.guess_extension(header_mime_type)
+            header = open(header_path, 'rb')
+            header_mime_type = guess_type(header_path)
+            header_file_name = "mastodonpyheaderupload" + mimetypes.guess_extension(header_mime_type)
 
-        files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
-                 "header": (header_file_name, header, header_mime_type)}
-        response = requests.patch(cred_url, data, headers=head, files=files)
-        print(response.text)  # for debugging
+            files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
+                     "header": (header_file_name, header, header_mime_type)}
+            response = requests.patch(cred_url, data, headers=head, files=files)
+            print(response)  # for debugging
         # TODO: Delete tweets folder
 
 
