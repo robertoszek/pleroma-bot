@@ -40,8 +40,11 @@ try:
     import magic
 except ImportError:
     magic = None
-    
 
+from datetime import datetime
+
+# TODO: Add parameter to allow choosing to update bio, avatar and banner or not - save some bandwidth
+# TODO: Refactor main function and split it up in smaller pieces
 def guess_type(media_file):
     mime_type = None
     try:
@@ -67,21 +70,18 @@ def main():
             bearer_token = token_file.readline().rstrip()
 
     for user in user_dict:
-        # Get info from Twitter
-        head = {"Authorization": "Bearer " + bearer_token}
-        base_url = 'https://api.twitter.com/1.1/users/show.json?screen_name=' + user['username']
-        response = requests.get(base_url, headers=head)
-        user_twitter = json.loads(response.text)
+        header_pleroma = {"Authorization": "Bearer " + user['token']}
+        header_twitter = {"Authorization": "Bearer " + bearer_token}
 
-        # Save it to the filesystem
-        base_desc = '🤖 BEEP BOOP 🤖 \n I\'m a bot that mirrors ' + user['username'] + ' Twitter\'s account. \n ' \
-                    'Any issues please contact @robertoszek \n \n '
+        # Set up files structure
         base_path = 'users'
         avatar_path = os.path.join(base_path, user['username'], 'profile.jpg')
         header_path = os.path.join(base_path, user['username'], 'banner.jpg')
         description_path = os.path.join(base_path, user['username'], 'description.txt')
         secret_path = os.path.join(base_path, user['username'], 'usercred.secret')
 
+        if not os.path.isdir('tweets'):
+            os.mkdir('tweets')
         if not os.path.isdir(base_path):
             os.mkdir(base_path)
         if not os.path.isdir(os.path.join(base_path, user['username'])):
@@ -97,20 +97,85 @@ def main():
             with open(secret_path, 'r') as token_file:
                 user['token'] = token_file.readline().rstrip()
 
+        """
+        Compare and post only new tweets to Pleroma
+        """
+
+        # Get last update from Pleroma
+        pleroma_posts_url = 'https://pleroma.robertoszek.xyz/api/v1/accounts/' + user['username'] + '/statuses'
+        response = requests.get(pleroma_posts_url, headers=header_pleroma)
+        posts = json.loads(response.text)
+        date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
+                                         '%Y-%m-%d %H:%M:%S')
+
+        # Get info from Twitter
+        base_url = 'https://api.twitter.com/1.1/users/show.json?screen_name=' + user['username']
+        response = requests.get(base_url, headers=header_twitter)
+        user_twitter = json.loads(response.text)
+        # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
+        base_url_status = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' + user['username'] + \
+                          '&count=50&include_rts=true'
+        response = requests.get(base_url_status, headers=header_twitter)
+        tweets = json.loads(response.text)
+
+        tweets_to_post = []
+        # Get rid of old tweets
+        for tweet in tweets:
+            created_at = tweet['created_at']
+            date_twitter = datetime.strftime(datetime.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y'),
+                                             '%Y-%m-%d %H:%M:%S')
+            if date_twitter > date_pleroma:
+                tweets_to_post.append(tweet)
+        print(tweets_to_post)
+        for tweet in tweets_to_post:
+            id = tweet['id_str']
+            try:
+                # In a RT this field includes a link to the original status
+                # The status is always truncated so this is a more sane option in RTs
+                text = tweet['retweeted_status']['text']
+            except KeyError:
+                text = tweet['text']
+                pass
+            try:
+                media = []
+                for item in tweet['entities']['media']:
+                    media.append(item)
+            except KeyError:
+                pass
+            # Create folder to store attachments related to the tweet ID
+            os.mkdir(os.path.join('tweets', id))
+            for idx, item in media:
+                response = requests.get(item['media_url'], stream=True)
+                response.raw.decode_content = True
+                
+                with open(os.path.join('tweets', id, idx), 'wb') as outfile:
+                    shutil.copyfileobj(response.raw, outfile)
+
+            # Post to Pleroma
+            base_post_url = 'https://pleroma.robertoszek.xyz/api/v1/statuses'
+            # TODO: Implement upload and update of media
+            # https://docs.joinmastodon.org/methods/statuses/media/
+            # media_ids must be a tuple
+            data = {"status": text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
+            response = requests.post(base_post_url, data, headers=header_pleroma)
+        
+        """
+        Update user info in Pleroma
+        """
+
+        base_desc = '🤖 BEEP BOOP 🤖 \n I\'m a bot that mirrors ' + user['username'] + ' Twitter\'s account. \n ' \
+                                                                                       'Any issues please contact @robertoszek \n \n '
         description = base_desc + user_twitter['description']
-        with open(description_path, 'w') as outfile:
-            outfile.write(description)
-        # Get the biggest resolution for the profile picture (400x400) instead of normal
+        
+        # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
         profile_img_big = re.sub(r"normal", "400x400", user_twitter['profile_image_url'])
         response = requests.get(profile_img_big, stream=True)
         response.raw.decode_content = True
-
         with open(avatar_path, 'wb') as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
         response = requests.get(user_twitter['profile_banner_url'], stream=True)
         response.raw.decode_content = True
-
         with open(header_path, 'wb') as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
@@ -118,9 +183,9 @@ def main():
         cred_url = 'https://pleroma.robertoszek.xyz/api/v1/accounts/update_credentials'
         head = {"Authorization": "Bearer " + user['token']}
         twitter_url = "http://nitter.net/" + user['username']
-        fields = [(":googlebird: Birdsite", twitter_url), 
-                  ("Status","I'm completely operational and all my circuits are functioning normally--"),
-                  ("Source","https://github.com/yogthos/mastodon-bot")]
+        fields = [(":googlebird: Birdsite", twitter_url),
+                  ("Status", "Text-only :blobcry: 2.0.50-develop broke it somehow"),
+                  ("Source", "https://github.com/yogthos/mastodon-bot")]
         data = {"note": description, "avatar": avatar_path, "header": header_path, "display_name": user_twitter['name']}
         fields_attributes = []
         if len(fields) > 4:
@@ -140,7 +205,8 @@ def main():
         files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
                  "header": (header_file_name, header, header_mime_type)}
         response = requests.patch(cred_url, data, headers=head, files=files)
-        print(response.text) # for debugging
+        print(response.text)  # for debugging
+        # TODO: Delete tweets folder
 
 
 if __name__ == '__main__':
