@@ -117,9 +117,10 @@ def main():
         # Set it on Pleroma
         cred_url = 'https://pleroma.robertoszek.xyz/api/v1/accounts/update_credentials'
         head = {"Authorization": "Bearer " + user['token']}
-        twitter_url = "http://twitter.com/" + user['username']
-        fields = [(":googlebird: Birdsite", twitter_url), ("Status","I'm completely operational and all my circuits "
-                                                                    "are functioning normally--")]
+        twitter_url = "http://nitter.net/" + user['username']
+        fields = [(":googlebird: Birdsite", twitter_url), 
+                  ("Status","I'm completely operational and all my circuits are functioning normally--"),
+                  ("Source","https://github.com/yogthos/mastodon-bot")]
         data = {"note": description, "avatar": avatar_path, "header": header_path, "display_name": user_twitter['name']}
         fields_attributes = []
         if len(fields) > 4:
