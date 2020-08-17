@@ -81,15 +81,16 @@ def random_string(length: int) -> str:
 
 def main():
     # TODO: Refactor main function and split it up in smaller pieces
+    script_path = os.path.dirname(sys.argv[0])
+    base_path = os.path.abspath(script_path)
     user_dict = [{"username": 'WoolieWoolz', "token": 'emptyonpurpose'},
                  {"username": 'KyleBosman', "token": 'emptyonpurpose'}]
 
     pleroma_base_url = 'https://pleroma.robertoszek.xyz'
     twitter_base_url = 'https://api.twitter.com/1.1'
-    # TODO: find script path and make all paths relative to it
     
     # Twitter bearer token
-    twitter_secret = os.path.join('twittercred.secret')
+    twitter_secret = os.path.join(base_path, 'twittercred.secret')
     if not os.path.isfile(twitter_secret):
         bearer_token = ""
         while not bearer_token:
@@ -103,17 +104,15 @@ def main():
     for user in user_dict:
         twitter_url = "http://nitter.net/" + user['username']
         # Set up files structure
-        base_path = 'users'
-        user_path = os.path.join(base_path, user['username'])
+        users_path = os.path.join(base_path, 'users')
+        user_path = os.path.join(users_path, user['username'])
         tweets_temp_path = os.path.join(user_path, 'tweets')
         avatar_path = os.path.join(user_path, 'profile.jpg')
         header_path = os.path.join(user_path, 'banner.jpg')
         secret_path = os.path.join(user_path, 'usercred.secret')
 
-        if not os.path.isdir('tweets'):
-            os.mkdir('tweets')
-        if not os.path.isdir(base_path):
-            os.mkdir(base_path)
+        if not os.path.isdir(users_path):
+            os.mkdir(users_path)
         if not os.path.isdir(user_path):
             os.mkdir(user_path)
         if not os.path.isfile(secret_path):
@@ -126,7 +125,7 @@ def main():
         else:
             with open(secret_path, 'r') as token_file:
                 user['token'] = token_file.readline().rstrip()
-
+ 
         if not os.path.isdir(tweets_temp_path):
             os.mkdir(tweets_temp_path)
         # Auth
@@ -205,6 +204,7 @@ def main():
         """
         Update user info in Pleroma
         """
+        # TODO: Move this to a separate function
         if not arg == "noProfile":
             base_desc = '🤖 BEEP BOOP 🤖 \n I\'m a bot that mirrors ' + user['username'] + \
                         ' Twitter\'s account. \n Any issues please contact @robertoszek \n \n '
@@ -249,7 +249,7 @@ def main():
             response = requests.patch(cred_url, data, headers=header_pleroma, files=files)
             print(response)  # for debugging
         # Clean-up
-        shutil.rmtree('tweets')
+        shutil.rmtree(tweets_temp_path)
 
 
 if __name__ == '__main__':
