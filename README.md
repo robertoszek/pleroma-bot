@@ -50,9 +50,9 @@ If the ```noProfile``` argument is passed, *only* new tweets will be posted. The
 **(everyday at 6:15 AM)** update profile and **(every 10 min.)** post new tweets:
 ```bash
 # Pleroma post tweets
-*/10 * * * * cd /opt/pleroma-twitter-info-grabber/ && python3 updateInfoPleroma.py noProfile
+*/10 * * * * python3 /opt/pleroma-twitter-info-grabber/updateInfoPleroma.py noProfile
 # Pleroma update profile with Twitter info
-15 6 * * * cd /opt/pleroma-twitter-info-grabber/ && python3 updateInfoPleroma.py
+15 6 * * * python3 /opt/pleroma-twitter-info-grabber/updateInfoPleroma.py
 ```
 ## Acknowledgements
 These projects proved to be immensely useful, they are Python wrappers for the Mastodon API and Twitter API respectively:
