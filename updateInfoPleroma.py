@@ -29,6 +29,8 @@
 
 import os
 import sys
+import string
+import random
 import requests
 import shutil
 import re
@@ -59,6 +61,22 @@ def guess_type(media_file):
     except AttributeError:
         mime_type = mimetypes.guess_type(media_file)[0]
     return mime_type
+
+
+def random_string(length: int) -> str:
+    """Returns a string of random characters of length 'length'
+    
+    Parameters
+    ----------
+    length: str, mandatory
+        How long the string to return must be
+
+    Returns
+    -------
+    str
+        a string of length 'lenght' formed with random alpha-numeriacal characters
+    """
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
 
 def main():
@@ -215,11 +233,12 @@ def main():
 
             avatar = open(avatar_path, 'rb')
             avatar_mime_type = guess_type(avatar_path)
-            avatar_file_name = "mastodonpyupload_" + mimetypes.guess_extension(avatar_mime_type)
+            timestamp = str(datetime.now().timestamp())
+            avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(avatar_mime_type)
 
             header = open(header_path, 'rb')
             header_mime_type = guess_type(header_path)
-            header_file_name = "mastodonpyheaderupload" + mimetypes.guess_extension(header_mime_type)
+            header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(header_mime_type)
 
             files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
                      "header": (header_file_name, header, header_mime_type)}
