@@ -86,6 +86,8 @@ def main():
 
     pleroma_base_url = 'https://pleroma.robertoszek.xyz'
     twitter_base_url = 'https://api.twitter.com/1.1'
+    # TODO: find script path and make all paths relative to it
+    
     # Twitter bearer token
     twitter_secret = os.path.join('twittercred.secret')
     if not os.path.isfile(twitter_secret):
@@ -151,6 +153,8 @@ def main():
                           '&count=50&include_rts=true'
         response = requests.get(twitter_status_url, headers=header_twitter)
         tweets = json.loads(response.text)
+        # Put oldest first to iterate them and post them in order
+        tweets.reverse()
 
         tweets_to_post = []
         # Get rid of old tweets
