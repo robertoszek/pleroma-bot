@@ -74,7 +74,7 @@ def random_string(length: int) -> str:
     Returns
     -------
     str
-        a string of length 'lenght' formed with random alpha-numeriacal characters
+        a string of length 'length' formed with random alpha-numerical characters
     """
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
