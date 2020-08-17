@@ -90,6 +90,8 @@ def main():
         header_path = os.path.join(user_path, 'banner.jpg')
         secret_path = os.path.join(user_path, 'usercred.secret')
 
+        if not os.path.isdir('tweets'):
+            os.mkdir('tweets')
         if not os.path.isdir(base_path):
             os.mkdir(base_path)
         if not os.path.isdir(user_path):
@@ -177,6 +179,7 @@ def main():
             data = {"status": text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
             response = requests.post(pleroma_post_url, data, headers=header_pleroma)
             print(response.text)  
+
         """
         Update user info in Pleroma
         """
