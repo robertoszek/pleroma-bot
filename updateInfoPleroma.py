@@ -169,13 +169,15 @@ def main():
         print('tweets:', tweets_to_post)
         for tweet in tweets_to_post:
             id = tweet['id_str']
+            """Experimenting with just text. RT prefix not showing up, I already provide the link to the status
             try:
                 # In a RT this field includes a link to the original status
                 # The status is always truncated so this is a more sane option in RTs
                 text = tweet['retweeted_status']['text']
             except KeyError:
-                text = tweet['text']
-                pass
+            """
+            text = tweet['text']
+            #pass
             try:
                 media = []
                 for item in tweet['entities']['media']:
