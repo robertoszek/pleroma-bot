@@ -83,6 +83,9 @@ def main():
     # TODO: Refactor main function and split it up in smaller pieces
     script_path = os.path.dirname(sys.argv[0])
     base_path = os.path.abspath(script_path)
+    # TODO: add config.ini and collect all this variable values from it
+    # user_dict, pleroma_base_url, twitter_base_url, signature yes or no
+    # number of tweets to gather, etc.
     user_dict = [{"username": 'WoolieWoolz', "token": 'emptyonpurpose'},
                  {"username": 'KyleBosman', "token": 'emptyonpurpose'}]
 
