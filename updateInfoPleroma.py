@@ -66,8 +66,9 @@ class User(object):
         self.twitter_description = None
         self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
         self.twitter_token = cfg['twitter_token']
-        self.pleroma_base_url = cfc['pleroma_url']
+        self.pleroma_base_url = cfg['pleroma_url']
         self.twitter_base_url = cfg['twitter_url']
+        # Auth
         self.header_pleroma = {"Authorization": "Bearer " + self.token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
         self.tweets = None
@@ -76,16 +77,16 @@ class User(object):
         script_path = os.path.dirname(sys.argv[0])
         self.base_path = os.path.abspath(script_path)
         self.users_path = os.path.join(self.base_path, 'users')
-        self.user_path = os.path.join(self.users_path, user['username'])
+        self.user_path = os.path.join(self.users_path, self.username)
         self.tweets_temp_path = os.path.join(self.user_path, 'tweets')
         self.avatar_path = os.path.join(self.user_path, 'profile.jpg')
         self.header_path = os.path.join(self.user_path, 'banner.jpg')
-        if not os.path.isdir(users_path):
-            os.mkdir(users_path)
-        if not os.path.isdir(user_path):
-            os.mkdir(user_path)
-        if not os.path.isdir(tweets_temp_path):
-            os.mkdir(tweets_temp_path)
+        if not os.path.isdir(self.users_path):
+            os.mkdir(self.users_path)
+        if not os.path.isdir(self.user_path):
+            os.mkdir(self.user_path)
+        if not os.path.isdir(self.tweets_temp_path):
+            os.mkdir(self.tweets_temp_path)
         # self.get_last_pleroma_post()
         # self.get_tweets()
         # self.post_pleroma()
@@ -132,7 +133,7 @@ class User(object):
 
     def get_date_last_pleroma_post(self):
         pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.username + '/statuses'
-        response = requests.get(pleroma_posts_url, headers=header_pleroma)
+        response = requests.get(pleroma_posts_url, headers=self.header_pleroma)
         posts = json.loads(response.text)
         date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
                                          '%Y-%m-%d %H:%M:%S')
