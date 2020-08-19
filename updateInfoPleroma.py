@@ -57,40 +57,62 @@ except IndexError:
 
 class User(object):
     # TODO: Implement functions, move code from main when it applies
-    def __init__(self, user_cfg):
-        global twitter_token
+    def __init__(self, user_cfg, cfg):
         self.username = user_cfg['username']
         self.token = user_cfg['token']
         self.signature = user_cfg['signature']
         self.support_account = user_cfg['support_account']
         self.fields = []
-        self.twitter_token = twitter_token
+        self.twitter_description = None
         self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
+        self.twitter_token = cfg['twitter_token']
+        self.pleroma_base_url = cfc['pleroma_url']
+        self.twitter_base_url = cfg['twitter_url']
+        self.header_pleroma = {"Authorization": "Bearer " + self.token}
+        self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
+        self.tweets = None
+        self.last_post_pleroma = None
+        # Filesystem
+        script_path = os.path.dirname(sys.argv[0])
+        self.base_path = os.path.abspath(script_path)
+        self.users_path = os.path.join(self.base_path, 'users')
+        self.user_path = os.path.join(self.users_path, user['username'])
+        self.tweets_temp_path = os.path.join(self.user_path, 'tweets')
+        self.avatar_path = os.path.join(self.user_path, 'profile.jpg')
+        self.header_path = os.path.join(self.user_path, 'banner.jpg')
+        if not os.path.isdir(users_path):
+            os.mkdir(users_path)
+        if not os.path.isdir(user_path):
+            os.mkdir(user_path)
+        if not os.path.isdir(tweets_temp_path):
+            os.mkdir(tweets_temp_path)
         # self.get_last_pleroma_post()
         # self.get_tweets()
         # self.post_pleroma()
         return
 
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
-        '''Returns a string with "{{ var_name }}" replaced with var_name's value
-           If no 'var_name' is provided, locals() (or self if it's an object method)
-           will be used and all variables found in locals() (or object attributes)
-           will be replaced with their values.
+        """Returns a string with "{{ var_name }}" replaced with var_name's value
+        If no 'var_name' is provided, locals() (or self if it's an object method)
+        will be used and all variables found in locals() (or object attributes)
+        will be replaced with their values.
 
-        :param text: String to be parsed, replacing "{{ var_name }}" with var_name's value. Multiple occurrences are supported.
+        :param text: String to be parsed, replacing "{{ var_name }}" with var_name's value. Multiple occurrences are
+                     supported.
         :type text: str
-        :param var_name: Name of the variable to be replace. Multiple ocurrences are supported. If not provided, locals() will be used and all variables will be replaced with their values.
+        :param var_name: Name of the variable to be replace. Multiple occurrences are supported. If not provided,
+               locals() will be used and all variables will be replaced with their values.
         :type var_name: str
 
         :returns: A string with {{ var_name }} replaced with var_name's value.
         :rtype: str
-        '''
+        """
         # Jinja-style string replacement i.e. vars encapsulated in {{ and }}
-        if not var_name is None:
-            matching_pattern = r'(?<=\{{)( ' + var_name + ' )(?=\}})'
+        if var_name is not None:
+            matching_pattern = r'(?<=\{{)( ' + var_name + r' )(?=\}})'
             matches = re.findall(matching_pattern, text)
         else:
-            matches = re.findall(r'(?<=\{{)(.*?)(?=\}})', text)
+            matches = re.findall(r'(?<={{)(.*?)(?=}})', text)
         for match in matches:
             pattern = r'{{ ' + match.strip() + ' }}'
             # This other way only works if the var is inside the function (same scope)
@@ -99,11 +121,22 @@ class User(object):
             text = re.sub(pattern, value, text)
         return text
 
-    def get_tweets(self):
+    def _get_tweets(self):
+        # Private method
+        # Actually get the tweets here
         return
 
-    def get_last_pleroma_post(self):
-        return
+    def get_tweets(self):
+        # Getter
+        return self.tweets
+
+    def get_date_last_pleroma_post(self):
+        pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.username + '/statuses'
+        response = requests.get(pleroma_posts_url, headers=header_pleroma)
+        posts = json.loads(response.text)
+        date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
+                                         '%Y-%m-%d %H:%M:%S')
+        return date_pleroma
 
     def update_pleroma(self):
         return
@@ -120,16 +153,11 @@ def guess_type(media_file):
 
 def random_string(length: int) -> str:
     """Returns a string of random characters of length 'length'
+    :param length: How long the string to return must be
+    :type length: int
     
-    Parameters
-    ----------
-    length: str, mandatory
-        How long the string to return must be
-
-    Returns
-    -------
-    str
-        a string of length 'length' formed with random alpha-numerical characters
+    :returns: an alpha-numerical string of specified length with random characters
+    :rtype: str
     """
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
@@ -145,13 +173,12 @@ def main():
 
     pleroma_base_url = config['pleroma_url']
     twitter_base_url = config['twitter_url']
-    
+
     # Twitter bearer token
-    global twitter_token
     twitter_token = config['twitter_token']
 
     for user in user_dict:
-        user_obj = User(user)
+        user_obj = User(user, config)
         twitter_url = "http://nitter.net/" + user['username']
         # Set up files structure
         users_path = os.path.join(base_path, 'users')
@@ -159,7 +186,6 @@ def main():
         tweets_temp_path = os.path.join(user_path, 'tweets')
         avatar_path = os.path.join(user_path, 'profile.jpg')
         header_path = os.path.join(user_path, 'banner.jpg')
-        secret_path = os.path.join(user_path, 'usercred.secret')
 
         if not os.path.isdir(users_path):
             os.mkdir(users_path)
@@ -170,27 +196,20 @@ def main():
         # Auth
         header_pleroma = {"Authorization": "Bearer " + user['token']}
         header_twitter = {"Authorization": "Bearer " + twitter_token}
-        
+
         """
         Compare and post only new tweets to Pleroma
         """
 
         # Get last update from Pleroma
-        pleroma_posts_url = pleroma_base_url + '/api/v1/accounts/' + user['username'] + '/statuses'
-        response = requests.get(pleroma_posts_url, headers=header_pleroma)
-        posts = json.loads(response.text)
-        date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
-                                         '%Y-%m-%d %H:%M:%S')
-
+        date_pleroma = user_obj.get_date_last_pleroma_post()
         # Get info from Twitter
         twitter_user_url = twitter_base_url + '/users/show.json?screen_name=' + user['username']
         response = requests.get(twitter_user_url, headers=header_twitter)
         user_twitter = json.loads(response.text)
-        username = user_twitter['name']
-        screen_name = user_twitter['name']
         # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
         twitter_status_url = twitter_base_url + '/statuses/user_timeline.json?screen_name=' + user['username'] + \
-                          '&count=50&include_rts=true'
+                             '&count=50&include_rts=true'
         response = requests.get(twitter_status_url, headers=header_twitter)
         tweets = json.loads(response.text)
         # Put oldest first to iterate them and post them in order
@@ -206,17 +225,17 @@ def main():
                 tweets_to_post.append(tweet)
         print('tweets:', tweets_to_post)
         for tweet in tweets_to_post:
-            id = tweet['id_str']
+            tweet_id = tweet['id_str']
             text = tweet['text']
+            media = []
             try:
-                media = []
                 for item in tweet['entities']['media']:
                     media.append(item)
             except KeyError:
                 pass
             # Create folder to store attachments related to the tweet ID
-            if not os.path.isdir(os.path.join(tweets_temp_path, id)):
-                os.mkdir(os.path.join(tweets_temp_path, id))
+            if not os.path.isdir(os.path.join(tweets_temp_path, tweet_id)):
+                os.mkdir(os.path.join(tweets_temp_path, tweet_id))
             print(enumerate(media))
             # TODO: Implement download of media. Make it optional
             """
@@ -234,7 +253,7 @@ def main():
             # media_ids must be a tuple
 
             # TODO: make signature optional based on user['signature'] bool
-            signature = '\n\n 🐦🔗: ' + twitter_url + '/status/' + id
+            signature = '\n\n 🐦🔗: ' + twitter_url + '/status/' + tweet_id
             text = text + signature
 
             data = {"status": text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
@@ -267,7 +286,8 @@ def main():
             fields = [(":googlebird: Birdsite", twitter_url),
                       ("Status", "Text-only :blobcry: 2.0.50-develop broke it somehow"),
                       ("Source", "https://github.com/yogthos/mastodon-bot")]
-            data = {"note": description, "avatar": avatar_path, "header": header_path, "display_name": user_twitter['name']}
+            data = {"note": description, "avatar": avatar_path, "header": header_path,
+                    "display_name": user_twitter['name']}
             fields_attributes = []
             if len(fields) > 4:
                 raise Exception("Maximum number of fields is 4. Exiting...")
@@ -278,11 +298,13 @@ def main():
             avatar = open(avatar_path, 'rb')
             avatar_mime_type = guess_type(avatar_path)
             timestamp = str(datetime.now().timestamp())
-            avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(avatar_mime_type)
+            avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
+                avatar_mime_type)
 
             header = open(header_path, 'rb')
             header_mime_type = guess_type(header_path)
-            header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(header_mime_type)
+            header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
+                header_mime_type)
 
             files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
                      "header": (header_file_name, header, header_mime_type)}
