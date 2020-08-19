@@ -1,0 +1,17 @@
+pleroma_url: https://pleroma.robertoszek.xyz
+twitter_url: https://api.twitter.com/1.1
+twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+users:
+- username: KyleBosman
+  # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
+  # with the attribute value. e.g. {{ support_account }}
+  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  signature: true
+  support_account: robertoszek
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ username }} Twitter's\
+    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
+- username: WoolieWoolz
+  token: HOQNVBtDEN2uxkCstGBYr6UizgfEsl12k1lxr-iTbt4
+  signature: true
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ username }} Twitter's\
+    \ account. \n Any issues please contact @robertoszek \n \n "

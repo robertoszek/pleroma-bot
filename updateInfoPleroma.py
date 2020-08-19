@@ -36,6 +36,7 @@ import shutil
 import re
 import mimetypes
 import json
+import yaml
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -52,6 +53,60 @@ try:
 except IndexError:
     arg = ""
     print(f"Usage: {sys.argv[0]} [noProfile]")
+
+
+class User(object):
+    # TODO: Implement functions, move code from main when it applies
+    def __init__(self, user_cfg):
+        global twitter_token
+        self.username = user_cfg['username']
+        self.token = user_cfg['token']
+        self.signature = user_cfg['signature']
+        self.support_account = user_cfg['support_account']
+        self.fields = []
+        self.twitter_token = twitter_token
+        self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
+        # self.get_last_pleroma_post()
+        # self.get_tweets()
+        # self.post_pleroma()
+        return
+
+    def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
+        '''Returns a string with "{{ var_name }}" replaced with var_name's value
+           If no 'var_name' is provided, locals() (or self if it's an object method)
+           will be used and all variables found in locals() (or object attributes)
+           will be replaced with their values.
+
+        :param text: String to be parsed, replacing "{{ var_name }}" with var_name's value. Multiple occurrences are supported.
+        :type text: str
+        :param var_name: Name of the variable to be replace. Multiple ocurrences are supported. If not provided, locals() will be used and all variables will be replaced with their values.
+        :type var_name: str
+
+        :returns: A string with {{ var_name }} replaced with var_name's value.
+        :rtype: str
+        '''
+        # Jinja-style string replacement i.e. vars encapsulated in {{ and }}
+        if not var_name is None:
+            matching_pattern = r'(?<=\{{)( ' + var_name + ' )(?=\}})'
+            matches = re.findall(matching_pattern, text)
+        else:
+            matches = re.findall(r'(?<=\{{)(.*?)(?=\}})', text)
+        for match in matches:
+            pattern = r'{{ ' + match.strip() + ' }}'
+            # This other way only works if the var is inside the function (same scope)
+            # value = locals()['self.' + match.strip()]
+            value = getattr(self, match.strip())
+            text = re.sub(pattern, value, text)
+        return text
+
+    def get_tweets(self):
+        return
+
+    def get_last_pleroma_post(self):
+        return
+
+    def update_pleroma(self):
+        return
 
 
 def guess_type(media_file):
@@ -81,30 +136,22 @@ def random_string(length: int) -> str:
 
 def main():
     # TODO: Refactor main function and split it up in smaller pieces
+    # TODO: Clean up usercred.secret and twittercred.secret references
     script_path = os.path.dirname(sys.argv[0])
     base_path = os.path.abspath(script_path)
-    # TODO: add config.ini and collect all this variable values from it
-    # user_dict, pleroma_base_url, twitter_base_url, signature yes or no
-    # number of tweets to gather, etc.
-    user_dict = [{"username": 'WoolieWoolz', "token": 'emptyonpurpose'},
-                 {"username": 'KyleBosman', "token": 'emptyonpurpose'}]
+    with open('config.yml', 'r') as stream:
+        config = yaml.safe_load(stream)
+    user_dict = config['users']
 
-    pleroma_base_url = 'https://pleroma.robertoszek.xyz'
-    twitter_base_url = 'https://api.twitter.com/1.1'
+    pleroma_base_url = config['pleroma_url']
+    twitter_base_url = config['twitter_url']
     
     # Twitter bearer token
-    twitter_secret = os.path.join(base_path, 'twittercred.secret')
-    if not os.path.isfile(twitter_secret):
-        bearer_token = ""
-        while not bearer_token:
-            bearer_token = input('Twitter bearer token not found, please enter it to continue:')
-        with open(twitter_secret, 'w') as token_file:
-            token_file.write(bearer_token)
-    else:
-        with open(twitter_secret, 'r') as token_file:
-            bearer_token = token_file.readline().rstrip()
+    global twitter_token
+    twitter_token = config['twitter_token']
 
     for user in user_dict:
+        user_obj = User(user)
         twitter_url = "http://nitter.net/" + user['username']
         # Set up files structure
         users_path = os.path.join(base_path, 'users')
@@ -118,22 +165,11 @@ def main():
             os.mkdir(users_path)
         if not os.path.isdir(user_path):
             os.mkdir(user_path)
-        if not os.path.isfile(secret_path):
-            user['token'] = ""
-            while not user['token']:
-                user['token'] = input('Pleroma token not found for user ' \
-                                      + user['username'] + ', please enter it to continue:')
-            with open(secret_path, 'w') as token_file:
-                token_file.write(user['token'])
-        else:
-            with open(secret_path, 'r') as token_file:
-                user['token'] = token_file.readline().rstrip()
- 
         if not os.path.isdir(tweets_temp_path):
             os.mkdir(tweets_temp_path)
         # Auth
         header_pleroma = {"Authorization": "Bearer " + user['token']}
-        header_twitter = {"Authorization": "Bearer " + bearer_token}
+        header_twitter = {"Authorization": "Bearer " + twitter_token}
         
         """
         Compare and post only new tweets to Pleroma
@@ -150,6 +186,8 @@ def main():
         twitter_user_url = twitter_base_url + '/users/show.json?screen_name=' + user['username']
         response = requests.get(twitter_user_url, headers=header_twitter)
         user_twitter = json.loads(response.text)
+        username = user_twitter['name']
+        screen_name = user_twitter['name']
         # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
         twitter_status_url = twitter_base_url + '/statuses/user_timeline.json?screen_name=' + user['username'] + \
                           '&count=50&include_rts=true'
@@ -169,15 +207,7 @@ def main():
         print('tweets:', tweets_to_post)
         for tweet in tweets_to_post:
             id = tweet['id_str']
-            """Experimenting with just text. RT prefix not showing up, I already provide the link to the status
-            try:
-                # In a RT this field includes a link to the original status
-                # The status is always truncated so this is a more sane option in RTs
-                text = tweet['retweeted_status']['text']
-            except KeyError:
-            """
             text = tweet['text']
-            #pass
             try:
                 media = []
                 for item in tweet['entities']['media']:
@@ -187,24 +217,29 @@ def main():
             # Create folder to store attachments related to the tweet ID
             if not os.path.isdir(os.path.join(tweets_temp_path, id)):
                 os.mkdir(os.path.join(tweets_temp_path, id))
-            for idx, item in media:
+            print(enumerate(media))
+            # TODO: Implement download of media. Make it optional
+            """
+            for idx, (item) in media:
                 response = requests.get(item['media_url'], stream=True)
                 response.raw.decode_content = True
                 
                 with open(os.path.join(tweets_temp_path, id, idx), 'wb') as outfile:
                     shutil.copyfileobj(response.raw, outfile)
-
+            """
             # Post to Pleroma
             pleroma_post_url = pleroma_base_url + '/api/v1/statuses'
             # TODO: Implement upload and update of media
             # https://docs.joinmastodon.org/methods/statuses/media/
             # media_ids must be a tuple
+
+            # TODO: make signature optional based on user['signature'] bool
             signature = '\n\n 🐦🔗: ' + twitter_url + '/status/' + id
             text = text + signature
 
             data = {"status": text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
             response = requests.post(pleroma_post_url, data, headers=header_pleroma)
-            print(response.text)  
+            print(response)
 
         """
         Update user info in Pleroma
