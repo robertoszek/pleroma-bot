@@ -89,7 +89,7 @@ class User(object):
         except KeyError:
             pass
         try:
-            self.pleroma_base_url = user_cfg['pleroma-url']
+            self.pleroma_base_url = user_cfg['pleroma_url']
         except KeyError:
             pass
         try:
