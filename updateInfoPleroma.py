@@ -61,6 +61,12 @@ class User(object):
         self.username = user_cfg['username']
         self.token = user_cfg['token']
         self.signature = ""
+        # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
+        self.max_tweets = 50
+        try:
+            self.max_tweets = user_cfg['max_tweets']
+        except KeyError:
+            pass
         try:
             self.signature = user_cfg['signature']
         except KeyError:
@@ -83,7 +89,7 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": "Bearer " + self.token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
-        self.tweets = None
+        self.tweets = self._get_tweets()
         self.last_post_pleroma = None
         # Filesystem
         script_path = os.path.dirname(sys.argv[0])
@@ -100,8 +106,6 @@ class User(object):
         if not os.path.isdir(self.tweets_temp_path):
             os.mkdir(self.tweets_temp_path)
         self._get_twitter_info()
-        # self.get_last_pleroma_post()
-        # self.get_tweets()
         # self.post_pleroma()
         return
 
@@ -116,12 +120,13 @@ class User(object):
         return
 
     def _get_tweets(self):
-        # Private method
-        # Actually get the tweets here
-        return
+        twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
+                             self.username + '&count=' + str(self.max_tweets) + '&include_rts=true'
+        response = requests.get(twitter_status_url, headers=self.header_twitter)
+        tweets = json.loads(response.text)
+        return tweets
 
     def get_tweets(self):
-        # Getter
         return self.tweets
 
     def get_date_last_pleroma_post(self):
@@ -222,11 +227,7 @@ def main():
         """
         # Get last update from Pleroma
         date_pleroma = user_obj.get_date_last_pleroma_post()
-        # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
-        twitter_status_url = user_obj.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
-                             user_obj.username + '&count=50&include_rts=true'
-        response = requests.get(twitter_status_url, headers=user_obj.header_twitter)
-        tweets = json.loads(response.text)
+        tweets = user_obj.get_tweets()
         # Put oldest first to iterate them and post them in order
         tweets.reverse()
 
