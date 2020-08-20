@@ -203,7 +203,7 @@ class User(object):
         print(response)
 
     def update_pleroma(self):
-        """Update the Pleroma user info with the one retrieve from Twitter when the User object was created.
+        """Update the Pleroma user info with the one retrieved from Twitter when the User object was instantiated.
         This includes:
         
         * Profile image
