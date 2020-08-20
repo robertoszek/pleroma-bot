@@ -7,11 +7,13 @@ users:
   # with the attribute value. e.g. {{ support_account }}
   token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
+  nitter: true
   support_account: robertoszek
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ username }} Twitter's\
     \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
 - username: WoolieWoolz
   token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
+  nitter: true
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ username }} Twitter's\
     \ account. \n Any issues please contact @robertoszek \n \n "

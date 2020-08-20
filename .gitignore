@@ -1,3 +1,5 @@
 twittercred.secret
 /users
 config.yml
+/venv/
+/.idea/

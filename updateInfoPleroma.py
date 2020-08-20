@@ -60,14 +60,27 @@ class User(object):
     def __init__(self, user_cfg, cfg):
         self.username = user_cfg['username']
         self.token = user_cfg['token']
-        self.signature = user_cfg['signature']
+        self.signature = ""
+        try:
+            self.signature = user_cfg['signature']
+        except KeyError:
+            pass
         self.support_account = user_cfg['support_account']
         self.fields = []
-        self.twitter_description = None
         self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
         self.twitter_token = cfg['twitter_token']
-        self.pleroma_base_url = cfc['pleroma_url']
+        self.pleroma_base_url = cfg['pleroma_url']
         self.twitter_base_url = cfg['twitter_url']
+        self.twitter_url = "http://twitter.com/" + self.username
+        try:
+            if cfg['nitter']:
+                self.twitter_url = "http://nitter.net/" + self.username
+        except KeyError:
+            pass
+        self.profile_image_url = None
+        self.profile_banner_url = None
+        self.display_name = None
+        # Auth
         self.header_pleroma = {"Authorization": "Bearer " + self.token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
         self.tweets = None
@@ -76,21 +89,67 @@ class User(object):
         script_path = os.path.dirname(sys.argv[0])
         self.base_path = os.path.abspath(script_path)
         self.users_path = os.path.join(self.base_path, 'users')
-        self.user_path = os.path.join(self.users_path, user['username'])
+        self.user_path = os.path.join(self.users_path, self.username)
         self.tweets_temp_path = os.path.join(self.user_path, 'tweets')
         self.avatar_path = os.path.join(self.user_path, 'profile.jpg')
         self.header_path = os.path.join(self.user_path, 'banner.jpg')
-        if not os.path.isdir(users_path):
-            os.mkdir(users_path)
-        if not os.path.isdir(user_path):
-            os.mkdir(user_path)
-        if not os.path.isdir(tweets_temp_path):
-            os.mkdir(tweets_temp_path)
+        if not os.path.isdir(self.users_path):
+            os.mkdir(self.users_path)
+        if not os.path.isdir(self.user_path):
+            os.mkdir(self.user_path)
+        if not os.path.isdir(self.tweets_temp_path):
+            os.mkdir(self.tweets_temp_path)
+        self._get_twitter_info()
         # self.get_last_pleroma_post()
         # self.get_tweets()
         # self.post_pleroma()
         return
 
+    def _get_twitter_info(self):
+        twitter_user_url = self.twitter_base_url + '/users/show.json?screen_name=' + self.username
+        response = requests.get(twitter_user_url, headers=self.header_twitter)
+        user_twitter = json.loads(response.text)
+        self.bio_text = self.bio_text + user_twitter['description']
+        self.profile_image_url = user_twitter['profile_image_url']
+        self.profile_banner_url = user_twitter['profile_banner_url']
+        self.display_name = user_twitter['name']
+        return
+
+    def _get_tweets(self):
+        # Private method
+        # Actually get the tweets here
+        return
+
+    def get_tweets(self):
+        # Getter
+        return self.tweets
+
+    def get_date_last_pleroma_post(self):
+        pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.username + '/statuses'
+        response = requests.get(pleroma_posts_url, headers=self.header_pleroma)
+        posts = json.loads(response.text)
+        date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
+                                         '%Y-%m-%d %H:%M:%S')
+        return date_pleroma
+
+    def post_pleroma(self, tweet_id, tweet_text):
+        # TODO: resolve urls and transform twitter links to nitter links, if self.nitter 'true'
+        pleroma_post_url = self.pleroma_base_url + '/api/v1/statuses'
+        # TODO: Implement upload and update of media
+        # https://docs.joinmastodon.org/methods/statuses/media/
+        # media_ids must be a tuple
+
+        if self.signature:
+            signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
+            tweet_text = tweet_text + signature
+
+        data = {"status": tweet_text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
+        response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
+        print(response)
+
+    def update_pleroma(self):
+        return
+    
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
         """Returns a string with "{{ var_name }}" replaced with var_name's value
         If no 'var_name' is provided, locals() (or self if it's an object method)
@@ -121,26 +180,6 @@ class User(object):
             text = re.sub(pattern, value, text)
         return text
 
-    def _get_tweets(self):
-        # Private method
-        # Actually get the tweets here
-        return
-
-    def get_tweets(self):
-        # Getter
-        return self.tweets
-
-    def get_date_last_pleroma_post(self):
-        pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.username + '/statuses'
-        response = requests.get(pleroma_posts_url, headers=header_pleroma)
-        posts = json.loads(response.text)
-        date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
-                                         '%Y-%m-%d %H:%M:%S')
-        return date_pleroma
-
-    def update_pleroma(self):
-        return
-
 
 def guess_type(media_file):
     mime_type = None
@@ -164,53 +203,23 @@ def random_string(length: int) -> str:
 
 def main():
     # TODO: Refactor main function and split it up in smaller pieces
-    # TODO: Clean up usercred.secret and twittercred.secret references
     script_path = os.path.dirname(sys.argv[0])
     base_path = os.path.abspath(script_path)
-    with open('config.yml', 'r') as stream:
+    with open(os.path.join(base_path, 'config.yml'), 'r') as stream:
         config = yaml.safe_load(stream)
     user_dict = config['users']
 
-    pleroma_base_url = config['pleroma_url']
-    twitter_base_url = config['twitter_url']
-
-    # Twitter bearer token
-    twitter_token = config['twitter_token']
-
     for user in user_dict:
         user_obj = User(user, config)
-        twitter_url = "http://nitter.net/" + user['username']
-        # Set up files structure
-        users_path = os.path.join(base_path, 'users')
-        user_path = os.path.join(users_path, user['username'])
-        tweets_temp_path = os.path.join(user_path, 'tweets')
-        avatar_path = os.path.join(user_path, 'profile.jpg')
-        header_path = os.path.join(user_path, 'banner.jpg')
-
-        if not os.path.isdir(users_path):
-            os.mkdir(users_path)
-        if not os.path.isdir(user_path):
-            os.mkdir(user_path)
-        if not os.path.isdir(tweets_temp_path):
-            os.mkdir(tweets_temp_path)
-        # Auth
-        header_pleroma = {"Authorization": "Bearer " + user['token']}
-        header_twitter = {"Authorization": "Bearer " + twitter_token}
-
         """
         Compare and post only new tweets to Pleroma
         """
-
         # Get last update from Pleroma
         date_pleroma = user_obj.get_date_last_pleroma_post()
-        # Get info from Twitter
-        twitter_user_url = twitter_base_url + '/users/show.json?screen_name=' + user['username']
-        response = requests.get(twitter_user_url, headers=header_twitter)
-        user_twitter = json.loads(response.text)
         # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
-        twitter_status_url = twitter_base_url + '/statuses/user_timeline.json?screen_name=' + user['username'] + \
-                             '&count=50&include_rts=true'
-        response = requests.get(twitter_status_url, headers=header_twitter)
+        twitter_status_url = user_obj.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
+                             user_obj.username + '&count=50&include_rts=true'
+        response = requests.get(twitter_status_url, headers=user_obj.header_twitter)
         tweets = json.loads(response.text)
         # Put oldest first to iterate them and post them in order
         tweets.reverse()
@@ -226,7 +235,7 @@ def main():
         print('tweets:', tweets_to_post)
         for tweet in tweets_to_post:
             tweet_id = tweet['id_str']
-            text = tweet['text']
+            tweet_text = tweet['text']
             media = []
             try:
                 for item in tweet['entities']['media']:
@@ -234,8 +243,8 @@ def main():
             except KeyError:
                 pass
             # Create folder to store attachments related to the tweet ID
-            if not os.path.isdir(os.path.join(tweets_temp_path, tweet_id)):
-                os.mkdir(os.path.join(tweets_temp_path, tweet_id))
+            if not os.path.isdir(os.path.join(user_obj.tweets_temp_path, tweet_id)):
+                os.mkdir(os.path.join(user_obj.tweets_temp_path, tweet_id))
             print(enumerate(media))
             # TODO: Implement download of media. Make it optional
             """
@@ -246,48 +255,32 @@ def main():
                 with open(os.path.join(tweets_temp_path, id, idx), 'wb') as outfile:
                     shutil.copyfileobj(response.raw, outfile)
             """
-            # Post to Pleroma
-            pleroma_post_url = pleroma_base_url + '/api/v1/statuses'
-            # TODO: Implement upload and update of media
-            # https://docs.joinmastodon.org/methods/statuses/media/
-            # media_ids must be a tuple
-
-            # TODO: make signature optional based on user['signature'] bool
-            signature = '\n\n 🐦🔗: ' + twitter_url + '/status/' + tweet_id
-            text = text + signature
-
-            data = {"status": text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
-            response = requests.post(pleroma_post_url, data, headers=header_pleroma)
-            print(response)
+            user_obj.post_pleroma(tweet_id, tweet_text)
 
         """
         Update user info in Pleroma
         """
         # TODO: Move this to a separate function
         if not arg == "noProfile":
-            base_desc = '🤖 BEEP BOOP 🤖 \n I\'m a bot that mirrors ' + user['username'] + \
-                        ' Twitter\'s account. \n Any issues please contact @robertoszek \n \n '
-            description = base_desc + user_twitter['description']
-
             # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
-            profile_img_big = re.sub(r"normal", "400x400", user_twitter['profile_image_url'])
+            profile_img_big = re.sub(r"normal", "400x400", user_obj.profile_image_url)
             response = requests.get(profile_img_big, stream=True)
             response.raw.decode_content = True
-            with open(avatar_path, 'wb') as outfile:
+            with open(user_obj.avatar_path, 'wb') as outfile:
                 shutil.copyfileobj(response.raw, outfile)
 
-            response = requests.get(user_twitter['profile_banner_url'], stream=True)
+            response = requests.get(user_obj.profile_banner_url, stream=True)
             response.raw.decode_content = True
-            with open(header_path, 'wb') as outfile:
+            with open(user_obj.header_path, 'wb') as outfile:
                 shutil.copyfileobj(response.raw, outfile)
 
             # Set it on Pleroma
-            cred_url = pleroma_base_url + '/api/v1/accounts/update_credentials'
-            fields = [(":googlebird: Birdsite", twitter_url),
+            cred_url = user_obj.pleroma_base_url + '/api/v1/accounts/update_credentials'
+            fields = [(":googlebird: Birdsite", user_obj.twitter_url),
                       ("Status", "Text-only :blobcry: 2.0.50-develop broke it somehow"),
                       ("Source", "https://github.com/yogthos/mastodon-bot")]
-            data = {"note": description, "avatar": avatar_path, "header": header_path,
-                    "display_name": user_twitter['name']}
+            data = {"note": user_obj.bio_text, "avatar": user_obj.avatar_path, "header": user_obj.header_path,
+                    "display_name": user_obj.display_name}
             fields_attributes = []
             if len(fields) > 4:
                 raise Exception("Maximum number of fields is 4. Exiting...")
@@ -295,23 +288,23 @@ def main():
                 data['fields_attributes[' + str(idx) + '][name]'] = field_name
                 data['fields_attributes[' + str(idx) + '][value]'] = field_value
 
-            avatar = open(avatar_path, 'rb')
-            avatar_mime_type = guess_type(avatar_path)
+            avatar = open(user_obj.avatar_path, 'rb')
+            avatar_mime_type = guess_type(user_obj.avatar_path)
             timestamp = str(datetime.now().timestamp())
             avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
                 avatar_mime_type)
 
-            header = open(header_path, 'rb')
-            header_mime_type = guess_type(header_path)
+            header = open(user_obj.header_path, 'rb')
+            header_mime_type = guess_type(user_obj.header_path)
             header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
                 header_mime_type)
 
             files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
                      "header": (header_file_name, header, header_mime_type)}
-            response = requests.patch(cred_url, data, headers=header_pleroma, files=files)
+            response = requests.patch(cred_url, data, headers=user_obj.header_pleroma, files=files)
             print(response)  # for debugging
         # Clean-up
-        shutil.rmtree(tweets_temp_path)
+        shutil.rmtree(user_obj.tweets_temp_path)
 
 
 if __name__ == '__main__':
