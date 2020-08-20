@@ -174,9 +174,15 @@ class User(object):
             matches = re.findall(r'(?<={{)(.*?)(?=}})', text)
         for match in matches:
             pattern = r'{{ ' + match.strip() + ' }}'
-            # This other way only works if the var is inside the function (same scope)
-            # value = locals()['self.' + match.strip()]
-            value = getattr(self, match.strip())
+            # Get attribute value if it's a method
+            # go for locals() if not, fallback to globals()
+            try:
+                value = getattr(self, match.strip())
+            except NameError:
+                try:
+                    value = locals()[match.strip()]
+                except NameError:
+                    value = globals()[match.strip()]
             text = re.sub(pattern, value, text)
         return text
 
