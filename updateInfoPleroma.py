@@ -376,7 +376,7 @@ def main():
             # TODO: Make it optional
             for idx, item in enumerate(media):
                 response = requests.get(item['media_url'], stream=True)
-                response.raw.encode_content = True
+                response.raw.decode_content = True
                 filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
                 with open(os.path.join(user.tweets_temp_path, tweet_id, filename), 'wb') as outfile:
                     shutil.copyfileobj(response.raw, outfile)
