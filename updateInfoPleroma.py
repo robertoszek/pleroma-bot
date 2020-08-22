@@ -354,8 +354,9 @@ def main():
             tweet_text = tweet['text']
             media = []
             # Replace shortened links
-            matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()'
-                               + r'<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))'
+            matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s(' \
+                               r')<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{' \
+                               r'};:\'".,<>?«»“”‘’])) '
             matches = re.findall(matching_pattern, tweet_text)
             for match in matches:
                 response = requests.head(match)
