@@ -101,7 +101,12 @@ class User(object):
         except KeyError:
             pass
         try:
-            if cfg['nitter']:
+            if cfg['nitter'] == True:
+                self.twitter_url = "http://nitter.net/" + self.username
+        except KeyError:
+            pass
+        try:
+            if user_cfg['nitter'] == True:
                 self.twitter_url = "http://nitter.net/" + self.username
         except KeyError:
             pass
