@@ -101,7 +101,7 @@ These projects proved to be immensely useful, they are Python wrappers for the M
 
 They were part of the impetus for this project, challenging myself to not just import them and use them, instead opting to directly do the heavy lifting with built-in python modules. 
 
-That and [mastodon-bot](https://github.com/yogthos/mastodon-bot) not working after upgrading the Pleroma instance I was admin on. This event lead to repurposing it and adding the tweet gathering and posting capabilities.
+That and [mastodon-bot](https://github.com/yogthos/mastodon-bot) not working after upgrading the Pleroma instance I was admin on 😅. This event lead to repurposing it and adding the tweet gathering and posting capabilities.
 
 ## Contributing
 
