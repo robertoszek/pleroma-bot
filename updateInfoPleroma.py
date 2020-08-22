@@ -362,7 +362,7 @@ def main():
                 response = requests.head(match[0])
                 if response.status_code/100 == 3:
                     unshortened_url = response.headers['location']
-                    tweet_text = re.sub(match, unshortened_url, tweet_text)
+                    tweet_text = re.sub(match[0], unshortened_url, tweet_text)
             try:
                 for item in tweet['entities']['media']:
                     media.append(item)
