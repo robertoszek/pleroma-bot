@@ -347,6 +347,14 @@ def main():
             tweet_id = tweet['id_str']
             tweet_text = tweet['text']
             media = []
+            # Replace shortened links
+            matching_pattern = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+            matches = re.findall(matching_pattern, tweet_text)
+            for match in matches:
+                response = requests.head(match)
+                if response.status_code/100 == 3:
+                    unshortened_url = response.headers['location']
+                    tweet_text = re.sub(match, unshortened_url, tweet_text)
             try:
                 for item in tweet['entities']['media']:
                     media.append(item)
