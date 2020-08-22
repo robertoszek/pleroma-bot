@@ -63,6 +63,11 @@ class User(object):
         self.pleroma_username = user_cfg['pleroma_username']
         self.token = user_cfg['pleroma_token']
         self.signature = ""
+        self.media_upload = False
+        try:
+            self.media_upload = user_cfg['media_upload']
+        except KeyError:
+            pass
         # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
         self.max_tweets = 50
         try:
@@ -194,17 +199,29 @@ class User(object):
         :type tweet_text: str
         :returns: None
         """
-        # TODO: resolve urls and transform twitter links to nitter links, if self.nitter 'true'
+        # TODO: transform twitter links to nitter links, if self.nitter 'true' in resolved shortened urls
         pleroma_post_url = self.pleroma_base_url + '/api/v1/statuses'
-        # TODO: Implement upload and update of media
-        # https://docs.joinmastodon.org/methods/statuses/media/
-        # media_ids must be a tuple
+        pleroma_media_url = self.pleroma_base_url + '/api/v1/media'
+
+        tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
+        media_files = os.listdir(tweet_folder)
+        media_ids = []
+        if self.media_upload:
+            for file in media_files:
+                media_file = open(os.path.join(tweet_folder, file), 'rb')
+                mime_type = guess_type(os.path.join(tweet_folder, file))
+                timestamp = str(datetime.now().timestamp())
+                file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(mime_type)
+                file_description = (file_name, media_file, mime_type)
+                files = {"file": file_description}
+                response = requests.post(pleroma_media_url, headers=self.header_pleroma, files=files)
+                media_ids.append(json.loads(response.text)['id'])
 
         if self.signature:
             signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
             tweet_text = tweet_text + signature
 
-        data = {"status": tweet_text, "sensitive": "true", "visibility": "unlisted", "media_ids": None}
+        data = {"status": tweet_text, "sensitive": "true", "visibility": "unlisted", "media_ids[]": media_ids}
         response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
         print(response)
 
@@ -372,14 +389,14 @@ def main():
             tweet_path = os.path.join(user.tweets_temp_path, tweet_id)
             if not os.path.isdir(tweet_path):
                 os.mkdir(tweet_path)
-            # Download media
-            # TODO: Make it optional
-            for idx, item in enumerate(media):
-                response = requests.get(item['media_url'], stream=True)
-                response.raw.decode_content = True
-                filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
-                with open(os.path.join(user.tweets_temp_path, tweet_id, filename), 'wb') as outfile:
-                    shutil.copyfileobj(response.raw, outfile)
+            # Download media only if we plan to upload it later
+            if user.media_upload:
+                for idx, item in enumerate(media):
+                    response = requests.get(item['media_url'], stream=True)
+                    response.raw.decode_content = True
+                    filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
+                    with open(os.path.join(user.tweets_temp_path, tweet_id, filename), 'wb') as outfile:
+                        shutil.copyfileobj(response.raw, outfile)
             user.post_pleroma(tweet_id, tweet_text)
 
         if not arg == "noProfile":

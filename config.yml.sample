@@ -9,6 +9,7 @@ users:
   # with the attribute value. e.g. {{ support_account }}
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
+  media_upload: true
   nitter: true
   support_account: robertoszek
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
@@ -18,6 +19,7 @@ users:
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
   nitter: true
+  media_upload: false
   pleroma_url: https://another.pleroma.instance
   max_tweets: 50
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
