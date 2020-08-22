@@ -59,8 +59,9 @@ except IndexError:
 class User(object):
     def __init__(self, user_cfg: dict, cfg: dict):
         # TODO: Figure out a cleaner way of doing this config parsing without so many exception handlers
-        self.username = user_cfg['username']
-        self.token = user_cfg['token']
+        self.twitter_username = user_cfg['twitter_username']
+        self.pleroma_username = user_cfg['pleroma_username']
+        self.token = user_cfg['pleroma_token']
         self.signature = ""
         # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
         self.max_tweets = 50
@@ -83,7 +84,7 @@ class User(object):
         self.fields = []
         self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
         self.twitter_token = cfg['twitter_token']
-        self.twitter_url = "http://twitter.com/" + self.username
+        self.twitter_url = "http://twitter.com/" + self.twitter_username
         try:
             self.pleroma_base_url = cfg['pleroma_url']
         except KeyError:
@@ -102,12 +103,12 @@ class User(object):
             pass
         try:
             if cfg['nitter'] == True:
-                self.twitter_url = "http://nitter.net/" + self.username
+                self.twitter_url = "http://nitter.net/" + self.twitter_username
         except KeyError:
             pass
         try:
             if user_cfg['nitter'] == True:
-                self.twitter_url = "http://nitter.net/" + self.username
+                self.twitter_url = "http://nitter.net/" + self.twitter_username
         except KeyError:
             pass
         self.profile_image_url = None
@@ -122,7 +123,7 @@ class User(object):
         script_path = os.path.dirname(sys.argv[0])
         self.base_path = os.path.abspath(script_path)
         self.users_path = os.path.join(self.base_path, 'users')
-        self.user_path = os.path.join(self.users_path, self.username)
+        self.user_path = os.path.join(self.users_path, self.twitter_username)
         self.tweets_temp_path = os.path.join(self.user_path, 'tweets')
         self.avatar_path = os.path.join(self.user_path, 'profile.jpg')
         self.header_path = os.path.join(self.user_path, 'banner.jpg')
@@ -148,7 +149,7 @@ class User(object):
 
         :return: None
         """
-        twitter_user_url = self.twitter_base_url + '/users/show.json?screen_name=' + self.username
+        twitter_user_url = self.twitter_base_url + '/users/show.json?screen_name=' + self.twitter_username
         response = requests.get(twitter_user_url, headers=self.header_twitter)
         user_twitter = json.loads(response.text)
         self.bio_text = self.bio_text + user_twitter['description']
@@ -164,7 +165,7 @@ class User(object):
         :rtype: dict
         """
         twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
-                             self.username + '&count=' + str(self.max_tweets) + '&include_rts=true'
+                             self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
         response = requests.get(twitter_status_url, headers=self.header_twitter)
         tweets = json.loads(response.text)
         return tweets
@@ -177,7 +178,7 @@ class User(object):
         
         :returns: Date of last Pleroma post in '%Y-%m-%d %H:%M:%S' format
         """
-        pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.username + '/statuses'
+        pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.pleroma_username + '/statuses'
         response = requests.get(pleroma_posts_url, headers=self.header_pleroma)
         posts = json.loads(response.text)
         date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
