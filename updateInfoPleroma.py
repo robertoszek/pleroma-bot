@@ -360,7 +360,7 @@ def main():
             matches = re.findall(matching_pattern, tweet_text)
             for match in matches:
                 response = requests.head(match[0])
-                if response.status_code/100 == 3:
+                if response.status_code//100 == 3:
                     unshortened_url = response.headers['location']
                     tweet_text = re.sub(match[0], unshortened_url, tweet_text)
             try:
