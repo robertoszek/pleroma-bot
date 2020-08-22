@@ -89,8 +89,6 @@ class User(object):
             self.support_account = user_cfg['support_account']
         except KeyError:
             self.support_account = None
-        self.fields = []
-        self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
         self.twitter_token = cfg['twitter_token']
         self.twitter_url = "http://twitter.com/" + self.twitter_username
         try:
@@ -122,6 +120,12 @@ class User(object):
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None
+        try:
+            self.fields = self.replace_vars_in_str(str(user_cfg['fields']))
+            self.fields = eval(self.fields)
+        except KeyError:
+            self.fields = []
+        self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
         # Auth
         self.header_pleroma = {"Authorization": "Bearer " + self.token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
@@ -267,7 +271,7 @@ class User(object):
                 try:
                     media_ids.append(json.loads(response.text)['id'])
                 except KeyError:
-                    print(response.text)
+                    print("Error uploading media:\t" + str(response.text))
 
         if self.signature:
             signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
@@ -275,7 +279,7 @@ class User(object):
 
         data = {"status": tweet_text, "sensitive": "true", "visibility": "unlisted", "media_ids[]": media_ids}
         response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
-        print(response)
+        print("Post in Pleroma:\t" + str(response))
         post_id = json.loads(response.text)['id']
         return post_id
 
@@ -305,9 +309,12 @@ class User(object):
 
         # Set it on Pleroma
         cred_url = self.pleroma_base_url + '/api/v1/accounts/update_credentials'
-        fields = [(":googlebird: Birdsite", self.twitter_url),
-                  ("Status", "Text-only :blobcry: 2.0.50-develop broke it somehow"),
-                  ("Source", "https://github.com/yogthos/mastodon-bot")]
+
+        # Construct fields
+        fields = []
+        for field_item in self.fields:
+            field = (field_item['name'], field_item['value'])
+            fields.append(field)
         data = {"note": self.bio_text, "avatar": self.avatar_path, "header": self.header_path,
                 "display_name": self.display_name}
         fields_attributes = []
@@ -331,7 +338,7 @@ class User(object):
         files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
                  "header": (header_file_name, header, header_mime_type)}
         response = requests.patch(cred_url, data, headers=self.header_pleroma, files=files)
-        print(response)  # for debugging
+        print("Updating profile:\t" + str(response))  # for debugging
         return
     
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
@@ -376,12 +383,10 @@ class User(object):
                 previous_pinned_post_id = file.readline().rstrip()
                 unpin_url = self.pleroma_base_url + '/api/v1/statuses/' + previous_pinned_post_id + '/unpin'
                 response = requests.post(unpin_url, headers=self.header_pleroma)
-                print("Unpinning previous:")
-                print(response.text)
+                print("Unpinning previous:\t" + response.text)
         pin_url = self.pleroma_base_url + '/api/v1/statuses/' + id_post + '/pin'
         response = requests.post(pin_url, headers=self.header_pleroma)
-        print("Pinning post:")
-        print(response.text)
+        print("Pinning post:\t" + str(response.text))
         try:
             pin_id = json.loads(response.text)['id']
         except KeyError:
@@ -444,14 +449,13 @@ def main():
             user.post_pleroma(tweet['id_str'], tweet['text'])
         # Pinned tweet
         pinned_tweet_id = user.get_pinned_tweet_id()
-        print(pinned_tweet_id)
+        print("Current pinned:\t" + str(pinned_tweet_id))
         if os.path.isfile(os.path.join(user.user_path, 'pinned_id.txt')):
             with open(os.path.join(user.user_path, 'pinned_id.txt'), 'r') as file:
                 previous_pinned_tweet_id = file.readline().rstrip()
         else:
             previous_pinned_tweet_id = None
-        print("Previous:")
-        print(previous_pinned_tweet_id)
+        print("Previous pinned:\t" + str(previous_pinned_tweet_id))
         if (pinned_tweet_id != previous_pinned_tweet_id) or \
                 ((pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
             status_url = user.twitter_base_url + '/statuses/show.json'
