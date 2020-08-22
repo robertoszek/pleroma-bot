@@ -356,10 +356,10 @@ def main():
             # Replace shortened links
             matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s(' \
                                r')<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{' \
-                               r'};:\'".,<>?«»“”‘’])) '
+                               r'};:\'".,<>?«»“”‘’]))'
             matches = re.findall(matching_pattern, tweet_text)
             for match in matches:
-                response = requests.head(match)
+                response = requests.head(match[0])
                 if response.status_code/100 == 3:
                     unshortened_url = response.headers['location']
                     tweet_text = re.sub(match, unshortened_url, tweet_text)
