@@ -372,16 +372,14 @@ def main():
             tweet_path = os.path.join(user.tweets_temp_path, tweet_id)
             if not os.path.isdir(tweet_path):
                 os.mkdir(tweet_path)
-            print(enumerate(media))
-            # TODO: Implement download of media. Make it optional
-            """
-            for idx, (item) in media:
+            # Download media
+            # TODO: Make it optional
+            for idx, item in enumerate(media):
                 response = requests.get(item['media_url'], stream=True)
-                response.raw.decode_content = True
-                
-                with open(os.path.join(tweets_temp_path, id, idx), 'wb') as outfile:
+                response.raw.encode_content = True
+                filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
+                with open(os.path.join(user.tweets_temp_path, tweet_id, filename), 'wb') as outfile:
                     shutil.copyfileobj(response.raw, outfile)
-            """
             user.post_pleroma(tweet_id, tweet_text)
 
         if not arg == "noProfile":
