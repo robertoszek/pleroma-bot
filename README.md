@@ -11,7 +11,7 @@ For precisely those cases I've written this Python project that automates them, 
 
 So basically, it does the following:
 
-* Retrieves **last 50 tweets** ```[TEXT-ONLY for now]``` and posts them on the Fediverse account if their timestamp is newer than the last post. 
+* Retrieves **last 'max_tweets' tweets** and posts them on the Fediverse account if their timestamp is newer than the last post. 
 * Gets the **display name** from Twitter and updates it in on the Fediverse account
 * Gets the **profile picture** from Twitter and updates it on the Fediverse account
 * Gets the **banner image** from Twitter and updates it on the Fediverse account
@@ -23,26 +23,65 @@ So basically, it does the following:
 $ python3 updateInfoPleroma.py [noProfile]
 ```
 ### Before running
-You'll need to edit this section on ```updateInfoPleroma.py```:
-```python
-    user_dict = [{"username": 'WoolieWoolz', "token": 'emptyonpurpose'},
-                 {"username": 'KyleBosman', "token": 'emptyonpurpose'}]
-```
-Changing the ```username``` to the desired one. You can add as many users as needed. The token is deliberately left with a nonsense value, it will stored on ```users/<username>/usercred.secret``` instead. It's a remnant of a previous version and will most probably be removed in future releases.
-
-A important caveat to note is that the username **must be identical** to both the Twitter account and Fediverse account.
-
-Also change the following to your Pleroma/Mastodon instance URL:
-```python
-pleroma_base_url = 'https://pleroma.robertoszek.xyz'
-```
-### Running
-The first run will ask for:
+You'll need the following:
 
 * A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
 * The user/users [Pleroma Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
 
-They will then be stored at ```twittercred.secret``` and ```users/<username>/usercred.secret``` respectively and used in consequent runs from those files as primary source.
+Create a ```config.yml``` file at the same path as ```updateInfoPleroma.py```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
+```yaml
+twitter_url: https://api.twitter.com/1.1
+# Change this to your Fediverse instance
+pleroma_url: https://pleroma.robertoszek.xyz
+# How many tweets to get in every execution
+# Twitter's API hard limit is 3,200 
+max_tweets: 40
+# Twitter bearer token
+twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# List of users and their attributes
+users:
+- twitter_username: KyleBosman
+  pleroma_username: KyleBosman
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # If you want to add a link to the original status or not
+  signature: true
+  # If twitter links should be changed to nitter.net ones
+  nitter: true
+  # If you want to download Twitter attachments and add them to the Pleroma posts
+  media_upload: true
+  support_account: robertoszek
+  # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
+  # with the attribute value. e.g. {{ support_account }}
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ username }} Twitter's\
+  \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
+  # Optional metadata fields and values for the Pleroma profile
+  fields:
+  - name: "\U0001F426 Birdsite"
+    value: "{{ twitter_url }}"
+  - name: "Status"
+    value: "I am completely operational, and all my circuits are functioning perfectly."
+  - name: "Source"
+    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+- twitter_username: arstechnica
+  pleroma_username: mynewsbot
+  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  signature: true
+  nitter: true
+  media_upload: false
+  # You can specify a different instance on every user, instead of using the global value
+  pleroma_url: https://another.pleroma.instance
+  # You can also set a maximum per-user
+  max_tweets: 50
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ username }} Twitter's\
+  \ account. \n Any issues please contact @robertoszek \n \n "
+```
+Changing the ```users``` to the desired ones. You can add as many users as needed.
+
+Also change the following to your Pleroma/Mastodon instance URL:
+```yaml
+pleroma_url: https://pleroma.robertoszek.xyz
+```
+### Running
 
 If the ```noProfile``` argument is passed, *only* new tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account.
 
@@ -94,5 +133,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 **Tested and confirmed working against** :
-* ```Pleroma BE 2.0.50-2389-g7625e509-develop```
+* ```Pleroma BE 2.0.50-2547-g5c2b6922-develop```
 * ```Twitter API v1.1```
