@@ -97,7 +97,7 @@ If the ```noProfile``` argument is passed, *only* new tweets will be posted. The
 These projects proved to be immensely useful, they are Python wrappers for the Mastodon API and Twitter API respectively:
 
 * [Mastodon.py](https://github.com/halcy/Mastodon.py)
-* [twitter-python](https://github.com/bear/python-twitter/)
+* [twitter-python](https://github.com/bear/python-twitter)
 
 They were part of the impetus for this project, challenging myself to not just import them and use them, instead opting to directly do the heavy lifting with built-in python modules. 
 
