@@ -3,20 +3,31 @@ pleroma_url: https://pleroma.robertoszek.xyz
 max_tweets: 40
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 users:
-- username: KyleBosman
+- twitter_username: KyleBosman
+  pleroma_username: KyleBosman
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}
-  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
+  media_upload: true
   nitter: true
   support_account: robertoszek
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ username }} Twitter's\
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
-- username: WoolieWoolz
-  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  fields:
+  - name: "\U0001F426 Birdsite"
+    value: "{{ twitter_url }}"
+  - name: "Status"
+    value: "I am completely operational, and all my circuits are functioning perfectly."
+  - name: "Source"
+    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+- twitter_username: arstechnica
+  pleroma_username: mynewsbot
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
   nitter: true
+  media_upload: false
   pleroma_url: https://another.pleroma.instance
   max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ username }} Twitter's\
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \n Any issues please contact @robertoszek \n \n "
