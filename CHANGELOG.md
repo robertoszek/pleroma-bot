@@ -1,3 +1,12 @@
+## Unreleased
+## Added
+
+## Fixed
+
+## Upgrade notes
+1. Replace the field name ```pleroma_url``` with ```pleroma_base_url``` on your ```config.yml```
+2. Replace the field name ```twitter_url``` with ```twitter_base_url``` on your ```config.yml```
+
 ## [0.2.0] - 2020-08-23
 ### Added
 - Support for tweet attachments
