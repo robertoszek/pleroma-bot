@@ -189,15 +189,23 @@ class User(object):
         for tweet in tweets_to_post:
             media = []
             # Replace shortened links
-            matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s(' \
-                               r')<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{' \
-                               r'};:\'".,<>?«»“”‘’]))'
-            matches = re.findall(matching_pattern, tweet['text'])
-            for match in matches:
-                response = requests.head(match[0])
-                if response.status_code//100 == 3:
-                    unshortened_url = response.headers['location']
-                    tweet['text'] = re.sub(match[0], unshortened_url, tweet['text'])
+            try:
+                for url_entity in tweet['entities']['urls']:
+                    matching_pattern = url_entity['url']
+                    matches = re.findall(matching_pattern, tweet['text'])
+                    for match in matches:
+                        tweet['text'] = re.sub(match[0], url_entity['expanded_url'])
+            except KeyError:
+                # URI regex
+                matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([' \
+                                   r'^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[' \
+                                   r'\]{};:\'".,<>?«»“”‘’]))'
+                matches = re.findall(matching_pattern, tweet['text'])
+                for match in matches:
+                    response = requests.head(match[0])
+                    if response.status_code//100 == 3:
+                        expanded_url = response.headers['location']
+                        tweet['text'] = re.sub(match[0], expanded_url, tweet['text'])
             try:
                 for item in tweet['entities']['media']:
                     media.append(item)
