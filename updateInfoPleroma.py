@@ -60,63 +60,38 @@ except IndexError:
 
 class User(object):
     def __init__(self, user_cfg: dict, cfg: dict):
-        # TODO: Figure out a cleaner way of doing this config parsing without so many exception handlers
         self.twitter_base_url_v2 = "https://api.twitter.com/2"
-        self.twitter_username = user_cfg['twitter_username']
-        self.pleroma_username = user_cfg['pleroma_username']
-        self.token = user_cfg['pleroma_token']
+        self.twitter_token = cfg['twitter_token']
         self.signature = ""
         self.media_upload = False
-        try:
-            self.media_upload = user_cfg['media_upload']
-        except KeyError:
-            pass
-        # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
-        self.max_tweets = 50
-        try:
-            self.max_tweets = cfg['max_tweets']
-        except KeyError:
-            pass
-        try:
-            self.max_tweets = user_cfg['max_tweets']
-        except KeyError:
-            pass
-        try:
-            self.signature = user_cfg['signature']
-        except KeyError:
-            pass
-        try:
-            self.support_account = user_cfg['support_account']
-        except KeyError:
-            self.support_account = None
-        self.twitter_token = cfg['twitter_token']
+        self.support_account = None
+        # iterate attrs defined in config
+        for attribute in user_cfg:
+            self.__setattr__(attribute, user_cfg[attribute])
         self.twitter_url = "http://twitter.com/" + self.twitter_username
         try:
-            self.pleroma_base_url = cfg['pleroma_url']
-        except KeyError:
+            if not hasattr(self, "max_tweets"):
+                self.max_tweets = cfg['max_tweets']
+        except (KeyError, AttributeError):
+            # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
+            self.max_tweets = 50
             pass
         try:
-            self.pleroma_base_url = user_cfg['pleroma_url']
+            if not hasattr(self, "pleroma_base_url"):
+                self.pleroma_base_url = cfg['pleroma_base_url']
         except KeyError:
-            pass
+            raise KeyError("No Pleroma URL defined in config! [pleroma_base_url]")
         try:
-            self.twitter_base_url = cfg['twitter_url']
+            if not hasattr(self, "twitter_base_url"):
+                self.twitter_base_url = cfg['twitter_base_url']
         except KeyError:
-            pass
-        try:
-            self.twitter_base_url = user_cfg['twitter_url']
-        except KeyError:
-            pass
-        try:
-            if cfg['nitter'] == True:
-                self.twitter_url = "http://nitter.net/" + self.twitter_username
-        except KeyError:
-            pass
-        try:
-            if user_cfg['nitter'] == True:
-                self.twitter_url = "http://nitter.net/" + self.twitter_username
-        except KeyError:
-            pass
+            raise KeyError("No Twitter URL found in config! [twitter_base_url]")
+        if not hasattr(self, "nitter"):
+            try:
+                if cfg['nitter']:
+                    self.twitter_url = "http://nitter.net/" + self.twitter_username
+            except KeyError:
+                pass
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None
@@ -127,7 +102,7 @@ class User(object):
             self.fields = []
         self.bio_text = self.replace_vars_in_str(str(user_cfg['bio_text']))
         # Auth
-        self.header_pleroma = {"Authorization": "Bearer " + self.token}
+        self.header_pleroma = {"Authorization": "Bearer " + self.pleroma_token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
         self.tweets = self._get_tweets()
         self.last_post_pleroma = None
@@ -319,7 +294,7 @@ class User(object):
                 "display_name": self.display_name}
         fields_attributes = []
         if len(fields) > 4:
-            raise Exception("Maximum number of fields is 4. Exiting...")
+            raise Exception("Maximum number of metadata fields is 4. Exiting...")
         for idx, (field_name, field_value) in enumerate(fields):
             data['fields_attributes[' + str(idx) + '][name]'] = field_name
             data['fields_attributes[' + str(idx) + '][value]'] = field_value

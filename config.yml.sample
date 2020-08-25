@@ -1,5 +1,5 @@
-twitter_url: https://api.twitter.com/1.1
-pleroma_url: https://pleroma.robertoszek.xyz
+twitter_base_url: https://api.twitter.com/1.1
+pleroma_base_url: https://pleroma.robertoszek.xyz
 max_tweets: 40
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 users:

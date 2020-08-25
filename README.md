@@ -30,9 +30,9 @@ You'll need the following:
 
 Create a ```config.yml``` file at the same path as ```updateInfoPleroma.py```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
-twitter_url: https://api.twitter.com/1.1
+twitter_base_url: https://api.twitter.com/1.1
 # Change this to your Fediverse instance
-pleroma_url: https://pleroma.robertoszek.xyz
+pleroma_base_url: https://pleroma.robertoszek.xyz
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200 
 max_tweets: 40
@@ -79,7 +79,7 @@ Changing the ```users``` to the desired ones. You can add as many users as neede
 
 Also change the following to your Pleroma/Mastodon instance URL:
 ```yaml
-pleroma_url: https://pleroma.robertoszek.xyz
+pleroma_base_url: https://pleroma.robertoszek.xyz
 ```
 ### Running
 
