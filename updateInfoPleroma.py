@@ -202,10 +202,10 @@ class User(object):
                                    r'\]{};:\'".,<>?«»“”‘’]))'
                 matches = re.findall(matching_pattern, tweet['text'])
                 for match in matches:
-                    response = requests.head(match[0])
-                    if response.status_code//100 == 3:
-                        expanded_url = response.headers['location']
-                        tweet['text'] = re.sub(match[0], expanded_url, tweet['text'])
+                    session = requests.Session()  # so connections are recycled
+                    response = session.head(match[0], allow_redirects=True)
+                    expanded_url = response.url
+                    tweet['text'] = re.sub(match[0], expanded_url, tweet['text'])
             try:
                 for item in tweet['entities']['media']:
                     media.append(item)
