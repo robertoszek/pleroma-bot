@@ -194,7 +194,7 @@ class User(object):
                     matching_pattern = url_entity['url']
                     matches = re.findall(matching_pattern, tweet['text'])
                     for match in matches:
-                        tweet['text'] = re.sub(match[0], url_entity['expanded_url'])
+                        tweet['text'] = re.sub(match[0], url_entity['expanded_url'], tweet['text'])
             except KeyError:
                 # URI regex
                 matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([' \
