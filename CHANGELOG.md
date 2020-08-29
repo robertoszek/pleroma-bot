@@ -1,7 +1,11 @@
 ## Unreleased
 ## Added
 
+- Dynamic attribute loading for the User object from the config file
+
 ## Fixed
+
+- Replacing the wrong strings in tweet body while expanding URLs
 
 ## Upgrade notes
 1. Replace the field name ```pleroma_url``` with ```pleroma_base_url``` on your ```config.yml```

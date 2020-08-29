@@ -106,6 +106,7 @@ class User(object):
         self.header_pleroma = {"Authorization": "Bearer " + self.pleroma_token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
         self.tweets = self._get_tweets()
+        self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
         script_path = os.path.dirname(sys.argv[0])
@@ -173,7 +174,11 @@ class User(object):
                                          '%Y-%m-%d %H:%M:%S')
         return date_pleroma
 
-    def get_pinned_tweet_id(self):
+    def _get_pinned_tweet_id(self):
+        """Retrieves the pinned tweet by the user
+
+        :returns: ID of currently pinned tweet
+        """
         url = self.twitter_base_url_v2 + '/users/by/username/' + self.twitter_username
         params = {"user.fields": "pinned_tweet_id", "expansions": "pinned_tweet_id", "tweet.fields": "entities"}
         response = requests.get(url, headers=self.header_twitter, params=params)
@@ -186,7 +191,19 @@ class User(object):
             pass
         return pinned_tweet_id
 
+    def get_pinned_tweet_(self):
+        return self.pinned_tweet_id
+
     def process_tweets(self, tweets_to_post):
+        """Transforms tweets for posting them to Pleroma
+        Expands shortened URLs
+        Downloads tweet related media and prepares them for upload
+
+        :param tweets_to_post: List of tweet objects to be processed
+        :type tweets_to_post: list
+        :returns: Tweets ready to be published
+        :rtype: list
+        """
         for tweet in tweets_to_post:
             media = []
             # Replace shortened links
@@ -248,7 +265,8 @@ class User(object):
                 media_file = open(os.path.join(tweet_folder, file), 'rb')
                 mime_type = guess_type(os.path.join(tweet_folder, file))
                 timestamp = str(datetime.now().timestamp())
-                file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(mime_type)
+                file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + \
+                            mimetypes.guess_extension(mime_type)
                 file_description = (file_name, media_file, mime_type)
                 files = {"file": file_description}
                 response = requests.post(pleroma_media_url, headers=self.header_pleroma, files=files)
@@ -266,6 +284,30 @@ class User(object):
         print("Post in Pleroma:\t" + str(response))
         post_id = json.loads(response.text)['id']
         return post_id
+
+    def pin_pleroma(self, id_post):
+        """Tries to unpin previous pinned post if a file containing the ID of the previous post exists, then
+        proceeds to pin the post with ID 'id_post'
+
+        :param id_post: ID of post to pin
+        :returns: ID of post pinned
+        :rtype: str
+        """
+        if os.path.isfile(os.path.join(self.user_path, 'pinned_id_pleroma.txt')):
+            with open(os.path.join(self.user_path, 'pinned_id_pleroma.txt'), 'r') as file:
+                previous_pinned_post_id = file.readline().rstrip()
+                unpin_url = self.pleroma_base_url + '/api/v1/statuses/' + previous_pinned_post_id + '/unpin'
+                response = requests.post(unpin_url, headers=self.header_pleroma)
+                print("Unpinning previous:\t" + response.text)
+        pin_url = self.pleroma_base_url + '/api/v1/statuses/' + id_post + '/pin'
+        response = requests.post(pin_url, headers=self.header_pleroma)
+        print("Pinning post:\t" + str(response.text))
+        try:
+            pin_id = json.loads(response.text)['id']
+        except KeyError:
+            pin_id = None
+            pass
+        return pin_id
 
     def update_pleroma(self):
         """Update the Pleroma user info with the one retrieved from Twitter when the User object was instantiated.
@@ -301,7 +343,6 @@ class User(object):
             fields.append(field)
         data = {"note": self.bio_text, "avatar": self.avatar_path, "header": self.header_path,
                 "display_name": self.display_name}
-        fields_attributes = []
         if len(fields) > 4:
             raise Exception("Maximum number of metadata fields is 4. Exiting...")
         for idx, (field_name, field_value) in enumerate(fields):
@@ -324,7 +365,7 @@ class User(object):
         response = requests.patch(cred_url, data, headers=self.header_pleroma, files=files)
         print("Updating profile:\t" + str(response))  # for debugging
         return
-    
+
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
         """Returns a string with "{{ var_name }}" replaced with var_name's value
         If no 'var_name' is provided, locals() (or self if it's an object method)
@@ -360,23 +401,6 @@ class User(object):
                     value = globals()[match.strip()]
             text = re.sub(pattern, value, text)
         return text
-
-    def pin_pleroma(self, id_post):
-        if os.path.isfile(os.path.join(self.user_path, 'pinned_id_pleroma.txt')):
-            with open(os.path.join(self.user_path, 'pinned_id_pleroma.txt'), 'r') as file:
-                previous_pinned_post_id = file.readline().rstrip()
-                unpin_url = self.pleroma_base_url + '/api/v1/statuses/' + previous_pinned_post_id + '/unpin'
-                response = requests.post(unpin_url, headers=self.header_pleroma)
-                print("Unpinning previous:\t" + response.text)
-        pin_url = self.pleroma_base_url + '/api/v1/statuses/' + id_post + '/pin'
-        response = requests.post(pin_url, headers=self.header_pleroma)
-        print("Pinning post:\t" + str(response.text))
-        try:
-            pin_id = json.loads(response.text)['id']
-        except KeyError:
-            pin_id = None
-            pass
-        return pin_id
 
 
 def guess_type(media_file: str) -> str:
@@ -433,25 +457,24 @@ def main():
             user.post_pleroma(tweet['id_str'], tweet['text'])
             time.sleep(2)
         # Pinned tweet
-        pinned_tweet_id = user.get_pinned_tweet_id()
-        print("Current pinned:\t" + str(pinned_tweet_id))
+        print("Current pinned:\t" + str(user.pinned_tweet_id))
         if os.path.isfile(os.path.join(user.user_path, 'pinned_id.txt')):
             with open(os.path.join(user.user_path, 'pinned_id.txt'), 'r') as file:
                 previous_pinned_tweet_id = file.readline().rstrip()
         else:
             previous_pinned_tweet_id = None
         print("Previous pinned:\t" + str(previous_pinned_tweet_id))
-        if (pinned_tweet_id != previous_pinned_tweet_id) or \
-                ((pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
+        if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
+                ((user.pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
             status_url = user.twitter_base_url + '/statuses/show.json'
-            params = {"id": pinned_tweet_id}
+            params = {"id": user.pinned_tweet_id}
             response = requests.get(status_url, headers=user.header_twitter, params=params)
-            pinned_tweet = json.loads(response.text)
-            tweets_to_post = user.process_tweets([pinned_tweet])
-            id_post_to_pin = user.post_pleroma(pinned_tweet_id, tweets_to_post[0]['text'])
+            pinned_tweet_content = json.loads(response.text)
+            tweets_to_post = user.process_tweets([pinned_tweet_content])
+            id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post[0]['text'])
             pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
             with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
-                file.write(pinned_tweet_id + '\n')
+                file.write(user.pinned_tweet_id + '\n')
             if pleroma_pinned_post is not None:
                 with open(os.path.join(user.user_path, 'pinned_id_pleroma.txt'), 'w') as file:
                     file.write(pleroma_pinned_post + '\n')
