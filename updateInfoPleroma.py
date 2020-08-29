@@ -194,7 +194,7 @@ class User(object):
                     matching_pattern = url_entity['url']
                     matches = re.findall(matching_pattern, tweet['text'])
                     for match in matches:
-                        tweet['text'] = re.sub(match[0], url_entity['expanded_url'], tweet['text'])
+                        tweet['text'] = re.sub(match, url_entity['expanded_url'], tweet['text'])
             except KeyError:
                 # URI regex
                 matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([' \
@@ -203,9 +203,9 @@ class User(object):
                 matches = re.findall(matching_pattern, tweet['text'])
                 for match in matches:
                     session = requests.Session()  # so connections are recycled
-                    response = session.head(match[0], allow_redirects=True)
+                    response = session.head(match, allow_redirects=True)
                     expanded_url = response.url
-                    tweet['text'] = re.sub(match[0], expanded_url, tweet['text'])
+                    tweet['text'] = re.sub(match, expanded_url, tweet['text'])
             try:
                 for item in tweet['entities']['media']:
                     media.append(item)
