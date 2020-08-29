@@ -32,6 +32,7 @@ import os
 import sys
 import string
 import random
+import time
 from json.decoder import JSONDecodeError
 
 import requests
@@ -430,6 +431,7 @@ def main():
         print('tweets:', tweets_to_post)
         for tweet in tweets_to_post:
             user.post_pleroma(tweet['id_str'], tweet['text'])
+            time.sleep(2)
         # Pinned tweet
         pinned_tweet_id = user.get_pinned_tweet_id()
         print("Current pinned:\t" + str(pinned_tweet_id))
