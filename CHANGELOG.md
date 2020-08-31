@@ -2,10 +2,12 @@
 ## Added
 
 - Dynamic attribute loading for the User object from the config file
+- Rich text for linking mentions to their Twitter profile
 
 ## Fixed
 
 - Replacing the wrong strings in tweet body while expanding URLs
+- nitter.net replacement in twitter.com links misbehaviour
 
 ## Upgrade notes
 1. Replace the field name ```pleroma_url``` with ```pleroma_base_url``` on your ```config.yml```

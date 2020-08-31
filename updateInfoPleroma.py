@@ -77,6 +77,9 @@ class User(object):
             # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
             self.max_tweets = 50
             pass
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                self.content_type = "text/markdown"
         try:
             if not hasattr(self, "pleroma_base_url"):
                 self.pleroma_base_url = cfg['pleroma_base_url']
@@ -227,6 +230,12 @@ class User(object):
                     response = session.head(match, allow_redirects=True)
                     expanded_url = response.url
                     tweet['text'] = re.sub(match, expanded_url, tweet['text'])
+            if hasattr(self, "rich_text"):
+                if self.rich_text:
+                    matches = re.findall(r'\B\@\w+', tweet['text'])
+                    for match in matches:
+                        mention_link = "[" + match + "](https://twitter.com/" + match[1:] + ")"
+                        tweet['text'] = re.sub(match, mention_link, tweet['text'])
             try:
                 if self.nitter:
                     matching_pattern = "https://twitter.com"
@@ -291,6 +300,9 @@ class User(object):
             tweet_text = tweet_text + signature
 
         data = {"status": tweet_text, "sensitive": "true", "visibility": "unlisted", "media_ids[]": media_ids}
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                data.update({"content_type": self.content_type})
         response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
         print("Post in Pleroma:\t" + str(response))
         post_id = json.loads(response.text)['id']
