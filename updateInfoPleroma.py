@@ -93,6 +93,9 @@ class User(object):
                     self.twitter_url = "http://nitter.net/" + self.twitter_username
             except KeyError:
                 pass
+        else:
+            if self.nitter:
+                self.twitter_url = "http://nitter.net/" + self.twitter_username
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None
@@ -224,6 +227,14 @@ class User(object):
                     response = session.head(match, allow_redirects=True)
                     expanded_url = response.url
                     tweet['text'] = re.sub(match, expanded_url, tweet['text'])
+            try:
+                if self.nitter:
+                    matching_pattern = "https://twitter.com"
+                    matches = re.findall(matching_pattern, tweet['text'])
+                    for match in matches:
+                        tweet['text'] = re.sub(match, "https://nitter.net", tweet['text'])
+            except AttributeError:
+                pass
             try:
                 for item in tweet['entities']['media']:
                     media.append(item)
