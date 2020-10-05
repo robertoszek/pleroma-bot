@@ -48,7 +48,7 @@ try:
 except ImportError:
     magic = None
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Parameter to choose whether to update bio, avatar and banner or not - save some bandwidth
 try:
@@ -193,8 +193,12 @@ class User(object):
         pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.pleroma_username + '/statuses'
         response = requests.get(pleroma_posts_url, headers=self.header_pleroma)
         posts = json.loads(response.text)
-        date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
-                                         '%Y-%m-%d %H:%M:%S')
+        if posts:
+            date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
+                                             '%Y-%m-%d %H:%M:%S')
+        else:
+            date_pleroma = datetime.strftime(datetime.now() - timedelta(days=2), '%Y-%m-%d %H:%M:%S')
+
         return date_pleroma
 
     def get_pinned_tweet_id(self):
