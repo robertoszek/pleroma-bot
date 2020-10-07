@@ -30,11 +30,11 @@ You'll need the following:
 
 Create a ```config.yml``` file at the same path as ```updateInfoPleroma.py```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
-twitter_url: https://api.twitter.com/1.1
+twitter_base_url: https://api.twitter.com/1.1
 # Change this to your Fediverse instance
-pleroma_url: https://pleroma.robertoszek.xyz
+pleroma_base_url: https://pleroma.robertoszek.xyz
 # How many tweets to get in every execution
-# Twitter's API hard limit is 3,200 
+# Twitter's API hard limit is 3,200
 max_tweets: 40
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -45,15 +45,21 @@ users:
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   # If you want to add a link to the original status or not
   signature: true
-  # If twitter links should be changed to nitter.net ones
-  nitter: true
   # If you want to download Twitter attachments and add them to the Pleroma posts
   media_upload: true
+  # If twitter links should be changed to nitter.net ones
+  nitter: true
+  # If mentions should be transformed to links to the mentioned Twitter profile
+  rich_text: true
+  # visibility of the post. Must one of the following: public, unlisted, private, direct
+  visibility: "unlisted"
+  # If the post is sensitive or not. If it is the NSFW banner for the instance will be used for attachments
+  sensitive: false
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ username }} Twitter's\
-  \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
+    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
   # Optional metadata fields and values for the Pleroma profile
   fields:
   - name: "\U0001F426 Birdsite"
@@ -64,22 +70,20 @@ users:
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
 - twitter_username: arstechnica
   pleroma_username: mynewsbot
-  token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
   nitter: true
   media_upload: false
-  # You can specify a different instance on every user, instead of using the global value
   pleroma_url: https://another.pleroma.instance
-  # You can also set a maximum per-user
   max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ username }} Twitter's\
-  \ account. \n Any issues please contact @robertoszek \n \n "
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
+    \ account. \n Any issues please contact @robertoszek \n \n "
 ```
 Changing the ```users``` to the desired ones. You can add as many users as needed.
 
 Also change the following to your Pleroma/Mastodon instance URL:
 ```yaml
-pleroma_url: https://pleroma.robertoszek.xyz
+pleroma_base_url: https://pleroma.robertoszek.xyz
 ```
 ### Running
 

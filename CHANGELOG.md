@@ -1,3 +1,19 @@
+## [0.3.0] - 2020-10-07
+## Added
+
+- Dynamic attribute loading for the User object from the config file
+- Rich text for linking mentions to their Twitter profile
+
+## Fixed
+
+- Replacing the wrong strings in tweet body while expanding URLs
+- nitter.net replacement in twitter.com links misbehaviour
+- Default to retrieve tweets from the last 48h if Pleroma user has no posts (thanks zoenglinghou!)
+
+## Upgrade notes
+1. Replace the field name ```pleroma_url``` with ```pleroma_base_url``` on your ```config.yml```
+2. Replace the field name ```twitter_url``` with ```twitter_base_url``` on your ```config.yml```
+
 ## [0.2.0] - 2020-08-23
 ### Added
 - Support for tweet attachments
