@@ -77,6 +77,20 @@ class User(object):
             # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
             self.max_tweets = 50
             pass
+        try:
+            if not hasattr(self, "visibility"):
+                self.visibility = cfg['visibility']
+        except (KeyError, AttributeError):
+            self.visibility = "unlisted"
+            pass
+        if self.visibility not in ("public", "unlisted", "private", "direct"):
+            raise KeyError("Visibility not supported! Values allowed are: public, unlisted, private and direct")
+        try:
+            if not hasattr(self, "sensitive"):
+                self.sensitive = cfg['sensitive']
+        except (KeyError, AttributeError):
+            self.sensitive = "true"
+            pass
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 self.content_type = "text/markdown"
@@ -299,7 +313,7 @@ class User(object):
             signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
             tweet_text = tweet_text + signature
 
-        data = {"status": tweet_text, "sensitive": "true", "visibility": "unlisted", "media_ids[]": media_ids}
+        data = {"status": tweet_text, "sensitive": str(self.sensitive), "visibility": self.visibility, "media_ids[]": media_ids}
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 data.update({"content_type": self.content_type})

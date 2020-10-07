@@ -51,6 +51,10 @@ users:
   nitter: true
   # If mentions should be transformed to links to the mentioned Twitter profile
   rich_text: true
+  # visibility of the post. Must one of the following: public, unlisted, private, direct
+  visibility: "unlisted"
+  # If the post is sensitive or not. If it is the NSFW banner for the instance will be used for attachments
+  sensitive: false
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}
