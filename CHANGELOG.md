@@ -1,3 +1,12 @@
+## Unreleased
+## Added
+
+## Fixed
+
+- Fixed posting only the first media element in a multiple media tweet
+
+## Upgrade notes
+
 ## [0.3.0] - 2020-10-07
 ## Added
 
