@@ -263,7 +263,7 @@ class User(object):
             except AttributeError:
                 pass
             try:
-                for item in tweet['entities']['media']:
+                for item in tweet['extended_entities']['media']:
                     media.append(item)
             except KeyError:
                 pass
