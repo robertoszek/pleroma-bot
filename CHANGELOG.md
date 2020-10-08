@@ -4,6 +4,7 @@
 ## Fixed
 
 - Fixed posting only the first media element in a multiple media tweet
+- Fixed video attachments not being downloaded (and uploaded to the Fediverse post)
 
 ## Upgrade notes
 
