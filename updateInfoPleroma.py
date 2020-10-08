@@ -274,7 +274,17 @@ class User(object):
             # Download media only if we plan to upload it later
             if self.media_upload:
                 for idx, item in enumerate(media):
-                    response = requests.get(item['media_url'], stream=True)
+                    if item['type'] != 'video':
+                        media_url = item['media_url']
+                    else:
+                        bitrate = 0
+                        for variant in item['video_info']['variants']:
+                            try:
+                                if variant['bitrate'] > bitrate:
+                                    media_url = variant['url']
+                            except KeyError:
+                                pass
+                    response = requests.get(media_url, stream=True)
                     response.raw.decode_content = True
                     filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
                     with open(os.path.join(self.tweets_temp_path, tweet['id_str'], filename), 'wb') as outfile:
