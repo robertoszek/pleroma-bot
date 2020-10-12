@@ -323,6 +323,7 @@ class User(object):
         if self.media_upload:
             for file in media_files:
                 media_file = open(os.path.join(tweet_folder, file), 'rb')
+                media_size = os.stat(os.path.join(tweet_folder, file)).st_size
                 mime_type = guess_type(os.path.join(tweet_folder, file))
                 timestamp = str(datetime.now().timestamp())
                 file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + \
@@ -334,8 +335,9 @@ class User(object):
                     response.raise_for_status()
                 try:
                     media_ids.append(json.loads(response.text)['id'])
-                except KeyError:
+                except (KeyError, JSONDecodeError):
                     print("Error uploading media:\t" + str(response.text))
+                    pass
 
         if self.signature:
             signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
@@ -370,8 +372,6 @@ class User(object):
                 print("Unpinning previous:\t" + response.text)
         pin_url = self.pleroma_base_url + '/api/v1/statuses/' + id_post + '/pin'
         response = requests.post(pin_url, headers=self.header_pleroma)
-        if not response.ok:
-            response.raise_for_status()
         print("Pinning post:\t" + str(response.text))
         try:
             pin_id = json.loads(response.text)['id']
