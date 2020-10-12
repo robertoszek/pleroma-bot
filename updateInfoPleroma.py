@@ -160,6 +160,8 @@ class User(object):
         """
         twitter_user_url = self.twitter_base_url + '/users/show.json?screen_name=' + self.twitter_username
         response = requests.get(twitter_user_url, headers=self.header_twitter)
+        if not response.ok:
+            response.raise_for_status()
         user_twitter = json.loads(response.text)
         self.bio_text = self.bio_text + user_twitter['description']
         self.profile_image_url = user_twitter['profile_image_url']
@@ -176,6 +178,8 @@ class User(object):
         twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
                              self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
         response = requests.get(twitter_status_url, headers=self.header_twitter)
+        if not response.ok:
+            response.raise_for_status()
         tweets = json.loads(response.text)
         return tweets
 
@@ -189,6 +193,8 @@ class User(object):
         """
         pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.pleroma_username + '/statuses'
         response = requests.get(pleroma_posts_url, headers=self.header_pleroma)
+        if not response.ok:
+            response.raise_for_status()
         posts = json.loads(response.text)
         if posts:
             date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
@@ -206,6 +212,8 @@ class User(object):
         url = self.twitter_base_url_v2 + '/users/by/username/' + self.twitter_username
         params = {"user.fields": "pinned_tweet_id", "expansions": "pinned_tweet_id", "tweet.fields": "entities"}
         response = requests.get(url, headers=self.header_twitter, params=params)
+        if not response.ok:
+            response.raise_for_status()
         try:
             data = json.loads(response.text)
             pinned_tweet = data['includes']['tweets'][0]
@@ -246,6 +254,8 @@ class User(object):
                 for match in matches:
                     session = requests.Session()  # so connections are recycled
                     response = session.head(match, allow_redirects=True)
+                    if not response.ok:
+                        response.raise_for_status()
                     expanded_url = response.url
                     tweet['text'] = re.sub(match, expanded_url, tweet['text'])
             if hasattr(self, "rich_text"):
@@ -285,6 +295,8 @@ class User(object):
                             except KeyError:
                                 pass
                     response = requests.get(media_url, stream=True)
+                    if not response.ok:
+                        response.raise_for_status()
                     response.raw.decode_content = True
                     filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
                     with open(os.path.join(self.tweets_temp_path, tweet['id_str'], filename), 'wb') as outfile:
@@ -318,6 +330,8 @@ class User(object):
                 file_description = (file_name, media_file, mime_type)
                 files = {"file": file_description}
                 response = requests.post(pleroma_media_url, headers=self.header_pleroma, files=files)
+                if not response.ok:
+                    response.raise_for_status()
                 try:
                     media_ids.append(json.loads(response.text)['id'])
                 except KeyError:
@@ -332,6 +346,8 @@ class User(object):
             if self.rich_text:
                 data.update({"content_type": self.content_type})
         response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
+        if not response.ok:
+            response.raise_for_status()
         print("Post in Pleroma:\t" + str(response))
         post_id = json.loads(response.text)['id']
         return post_id
@@ -349,9 +365,13 @@ class User(object):
                 previous_pinned_post_id = file.readline().rstrip()
                 unpin_url = self.pleroma_base_url + '/api/v1/statuses/' + previous_pinned_post_id + '/unpin'
                 response = requests.post(unpin_url, headers=self.header_pleroma)
+                if not response.ok:
+                    response.raise_for_status()
                 print("Unpinning previous:\t" + response.text)
         pin_url = self.pleroma_base_url + '/api/v1/statuses/' + id_post + '/pin'
         response = requests.post(pin_url, headers=self.header_pleroma)
+        if not response.ok:
+            response.raise_for_status()
         print("Pinning post:\t" + str(response.text))
         try:
             pin_id = json.loads(response.text)['id']
@@ -375,11 +395,15 @@ class User(object):
         # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
         profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
         response = requests.get(profile_img_big, stream=True)
+        if not response.ok:
+            response.raise_for_status()
         response.raw.decode_content = True
         with open(self.avatar_path, 'wb') as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
         response = requests.get(self.profile_banner_url, stream=True)
+        if not response.ok:
+            response.raise_for_status()
         response.raw.decode_content = True
         with open(self.header_path, 'wb') as outfile:
             shutil.copyfileobj(response.raw, outfile)
@@ -414,6 +438,8 @@ class User(object):
         files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
                  "header": (header_file_name, header, header_mime_type)}
         response = requests.patch(cred_url, data, headers=self.header_pleroma, files=files)
+        if not response.ok:
+            response.raise_for_status()
         print("Updating profile:\t" + str(response))  # for debugging
         return
 
@@ -520,6 +546,8 @@ def main():
             status_url = user.twitter_base_url + '/statuses/show.json'
             params = {"id": user.pinned_tweet_id}
             response = requests.get(status_url, headers=user.header_twitter, params=params)
+            if not response.ok:
+                response.raise_for_status()
             pinned_tweet_content = json.loads(response.text)
             tweets_to_post = user.process_tweets([pinned_tweet_content])
             id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post[0]['text'])
