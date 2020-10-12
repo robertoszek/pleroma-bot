@@ -125,7 +125,8 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": "Bearer " + self.pleroma_token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
-        self.tweets = self._get_tweets()
+        self.tweets = self._get_tweets('v1.1')
+        self.tweets_v2 = self._get_tweets('v2')
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
@@ -169,19 +170,64 @@ class User(object):
         self.display_name = user_twitter['name']
         return
 
-    def _get_tweets(self):
+    def _get_tweets(self, version):
         """Gathers last 'max_tweets' tweets from the user and returns them as an dict
+        :param version: Twitter API version to use to retrieve the tweets
+        :type version: string
 
         :returns: last 'max_tweets' tweets
         :rtype: dict
         """
-        twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
-                             self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
-        response = requests.get(twitter_status_url, headers=self.header_twitter)
-        if not response.ok:
-            response.raise_for_status()
-        tweets = json.loads(response.text)
-        return tweets
+        if version == 'v1.1':
+            twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
+                                 self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
+            response = requests.get(twitter_status_url, headers=self.header_twitter)
+            if not response.ok:
+                response.raise_for_status()
+            tweets = json.loads(response.text)
+            return tweets
+        elif version == 'v2':
+            url = self.twitter_base_url_v2 + "/tweets/search/recent"  # this only gets tweets from last week
+            params = {"max_results": (round(self.max_tweets / 10)) * 10,  # between 10 and 100
+                      "query": "from:" + self.twitter_username,
+                      "poll.fields": "duration_minutes,end_datetime,id,options,voting_status",
+                      "media.fields": "duration_ms,height,media_key,"
+                                      "preview_image_url,"
+                                      "type,"
+                                      "url,"
+                                      "width,"
+                                      "public_metrics",
+                      "expansions": "attachments.poll_ids,"
+                                    "attachments.media_keys,"
+                                    "author_id,"
+                                    "entities.mentions.username,"
+                                    "geo.place_id,"
+                                    "in_reply_to_user_id,"
+                                    "referenced_tweets.id,"
+                                    "referenced_tweets.id.author_id",
+                      "tweet.fields": "attachments,"
+                                      "author_id,"
+                                      "context_annotations,"
+                                      "conversation_id,"
+                                      "created_at,"
+                                      "entities,"
+                                      "geo,id,"
+                                      "in_reply_to_user_id,"
+                                      "lang,"
+                                      "public_metrics,"
+                                      "possibly_sensitive,"
+                                      "referenced_tweets,"
+                                      "source,"
+                                      "text,"
+                                      "withheld"
+                      }
+            response = requests.get(url, headers=self.header_twitter, params=params)
+            if not response.ok:
+                response.raise_for_status()
+            tweets_v2 = json.loads(response.text)
+            return tweets_v2
+        else:
+            raise ValueError("API version not supported: " + version)
 
     def get_tweets(self):
         return self.tweets
