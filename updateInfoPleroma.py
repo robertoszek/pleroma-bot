@@ -125,8 +125,7 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": "Bearer " + self.pleroma_token}
         self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
-        self.tweets = self._get_tweets('v1.1')
-        self.tweets_v2 = self._get_tweets('v2')
+        self.tweets = self._get_tweets('v2')
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
@@ -170,22 +169,32 @@ class User(object):
         self.display_name = user_twitter['name']
         return
 
-    def _get_tweets(self, version):
+    def _get_tweets(self, version, tweet_id=None):
         """Gathers last 'max_tweets' tweets from the user and returns them as an dict
         :param version: Twitter API version to use to retrieve the tweets
         :type version: string
+        :param tweet_id: Tweet ID to retrieve
+        :type tweet_id: int
 
         :returns: last 'max_tweets' tweets
         :rtype: dict
         """
         if version == 'v1.1':
-            twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
-                                 self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
-            response = requests.get(twitter_status_url, headers=self.header_twitter)
-            if not response.ok:
-                response.raise_for_status()
-            tweets = json.loads(response.text)
-            return tweets
+            if tweet_id:
+                twitter_status_url = self.twitter_base_url + '/statuses/show.json?id=' + str(tweet_id)
+                response = requests.get(twitter_status_url, headers=self.header_twitter)
+                if not response.ok:
+                    response.raise_for_status()
+                tweet = json.loads(response.text)
+                return tweet
+            else:
+                twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
+                                     self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
+                response = requests.get(twitter_status_url, headers=self.header_twitter)
+                if not response.ok:
+                    response.raise_for_status()
+                tweets = json.loads(response.text)
+                return tweets
         elif version == 'v2':
             url = self.twitter_base_url_v2 + "/tweets/search/recent"  # this only gets tweets from last week
             params = {"max_results": (round(self.max_tweets / 10)) * 10,  # between 10 and 100
@@ -282,7 +291,7 @@ class User(object):
         :returns: Tweets ready to be published
         :rtype: list
         """
-        for tweet in tweets_to_post:
+        for tweet in tweets_to_post['data']:
             media = []
             # Replace shortened links
             try:
@@ -319,19 +328,28 @@ class User(object):
             except AttributeError:
                 pass
             try:
-                for item in tweet['extended_entities']['media']:
-                    media.append(item)
+                for item in tweet['attachments']['media_keys']:
+                    for media_include in tweets_to_post['includes']['media']:
+                        if item == media_include['media_key']:
+                            # Video download not implemented in v2 yet
+                            # fallback to v1.1
+                            if media_include['type'] == 'video':
+                                tweet_video = self._get_tweets('v1.1', tweet['id'])
+                                for extended_media in tweet_video['extended_entities']['media']:
+                                    media.append(extended_media)
+                            else:
+                                media.append(media_include)
             except KeyError:
                 pass
             # Create folder to store attachments related to the tweet ID
-            tweet_path = os.path.join(self.tweets_temp_path, tweet['id_str'])
+            tweet_path = os.path.join(self.tweets_temp_path, tweet['id'])
             if not os.path.isdir(tweet_path):
                 os.mkdir(tweet_path)
             # Download media only if we plan to upload it later
             if self.media_upload:
                 for idx, item in enumerate(media):
                     if item['type'] != 'video':
-                        media_url = item['media_url']
+                        media_url = item['url']
                     else:
                         bitrate = 0
                         for variant in item['video_info']['variants']:
@@ -345,7 +363,7 @@ class User(object):
                         response.raise_for_status()
                     response.raw.decode_content = True
                     filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
-                    with open(os.path.join(self.tweets_temp_path, tweet['id_str'], filename), 'wb') as outfile:
+                    with open(os.path.join(self.tweets_temp_path, tweet['id'], filename), 'wb') as outfile:
                         shutil.copyfileobj(response.raw, outfile)
         return tweets_to_post
 
@@ -389,7 +407,10 @@ class User(object):
             signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
             tweet_text = tweet_text + signature
 
-        data = {"status": tweet_text, "sensitive": str(self.sensitive), "visibility": self.visibility, "media_ids[]": media_ids}
+        data = {"status": tweet_text,
+                "sensitive": str(self.sensitive),
+                "visibility": self.visibility,
+                "media_ids[]": media_ids}
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 data.update({"content_type": self.content_type})
@@ -564,20 +585,20 @@ def main():
         date_pleroma = user.get_date_last_pleroma_post()
         tweets = user.get_tweets()
         # Put oldest first to iterate them and post them in order
-        tweets.reverse()
-
-        tweets_to_post = []
+        tweets['data'].reverse()
+        tweets_to_post = {'data': [], 'includes': tweets['includes']}
         # Get rid of old tweets
-        for tweet in tweets:
+        for tweet in tweets['data']:
             created_at = tweet['created_at']
-            date_twitter = datetime.strftime(datetime.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y'),
+            date_twitter = datetime.strftime(datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.000Z'),
                                              '%Y-%m-%d %H:%M:%S')
             if date_twitter > date_pleroma:
-                tweets_to_post.append(tweet)
+                tweets_to_post['data'].append(tweet)
+
         tweets_to_post = user.process_tweets(tweets_to_post)
-        print('tweets:', tweets_to_post)
-        for tweet in tweets_to_post:
-            user.post_pleroma(tweet['id_str'], tweet['text'])
+        print('tweets:', tweets_to_post['data'])
+        for tweet in tweets_to_post['data']:
+            user.post_pleroma(tweet['id'], tweet['text'])
             time.sleep(2)
         # Pinned tweet
         print("Current pinned:\t" + str(user.pinned_tweet_id))
