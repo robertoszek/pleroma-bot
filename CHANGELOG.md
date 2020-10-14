@@ -1,6 +1,8 @@
 ## Unreleased
 ## Added
 
+- Migrated to Twitter API v2 (falling back to v1.1 for video attachments)
+
 ## Fixed
 
 - Fixed posting only the first media element in a multiple media tweet
