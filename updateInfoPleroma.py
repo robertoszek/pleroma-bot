@@ -61,7 +61,6 @@ except IndexError:
 
 class User(object):
     def __init__(self, user_cfg: dict, cfg: dict):
-        self.twitter_base_url_v2 = "https://api.twitter.com/2"
         self.twitter_token = cfg['twitter_token']
         self.signature = ""
         self.media_upload = False
@@ -103,7 +102,14 @@ class User(object):
             if not hasattr(self, "twitter_base_url"):
                 self.twitter_base_url = cfg['twitter_base_url']
         except KeyError:
-            raise KeyError("No Twitter URL found in config! [twitter_base_url]")
+            self.twitter_base_url = "https://api.twitter.com/1.1"
+            pass
+        try:
+            if not hasattr(self, "twitter_base_url_v2"):
+                self.twitter_base_url = cfg['twitter_base_url_v2']
+        except KeyError:
+            self.twitter_base_url_v2 = "https://api.twitter.com/2"
+            pass
         if not hasattr(self, "nitter"):
             try:
                 if cfg['nitter']:
@@ -169,7 +175,7 @@ class User(object):
         self.display_name = user_twitter['name']
         return
 
-    def _get_tweets(self, version, tweet_id=None):
+    def _get_tweets(self, version: str, tweet_id=None):
         """Gathers last 'max_tweets' tweets from the user and returns them as an dict
         :param version: Twitter API version to use to retrieve the tweets
         :type version: string
@@ -181,7 +187,7 @@ class User(object):
         """
         if version == 'v1.1':
             if tweet_id:
-                twitter_status_url = self.twitter_base_url + '/statuses/show.json?id=' + str(tweet_id)
+                twitter_status_url = f"{self.twitter_base_url}/statuses/show.json?id={str(tweet_id)}"
                 response = requests.get(twitter_status_url, headers=self.header_twitter)
                 if not response.ok:
                     response.raise_for_status()
@@ -196,47 +202,55 @@ class User(object):
                 tweets = json.loads(response.text)
                 return tweets
         elif version == 'v2':
-            url = self.twitter_base_url_v2 + "/tweets/search/recent"  # this only gets tweets from last week
-            params = {"max_results": (round(self.max_tweets / 10)) * 10,  # between 10 and 100
-                      "query": "from:" + self.twitter_username,
-                      "poll.fields": "duration_minutes,end_datetime,id,options,voting_status",
-                      "media.fields": "duration_ms,height,media_key,"
-                                      "preview_image_url,"
-                                      "type,"
-                                      "url,"
-                                      "width,"
-                                      "public_metrics",
-                      "expansions": "attachments.poll_ids,"
-                                    "attachments.media_keys,"
-                                    "author_id,"
-                                    "entities.mentions.username,"
-                                    "geo.place_id,"
-                                    "in_reply_to_user_id,"
-                                    "referenced_tweets.id,"
-                                    "referenced_tweets.id.author_id",
-                      "tweet.fields": "attachments,"
-                                      "author_id,"
-                                      "context_annotations,"
-                                      "conversation_id,"
-                                      "created_at,"
-                                      "entities,"
-                                      "geo,id,"
-                                      "in_reply_to_user_id,"
-                                      "lang,"
-                                      "public_metrics,"
-                                      "possibly_sensitive,"
-                                      "referenced_tweets,"
-                                      "source,"
-                                      "text,"
-                                      "withheld"
-                      }
+            params = {}
+            if tweet_id:
+                url = f"{self.twitter_base_url_v2}/tweets/{tweet_id}"
+            else:
+                url = f"{self.twitter_base_url_v2}/tweets/search/recent"  # this only gets tweets from last week
+                params.update({"max_results": self.max_tweets,
+                               "query": "from:" + self.twitter_username})
+            # Tweet number must be between 10 and 100
+            if not (100 >= self.max_tweets > 10):
+                raise ValueError(f"max_tweets must be between 10 and 100. max_tweets: {self.max_tweets}")
+
+            params.update({"poll.fields": "duration_minutes,end_datetime,id,options,voting_status",
+                           "media.fields": "duration_ms,height,media_key,"
+                                           "preview_image_url,"
+                                           "type,"
+                                           "url,"
+                                           "width,"
+                                           "public_metrics",
+                           "expansions": "attachments.poll_ids,"
+                                         "attachments.media_keys,"
+                                         "author_id,"
+                                         "entities.mentions.username,"
+                                         "geo.place_id,"
+                                         "in_reply_to_user_id,"
+                                         "referenced_tweets.id,"
+                                         "referenced_tweets.id.author_id",
+                           "tweet.fields": "attachments,"
+                                           "author_id,"
+                                           "context_annotations,"
+                                           "conversation_id,"
+                                           "created_at,"
+                                           "entities,"
+                                           "geo,id,"
+                                           "in_reply_to_user_id,"
+                                           "lang,"
+                                           "public_metrics,"
+                                           "possibly_sensitive,"
+                                           "referenced_tweets,"
+                                           "source,"
+                                           "text,"
+                                           "withheld"
+                           })
             response = requests.get(url, headers=self.header_twitter, params=params)
             if not response.ok:
                 response.raise_for_status()
             tweets_v2 = json.loads(response.text)
             return tweets_v2
         else:
-            raise ValueError("API version not supported: " + version)
+            raise ValueError(f"API version not supported: {version}")
 
     def get_tweets(self):
         return self.tweets
@@ -305,14 +319,16 @@ class User(object):
                 matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([' \
                                    r'^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[' \
                                    r'\]{};:\'".,<>?«»“”‘’]))'
-                matches = re.findall(matching_pattern, tweet['text'])
-                for match in matches:
-                    session = requests.Session()  # so connections are recycled
-                    response = session.head(match, allow_redirects=True)
-                    if not response.ok:
-                        response.raise_for_status()
-                    expanded_url = response.url
-                    tweet['text'] = re.sub(match, expanded_url, tweet['text'])
+                matches = re.finditer(matching_pattern, tweet['text'])
+                for matchNum, match in enumerate(matches, start=1):
+                    # don't be brave trying to unwound an URL when it gets cut off
+                    if not match.group().__contains__("…"):
+                        session = requests.Session()  # so connections are recycled
+                        response = session.head(match.group(), allow_redirects=True)
+                        if not response.ok:
+                            response.raise_for_status()
+                        expanded_url = response.url
+                        tweet['text'] = re.sub(match, expanded_url, tweet['text'])
             if hasattr(self, "rich_text"):
                 if self.rich_text:
                     matches = re.findall(r'\B\@\w+', tweet['text'])
@@ -610,14 +626,17 @@ def main():
         print("Previous pinned:\t" + str(previous_pinned_tweet_id))
         if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
                 ((user.pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
-            status_url = user.twitter_base_url + '/statuses/show.json'
-            params = {"id": user.pinned_tweet_id}
-            response = requests.get(status_url, headers=user.header_twitter, params=params)
-            if not response.ok:
-                response.raise_for_status()
-            pinned_tweet_content = json.loads(response.text)
-            tweets_to_post = user.process_tweets([pinned_tweet_content])
-            id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post[0]['text'])
+            pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
+
+            # status_url = user.twitter_base_url + '/statuses/show.json'
+            # params = {"id": user.pinned_tweet_id}
+            # response = requests.get(status_url, headers=user.header_twitter, params=params)
+            # if not response.ok:
+            #    response.raise_for_status()
+            # pinned_tweet_content = json.loads(response.text)
+            tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
+            tweets_to_post = user.process_tweets(tweets_to_post)
+            id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'])
             pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
             with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
                 file.write(user.pinned_tweet_id + '\n')
