@@ -387,35 +387,38 @@ class User(object):
                         shutil.copyfileobj(response.raw, outfile)
 
             # Process poll if exists and no media is used
-            if tweet['attachments']['poll_ids'] and not media:
+            try:
+                if tweet['attachments']['poll_ids'] and not media:
 
-                # tweet_poll = tweet['includes']['polls']
-                poll_url = self.twitter_base_url_v2 + '/tweets'
+                    # tweet_poll = tweet['includes']['polls']
+                    poll_url = self.twitter_base_url_v2 + '/tweets'
 
-                params = {
-                    'ids': tweet['id'],
-                    'expansions': 'attachments.poll_ids',
-                    'poll.fields': 'duration_minutes,'
-                                   'options'
-                }
+                    params = {
+                        'ids': tweet['id'],
+                        'expansions': 'attachments.poll_ids',
+                        'poll.fields': 'duration_minutes,'
+                                       'options'
+                    }
 
-                response = requests.get(
-                    poll_url, headers=self.header_twitter, params=params)
-                if not response.ok:
-                    response.raise_for_status()
-                tweet_poll = json.loads(response.content)[
-                    'includes']['polls'][0]
+                    response = requests.get(
+                        poll_url, headers=self.header_twitter, params=params)
+                    if not response.ok:
+                        response.raise_for_status()
+                    tweet_poll = json.loads(response.content)[
+                        'includes']['polls'][0]
 
-                pleroma_poll = {'options': [option['label']
-                                            for option in tweet_poll['options']],
-                                'expires_in': tweet_poll['duration_minutes'] * 60}
+                    pleroma_poll = {'options': [option['label']
+                                                for option in tweet_poll['options']],
+                                    'expires_in': tweet_poll['duration_minutes'] * 60}
 
-                # Add poll to tweet
-                tweet['polls'] = pleroma_poll
+                    # Add poll to tweet
+                    tweet['polls'] = pleroma_poll
 
-            else:
+                else:
+                    tweet['polls'] = None
+            except KeyError:
                 tweet['polls'] = None
-
+                pass
         return tweets_to_post
 
     def post_pleroma(self, tweet_id: str, tweet_text: str, poll: dict) -> str:
@@ -670,7 +673,7 @@ def main():
         tweets_to_post = user.process_tweets(tweets_to_post)
         print('tweets:', tweets_to_post['data'])
         for tweet in tweets_to_post['data']:
-            user.post_pleroma(tweet['id'], tweet['text'])
+            user.post_pleroma(tweet['id'], tweet['text'], tweet['polls'])
         print('tweets:', tweets_to_post['data'])
         for tweet in tweets_to_post['data']:
             user.post_pleroma(tweet['id'], tweet['text'], tweet
@@ -689,7 +692,7 @@ def main():
             pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
             tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
             tweets_to_post = user.process_tweets(tweets_to_post)
-            id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'])
+            id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'], None)
             pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
             with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
                 file.write(user.pinned_tweet_id + '\n')
