@@ -15,6 +15,7 @@
 
 - Dynamic attribute loading for the User object from the config file
 - Rich text for linking mentions to their Twitter profile
+- Allow visibility and sensitivity to be set in the config file
 
 ## Fixed
 
