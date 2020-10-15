@@ -164,8 +164,12 @@ class User(object):
             response.raise_for_status()
         user_twitter = json.loads(response.text)
         self.bio_text = self.bio_text + user_twitter['description']
-        self.profile_image_url = user_twitter['profile_image_url']
-        self.profile_banner_url = user_twitter['profile_banner_url']
+        # Check if user has profile image
+        if 'profile_image_url' in user_twitter.keys():
+            self.profile_image_url = user_twitter['profile_image_url']
+        # Check if user has banner image
+        if 'profile_banner_url' in user_twitter.keys():
+            self.profile_banner_url = user_twitter['profile_banner_url']
         self.display_name = user_twitter['name']
         return
 
@@ -365,9 +369,40 @@ class User(object):
                     filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
                     with open(os.path.join(self.tweets_temp_path, tweet['id'], filename), 'wb') as outfile:
                         shutil.copyfileobj(response.raw, outfile)
+
+            # Process poll if exists and no media is used
+            if tweet['attachments']['poll_ids'] and not media:
+
+                # tweet_poll = tweet['includes']['polls']
+                poll_url = self.twitter_base_url_v2 + '/tweets'
+
+                params = {
+                    'ids': tweet['id'],
+                    'expansions': 'attachments.poll_ids',
+                    'poll.fields': 'duration_minutes,'
+                                   'options'
+                }
+
+                response = requests.get(
+                    poll_url, headers=self.header_twitter, params=params)
+                if not response.ok:
+                    response.raise_for_status()
+                tweet_poll = json.loads(response.content)[
+                    'includes']['polls'][0]
+
+                pleroma_poll = {'options': [option['label']
+                                            for option in tweet_poll['options']],
+                                'expires_in': tweet_poll['duration_minutes'] * 60}
+
+                # Add poll to tweet
+                tweet['polls'] = pleroma_poll
+
+            else:
+                tweet['polls'] = None
+
         return tweets_to_post
 
-    def post_pleroma(self, tweet_id: str, tweet_text: str) -> str:
+    def post_pleroma(self, tweet_id: str, tweet_text: str, poll: dict) -> str:
         """Post the given text to the Pleroma instance associated with the User object
         
         :param tweet_id: It will be used to link to the Twitter status if 'signature' is True and to find related media
@@ -411,10 +446,17 @@ class User(object):
                 "sensitive": str(self.sensitive),
                 "visibility": self.visibility,
                 "media_ids[]": media_ids}
+
+        if poll:
+            data.update({"poll[options][]": poll['options'],
+                         "poll[expires_in]": poll['expires_in']})
+
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 data.update({"content_type": self.content_type})
         response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
+        response = requests.post(
+            pleroma_post_url, data, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
         print("Post in Pleroma:\t" + str(response))
@@ -451,8 +493,8 @@ class User(object):
         """Update the Pleroma user info with the one retrieved from Twitter when the User object was instantiated.
         This includes:
         
-        * Profile image
-        * Banner image
+        * Profile image (if exists)
+        * Banner image (if exists)
         * Bio text
         * Screen name
         * Additional metadata fields
@@ -460,20 +502,22 @@ class User(object):
         :returns: None 
         """
         # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
-        profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
-        response = requests.get(profile_img_big, stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        with open(self.avatar_path, 'wb') as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+        if self.profile_image_url:
+            profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
+            response = requests.get(profile_img_big, stream=True)
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            with open(self.avatar_path, 'wb') as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
-        response = requests.get(self.profile_banner_url, stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        with open(self.header_path, 'wb') as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+        if self.profile_banner_url:
+            response = requests.get(self.profile_banner_url, stream=True)
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            with open(self.header_path, 'wb') as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
         # Set it on Pleroma
         cred_url = self.pleroma_base_url + '/api/v1/accounts/update_credentials'
@@ -483,27 +527,42 @@ class User(object):
         for field_item in self.fields:
             field = (field_item['name'], field_item['value'])
             fields.append(field)
-        data = {"note": self.bio_text, "avatar": self.avatar_path, "header": self.header_path,
+        data = {"note": self.bio_text,
                 "display_name": self.display_name}
+
+        if self.profile_image_url:
+            data.update({"avatar": self.avatar_path})
+
+        if self.profile_banner_url:
+            data.update({"header": self.header_path})
+
         if len(fields) > 4:
             raise Exception("Maximum number of metadata fields is 4. Exiting...")
         for idx, (field_name, field_value) in enumerate(fields):
             data['fields_attributes[' + str(idx) + '][name]'] = field_name
             data['fields_attributes[' + str(idx) + '][value]'] = field_value
 
-        avatar = open(self.avatar_path, 'rb')
-        avatar_mime_type = guess_type(self.avatar_path)
-        timestamp = str(datetime.now().timestamp())
-        avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
-            avatar_mime_type)
+        if self.profile_image_url:
+            avatar = open(self.avatar_path, 'rb')
+            avatar_mime_type = guess_type(self.avatar_path)
+            timestamp = str(datetime.now().timestamp())
+            avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
+                avatar_mime_type)
 
-        header = open(self.header_path, 'rb')
-        header_mime_type = guess_type(self.header_path)
-        header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
-            header_mime_type)
+        if self.profile_banner_url:
+            header = open(self.header_path, 'rb')
+            header_mime_type = guess_type(self.header_path)
+            header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
+                header_mime_type)
 
-        files = {"avatar": (avatar_file_name, avatar, avatar_mime_type),
-                 "header": (header_file_name, header, header_mime_type)}
+        files = {}
+
+        if self.profile_image_url:
+            files.update(
+                {"avatar": (avatar_file_name, avatar, avatar_mime_type)})
+        if self.profile_banner_url:
+            files.update(
+                {"header": (header_file_name, header, header_mime_type)})
         response = requests.patch(cred_url, data, headers=self.header_pleroma, files=files)
         if not response.ok:
             response.raise_for_status()
@@ -566,7 +625,6 @@ def random_string(length: int) -> str:
     """Returns a string of random characters of length 'length'
     :param length: How long the string to return must be
     :type length: int
-    
     :returns: an alpha-numerical string of specified length with random characters
     :rtype: str
     """
@@ -598,7 +656,8 @@ def main():
         tweets_to_post = user.process_tweets(tweets_to_post)
         print('tweets:', tweets_to_post['data'])
         for tweet in tweets_to_post['data']:
-            user.post_pleroma(tweet['id'], tweet['text'])
+            user.post_pleroma(tweet['id'], tweet['text'], tweet
+                              ['polls'])
             time.sleep(2)
         # Pinned tweet
         print("Current pinned:\t" + str(user.pinned_tweet_id))
@@ -616,7 +675,7 @@ def main():
             if not response.ok:
                 response.raise_for_status()
             pinned_tweet_content = json.loads(response.text)
-            tweets_to_post = user.process_tweets([pinned_tweet_content])
+            tweets_to_post = user.process_tweets([pinned_tweet_content]) #TODO: fix this bug
             id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post[0]['text'])
             pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
             with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
