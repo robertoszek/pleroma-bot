@@ -300,8 +300,8 @@ class User(object):
         Expands shortened URLs
         Downloads tweet related media and prepares them for upload
 
-        :param tweets_to_post: List of tweet objects to be processed
-        :type tweets_to_post: list
+        :param tweets_to_post: Dict of tweet objects to be processed
+        :type tweets_to_post: dict
         :returns: Tweets ready to be published
         :rtype: list
         """
@@ -328,7 +328,7 @@ class User(object):
                         if not response.ok:
                             response.raise_for_status()
                         expanded_url = response.url
-                        tweet['text'] = re.sub(match, expanded_url, tweet['text'])
+                        tweet['text'] = re.sub(match.group(), expanded_url, tweet['text'])
             if hasattr(self, "rich_text"):
                 if self.rich_text:
                     matches = re.findall(r'\B\@\w+', tweet['text'])
@@ -627,13 +627,6 @@ def main():
         if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
                 ((user.pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
             pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
-
-            # status_url = user.twitter_base_url + '/statuses/show.json'
-            # params = {"id": user.pinned_tweet_id}
-            # response = requests.get(status_url, headers=user.header_twitter, params=params)
-            # if not response.ok:
-            #    response.raise_for_status()
-            # pinned_tweet_content = json.loads(response.text)
             tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
             tweets_to_post = user.process_tweets(tweets_to_post)
             id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'])
