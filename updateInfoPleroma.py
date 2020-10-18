@@ -353,7 +353,7 @@ class User(object):
                         if item == media_include['media_key']:
                             # Video download not implemented in v2 yet
                             # fallback to v1.1
-                            if media_include['type'] == 'video':
+                            if media_include['type'] == 'video' or media_include['type'] == 'animated_gif':
                                 tweet_video = self._get_tweets('v1.1', tweet['id'])
                                 for extended_media in tweet_video['extended_entities']['media']:
                                     media.append(extended_media)
@@ -368,13 +368,13 @@ class User(object):
             # Download media only if we plan to upload it later
             if self.media_upload:
                 for idx, item in enumerate(media):
-                    if item['type'] != 'video':
+                    if item['type'] != 'video' and item['type'] != 'animated_gif':
                         media_url = item['url']
                     else:
                         bitrate = 0
                         for variant in item['video_info']['variants']:
                             try:
-                                if variant['bitrate'] > bitrate:
+                                if variant['bitrate'] >= bitrate:
                                     media_url = variant['url']
                             except KeyError:
                                 pass
@@ -674,10 +674,6 @@ def main():
         print('tweets:', tweets_to_post['data'])
         for tweet in tweets_to_post['data']:
             user.post_pleroma(tweet['id'], tweet['text'], tweet['polls'])
-        print('tweets:', tweets_to_post['data'])
-        for tweet in tweets_to_post['data']:
-            user.post_pleroma(tweet['id'], tweet['text'], tweet
-                              ['polls'])
             time.sleep(2)
         # Pinned tweet
         print("Current pinned:\t" + str(user.pinned_tweet_id))
