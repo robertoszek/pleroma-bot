@@ -171,8 +171,8 @@ class User(object):
         user_twitter = json.loads(response.text)
         self.bio_text = self.bio_text + user_twitter['description']
         # Check if user has profile image
-        if 'profile_image_url' in user_twitter.keys():
-            self.profile_image_url = user_twitter['profile_image_url']
+        if 'profile_image_url_https' in user_twitter.keys():
+            self.profile_image_url = user_twitter['profile_image_url_https']
         # Check if user has banner image
         if 'profile_banner_url' in user_twitter.keys():
             self.profile_banner_url = user_twitter['profile_banner_url']
