@@ -6,7 +6,7 @@
 
 ## Enhancements
 
-- Refactored an packaged the code for easy installation. [Link to project at PyPI.](https://pypi.org/project/pleroma-bot/)
+- Refactored and packaged the code for easy installation. [Link to project at PyPI.](https://pypi.org/project/pleroma-bot/)
 
 ## Fixed
 
