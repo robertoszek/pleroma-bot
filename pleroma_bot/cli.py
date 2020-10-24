@@ -28,6 +28,7 @@
 # https://github.com/halcy/Mastodon.py
 
 # TODO: Write tests
+# TODO: Refactor cli.py into smaller sections
 import os
 import sys
 import time
