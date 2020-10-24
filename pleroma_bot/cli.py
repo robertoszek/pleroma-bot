@@ -30,17 +30,19 @@
 # TODO: Write tests
 import os
 import sys
+import time
 import string
 import random
-import time
 from json.decoder import JSONDecodeError
 
-import requests
-import shutil
 import re
-import mimetypes
 import json
 import yaml
+import shutil
+import requests
+import mimetypes
+
+from . import logger
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -84,6 +86,7 @@ class User(object):
             pass
         if self.visibility not in ("public", "unlisted", "private", "direct"):
             raise KeyError("Visibility not supported! Values allowed are: public, unlisted, private and direct")
+
         try:
             if not hasattr(self, "sensitive"):
                 self.sensitive = cfg['sensitive']
@@ -135,8 +138,7 @@ class User(object):
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
-        script_path = os.path.dirname(sys.argv[0])
-        self.base_path = os.path.abspath(script_path)
+        self.base_path = os.getcwd()
         self.users_path = os.path.join(self.base_path, 'users')
         self.user_path = os.path.join(self.users_path, self.twitter_username)
         self.tweets_temp_path = os.path.join(self.user_path, 'tweets')
@@ -649,58 +651,63 @@ def random_string(length: int) -> str:
 
 
 def main():
-    script_path = os.path.dirname(sys.argv[0])
-    base_path = os.path.abspath(script_path)
-    with open(os.path.join(base_path, 'config.yml'), 'r') as stream:
-        config = yaml.safe_load(stream)
-    user_dict = config['users']
+    try:
+        base_path = os.getcwd()
+        with open(os.path.join(base_path, 'config.yml'), 'r') as stream:
+            config = yaml.safe_load(stream)
+        user_dict = config['users']
 
-    for user_item in user_dict:
-        user = User(user_item, config)
-        date_pleroma = user.get_date_last_pleroma_post()
-        tweets = user.get_tweets()
-        # Put oldest first to iterate them and post them in order
-        tweets['data'].reverse()
-        tweets_to_post = {'data': [], 'includes': tweets['includes']}
-        # Get rid of old tweets
-        for tweet in tweets['data']:
-            created_at = tweet['created_at']
-            date_twitter = datetime.strftime(datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.000Z'),
-                                             '%Y-%m-%d %H:%M:%S')
-            if date_twitter > date_pleroma:
-                tweets_to_post['data'].append(tweet)
+        for user_item in user_dict:
+            user = User(user_item, config)
+            date_pleroma = user.get_date_last_pleroma_post()
+            tweets = user.get_tweets()
+            # Put oldest first to iterate them and post them in order
+            tweets['data'].reverse()
+            tweets_to_post = {'data': [], 'includes': tweets['includes']}
+            # Get rid of old tweets
+            for tweet in tweets['data']:
+                created_at = tweet['created_at']
+                date_twitter = datetime.strftime(datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.000Z'),
+                                                 '%Y-%m-%d %H:%M:%S')
+                if date_twitter > date_pleroma:
+                    tweets_to_post['data'].append(tweet)
 
-        tweets_to_post = user.process_tweets(tweets_to_post)
-        print('tweets:', tweets_to_post['data'])
-        for tweet in tweets_to_post['data']:
-            user.post_pleroma(tweet['id'], tweet['text'], tweet['polls'])
-            time.sleep(2)
-        # Pinned tweet
-        print("Current pinned:\t" + str(user.pinned_tweet_id))
-        if os.path.isfile(os.path.join(user.user_path, 'pinned_id.txt')):
-            with open(os.path.join(user.user_path, 'pinned_id.txt'), 'r') as file:
-                previous_pinned_tweet_id = file.readline().rstrip()
-        else:
-            previous_pinned_tweet_id = None
-        print("Previous pinned:\t" + str(previous_pinned_tweet_id))
-        if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
-                ((user.pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
-            pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
-            tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
             tweets_to_post = user.process_tweets(tweets_to_post)
-            id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'], None)
-            pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
-            with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
-                file.write(user.pinned_tweet_id + '\n')
-            if pleroma_pinned_post is not None:
-                with open(os.path.join(user.user_path, 'pinned_id_pleroma.txt'), 'w') as file:
-                    file.write(pleroma_pinned_post + '\n')
+            print('tweets:', tweets_to_post['data'])
+            for tweet in tweets_to_post['data']:
+                user.post_pleroma(tweet['id'], tweet['text'], tweet['polls'])
+                time.sleep(2)
+            # Pinned tweet
+            print("Current pinned:\t" + str(user.pinned_tweet_id))
+            if os.path.isfile(os.path.join(user.user_path, 'pinned_id.txt')):
+                with open(os.path.join(user.user_path, 'pinned_id.txt'), 'r') as file:
+                    previous_pinned_tweet_id = file.readline().rstrip()
+            else:
+                previous_pinned_tweet_id = None
+            print("Previous pinned:\t" + str(previous_pinned_tweet_id))
+            if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
+                    ((user.pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
+                pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
+                tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
+                tweets_to_post = user.process_tweets(tweets_to_post)
+                id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'], None)
+                pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
+                with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
+                    file.write(user.pinned_tweet_id + '\n')
+                if pleroma_pinned_post is not None:
+                    with open(os.path.join(user.user_path, 'pinned_id_pleroma.txt'), 'w') as file:
+                        file.write(pleroma_pinned_post + '\n')
 
-        if not arg == "noProfile":
-            user.update_pleroma()
-        # Clean-up
-        shutil.rmtree(user.tweets_temp_path)
+            if not arg == "noProfile":
+                user.update_pleroma()
+            # Clean-up
+            shutil.rmtree(user.tweets_temp_path)
+    except:
+        logger.error("Exception occurred", exc_info=True)
+        return 1
+
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    exit(main())

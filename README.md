@@ -18,9 +18,13 @@ So basically, it does the following:
 * Gets the **bio text** from Twitter and updates it on the Fediverse account
 * Adds some **metadata fields** to the Fediverse account, pointing to the original Twitter account
 
+## Installation
+```
+$ pip install pleroma-bot
+```
 ## Usage
 ```console
-$ python3 updateInfoPleroma.py [noProfile]
+$ pleroma-bot [noProfile]
 ```
 ### Before running
 You'll need the following:
@@ -28,7 +32,7 @@ You'll need the following:
 * A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
 * The user/users [Pleroma Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
 
-Create a ```config.yml``` file at the same path as ```updateInfoPleroma.py```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
+Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
 twitter_base_url: https://api.twitter.com/1.1
 # Change this to your Fediverse instance
@@ -89,13 +93,16 @@ pleroma_base_url: https://pleroma.robertoszek.xyz
 
 If the ```noProfile``` argument is passed, *only* new tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account.
 
+NOTE: An ```error.log``` file will be created at the path from which ```pleroma-bot``` is being called.
+
 ### crontab entry example 
 **(everyday at 6:15 AM)** update profile and **(every 10 min.)** post new tweets:
 ```bash
-# Pleroma post tweets
-*/10 * * * * python3 /opt/pleroma-twitter-info-grabber/updateInfoPleroma.py noProfile
-# Pleroma update profile with Twitter info
-15 6 * * * python3 /opt/pleroma-twitter-info-grabber/updateInfoPleroma.py
+# Post tweets every 10 min
+*/10 * * * * cd /home/robertoszek/myvenv/ && . bin/activate && pleroma-bot noProfile
+
+# Update pleroma profile with Twitter info every day at 6:15 AM
+15 6 * * * cd /home/robertoszek/myvenv/ && . bin/activate && pleroma-bot
 ```
 ## Acknowledgements
 These projects proved to be immensely useful, they are Python wrappers for the Mastodon API and Twitter API respectively:
@@ -109,7 +116,7 @@ That and [mastodon-bot](https://github.com/yogthos/mastodon-bot) not working aft
 
 ## Contributing
 
-Patches, pull requests, and bug reports are more than [welcome](https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber/issues/new), please keep the style consistent with the original source.
+Patches, pull requests, and bug reports are more than [welcome](https://github.com/robertoszek/pleroma-twitter-info-grabber/issues/new/choose), please keep the style consistent with the original source.
 
 
 ## License
