@@ -1,3 +1,26 @@
+## [0.4.0] - 2020-10-24
+## Added
+
+- Added support for polls 🎉 (thanks zoenglinghou!)
+- Migrated to Twitter API v2 (falling back to v1.1 for video attachments)
+
+## Enhancements
+
+- Refactored an packaged the code for easy installation. [Link to project at PyPI.](https://pypi.org/project/pleroma-bot/)
+
+## Fixed
+
+- Fixed posting only the first media element in a multiple media tweet
+- Fixed video attachments not being downloaded (and uploaded to the Fediverse post)
+- Fixed the exception when Twitter user has no profile and/or banner images (thanks zoenglinghou!)
+
+## Upgrade notes
+
+- Place/move your ```config.yml``` to whichever path you want to run ```pleroma-bot```
+- If you were using cron, change:
+  - ```python3 /path/to/updateInfoPleroma.py noProfile```
+  - to ```cd /path/to/your/venv/ && . bin/activate && pleroma-bot noProfile```
+
 ## [0.3.0] - 2020-10-07
 ## Added
 
