@@ -3,3 +3,7 @@ twittercred.secret
 config.yml
 /venv/
 /.idea/
+/dist
+/build
+/pleroma_bot.egg-info
+error.log
