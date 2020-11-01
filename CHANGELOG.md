@@ -1,3 +1,13 @@
+## Unreleased
+## Added
+
+- Added support for using the original tweet sensitivity (nsfw flag) when posting on the Fediverse account
+
+## Upgrade notes
+
+- Remove the attribute '```sensitive```' from your user section in your ```config.yml``` if you want to honor the 
+original tweet's sensitivity instead of forcing it globally for all the posts by that user.
+
 ## [0.4.0] - 2020-10-24
 ## Added
 

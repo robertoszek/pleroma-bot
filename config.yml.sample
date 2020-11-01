@@ -21,7 +21,9 @@ users:
   rich_text: true
   # visibility of the post. Must one of the following: public, unlisted, private, direct
   visibility: "unlisted"
-  # If the post is sensitive or not. If it is the NSFW banner for the instance will be used for attachments
+  # Force all posts for this account to be sensitive or not
+  # The NSFW banner for the instance will be shown for attachments as a warning if true
+  # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
   sensitive: false
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced

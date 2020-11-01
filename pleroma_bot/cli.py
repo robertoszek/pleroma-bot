@@ -92,7 +92,6 @@ class User(object):
             if not hasattr(self, "sensitive"):
                 self.sensitive = cfg['sensitive']
         except (KeyError, AttributeError):
-            self.sensitive = "true"
             pass
         if hasattr(self, "rich_text"):
             if self.rich_text:
@@ -424,13 +423,18 @@ class User(object):
                 pass
         return tweets_to_post
 
-    def post_pleroma(self, tweet_id: str, tweet_text: str, poll: dict) -> str:
+    def post_pleroma(self, tweet_id: str, tweet_text: str, poll: dict, sensitive: bool) -> str:
         """Post the given text to the Pleroma instance associated with the User object
+        
         
         :param tweet_id: It will be used to link to the Twitter status if 'signature' is True and to find related media
         :type tweet_id: str
         :param tweet_text: Literal text to use when creating the post.
         :type tweet_text: str
+        :param poll: dict of poll if attached to tweet
+        :type poll; dict
+        :param sensitive: if tweet is possibly sensitive or not
+        :type sensitive: bool
         :returns: id of post
         :rtype: str
         """
@@ -464,8 +468,12 @@ class User(object):
             signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
             tweet_text = tweet_text + signature
 
+        # config setting override tweet attr
+        if hasattr(self, "sensitive"):
+            sensitive = self.sensitive
+
         data = {"status": tweet_text,
-                "sensitive": str(self.sensitive),
+                "sensitive": str(sensitive),
                 "visibility": self.visibility,
                 "media_ids[]": media_ids}
 
@@ -676,7 +684,10 @@ def main():
             tweets_to_post = user.process_tweets(tweets_to_post)
             print('tweets:', tweets_to_post['data'])
             for tweet in tweets_to_post['data']:
-                user.post_pleroma(tweet['id'], tweet['text'], tweet['polls'])
+                user.post_pleroma(tweet['id'],
+                                  tweet['text'],
+                                  tweet['polls'],
+                                  tweet['possibly_sensitive'])
                 time.sleep(2)
             # Pinned tweet
             print("Current pinned:\t" + str(user.pinned_tweet_id))
@@ -691,7 +702,10 @@ def main():
                 pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
                 tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
                 tweets_to_post = user.process_tweets(tweets_to_post)
-                id_post_to_pin = user.post_pleroma(user.pinned_tweet_id, tweets_to_post['data'][0]['text'], None)
+                id_post_to_pin = user.post_pleroma(user.pinned_tweet_id,
+                                                   tweets_to_post['data'][0]['text'],
+                                                   tweets_to_post['data'][0]['polls'],
+                                                   tweets_to_post['data'][0]['possibly_sensitive'])
                 pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
                 with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
                     file.write(user.pinned_tweet_id + '\n')
