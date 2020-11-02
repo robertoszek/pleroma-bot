@@ -1,30 +1,13 @@
-import pytest
-import logging
 
 import os
-import sys
-import time
-import string
-import random
-from json.decoder import JSONDecodeError
-
-import re
-import json
 import yaml
-import shutil
-import requests
-import requests_mock
-import mimetypes
+import pytest
 
-try:
-    import magic
-except ImportError:
-    magic = None
 
-from datetime import datetime, timedelta
-
-from pleroma_bot.cli import *
 from test_user import TestUser
+from pleroma_bot.cli import User
+from pleroma_bot.cli import random_string
+
 
 def test_random_string():
     """
@@ -54,6 +37,7 @@ def test_user_attrs(sample_users):
             sample_user_obj = sample_user['user_obj']
             pleroma_date = sample_user_obj.get_date_last_pleroma_post()
             pinned = sample_user_obj.pinned_tweet_id
+            sample_user_obj.get_date_last_pleroma_post()
             assert pinned == test_user.pinned
             assert pleroma_date == test_user.pleroma_date
             assert sample_user_obj.twitter_base_url == test_user.twitter_base_url
@@ -61,6 +45,7 @@ def test_user_attrs(sample_users):
             assert sample_user_obj.pleroma_token == test_user.pleroma_token
             assert sample_user_obj.twitter_base_url_v2 == test_user.twitter_base_url_v2
             assert sample_user_obj.nitter == test_user.nitter
+            return mock
 
 
 def test_user_invalid_visibility(rootdir, mock_request):
@@ -68,7 +53,7 @@ def test_user_invalid_visibility(rootdir, mock_request):
     with pytest.raises(KeyError):
         with mock_request['mock'] as mock:
             configs_dir = os.path.join(rootdir, 'test_files')
-            with open(os.path.join(configs_dir, 'config_visibility.yml'), 'r',  encoding='utf8') as stream:
+            with open(os.path.join(configs_dir, 'config_visibility.yml'), 'r', encoding='utf8') as stream:
                 config = yaml.safe_load(stream)
             user_dict = config['users']
             for user_item in user_dict:
@@ -79,6 +64,7 @@ def test_user_invalid_visibility(rootdir, mock_request):
                          json=mock_request['sample_data']['pleroma_statuses'],
                          status_code=200)
                 user_obj = User(user_item, config)
+                return user_obj
 
 
 def test_user_invalid_max_tweets(rootdir, mock_request):
@@ -86,7 +72,7 @@ def test_user_invalid_max_tweets(rootdir, mock_request):
     with pytest.raises(ValueError):
         with mock_request['mock'] as mock:
             configs_dir = os.path.join(rootdir, 'test_files')
-            with open(os.path.join(configs_dir, 'config_max_tweets_global.yml'), 'r',  encoding='utf8') as stream:
+            with open(os.path.join(configs_dir, 'config_max_tweets_global.yml'), 'r', encoding='utf8') as stream:
                 config = yaml.safe_load(stream)
             user_dict = config['users']
             for user_item in user_dict:
@@ -100,7 +86,7 @@ def test_user_invalid_max_tweets(rootdir, mock_request):
     with pytest.raises(ValueError):
         with mock_request['mock'] as mock:
             configs_dir = os.path.join(rootdir, 'test_files')
-            with open(os.path.join(configs_dir, 'config_max_tweets_user.yml'), 'r',  encoding='utf8') as stream:
+            with open(os.path.join(configs_dir, 'config_max_tweets_user.yml'), 'r', encoding='utf8') as stream:
                 config = yaml.safe_load(stream)
             user_dict = config['users']
             for user_item in user_dict:
@@ -111,3 +97,4 @@ def test_user_invalid_max_tweets(rootdir, mock_request):
                          json=mock_request['sample_data']['pleroma_statuses'],
                          status_code=200)
                 user_obj = User(user_item, config)
+                return user_obj

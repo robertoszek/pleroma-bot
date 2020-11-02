@@ -31,6 +31,7 @@ users:
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
   # Optional metadata fields and values for the Pleroma profile
+  max_tweets: 9
   fields:
   - name: "\U0001F426 Birdsite"
     value: "{{ twitter_url }}"

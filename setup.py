@@ -40,7 +40,7 @@ setuptools.setup(
         'test': [
             'tox',
             'pytest',
-            'requests-mock'
+            'requests-mock',
             'pytest-cov',
             'python-magic-bin ; platform_system=="Windows"'
         ],

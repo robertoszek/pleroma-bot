@@ -1,8 +1,9 @@
 import os
+import yaml
 import json
 import pytest
 import requests_mock
-from pleroma_bot.cli import *
+from pleroma_bot.cli import User
 
 
 @pytest.fixture
@@ -38,11 +39,11 @@ def mock_request(rootdir):
 @pytest.fixture
 def sample_users(rootdir, mock_request):
     users = []
-    twitter_base_url = 'http://api.twitter.com/1.1'
+    # twitter_base_url = 'http://api.twitter.com/1.1'
     twitter_base_url_v2 = 'https://api.twitter.com/2'
     with mock_request['mock'] as mock:
         configs_dir = os.path.join(rootdir, 'test_files')
-        with open(os.path.join(configs_dir, 'config.yml'), 'r',  encoding='utf8') as stream:
+        with open(os.path.join(configs_dir, 'config.yml'), 'r', encoding='utf8') as stream:
             config = yaml.safe_load(stream)
         user_dict = config['users']
         for user_item in user_dict:

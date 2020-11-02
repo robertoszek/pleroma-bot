@@ -11,7 +11,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
+# The above copyright notice and this permission notice shall be included in
+# all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -27,7 +28,6 @@
 # and
 # https://github.com/halcy/Mastodon.py
 
-# TODO: Write tests
 # TODO: Refactor cli.py into smaller sections
 import os
 import sys
@@ -54,7 +54,8 @@ except ImportError:
 
 from datetime import datetime, timedelta
 
-# Parameter to choose whether to update bio, avatar and banner or not - save some bandwidth
+# Parameter to choose whether to update bio, avatar and banner or not - save
+# some bandwidth
 try:
     arg = sys.argv[1]
 except IndexError:
@@ -76,7 +77,8 @@ class User(object):
             if not hasattr(self, "max_tweets"):
                 self.max_tweets = cfg['max_tweets']
         except (KeyError, AttributeError):
-            # Limit to 50 last tweets - just to make a bit easier and faster to process given how often it is pulled
+            # Limit to 50 last tweets - just to make a bit easier and faster
+            # to process given how often it is pulled
             self.max_tweets = 50
             pass
         try:
@@ -86,7 +88,9 @@ class User(object):
             self.visibility = "unlisted"
             pass
         if self.visibility not in ("public", "unlisted", "private", "direct"):
-            raise KeyError("Visibility not supported! Values allowed are: public, unlisted, private and direct")
+            raise KeyError(
+                "Visibility not supported! Values allowed are: public, "
+                "unlisted, private and direct")
 
         try:
             if not hasattr(self, "sensitive"):
@@ -100,7 +104,8 @@ class User(object):
             if not hasattr(self, "pleroma_base_url"):
                 self.pleroma_base_url = cfg['pleroma_base_url']
         except KeyError:
-            raise KeyError("No Pleroma URL defined in config! [pleroma_base_url]")
+            raise KeyError(
+                "No Pleroma URL defined in config! [pleroma_base_url]")
         try:
             if not hasattr(self, "twitter_base_url"):
                 self.twitter_base_url = cfg['twitter_base_url']
@@ -116,7 +121,8 @@ class User(object):
         if not hasattr(self, "nitter"):
             try:
                 if cfg['nitter']:
-                    self.twitter_url = "http://nitter.net/" + self.twitter_username
+                    self.twitter_url = f"http://nitter.net/" \
+                                       f"{self.twitter_username}"
             except KeyError:
                 pass
         else:
@@ -166,7 +172,9 @@ class User(object):
 
         :return: None
         """
-        twitter_user_url = self.twitter_base_url + '/users/show.json?screen_name=' + self.twitter_username
+        twitter_user_url = f"{self.twitter_base_url}" \
+                           f"/users/show.json?screen_name=" \
+                           f"{self.twitter_username}"
         response = requests.get(twitter_user_url, headers=self.header_twitter)
         if not response.ok:
             response.raise_for_status()
@@ -182,7 +190,8 @@ class User(object):
         return
 
     def _get_tweets(self, version: str, tweet_id=None):
-        """Gathers last 'max_tweets' tweets from the user and returns them as an dict
+        """Gathers last 'max_tweets' tweets from the user and returns them
+        as an dict
         :param version: Twitter API version to use to retrieve the tweets
         :type version: string
         :param tweet_id: Tweet ID to retrieve
@@ -193,16 +202,23 @@ class User(object):
         """
         if version == 'v1.1':
             if tweet_id:
-                twitter_status_url = f"{self.twitter_base_url}/statuses/show.json?id={str(tweet_id)}"
-                response = requests.get(twitter_status_url, headers=self.header_twitter)
+                twitter_status_url = \
+                    f"{self.twitter_base_url}/statuses/show.json?id=" \
+                    f"{str(tweet_id)}"
+                response = requests.get(twitter_status_url,
+                                        headers=self.header_twitter)
                 if not response.ok:
                     response.raise_for_status()
                 tweet = json.loads(response.text)
                 return tweet
             else:
-                twitter_status_url = self.twitter_base_url + '/statuses/user_timeline.json?screen_name=' + \
-                                     self.twitter_username + '&count=' + str(self.max_tweets) + '&include_rts=true'
-                response = requests.get(twitter_status_url, headers=self.header_twitter)
+                twitter_status_url = \
+                    f"{self.twitter_base_url}" \
+                    f"/statuses/user_timeline.json?screen_name=" \
+                    f"{self.twitter_username}" \
+                    f"&count={str(self.max_tweets)}&include_rts=true"
+                response = requests.get(twitter_status_url,
+                                        headers=self.header_twitter)
                 if not response.ok:
                     response.raise_for_status()
                 tweets = json.loads(response.text)
@@ -212,45 +228,51 @@ class User(object):
             if tweet_id:
                 url = f"{self.twitter_base_url_v2}/tweets/{tweet_id}"
             else:
-                url = f"{self.twitter_base_url_v2}/tweets/search/recent"  # this only gets tweets from last week
+                url = f"{self.twitter_base_url_v2}/tweets/search/recent"  #
+                # this only gets tweets from last week
                 params.update({"max_results": self.max_tweets,
                                "query": "from:" + self.twitter_username})
             # Tweet number must be between 10 and 100
             if not (100 >= self.max_tweets > 10):
-                raise ValueError(f"max_tweets must be between 10 and 100. max_tweets: {self.max_tweets}")
+                raise ValueError(
+                    f"max_tweets must be between 10 and 100. max_tweets: "
+                    f"{self.max_tweets}")
 
-            params.update({"poll.fields": "duration_minutes,end_datetime,id,options,voting_status",
-                           "media.fields": "duration_ms,height,media_key,"
-                                           "preview_image_url,"
-                                           "type,"
-                                           "url,"
-                                           "width,"
-                                           "public_metrics",
-                           "expansions": "attachments.poll_ids,"
-                                         "attachments.media_keys,"
-                                         "author_id,"
-                                         "entities.mentions.username,"
-                                         "geo.place_id,"
-                                         "in_reply_to_user_id,"
-                                         "referenced_tweets.id,"
-                                         "referenced_tweets.id.author_id",
-                           "tweet.fields": "attachments,"
-                                           "author_id,"
-                                           "context_annotations,"
-                                           "conversation_id,"
-                                           "created_at,"
-                                           "entities,"
-                                           "geo,id,"
-                                           "in_reply_to_user_id,"
-                                           "lang,"
-                                           "public_metrics,"
-                                           "possibly_sensitive,"
-                                           "referenced_tweets,"
-                                           "source,"
-                                           "text,"
-                                           "withheld"
-                           })
-            response = requests.get(url, headers=self.header_twitter, params=params)
+            params.update({
+                "poll.fields": "duration_minutes,end_datetime,"
+                               "id,options,voting_status",
+                "media.fields": "duration_ms,height,media_key,"
+                                "preview_image_url,"
+                                "type,"
+                                "url,"
+                                "width,"
+                                "public_metrics",
+                "expansions": "attachments.poll_ids,"
+                              "attachments.media_keys,"
+                              "author_id,"
+                              "entities.mentions.username,"
+                              "geo.place_id,"
+                              "in_reply_to_user_id,"
+                              "referenced_tweets.id,"
+                              "referenced_tweets.id.author_id",
+                "tweet.fields": "attachments,"
+                                "author_id,"
+                                "context_annotations,"
+                                "conversation_id,"
+                                "created_at,"
+                                "entities,"
+                                "geo,id,"
+                                "in_reply_to_user_id,"
+                                "lang,"
+                                "public_metrics,"
+                                "possibly_sensitive,"
+                                "referenced_tweets,"
+                                "source,"
+                                "text,"
+                                "withheld"
+            })
+            response = requests.get(url, headers=self.header_twitter,
+                                    params=params)
             if not response.ok:
                 response.raise_for_status()
             tweets_v2 = json.loads(response.text)
@@ -262,20 +284,25 @@ class User(object):
         return self.tweets
 
     def get_date_last_pleroma_post(self):
-        """Gathers last post from the user in Pleroma and returns the date of creation.
-        
+        """Gathers last post from the user in Pleroma and returns the date
+        of creation.
+
         :returns: Date of last Pleroma post in '%Y-%m-%d %H:%M:%S' format
         """
-        pleroma_posts_url = self.pleroma_base_url + '/api/v1/accounts/' + self.pleroma_username + '/statuses'
+        pleroma_posts_url = f"{self.pleroma_base_url}/api/v1/accounts/" \
+                            f"{self.pleroma_username}/statuses"
         response = requests.get(pleroma_posts_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
         posts = json.loads(response.text)
         if posts:
-            date_pleroma = datetime.strftime(datetime.strptime(posts[0]['created_at'], '%Y-%m-%dT%H:%M:%S.000Z'),
-                                             '%Y-%m-%d %H:%M:%S')
+            date_pleroma = datetime.strftime(
+                datetime.strptime(posts[0]['created_at'],
+                                  '%Y-%m-%dT%H:%M:%S.000Z'),
+                '%Y-%m-%d %H:%M:%S')
         else:
-            date_pleroma = datetime.strftime(datetime.now() - timedelta(days=2), '%Y-%m-%d %H:%M:%S')
+            date_pleroma = datetime.strftime(
+                datetime.now() - timedelta(days=2), '%Y-%m-%d %H:%M:%S')
 
         return date_pleroma
 
@@ -284,9 +311,13 @@ class User(object):
 
         :returns: ID of currently pinned tweet
         """
-        url = self.twitter_base_url_v2 + '/users/by/username/' + self.twitter_username
-        params = {"user.fields": "pinned_tweet_id", "expansions": "pinned_tweet_id", "tweet.fields": "entities"}
-        response = requests.get(url, headers=self.header_twitter, params=params)
+        url = f"{self.twitter_base_url_v2}/users/by/username/" \
+              f"{self.twitter_username}"
+        params = {"user.fields": "pinned_tweet_id",
+                  "expansions": "pinned_tweet_id", "tweet.fields": "entities"}
+        response = requests.get(url,
+                                headers=self.header_twitter,
+                                params=params)
         if not response.ok:
             response.raise_for_status()
         try:
@@ -319,34 +350,49 @@ class User(object):
                     matching_pattern = url_entity['url']
                     matches = re.findall(matching_pattern, tweet['text'])
                     for match in matches:
-                        tweet['text'] = re.sub(match, url_entity['expanded_url'], tweet['text'])
+                        tweet['text'] = re.sub(match,
+                                               url_entity['expanded_url'],
+                                               tweet['text'])
             except KeyError:
                 # URI regex
-                matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([' \
-                                   r'^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[' \
+                matching_pattern = r'(?i)\b((?:https?://|www\d{0,3}[.]|[' \
+                                   r'a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s(' \
+                                   r')<>]+|\(([' \
+                                   r'^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([' \
+                                   r'^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!(' \
+                                   r')\[' \
                                    r'\]{};:\'".,<>?«»“”‘’]))'
                 matches = re.finditer(matching_pattern, tweet['text'])
                 for matchNum, match in enumerate(matches, start=1):
-                    # don't be brave trying to unwound an URL when it gets cut off
+                    # don't be brave trying to unwound an URL when it gets
+                    # cut off
                     if not match.group().__contains__("…"):
-                        session = requests.Session()  # so connections are recycled
-                        response = session.head(match.group(), allow_redirects=True)
+                        session = requests.Session()  # so connections are
+                        # recycled
+                        response = session.head(match.group(),
+                                                allow_redirects=True)
                         if not response.ok:
                             response.raise_for_status()
                         expanded_url = response.url
-                        tweet['text'] = re.sub(match.group(), expanded_url, tweet['text'])
+                        tweet['text'] = re.sub(match.group(), expanded_url,
+                                               tweet['text'])
             if hasattr(self, "rich_text"):
                 if self.rich_text:
                     matches = re.findall(r'\B\@\w+', tweet['text'])
                     for match in matches:
-                        mention_link = "[" + match + "](https://twitter.com/" + match[1:] + ")"
-                        tweet['text'] = re.sub(match, mention_link, tweet['text'])
+                        mention_link = f"[{match}](https://twitter.com/" \
+                                       f"{match[1:]})"
+                        tweet['text'] = re.sub(match,
+                                               mention_link,
+                                               tweet['text'])
             try:
                 if self.nitter:
                     matching_pattern = "https://twitter.com"
                     matches = re.findall(matching_pattern, tweet['text'])
                     for match in matches:
-                        tweet['text'] = re.sub(match, "https://nitter.net", tweet['text'])
+                        tweet['text'] = re.sub(match,
+                                               "https://nitter.net",
+                                               tweet['text'])
             except AttributeError:
                 pass
             try:
@@ -355,9 +401,14 @@ class User(object):
                         if item == media_include['media_key']:
                             # Video download not implemented in v2 yet
                             # fallback to v1.1
-                            if media_include['type'] == 'video' or media_include['type'] == 'animated_gif':
-                                tweet_video = self._get_tweets('v1.1', tweet['id'])
-                                for extended_media in tweet_video['extended_entities']['media']:
+                            if media_include['type'] == 'video' or \
+                                    media_include['type'] == 'animated_gif':
+                                tweet_video = \
+                                    self._get_tweets('v1.1',
+                                                     tweet['id'])
+                                for extended_media in \
+                                        tweet_video['extended_entities'][
+                                            'media']:
                                     media.append(extended_media)
                             else:
                                 media.append(media_include)
@@ -370,7 +421,8 @@ class User(object):
             # Download media only if we plan to upload it later
             if self.media_upload:
                 for idx, item in enumerate(media):
-                    if item['type'] != 'video' and item['type'] != 'animated_gif':
+                    if item['type'] != 'video' and \
+                            item['type'] != 'animated_gif':
                         media_url = item['url']
                     else:
                         bitrate = 0
@@ -384,8 +436,10 @@ class User(object):
                     if not response.ok:
                         response.raise_for_status()
                     response.raw.decode_content = True
-                    filename = str(idx) + mimetypes.guess_extension(response.headers['Content-Type'])
-                    with open(os.path.join(self.tweets_temp_path, tweet['id'], filename), 'wb') as outfile:
+                    filename = str(idx) + mimetypes.guess_extension(
+                        response.headers['Content-Type'])
+                    with open(os.path.join(self.tweets_temp_path, tweet['id'],
+                                           filename), 'wb') as outfile:
                         shutil.copyfileobj(response.raw, outfile)
 
             # Process poll if exists and no media is used
@@ -410,8 +464,10 @@ class User(object):
                         'includes']['polls'][0]
 
                     pleroma_poll = {'options': [option['label']
-                                                for option in tweet_poll['options']],
-                                    'expires_in': tweet_poll['duration_minutes'] * 60}
+                                                for option in
+                                                tweet_poll['options']],
+                                    'expires_in':
+                                        tweet_poll['duration_minutes'] * 60}
 
                     # Add poll to tweet
                     tweet['polls'] = pleroma_poll
@@ -423,11 +479,13 @@ class User(object):
                 pass
         return tweets_to_post
 
-    def post_pleroma(self, tweet_id: str, tweet_text: str, poll: dict, sensitive: bool) -> str:
-        """Post the given text to the Pleroma instance associated with the User object
-        
-        
-        :param tweet_id: It will be used to link to the Twitter status if 'signature' is True and to find related media
+    def post_pleroma(self, tweet_id: str, tweet_text: str, poll: dict,
+                     sensitive: bool) -> str:
+        """Post the given text to the Pleroma instance associated with the
+        User object
+
+        :param tweet_id: It will be used to link to the Twitter status if
+        'signature' is True and to find related media
         :type tweet_id: str
         :param tweet_text: Literal text to use when creating the post.
         :type tweet_text: str
@@ -438,7 +496,8 @@ class User(object):
         :returns: id of post
         :rtype: str
         """
-        # TODO: transform twitter links to nitter links, if self.nitter 'true' in resolved shortened urls
+        # TODO: transform twitter links to nitter links, if self.nitter
+        #  'true' in resolved shortened urls
         pleroma_post_url = self.pleroma_base_url + '/api/v1/statuses'
         pleroma_media_url = self.pleroma_base_url + '/api/v1/media'
 
@@ -448,14 +507,18 @@ class User(object):
         if self.media_upload:
             for file in media_files:
                 media_file = open(os.path.join(tweet_folder, file), 'rb')
-                media_size = os.stat(os.path.join(tweet_folder, file)).st_size
+                # file_size = os.stat(os.path.join(tweet_folder, file)).st_size
                 mime_type = guess_type(os.path.join(tweet_folder, file))
                 timestamp = str(datetime.now().timestamp())
-                file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + \
+                file_name = "pleromapyupload_" + timestamp + "_" + \
+                            random_string(
+                                10) + \
                             mimetypes.guess_extension(mime_type)
                 file_description = (file_name, media_file, mime_type)
                 files = {"file": file_description}
-                response = requests.post(pleroma_media_url, headers=self.header_pleroma, files=files)
+                response = requests.post(pleroma_media_url,
+                                         headers=self.header_pleroma,
+                                         files=files)
                 if not response.ok:
                     response.raise_for_status()
                 try:
@@ -465,7 +528,8 @@ class User(object):
                     pass
 
         if self.signature:
-            signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + tweet_id
+            signature = '\n\n 🐦🔗: ' + self.twitter_url + '/status/' + \
+                        tweet_id
             tweet_text = tweet_text + signature
 
         # config setting override tweet attr
@@ -484,7 +548,8 @@ class User(object):
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 data.update({"content_type": self.content_type})
-        response = requests.post(pleroma_post_url, data, headers=self.header_pleroma)
+        response = requests.post(pleroma_post_url, data,
+                                 headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
         print("Post in Pleroma:\t" + str(response))
@@ -492,22 +557,27 @@ class User(object):
         return post_id
 
     def pin_pleroma(self, id_post):
-        """Tries to unpin previous pinned post if a file containing the ID of the previous post exists, then
+        """Tries to unpin previous pinned post if a file containing the ID
+        of the previous post exists, then
         proceeds to pin the post with ID 'id_post'
 
         :param id_post: ID of post to pin
         :returns: ID of post pinned
         :rtype: str
         """
-        if os.path.isfile(os.path.join(self.user_path, 'pinned_id_pleroma.txt')):
-            with open(os.path.join(self.user_path, 'pinned_id_pleroma.txt'), 'r') as file:
+        if os.path.isfile(
+                os.path.join(self.user_path, 'pinned_id_pleroma.txt')):
+            with open(os.path.join(self.user_path, 'pinned_id_pleroma.txt'),
+                      'r') as file:
                 previous_pinned_post_id = file.readline().rstrip()
-                unpin_url = self.pleroma_base_url + '/api/v1/statuses/' + previous_pinned_post_id + '/unpin'
-                response = requests.post(unpin_url, headers=self.header_pleroma)
+                unpin_url = f"{self.pleroma_base_url}/api/v1/statuses/" \
+                            f"{previous_pinned_post_id}/unpin"
+                response = requests.post(unpin_url,
+                                         headers=self.header_pleroma)
                 if not response.ok:
                     response.raise_for_status()
                 print("Unpinning previous:\t" + response.text)
-        pin_url = self.pleroma_base_url + '/api/v1/statuses/' + id_post + '/pin'
+        pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
         response = requests.post(pin_url, headers=self.header_pleroma)
         print("Pinning post:\t" + str(response.text))
         try:
@@ -518,20 +588,23 @@ class User(object):
         return pin_id
 
     def update_pleroma(self):
-        """Update the Pleroma user info with the one retrieved from Twitter when the User object was instantiated.
+        """Update the Pleroma user info with the one retrieved from Twitter
+        when the User object was instantiated.
         This includes:
-        
+
         * Profile image (if exists)
         * Banner image (if exists)
         * Bio text
         * Screen name
         * Additional metadata fields
-        
-        :returns: None 
+
+        :returns: None
         """
-        # Get the biggest resolution for the profile picture (400x400) instead of 'normal'
+        # Get the biggest resolution for the profile picture (400x400)
+        # instead of 'normal'
         if self.profile_image_url:
-            profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
+            profile_img_big = re.sub(r"normal", "400x400",
+                                     self.profile_image_url)
             response = requests.get(profile_img_big, stream=True)
             if not response.ok:
                 response.raise_for_status()
@@ -548,7 +621,8 @@ class User(object):
                 shutil.copyfileobj(response.raw, outfile)
 
         # Set it on Pleroma
-        cred_url = self.pleroma_base_url + '/api/v1/accounts/update_credentials'
+        cred_url = f"{self.pleroma_base_url}" \
+                   f"/api/v1/accounts/update_credentials"
 
         # Construct fields
         fields = []
@@ -565,7 +639,8 @@ class User(object):
             data.update({"header": self.header_path})
 
         if len(fields) > 4:
-            raise Exception("Maximum number of metadata fields is 4. Exiting...")
+            raise Exception(
+                "Maximum number of metadata fields is 4. Exiting...")
         for idx, (field_name, field_value) in enumerate(fields):
             data['fields_attributes[' + str(idx) + '][name]'] = field_name
             data['fields_attributes[' + str(idx) + '][value]'] = field_value
@@ -574,14 +649,15 @@ class User(object):
             avatar = open(self.avatar_path, 'rb')
             avatar_mime_type = guess_type(self.avatar_path)
             timestamp = str(datetime.now().timestamp())
-            avatar_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
-                avatar_mime_type)
-
+            avatar_file_name = f"pleromapyupload_{timestamp}_" \
+                               f"{random_string(10)}" \
+                               f"{mimetypes.guess_extension(avatar_mime_type)}"
         if self.profile_banner_url:
             header = open(self.header_path, 'rb')
             header_mime_type = guess_type(self.header_path)
-            header_file_name = "pleromapyupload_" + timestamp + "_" + random_string(10) + mimetypes.guess_extension(
-                header_mime_type)
+            header_file_name = f"pleromapyupload_{timestamp}_" \
+                               f"{random_string(10)}" \
+                               f"{mimetypes.guess_extension(header_mime_type)}"
 
         files = {}
 
@@ -591,23 +667,26 @@ class User(object):
         if self.profile_banner_url:
             files.update(
                 {"header": (header_file_name, header, header_mime_type)})
-        response = requests.patch(cred_url, data, headers=self.header_pleroma, files=files)
+        response = requests.patch(cred_url, data, headers=self.header_pleroma,
+                                  files=files)
         if not response.ok:
             response.raise_for_status()
         print("Updating profile:\t" + str(response))  # for debugging
         return
 
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
-        """Returns a string with "{{ var_name }}" replaced with var_name's value
-        If no 'var_name' is provided, locals() (or self if it's an object method)
-        will be used and all variables found in locals() (or object attributes)
-        will be replaced with their values.
+        """
+        Returns a string with "{{ var_name }}" replaced with var_name's value
+        If no 'var_name' is provided, locals() (or self if it's an object
+        method) will be used and all variables found in locals() (or object
+        attributes) will be replaced with their values.
 
-        :param text: String to be parsed, replacing "{{ var_name }}" with var_name's value. Multiple occurrences are
-                     supported.
+        :param text: String to be parsed, replacing "{{ var_name }}" with
+        var_name's value. Multiple occurrences are supported.
         :type text: str
-        :param var_name: Name of the variable to be replace. Multiple occurrences are supported. If not provided,
-               locals() will be used and all variables will be replaced with their values.
+        :param var_name: Name of the variable to be replace. Multiple
+        occurrences are supported. If not provided, locals() will be used and
+        all variables will be replaced with their values.
         :type var_name: str
 
         :returns: A string with {{ var_name }} replaced with var_name's value.
@@ -653,10 +732,13 @@ def random_string(length: int) -> str:
     """Returns a string of random characters of length 'length'
     :param length: How long the string to return must be
     :type length: int
-    :returns: an alpha-numerical string of specified length with random characters
+    :returns: an alpha-numerical string of specified length with random
+    characters
     :rtype: str
     """
-    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(length))
+    return ''.join(
+        random.choice(string.ascii_lowercase + string.digits) for _ in
+        range(length))
 
 
 def main():
@@ -676,8 +758,9 @@ def main():
             # Get rid of old tweets
             for tweet in tweets['data']:
                 created_at = tweet['created_at']
-                date_twitter = datetime.strftime(datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.000Z'),
-                                                 '%Y-%m-%d %H:%M:%S')
+                date_twitter = datetime.strftime(
+                    datetime.strptime(created_at, '%Y-%m-%dT%H:%M:%S.000Z'),
+                    '%Y-%m-%d %H:%M:%S')
                 if date_twitter > date_pleroma:
                     tweets_to_post['data'].append(tweet)
 
@@ -692,32 +775,40 @@ def main():
             # Pinned tweet
             print("Current pinned:\t" + str(user.pinned_tweet_id))
             if os.path.isfile(os.path.join(user.user_path, 'pinned_id.txt')):
-                with open(os.path.join(user.user_path, 'pinned_id.txt'), 'r') as file:
+                with open(os.path.join(user.user_path, 'pinned_id.txt'),
+                          'r') as file:
                     previous_pinned_tweet_id = file.readline().rstrip()
             else:
                 previous_pinned_tweet_id = None
             print("Previous pinned:\t" + str(previous_pinned_tweet_id))
             if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
-                    ((user.pinned_tweet_id is not None) and (previous_pinned_tweet_id is None)):
+                    ((user.pinned_tweet_id is not None) and
+                     (previous_pinned_tweet_id is None)):
                 pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
-                tweets_to_post = {'data': [pinned_tweet['data']], 'includes': tweets['includes']}
+                tweets_to_post = {'data': [pinned_tweet['data']],
+                                  'includes': tweets['includes']}
                 tweets_to_post = user.process_tweets(tweets_to_post)
-                id_post_to_pin = user.post_pleroma(user.pinned_tweet_id,
-                                                   tweets_to_post['data'][0]['text'],
-                                                   tweets_to_post['data'][0]['polls'],
-                                                   tweets_to_post['data'][0]['possibly_sensitive'])
+                id_post_to_pin = \
+                    user.post_pleroma(
+                        user.pinned_tweet_id,
+                        tweets_to_post['data'][0]['text'],
+                        tweets_to_post['data'][0]['polls'],
+                        tweets_to_post['data'][0]['possibly_sensitive'])
                 pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
-                with open(os.path.join(user.user_path, 'pinned_id.txt'), 'w') as file:
+                with open(os.path.join(user.user_path, 'pinned_id.txt'),
+                          'w') as file:
                     file.write(user.pinned_tweet_id + '\n')
                 if pleroma_pinned_post is not None:
-                    with open(os.path.join(user.user_path, 'pinned_id_pleroma.txt'), 'w') as file:
+                    with open(os.path.join(user.user_path,
+                                           'pinned_id_pleroma.txt'),
+                              'w') as file:
                         file.write(pleroma_pinned_post + '\n')
 
             if not arg == "noProfile":
                 user.update_pleroma()
             # Clean-up
             shutil.rmtree(user.tweets_temp_path)
-    except:
+    except Exception:
         logger.error("Exception occurred", exc_info=True)
         return 1
 
