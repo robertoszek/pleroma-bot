@@ -519,8 +519,18 @@ class User(object):
                 response = requests.post(pleroma_media_url,
                                          headers=self.header_pleroma,
                                          files=files)
-                if not response.ok:
-                    response.raise_for_status()
+                try:
+                    if not response.ok:
+                        response.raise_for_status()
+                except requests.exceptions.HTTPError:
+                    if response.status_code == 513:
+                        logger.error("Exception occurred")
+                        logger.error("Media size too large:")
+                        logger.error(f"Filename: {file}")
+                        logger.error(f"Size: {media_size}")
+                        logger.error(f"Consider increasing the attachment"
+                                     f" size limit of your instance")
+                        pass
                 try:
                     media_ids.append(json.loads(response.text)['id'])
                 except (KeyError, JSONDecodeError):
