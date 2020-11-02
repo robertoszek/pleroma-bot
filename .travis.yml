@@ -16,7 +16,7 @@ matrix:
 
 
 install:
-    - pip install tox tox-travis
+    - pip install tox tox-travis coverage
     - eval $(dbus-launch --sh-syntax)
 
 before_script:
@@ -28,7 +28,7 @@ script:
     - tox
 
 after_script:
-    - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+    - ./cc-test-reporter after-build simplecov -exit-code $TRAVIS_TEST_RESULT
 
 notifications:
     email: false

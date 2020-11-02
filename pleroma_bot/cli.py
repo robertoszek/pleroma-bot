@@ -507,7 +507,7 @@ class User(object):
         if self.media_upload:
             for file in media_files:
                 media_file = open(os.path.join(tweet_folder, file), 'rb')
-                # file_size = os.stat(os.path.join(tweet_folder, file)).st_size
+                file_size = os.stat(os.path.join(tweet_folder, file)).st_size
                 mime_type = guess_type(os.path.join(tweet_folder, file))
                 timestamp = str(datetime.now().timestamp())
                 file_name = "pleromapyupload_" + timestamp + "_" + \
@@ -528,7 +528,7 @@ class User(object):
                         logger.error("Media size too large:")
                         logger.error(f"Filename: {file}")
                         logger.error(f"Size: {file_size}")
-                        logger.error("Consider increasing the attachment" \
+                        logger.error("Consider increasing the attachment"
                                      " size limit of your instance")
                         pass
                 try:
