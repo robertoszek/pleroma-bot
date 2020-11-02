@@ -24,7 +24,7 @@ except ImportError:
 from datetime import datetime, timedelta
 
 from pleroma_bot.cli import *
-
+from test_user import TestUser
 
 def test_random_string():
     """
@@ -34,39 +34,80 @@ def test_random_string():
     assert len(random_10) == 10
 
 
-def test_user(rootdir):
+def test_user_replace_vars_in_str(sample_users):
     """
-
+    Check that replace_vars_in_str replaces the var_name with the var_value correctly
     """
-    sample_data_dir = os.path.join(rootdir, 'test_files', 'sample_data')
-    sample_data = {}
-    for file in os.listdir(sample_data_dir):
-        data = os.path.join(sample_data_dir, file)
-        with open(data, 'r', encoding='utf8') as f:
-            sample_data[os.path.splitext(file)[0]] = json.load(f)
+    test_user = TestUser()
+    for sample_user in sample_users:
+        replace = sample_user['user_obj'].replace_vars_in_str(test_user.replace_str)
+        assert replace == sample_user['user_obj'].twitter_url
 
-    twitter_base_url = 'http://api.twitter.com/1.1'
-    twitter_base_url_v2 = 'https://api.twitter.com/2'
-    with requests_mock.Mocker() as mock:
-        mock.get(f"{twitter_base_url_v2}/tweets/search/recent", json=sample_data['tweets_v2'], status_code=200)
-        mock.get(f"{twitter_base_url}/users/show.json", json=sample_data['twitter_info'], status_code=200)
-        mock.get(f"{twitter_base_url}/statuses/show.json", json=sample_data['tweet'], status_code=200)
-        mock.get(f"{twitter_base_url_v2}/tweets?ids=1323049466837032961&expansions=attachments.poll_ids&poll.fields"
-                 f"=duration_minutes%2Coptions",
-                 json=sample_data['poll'],
-                 status_code=200)
-        configs_dir = os.path.join(rootdir, 'test_files')
-        for config in os.listdir(configs_dir):
-            if os.path.isfile(os.path.join(configs_dir, config)):
-                with open(os.path.join(configs_dir, config), 'r') as stream:
-                    config = yaml.safe_load(stream)
-                user_dict = config['users']
-                for user_item in user_dict:
-                    mock.get(f"{twitter_base_url_v2}/users/by/username/{user_item['twitter_username']}",
-                             json=sample_data['pinned'],
-                             status_code=200)
-                    mock.get(f"{config['pleroma_base_url']}/api/v1/accounts/{user_item['pleroma_username']}/statuses",
-                             json=sample_data['pleroma_statuses'],
-                             status_code=200)
-                    user = User(user_item, config)
-                    assert user.twitter_base_url == "http://api.twitter.com/1.1"
+
+def test_user_attrs(sample_users):
+    """
+    Check that test user matches sample data fed by the mock
+    """
+    test_user = TestUser()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            pleroma_date = sample_user_obj.get_date_last_pleroma_post()
+            pinned = sample_user_obj.pinned_tweet_id
+            assert pinned == test_user.pinned
+            assert pleroma_date == test_user.pleroma_date
+            assert sample_user_obj.twitter_base_url == test_user.twitter_base_url
+            assert sample_user_obj.twitter_token == test_user.twitter_token
+            assert sample_user_obj.pleroma_token == test_user.pleroma_token
+            assert sample_user_obj.twitter_base_url_v2 == test_user.twitter_base_url_v2
+            assert sample_user_obj.nitter == test_user.nitter
+
+
+def test_user_invalid_visibility(rootdir, mock_request):
+    test_user = TestUser()
+    with pytest.raises(KeyError):
+        with mock_request['mock'] as mock:
+            configs_dir = os.path.join(rootdir, 'test_files')
+            with open(os.path.join(configs_dir, 'config_visibility.yml'), 'r',  encoding='utf8') as stream:
+                config = yaml.safe_load(stream)
+            user_dict = config['users']
+            for user_item in user_dict:
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/{user_item['twitter_username']}",
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                mock.get(f"{config['pleroma_base_url']}/api/v1/accounts/{user_item['pleroma_username']}/statuses",
+                         json=mock_request['sample_data']['pleroma_statuses'],
+                         status_code=200)
+                user_obj = User(user_item, config)
+
+
+def test_user_invalid_max_tweets(rootdir, mock_request):
+    test_user = TestUser()
+    with pytest.raises(ValueError):
+        with mock_request['mock'] as mock:
+            configs_dir = os.path.join(rootdir, 'test_files')
+            with open(os.path.join(configs_dir, 'config_max_tweets_global.yml'), 'r',  encoding='utf8') as stream:
+                config = yaml.safe_load(stream)
+            user_dict = config['users']
+            for user_item in user_dict:
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/{user_item['twitter_username']}",
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                mock.get(f"{config['pleroma_base_url']}/api/v1/accounts/{user_item['pleroma_username']}/statuses",
+                         json=mock_request['sample_data']['pleroma_statuses'],
+                         status_code=200)
+                user_obj = User(user_item, config)
+    with pytest.raises(ValueError):
+        with mock_request['mock'] as mock:
+            configs_dir = os.path.join(rootdir, 'test_files')
+            with open(os.path.join(configs_dir, 'config_max_tweets_user.yml'), 'r',  encoding='utf8') as stream:
+                config = yaml.safe_load(stream)
+            user_dict = config['users']
+            for user_item in user_dict:
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/{user_item['twitter_username']}",
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                mock.get(f"{config['pleroma_base_url']}/api/v1/accounts/{user_item['pleroma_username']}/statuses",
+                         json=mock_request['sample_data']['pleroma_statuses'],
+                         status_code=200)
+                user_obj = User(user_item, config)
