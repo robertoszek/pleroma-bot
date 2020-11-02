@@ -31,5 +31,18 @@ setuptools.setup(
     install_requires=[
         'requests>=2.24.0',
         'PyYAML>=5.3.1'
-    ]
+    ],
+    extras_require={
+        'lint': [
+            'flake8',
+            'flake8-quotes',
+        ],
+        'test': [
+            'tox',
+            'pytest',
+            'requests-mock'
+            'pytest-cov',
+            'python-magic-bin ; platform_system=="Windows"'
+        ],
+    }
 )
