@@ -7,3 +7,4 @@ config.yml
 /build
 /pleroma_bot.egg-info
 error.log
+/.tox/
