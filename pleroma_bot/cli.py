@@ -527,9 +527,9 @@ class User(object):
                         logger.error("Exception occurred")
                         logger.error("Media size too large:")
                         logger.error(f"Filename: {file}")
-                        logger.error(f"Size: {media_size}")
-                        logger.error(f"Consider increasing the attachment"
-                                     f" size limit of your instance")
+                        logger.error(f"Size: {file_size}")
+                        logger.error("Consider increasing the attachment" \
+                                     " size limit of your instance")
                         pass
                 try:
                     media_ids.append(json.loads(response.text)['id'])
