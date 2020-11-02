@@ -14,6 +14,9 @@ matrix:
 #before_install:
 #    - sudo apt-get update -y
 
+env:
+  global:
+    CC_TEST_REPORTER_ID=f108a5ed53a9d98475fc6133c72c9a82756749e158e002c1345dc465e233999e
 
 install:
     - pip install tox tox-travis coverage
@@ -28,6 +31,7 @@ script:
     - tox
 
 after_script:
+    - coverage xml
     - ./cc-test-reporter after-build simplecov -exit-code $TRAVIS_TEST_RESULT
 
 notifications:
