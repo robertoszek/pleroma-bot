@@ -684,6 +684,38 @@ class User(object):
         print("Updating profile:\t" + str(response))  # for debugging
         return
 
+    def check_pinned(self):
+        print("Current pinned:\t" + str(self.pinned_tweet_id))
+        if os.path.isfile(os.path.join(self.user_path, 'pinned_id.txt')):
+            with open(os.path.join(self.user_path, 'pinned_id.txt'),
+                      'r') as file:
+                previous_pinned_tweet_id = file.readline().rstrip()
+        else:
+            previous_pinned_tweet_id = None
+        print("Previous pinned:\t" + str(previous_pinned_tweet_id))
+        if (self.pinned_tweet_id != previous_pinned_tweet_id) or \
+                ((self.pinned_tweet_id is not None) and
+                 (previous_pinned_tweet_id is None)):
+            pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
+            tweets_to_post = {'data': [pinned_tweet['data']],
+                              'includes': pinned_tweet['includes']}
+            tweets_to_post = self.process_tweets(tweets_to_post)
+            id_post_to_pin = \
+                self.post_pleroma(
+                    self.pinned_tweet_id,
+                    tweets_to_post['data'][0]['text'],
+                    tweets_to_post['data'][0]['polls'],
+                    tweets_to_post['data'][0]['possibly_sensitive'])
+            pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
+            with open(os.path.join(self.user_path, 'pinned_id.txt'),
+                      'w') as file:
+                file.write(self.pinned_tweet_id + '\n')
+            if pleroma_pinned_post is not None:
+                with open(os.path.join(self.user_path,
+                                       'pinned_id_pleroma.txt'),
+                          'w') as file:
+                    file.write(pleroma_pinned_post + '\n')
+
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
         """
         Returns a string with "{{ var_name }}" replaced with var_name's value
@@ -782,37 +814,8 @@ def main():
                                   tweet['polls'],
                                   tweet['possibly_sensitive'])
                 time.sleep(2)
-            # Pinned tweet
-            print("Current pinned:\t" + str(user.pinned_tweet_id))
-            if os.path.isfile(os.path.join(user.user_path, 'pinned_id.txt')):
-                with open(os.path.join(user.user_path, 'pinned_id.txt'),
-                          'r') as file:
-                    previous_pinned_tweet_id = file.readline().rstrip()
-            else:
-                previous_pinned_tweet_id = None
-            print("Previous pinned:\t" + str(previous_pinned_tweet_id))
-            if (user.pinned_tweet_id != previous_pinned_tweet_id) or \
-                    ((user.pinned_tweet_id is not None) and
-                     (previous_pinned_tweet_id is None)):
-                pinned_tweet = user._get_tweets("v2", user.pinned_tweet_id)
-                tweets_to_post = {'data': [pinned_tweet['data']],
-                                  'includes': tweets['includes']}
-                tweets_to_post = user.process_tweets(tweets_to_post)
-                id_post_to_pin = \
-                    user.post_pleroma(
-                        user.pinned_tweet_id,
-                        tweets_to_post['data'][0]['text'],
-                        tweets_to_post['data'][0]['polls'],
-                        tweets_to_post['data'][0]['possibly_sensitive'])
-                pleroma_pinned_post = user.pin_pleroma(id_post_to_pin)
-                with open(os.path.join(user.user_path, 'pinned_id.txt'),
-                          'w') as file:
-                    file.write(user.pinned_tweet_id + '\n')
-                if pleroma_pinned_post is not None:
-                    with open(os.path.join(user.user_path,
-                                           'pinned_id_pleroma.txt'),
-                              'w') as file:
-                        file.write(pleroma_pinned_post + '\n')
+
+            user.check_pinned()
 
             if not arg == "noProfile":
                 user.update_pleroma()
