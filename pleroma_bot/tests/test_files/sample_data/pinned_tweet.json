@@ -1,0 +1,57 @@
+{
+  "data": {
+    "created_at": "2020-11-01T23:49:08.000Z",
+    "attachments": {
+      "poll_ids": [
+        "1323049466027479040"
+      ]
+    },
+    "text": "Poll",
+    "public_metrics": {
+      "retweet_count": 0,
+      "reply_count": 0,
+      "like_count": 0,
+      "quote_count": 0
+    },
+    "lang": "en",
+    "author_id": "1320506197913542656",
+    "source": "Twitter Web App",
+    "conversation_id": "1323049466837032961",
+    "possibly_sensitive": false,
+    "id": "1323049466837032961"
+  },
+  "includes": {
+    "polls": [
+      {
+        "id": "1323049466027479040",
+        "voting_status": "open",
+        "end_datetime": "2020-11-08T23:49:08.000Z",
+        "duration_minutes": 10080,
+        "options": [
+          {
+            "position": 1,
+            "label": "😊",
+            "votes": 0
+          },
+          {
+            "position": 2,
+            "label": "😟",
+            "votes": 0
+          },
+          {
+            "position": 3,
+            "label": "🤔",
+            "votes": 0
+          }
+        ]
+      }
+    ],
+    "users": [
+      {
+        "id": "1320506197913542656",
+        "name": "test-pleroma-bot",
+        "username": "BotPleroma"
+      }
+    ]
+  }
+}
