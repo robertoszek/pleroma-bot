@@ -1,4 +1,5 @@
 import pytest
+import os
 
 from test_user import TestUser
 from conftest import get_config_users
@@ -49,7 +50,7 @@ def test_user_attrs(sample_users):
             return mock
 
 
-def test_user_invalid_visibility(rootdir, mock_request):
+def test_user_invalid_visibility(mock_request):
     """
     Check that an improper visibility value in the config raises a
     KeyError exception
@@ -72,7 +73,7 @@ def test_user_invalid_visibility(rootdir, mock_request):
                 return user_obj
 
 
-def test_user_invalid_max_tweets(rootdir, mock_request):
+def test_user_invalid_max_tweets(mock_request):
     """
     Check that an improper max_tweets value in the config raises a
     ValueError exception
@@ -109,5 +110,38 @@ def test_user_invalid_max_tweets(rootdir, mock_request):
                 return user_obj
 
 
-# def test_pinned_tweet():
-#    pinned_id = '1315888762120011783'
+def test_check_pinned_tweet(tmpdir, sample_users, mock_request):
+    test_user = TestUser()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            pinned = sample_user_obj.pinned_tweet_id
+            assert pinned == test_user.pinned
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                     f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
+                     f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                     f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
+                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
+                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"entities.mentions.username%2Cgeo.place_id%2C"
+                     f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                     f"referenced_tweets.id.author_id&tweet.fields=attachments"
+                     f"%2Cauthor_id%2Ccontext_annotations%2Cconversation_id%2"
+                     f"Ccreated_at%2Centities%2Cgeo%2Cid%2Cin_reply_to_user_id"
+                     f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                     f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
+                     f"&expansions=attachments.poll_ids"
+                     f"&poll.fields=duration_minutes%2Coptions",
+                     json=mock_request['sample_data']['poll'],
+                     status_code=200)
+
+            sample_user_obj.check_pinned()
+            pinned_path = os.path.join(os.getcwd(),
+                                       'users',
+                                       sample_user_obj.twitter_username,
+                                       'pinned_id.txt')
+            with open(pinned_path, 'r', encoding='utf8') as pinned_file:
+                assert pinned_file.readline().rstrip() == test_user.pinned

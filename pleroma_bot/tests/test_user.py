@@ -10,3 +10,4 @@ class TestUser:
         self.twitter_base_url_v2 = self.twitter_base_url_v2
         self.nitter = True
         self.replace_str = "{{ twitter_url }}"
+        self.pleroma_pinned = "980293840932890"

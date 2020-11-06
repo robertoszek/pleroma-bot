@@ -3,6 +3,8 @@ import yaml
 import json
 import pytest
 import requests_mock
+
+from test_user import TestUser
 from pleroma_bot.cli import User
 
 
@@ -33,20 +35,15 @@ def mock_request(rootdir):
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
                  status_code=200)
-        mock.get(f"{twitter_base_url_v2}"
-                 f"/tweets?ids=1323049466837032961"
-                 f"&expansions=attachments.poll_ids&poll.fields"
-                 f"=duration_minutes%2Coptions",
-                 json=sample_data['poll'],
-                 status_code=200)
         mock_return['mock'] = mock
         mock_return['sample_data'] = sample_data
         return mock_return
 
 
 @pytest.fixture(scope="session")
-def sample_users(rootdir, mock_request):
+def sample_users(mock_request):
     users = []
+    test_user = TestUser()
     # twitter_base_url = 'http://api.twitter.com/1.1'
     twitter_base_url_v2 = 'https://api.twitter.com/2'
     with mock_request['mock'] as mock:
@@ -61,8 +58,20 @@ def sample_users(rootdir, mock_request):
                      f"{user_item['pleroma_username']}/statuses",
                      json=mock_request['sample_data']['pleroma_statuses'],
                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/v1/statuses",
+                      json=mock_request['sample_data']['pleroma_post'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/v1/media",
+                      json=mock_request['sample_data']['pleroma_post_media'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/v1/statuses/{test_user.pleroma_pinned}/pin",
+                      json=mock_request['sample_data']['pleroma_pin'],
+                      status_code=200)
             users.append({'user_obj': User(user_item, config_users['config']),
-                          'mock': mock})
+                          'mock': mock, 'config': config_users['config']})
         return users
 
 
