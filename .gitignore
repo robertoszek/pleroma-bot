@@ -8,3 +8,5 @@ config.yml
 /pleroma_bot.egg-info
 error.log
 /.tox/
+/.coverage
+/coverage.xml
