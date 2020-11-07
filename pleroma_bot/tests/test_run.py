@@ -110,7 +110,7 @@ def test_user_invalid_max_tweets(mock_request):
                 return user_obj
 
 
-def test_check_pinned_tweet(tmpdir, sample_users, mock_request):
+def test_check_pinned_tweet(sample_users, mock_request):
     test_user = TestUser()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -137,7 +137,14 @@ def test_check_pinned_tweet(tmpdir, sample_users, mock_request):
                      f"&poll.fields=duration_minutes%2Coptions",
                      json=mock_request['sample_data']['poll'],
                      status_code=200)
-
+            pinned_file = os.path.join(
+                os.getcwd(),
+                'users',
+                sample_user_obj.twitter_username,
+                'pinned_id.txt'
+            )
+            with open(pinned_file, "w") as file:
+                file.write(test_user.pinned + "\n")
             sample_user_obj.check_pinned()
             pinned_path = os.path.join(os.getcwd(),
                                        'users',

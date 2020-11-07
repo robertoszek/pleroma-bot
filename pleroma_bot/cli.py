@@ -161,6 +161,7 @@ class User(object):
             os.mkdir(self.tweets_temp_path)
         # Get Twitter info on instance creation
         self._get_twitter_info()
+        self.posts = None
         return
 
     def _get_twitter_info(self):
@@ -297,6 +298,7 @@ class User(object):
         if not response.ok:
             response.raise_for_status()
         posts = json.loads(response.text)
+        self.posts = posts
         if posts:
             date_pleroma = datetime.strftime(
                 datetime.strptime(
@@ -611,19 +613,8 @@ class User(object):
         :rtype: str
         """
         pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
-        if os.path.isfile(pinned_file):
-            with open(os.path.join(pinned_file), "r") as file:
-                previous_pinned_post_id = file.readline().rstrip()
-                unpin_url = (
-                    f"{self.pleroma_base_url}/api/v1/statuses/"
-                    f"{previous_pinned_post_id}/unpin"
-                )
-                response = requests.post(
-                    unpin_url, headers=self.header_pleroma
-                )
-                if not response.ok:
-                    response.raise_for_status()
-                print("Unpinning previous:\t" + response.text)
+        self.unpin_pleroma(pinned_file)
+
         pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
         response = requests.post(pin_url, headers=self.header_pleroma)
         print("Pinning post:\t" + str(response.text))
@@ -633,6 +624,72 @@ class User(object):
             pin_id = None
             pass
         return pin_id
+
+    def unpin_pleroma(self, pinned_file):
+        """
+        Unpins post with the ID stored in the file passed as parameter
+        :param pinned_file: path to file containing post ID
+
+        """
+        pinned_file_twitter = os.path.join(self.user_path, "pinned_id.txt")
+        previous_pinned_post_id = None
+        if os.path.isfile(pinned_file):
+            with open(os.path.join(pinned_file), "r") as file:
+                previous_pinned_post_id = file.readline().rstrip()
+                if previous_pinned_post_id == "":
+                    previous_pinned_post_id = None
+
+        if previous_pinned_post_id:
+            unpin_url = (
+                f"{self.pleroma_base_url}/api/v1/statuses/"
+                f"{previous_pinned_post_id}/unpin"
+            )
+            response = requests.post(unpin_url, headers=self.header_pleroma)
+            if not response.ok:
+                response.raise_for_status()
+            print("Unpinning previous:\t" + response.text)
+        else:
+            print(
+                "File with previous pinned post ID not found or empty. "
+                "Checking last posts for pinned post..."
+            )
+            page = 0
+            headers_page_url = None
+            while page < 10:
+                for post in self.posts:
+                    if post["pinned"]:
+                        with open(pinned_file, "w") as file:
+                            file.write(post["id"] + "\n")
+                        return self.unpin_pleroma(pinned_file)
+                page += 1
+                pleroma_posts_url = (
+                    f"{self.pleroma_base_url}/api/v1/accounts/"
+                    f"{self.pleroma_username}/statuses"
+                )
+                if headers_page_url:
+                    statuses_url = headers_page_url
+                else:
+                    statuses_url = pleroma_posts_url
+                response = requests.get(
+                    statuses_url, headers=self.header_pleroma
+                )
+                if not response.ok:
+                    response.raise_for_status()
+                posts = json.loads(response.text)
+                self.posts = posts
+                links = requests.utils.parse_header_links(
+                    response.headers["link"].rstrip(">").replace(">,<", ",<")
+                )
+                for link in links:
+                    if link["rel"] == "next":
+                        headers_page_url = link["url"]
+
+            logger.warning("Pinned post not found. Giving up unpinning...")
+        # Clear pinned ids
+        with open(pinned_file, "w") as file:
+            file.write("\n")
+        with open(pinned_file_twitter, "w") as file:
+            file.write("\n")
 
     def update_pleroma(self):
         """Update the Pleroma user info with the one retrieved from Twitter
@@ -732,17 +789,23 @@ class User(object):
         return
 
     def check_pinned(self):
+        """
+        Checks if a tweet is pinned and needs to be retrieved and posted on the
+        Fediverse account
+        """
         print("Current pinned:\t" + str(self.pinned_tweet_id))
         pinned_file = os.path.join(self.user_path, "pinned_id.txt")
         if os.path.isfile(pinned_file):
             with open(pinned_file, "r") as file:
                 previous_pinned_tweet_id = file.readline().rstrip()
+                if previous_pinned_tweet_id == "":
+                    previous_pinned_tweet_id = None
         else:
             previous_pinned_tweet_id = None
         print("Previous pinned:\t" + str(previous_pinned_tweet_id))
-        if self.pinned_tweet_id != previous_pinned_tweet_id or (
-            (self.pinned_tweet_id is not None)
-            and (previous_pinned_tweet_id is None)
+        if (
+            self.pinned_tweet_id != previous_pinned_tweet_id
+            and self.pinned_tweet_id is not None
         ):
             pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
             tweets_to_post = {
@@ -764,6 +827,12 @@ class User(object):
                     os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
                 ) as file:
                     file.write(pleroma_pinned_post + "\n")
+        elif (
+            self.pinned_tweet_id != previous_pinned_tweet_id
+            and previous_pinned_tweet_id is not None
+        ):
+            pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
+            self.unpin_pleroma(pinned_file)
 
     def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
         """
