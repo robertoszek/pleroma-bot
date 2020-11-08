@@ -289,7 +289,8 @@ def test_guess_type(rootdir):
     png = os.path.join(media_dir, 'image.png')
     svg = os.path.join(media_dir, 'image.svg')
     mp4 = os.path.join(media_dir, 'video.mp4')
-
+    gif = os.path.join(media_dir, "animated_gif.gif")
     assert 'image/png' == guess_type(png)
     assert 'image/svg+xml' == guess_type(svg)
     assert 'video/mp4' == guess_type(mp4)
+    assert 'image/gif' == guess_type(gif)
