@@ -341,7 +341,7 @@ class User(object):
             pass
         return pinned_tweet_id
 
-    def get_pinned_tweet_(self):
+    def get_pinned_tweet(self):
         return self.pinned_tweet_id
 
     def process_tweets(self, tweets_to_post):
@@ -656,16 +656,18 @@ class User(object):
             page = 0
             headers_page_url = None
             while page < 10:
-                for post in self.posts:
-                    if post["pinned"]:
-                        with open(pinned_file, "w") as file:
-                            file.write(post["id"] + "\n")
-                        return self.unpin_pleroma(pinned_file)
+                if self.posts:
+                    for post in self.posts:
+                        if post["pinned"]:
+                            with open(pinned_file, "w") as file:
+                                file.write(post["id"] + "\n")
+                            return self.unpin_pleroma(pinned_file)
                 page += 1
                 pleroma_posts_url = (
                     f"{self.pleroma_base_url}/api/v1/accounts/"
                     f"{self.pleroma_username}/statuses"
                 )
+
                 if headers_page_url:
                     statuses_url = headers_page_url
                 else:

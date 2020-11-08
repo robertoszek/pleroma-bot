@@ -53,13 +53,35 @@ def sample_users(mock_request):
                      f"{user_item['twitter_username']}",
                      json=mock_request['sample_data']['pinned'],
                      status_code=200)
+
+            headers_statuses = {
+                "link": f"<{config_users['config']['pleroma_base_url']}"
+                        f"/api/v1/accounts/"
+                        f"{user_item['pleroma_username']}/statuses/"
+                        f'?limit=20&max_id={test_user.pleroma_pinned}>; '
+                        f'rel="next", '
+                        f"<{config_users['config']['pleroma_base_url']}"
+                        f"/api/v1/accounts/"
+                        f"{user_item['pleroma_username']}/statuses/"
+                        f'?limit=20&max_id={test_user.pleroma_pinned}>; '
+                        f'rel="prev"'
+            }
             mock.get(f"{config_users['config']['pleroma_base_url']}"
                      f"/api/v1/accounts/"
                      f"{user_item['pleroma_username']}/statuses",
-                     json=mock_request['sample_data']['pleroma_statuses'],
+                     json=mock_request['sample_data']['pleroma_statuses_pin'],
+                     headers=headers_statuses,
+                     status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/accounts/"
+                     f"{user_item['pleroma_username']}/statuses/"
+                     f'?limit=20&max_id={test_user.pleroma_pinned}',
+                     json=mock_request['sample_data']['pleroma_statuses_pin'],
+                     headers=headers_statuses,
                      status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
                       f"/api/v1/statuses",
+                      headers=headers_statuses,
                       json=mock_request['sample_data']['pleroma_post'],
                       status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
@@ -67,7 +89,11 @@ def sample_users(mock_request):
                       json=mock_request['sample_data']['pleroma_post_media'],
                       status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
-                      f"/api/v1/statuses/{test_user.pleroma_pinned}/pin",
+                      f"/api/v1/statuses/{test_user.pleroma_pinned_new}/pin",
+                      json=mock_request['sample_data']['pleroma_pin'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/v1/statuses/{test_user.pleroma_pinned}/unpin",
                       json=mock_request['sample_data']['pleroma_pin'],
                       status_code=200)
             users.append({'user_obj': User(user_item, config_users['config']),
