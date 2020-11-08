@@ -292,7 +292,7 @@ def test_guess_type(rootdir):
     svg = os.path.join(media_dir, 'image.svg')
     mp4 = os.path.join(media_dir, 'video.mp4')
 
-    assert 'text/plain' == guess_type(json)
+    assert 'application/json' == guess_type(json)
     assert 'text/plain' == guess_type(yaml)
     assert 'image/png' == guess_type(png)
     assert 'image/svg+xml' == guess_type(svg)
