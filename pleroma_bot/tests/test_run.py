@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 import os
 
@@ -5,6 +7,7 @@ from test_user import TestUser
 from conftest import get_config_users
 from pleroma_bot.cli import User
 from pleroma_bot.cli import random_string
+from pleroma_bot.cli import guess_type
 
 
 def test_random_string():
@@ -107,7 +110,7 @@ def test_user_invalid_max_tweets(mock_request):
                          json=mock_request['sample_data']['pleroma_statuses'],
                          status_code=200)
                 user_obj = User(user_item, config_users['config'])
-                return user_obj
+            return user_obj
 
 
 def test_check_pinned_tweet(sample_users, mock_request):
@@ -268,3 +271,29 @@ def test_check_pinned_tweet(sample_users, mock_request):
             id_pleroma = test_user.pleroma_pinned
             with open(pinned_pleroma, 'r', encoding='utf8') as pinned_file:
                 assert pinned_file.readline().rstrip() == id_pleroma
+
+
+def test_get_date_last_pleroma_post(sample_users):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            date = sample_user_obj.get_date_last_pleroma_post()
+            ts = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
+    return ts, mock
+
+
+def test_guess_type(rootdir):
+    test_files_dir = os.path.join(rootdir, 'test_files')
+    sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+    media_dir = os.path.join(sample_data_dir, 'media')
+    json = os.path.join(sample_data_dir, 'pinned.json')
+    yaml = os.path.join(test_files_dir, 'config.yml')
+    png = os.path.join(media_dir, 'image.png')
+    svg = os.path.join(media_dir, 'image.svg')
+    mp4 = os.path.join(media_dir, 'video.mp4')
+
+    assert 'text/plain' == guess_type(json)
+    assert 'text/plain' == guess_type(yaml)
+    assert 'image/png' == guess_type(png)
+    assert 'image/svg+xml' == guess_type(svg)
+    assert 'video/mp4' == guess_type(mp4)

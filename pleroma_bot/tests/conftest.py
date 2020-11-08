@@ -21,9 +21,10 @@ def mock_request(rootdir):
     sample_data_dir = os.path.join(rootdir, 'test_files', 'sample_data')
     sample_data = {}
     for file in os.listdir(sample_data_dir):
-        data = os.path.join(sample_data_dir, file)
-        with open(data, 'r', encoding='utf8') as f:
-            sample_data[os.path.splitext(file)[0]] = json.load(f)
+        if os.path.isfile(os.path.join(sample_data_dir, file)):
+            data = os.path.join(sample_data_dir, file)
+            with open(data, 'r', encoding='utf8') as f:
+                sample_data[os.path.splitext(file)[0]] = json.load(f)
 
     with requests_mock.Mocker() as mock:
         mock.get(f"{twitter_base_url_v2}/tweets/search/recent",
