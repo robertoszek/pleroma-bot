@@ -32,8 +32,8 @@ def check_pinned(self):
         previous_pinned_tweet_id = None
     print("Previous pinned:\t" + str(previous_pinned_tweet_id))
     if (
-            self.pinned_tweet_id != previous_pinned_tweet_id
-            and self.pinned_tweet_id is not None
+        self.pinned_tweet_id != previous_pinned_tweet_id
+        and self.pinned_tweet_id is not None
     ):
         pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
         tweets_to_post = {
@@ -52,12 +52,12 @@ def check_pinned(self):
             file.write(self.pinned_tweet_id + "\n")
         if pleroma_pinned_post is not None:
             with open(
-                    os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
+                os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
             ) as file:
                 file.write(pleroma_pinned_post + "\n")
     elif (
-            self.pinned_tweet_id != previous_pinned_tweet_id
-            and previous_pinned_tweet_id is not None
+        self.pinned_tweet_id != previous_pinned_tweet_id
+        and previous_pinned_tweet_id is not None
     ):
         pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
         self.unpin_pleroma(pinned_file)
@@ -152,13 +152,9 @@ def process_tweets(self, tweets_to_post):
                 matches = re.findall(r"\B\@\w+", tweet["text"])
                 for match in matches:
                     mention_link = (
-                        f"[{match}](https://"
-                        f"twitter.com/"
-                        f"{match[1:]})"
+                        f"[{match}](https://twitter.com/{match[1:]})"
                     )
-                    tweet["text"] = re.sub(
-                        match, mention_link, tweet["text"]
-                    )
+                    tweet["text"] = re.sub(match, mention_link, tweet["text"])
         try:
             if self.nitter:
                 matching_pattern = "https://twitter.com"
@@ -179,9 +175,7 @@ def process_tweets(self, tweets_to_post):
                             media_include["type"] == "video"
                             or media_include["type"] == "animated_gif"
                         ):
-                            tweet_video = self._get_tweets(
-                                "v1.1", tweet["id"]
-                            )
+                            tweet_video = self._get_tweets("v1.1", tweet["id"])
                             xmd = tweet_video["extended_entities"]["media"]
                             for extended_media in xmd:
                                 media.append(extended_media)
@@ -196,10 +190,7 @@ def process_tweets(self, tweets_to_post):
         # Download media only if we plan to upload it later
         if self.media_upload:
             for idx, item in enumerate(media):
-                if (
-                    item["type"] != "video"
-                    and item["type"] != "animated_gif"
-                ):
+                if item["type"] != "video" and item["type"] != "animated_gif":
                     media_url = item["url"]
                 else:
                     bitrate = 0
@@ -217,9 +208,7 @@ def process_tweets(self, tweets_to_post):
                     response.headers["Content-Type"]
                 )
                 with open(
-                    os.path.join(
-                        self.tweets_temp_path, tweet["id"], filename
-                    ),
+                    os.path.join(self.tweets_temp_path, tweet["id"], filename),
                     "wb",
                 ) as outfile:
                     shutil.copyfileobj(response.raw, outfile)
