@@ -1,6 +1,11 @@
 import os
-from datetime import datetime
+import shutil
+from datetime import datetime, timedelta
+import urllib.parse
+
 from test_user import TestUser
+from conftest import get_config_users
+
 from pleroma_bot._utils import random_string
 from pleroma_bot._utils import guess_type
 
@@ -220,6 +225,28 @@ def test_get_date_last_pleroma_post(sample_users):
     return ts, mock
 
 
+def test_get_date_last_pleroma_post_no_posts(sample_users):
+    test_user = TestUser()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+
+            url_statuses = (
+                f"{test_user.pleroma_base_url}"
+                f"/api/v1/accounts/"
+                f"{sample_user_obj.pleroma_username}/statuses"
+            )
+            mock.get(url_statuses, json={}, status_code=200)
+
+            date_sample = sample_user_obj.get_date_last_pleroma_post()
+            ts = datetime.strptime(str(date_sample), "%Y-%m-%d %H:%M:%S")
+            date_pleroma = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%d %H:%M:%S"
+            )
+            assert date_sample == date_pleroma
+    return ts
+
+
 def test_guess_type(rootdir):
     """
     Test the guess_type functiona against different MIME types
@@ -293,4 +320,53 @@ def test_update_pleroma(mock_request, sample_users, rootdir):
     return mock
 
 
-# TODO: Add media retrieval/posting (gif, video, img) tests
+def test_post_pleroma_media(rootdir, sample_users, mock_request):
+    test_user = TestUser()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            if sample_user_obj.media_upload:
+                test_files_dir = os.path.join(rootdir, 'test_files')
+                sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+                media_dir = os.path.join(sample_data_dir, 'media')
+                png = os.path.join(media_dir, 'image.png')
+                svg = os.path.join(media_dir, 'image.svg')
+                mp4 = os.path.join(media_dir, 'video.mp4')
+                gif = os.path.join(media_dir, "animated_gif.gif")
+                tweet_folder = os.path.join(
+                    sample_user_obj.tweets_temp_path, test_user.pinned
+                )
+                shutil.copy(png, tweet_folder)
+                shutil.copy(svg, tweet_folder)
+                shutil.copy(mp4, tweet_folder)
+                shutil.copy(gif, tweet_folder)
+                attach_number = len(os.listdir(tweet_folder))
+                sample_user_obj.post_pleroma(test_user.pinned, "", None, False)
+
+                history = mock.request_history
+                post_url = (
+                    f"{sample_user_obj.pleroma_base_url}/api/v1/statuses"
+                )
+                assert post_url == history[-1].url
+                token_sample = sample_user_obj.header_pleroma['Authorization']
+                config_users = get_config_users('config.yml')
+                users = config_users['user_dict']
+                for user in users:
+                    if (
+                        user['pleroma_username']
+                        == sample_user_obj.pleroma_username
+                    ):
+                        token_config = user['pleroma_token']
+
+                assert f"Bearer {token_config}" == token_sample
+                assert token_sample == history[-1].headers['Authorization']
+                mock_media = mock_request['sample_data']['pleroma_post_media']
+                id_media = mock_media['id']
+                assert id_media in history[-1].text
+                dict_history = urllib.parse.parse_qs(history[-1].text)
+                assert len(dict_history['media_ids[]']) == attach_number
+                for media in dict_history['media_ids[]']:
+                    assert media == id_media
+
+                for media_file in os.listdir(tweet_folder):
+                    os.remove(os.path.join(tweet_folder, media_file))

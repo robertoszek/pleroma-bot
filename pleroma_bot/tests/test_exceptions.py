@@ -272,3 +272,26 @@ def test_unpin_pleroma_exception(sample_users, mock_request):
     )
     assert str(error_info.value) == exception_value
     os.remove(pinned_file)
+
+
+def test_get_date_last_pleroma_post_exception(sample_users, mock_request):
+    with pytest.raises(requests.exceptions.HTTPError) as error_info:
+        test_user = TestUser()
+
+        for sample_user in sample_users:
+            with sample_user['mock'] as mock:
+                sample_user_obj = sample_user['user_obj']
+                url_statuses = (
+                    f"{test_user.pleroma_base_url}"
+                    f"/api/v1/accounts/"
+                    f"{sample_user_obj.pleroma_username}/statuses"
+                )
+                mock.get(
+                    url_statuses,
+                    json=mock_request['sample_data']['pleroma_statuses_pin'],
+                    status_code=500
+                )
+                sample_user_obj.get_date_last_pleroma_post()
+
+    exception_value = f"500 Server Error: None for url: {url_statuses}"
+    assert str(error_info.value) == exception_value
