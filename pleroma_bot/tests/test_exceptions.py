@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 import requests
@@ -93,6 +95,7 @@ def test_user_nitter_global(mock_request):
             assert user_obj.twitter_url == twitter_url
         return user_obj
 
+
 def test_user_invalid_visibility(mock_request):
     """
     Check that an improper visibility value in the config raises a
@@ -171,6 +174,12 @@ def test_check_pinned_exception_user(sample_users, mock_request):
         f"500 Server Error: None for url: {url_user}"
     )
     assert str(error_info.value) == exception_value
+    pin_p = os.path.join(sample_user_obj.user_path, "pinned_id_pleroma.txt")
+    pin_t = os.path.join(sample_user_obj.user_path, "pinned_id.txt")
+    if os.path.isfile(pin_p):
+        os.remove(pin_p)
+    if os.path.isfile(pin_t):
+        os.remove(pin_t)
 
 
 def test_check_pinned_exception_tweet(sample_users, mock_request):
@@ -213,6 +222,12 @@ def test_check_pinned_exception_tweet(sample_users, mock_request):
         f"500 Server Error: None for url: {url_tweet}"
     )
     assert str(error_info.value) == exception_value
+    pin_p = os.path.join(sample_user_obj.user_path, "pinned_id_pleroma.txt")
+    pin_t = os.path.join(sample_user_obj.user_path, "pinned_id.txt")
+    if os.path.isfile(pin_p):
+        os.remove(pin_p)
+    if os.path.isfile(pin_t):
+        os.remove(pin_t)
 
 
 def test_pin_pleroma_exception(sample_users, mock_request):
@@ -226,3 +241,34 @@ def test_pin_pleroma_exception(sample_users, mock_request):
                       status_code=500)
             pin_id = sample_user_obj.pin_pleroma(test_user.pleroma_pinned_new)
             assert pin_id is None
+    pin_p = os.path.join(sample_user_obj.user_path, "pinned_id_pleroma.txt")
+    os.remove(pin_p)
+
+
+def test_unpin_pleroma_exception(sample_users, mock_request):
+    with pytest.raises(requests.exceptions.HTTPError) as error_info:
+        test_user = TestUser()
+        url_unpin = (
+            f"{test_user.pleroma_base_url}"
+            f"/api/v1/statuses/"
+            f"{test_user.pleroma_pinned}/unpin"
+        )
+        for sample_user in sample_users:
+            with sample_user['mock'] as mock:
+                sample_user_obj = sample_user['user_obj']
+                mock.post(url_unpin,
+                          json={},
+                          status_code=500)
+                pinned_file = os.path.join(
+                    sample_user_obj.user_path, "pinned_id_pleroma.txt"
+                )
+                with open(pinned_file, 'w') as file:
+                    file.write(test_user.pleroma_pinned)
+                file.close()
+                sample_user_obj.unpin_pleroma(pinned_file)
+
+    exception_value = (
+        f"500 Server Error: None for url: {url_unpin}"
+    )
+    assert str(error_info.value) == exception_value
+    os.remove(pinned_file)

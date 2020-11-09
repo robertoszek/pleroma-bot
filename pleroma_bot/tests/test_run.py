@@ -1,6 +1,4 @@
 import os
-import pytest
-
 from datetime import datetime
 from test_user import TestUser
 from pleroma_bot._utils import random_string
@@ -94,8 +92,8 @@ def test_check_pinned_tweet(sample_users, mock_request):
                 sample_user_obj.twitter_username,
                 'pinned_id.txt'
             )
-            with open(pinned_file, "w") as file:
-                file.write(test_user.pinned + "\n")
+            with open(pinned_file, "w") as f:
+                f.write(test_user.pinned + "\n")
             sample_user_obj.check_pinned()
             pinned_path = os.path.join(os.getcwd(),
                                        'users',
@@ -105,8 +103,8 @@ def test_check_pinned_tweet(sample_users, mock_request):
                                           'users',
                                           sample_user_obj.twitter_username,
                                           'pinned_id_pleroma.txt')
-            with open(pinned_path, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == test_user.pinned
+            with open(pinned_path, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == test_user.pinned
 
             # Pinned -> Pinned (different ID)
             pinned_url = (
@@ -140,11 +138,11 @@ def test_check_pinned_tweet(sample_users, mock_request):
                      json=mock_request['sample_data']['poll_2'],
                      status_code=200)
             sample_user_obj.check_pinned()
-            with open(pinned_path, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == test_user.pinned_2
+            with open(pinned_path, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == test_user.pinned_2
             id_pleroma = test_user.pleroma_pinned
-            with open(pinned_pleroma, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == id_pleroma
+            with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == id_pleroma
 
             # Pinned -> None
             mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
@@ -154,10 +152,10 @@ def test_check_pinned_tweet(sample_users, mock_request):
             new_pin_id = sample_user_obj._get_pinned_tweet_id()
             sample_user_obj.pinned_tweet_id = new_pin_id
             sample_user_obj.check_pinned()
-            with open(pinned_path, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == ''
-            with open(pinned_pleroma, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == ''
+            with open(pinned_path, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == ''
+            with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == ''
             history = mock.request_history
             unpin_url = (
                 f"{sample_user_obj.pleroma_base_url}"
@@ -167,10 +165,10 @@ def test_check_pinned_tweet(sample_users, mock_request):
 
             # None -> None
             sample_user_obj.check_pinned()
-            with open(pinned_path, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == ''
-            with open(pinned_pleroma, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == ''
+            with open(pinned_path, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == ''
+            with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == ''
 
             # None -> Pinned
             pinned_url = (
@@ -204,11 +202,13 @@ def test_check_pinned_tweet(sample_users, mock_request):
                      json=mock_request['sample_data']['poll'],
                      status_code=200)
             sample_user_obj.check_pinned()
-            with open(pinned_path, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == test_user.pinned
+            with open(pinned_path, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == test_user.pinned
             id_pleroma = test_user.pleroma_pinned
-            with open(pinned_pleroma, 'r', encoding='utf8') as pinned_file:
-                assert pinned_file.readline().rstrip() == id_pleroma
+            with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                assert f.readline().rstrip() == id_pleroma
+            os.remove(pinned_path)
+            os.remove(pinned_pleroma)
 
 
 def test_get_date_last_pleroma_post(sample_users):
