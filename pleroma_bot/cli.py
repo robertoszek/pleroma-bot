@@ -124,7 +124,7 @@ class User(object):
             try:
                 if cfg["nitter"]:
                     self.twitter_url = (
-                        f"http://nitter.net/" f"{self.twitter_username}"
+                        f"http://nitter.net/{self.twitter_username}"
                     )
             except KeyError:
                 pass
@@ -729,7 +729,7 @@ class User(object):
 
         # Set it on Pleroma
         cred_url = (
-            f"{self.pleroma_base_url}/api/v1/" f"accounts/update_credentials"
+            f"{self.pleroma_base_url}/api/v1/accounts/update_credentials"
         )
 
         # Construct fields
@@ -915,29 +915,32 @@ def main():
             user = User(user_item, config)
             date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets()
-            # Put oldest first to iterate them and post them in order
-            tweets["data"].reverse()
-            tweets_to_post = {"data": [], "includes": tweets["includes"]}
-            # Get rid of old tweets
-            for tweet in tweets["data"]:
-                created_at = tweet["created_at"]
-                date_twitter = datetime.strftime(
-                    datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.000Z"),
-                    "%Y-%m-%d %H:%M:%S",
-                )
-                if date_twitter > date_pleroma:
-                    tweets_to_post["data"].append(tweet)
+            if tweets["meta"]["result_count"] > 0:
+                # Put oldest first to iterate them and post them in order
+                tweets["data"].reverse()
+                tweets_to_post = {"data": [], "includes": tweets["includes"]}
+                # Get rid of old tweets
+                for tweet in tweets["data"]:
+                    created_at = tweet["created_at"]
+                    date_twitter = datetime.strftime(
+                        datetime.strptime(
+                            created_at, "%Y-%m-%dT%H:%M:%S.000Z"
+                        ),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                    if date_twitter > date_pleroma:
+                        tweets_to_post["data"].append(tweet)
 
-            tweets_to_post = user.process_tweets(tweets_to_post)
-            print("tweets:", tweets_to_post["data"])
-            for tweet in tweets_to_post["data"]:
-                user.post_pleroma(
-                    tweet["id"],
-                    tweet["text"],
-                    tweet["polls"],
-                    tweet["possibly_sensitive"],
-                )
-                time.sleep(2)
+                tweets_to_post = user.process_tweets(tweets_to_post)
+                print("tweets:", tweets_to_post["data"])
+                for tweet in tweets_to_post["data"]:
+                    user.post_pleroma(
+                        tweet["id"],
+                        tweet["text"],
+                        tweet["polls"],
+                        tweet["possibly_sensitive"],
+                    )
+                    time.sleep(2)
 
             user.check_pinned()
 
