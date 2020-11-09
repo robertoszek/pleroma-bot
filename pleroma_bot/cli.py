@@ -52,11 +52,11 @@ class User(object):
     from ._twitter import get_tweets
     from ._twitter import _get_tweets
     from ._twitter import _get_twitter_info
-    from ._pin import _get_pinned_tweet_id
 
     from ._pin import pin_pleroma
     from ._pin import unpin_pleroma
     from ._pin import get_pinned_tweet
+    from ._pin import _get_pinned_tweet_id
 
     from ._pleroma import post_pleroma
     from ._pleroma import update_pleroma
