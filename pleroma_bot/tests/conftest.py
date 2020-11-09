@@ -10,12 +10,12 @@ from test_user import TestUser
 from pleroma_bot.cli import User
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def rootdir():
     return os.path.dirname(os.path.abspath(__file__))
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_request(rootdir):
     test_user = TestUser()
     mock_return = {}
@@ -44,7 +44,7 @@ def mock_request(rootdir):
         return mock_return
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def sample_users(mock_request, rootdir):
     users = []
     test_user = TestUser()
