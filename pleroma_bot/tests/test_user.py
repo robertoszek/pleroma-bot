@@ -1,6 +1,6 @@
 class TestUser:
     def __init__(self):
-        self.twitter_base_url = 'http://api.twitter.com/1.1'
+        self.twitter_base_url = 'https://api.twitter.com/1.1'
         self.twitter_base_url_v2 = 'https://api.twitter.com/2'
         self.pinned = '1323049466837032961'
         self.pinned_2 = '1323049466837032962'

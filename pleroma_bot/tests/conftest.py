@@ -1,4 +1,6 @@
 import os
+import re
+
 import yaml
 import json
 import pytest
@@ -15,9 +17,10 @@ def rootdir():
 
 @pytest.fixture(scope="session")
 def mock_request(rootdir):
+    test_user = TestUser()
     mock_return = {}
-    twitter_base_url = 'http://api.twitter.com/1.1'
-    twitter_base_url_v2 = 'https://api.twitter.com/2'
+    twitter_base_url = test_user.twitter_base_url
+    twitter_base_url_v2 = test_user.twitter_base_url_v2
     sample_data_dir = os.path.join(rootdir, 'test_files', 'sample_data')
     sample_data = {}
     for file in os.listdir(sample_data_dir):
@@ -42,11 +45,10 @@ def mock_request(rootdir):
 
 
 @pytest.fixture(scope="session")
-def sample_users(mock_request):
+def sample_users(mock_request, rootdir):
     users = []
     test_user = TestUser()
-    # twitter_base_url = 'http://api.twitter.com/1.1'
-    twitter_base_url_v2 = 'https://api.twitter.com/2'
+    twitter_base_url_v2 = test_user.twitter_base_url_v2
     with mock_request['mock'] as mock:
         config_users = get_config_users('config.yml')
         for user_item in config_users['user_dict']:
@@ -97,6 +99,37 @@ def sample_users(mock_request):
                       f"/api/v1/statuses/{test_user.pleroma_pinned}/unpin",
                       json=mock_request['sample_data']['pleroma_pin'],
                       status_code=200)
+
+            test_files_dir = os.path.join(rootdir, 'test_files')
+            sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+            media_dir = os.path.join(sample_data_dir, 'media')
+            banner = os.path.join(media_dir, 'banner.jpg')
+
+            profile_banner = open(banner, 'rb')
+            profile_banner_content = profile_banner.read()
+            profile_banner.close()
+
+            profile_pic = os.path.join(media_dir, 'default_profile_normal.png')
+            profile_image = open(profile_pic, 'rb')
+            profile_image_content = profile_image.read()
+            profile_image.close()
+
+            twitter_info = mock_request['sample_data']['twitter_info']
+            banner_url = twitter_info['profile_banner_url']
+            mock.get(f"{banner_url}",
+                     content=profile_banner_content,
+                     status_code=200)
+            profile_pic_url = twitter_info['profile_image_url_https']
+            profile_img_big = re.sub(
+                r"normal", "400x400", profile_pic_url
+            )
+            mock.get(f"{profile_img_big}",
+                     content=profile_image_content,
+                     status_code=200)
+            mock.patch(f"{config_users['config']['pleroma_base_url']}"
+                       f"/api/v1/accounts/update_credentials",
+                       status_code=200)
+
             users.append({'user_obj': User(user_item, config_users['config']),
                           'mock': mock, 'config': config_users['config']})
         return users

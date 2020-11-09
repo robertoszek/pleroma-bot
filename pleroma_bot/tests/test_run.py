@@ -47,10 +47,12 @@ def test_user_attrs(sample_users):
                    test_user.twitter_base_url
             assert sample_user_obj.twitter_token == test_user.twitter_token
             assert sample_user_obj.pleroma_token == test_user.pleroma_token
-            assert sample_user_obj.twitter_base_url_v2 == \
-                   test_user.twitter_base_url_v2
+            assert (
+                sample_user_obj.twitter_base_url_v2 ==
+                test_user.twitter_base_url_v2
+            )
             assert sample_user_obj.nitter == test_user.nitter
-            return mock
+        return mock
 
 
 def test_user_invalid_visibility(mock_request):
@@ -73,7 +75,7 @@ def test_user_invalid_visibility(mock_request):
                          json=mock_request['sample_data']['pleroma_statuses'],
                          status_code=200)
                 user_obj = User(user_item, config_users['config'])
-                return user_obj
+        return user_obj
 
 
 def test_user_invalid_max_tweets(mock_request):
@@ -283,6 +285,9 @@ def test_get_date_last_pleroma_post(sample_users):
 
 
 def test_guess_type(rootdir):
+    """
+    Test the guess_type functiona against different MIME types
+    """
     test_files_dir = os.path.join(rootdir, 'test_files')
     sample_data_dir = os.path.join(test_files_dir, 'sample_data')
     media_dir = os.path.join(sample_data_dir, 'media')
@@ -294,3 +299,149 @@ def test_guess_type(rootdir):
     assert 'image/svg+xml' == guess_type(svg)
     assert 'video/mp4' == guess_type(mp4)
     assert 'image/gif' == guess_type(gif)
+
+
+def test_get_twitter_info(mock_request, sample_users, rootdir):
+    """
+    Check that _get_twitter_info retrieves the correct profile image and banner
+    URLs
+    """
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            twitter_info = mock_request['sample_data']['twitter_info']
+            banner_url = twitter_info['profile_banner_url']
+            profile_pic_url = twitter_info['profile_image_url_https']
+
+            sample_user_obj._get_twitter_info()
+
+            p_banner_url = sample_user_obj.profile_banner_url
+            p_image_url = sample_user_obj.profile_image_url
+            assert banner_url == p_banner_url
+            assert profile_pic_url == p_image_url
+    return mock
+
+
+def test_update_pleroma(mock_request, sample_users, rootdir):
+    """
+    Check that update_pleroma downloads the correct profile image and banner
+    """
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            test_files_dir = os.path.join(rootdir, 'test_files')
+            sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+            media_dir = os.path.join(sample_data_dir, 'media')
+
+            banner = os.path.join(media_dir, 'banner.jpg')
+            profile_banner = open(banner, 'rb')
+            profile_banner_content = profile_banner.read()
+            profile_banner.close()
+
+            profile_pic = os.path.join(media_dir, 'default_profile_normal.png')
+            profile_image = open(profile_pic, 'rb')
+            profile_image_content = profile_image.read()
+            profile_image.close()
+
+            sample_user_obj.update_pleroma()
+
+            t_profile_banner = open(sample_user_obj.header_path, 'rb')
+            t_profile_banner_content = t_profile_banner.read()
+            t_profile_banner.close()
+
+            t_profile_image = open(sample_user_obj.avatar_path, 'rb')
+            t_profile_image_content = t_profile_image.read()
+            t_profile_image.close()
+            assert t_profile_banner_content == profile_banner_content
+            assert t_profile_image_content == profile_image_content
+    return mock
+
+
+def test_user_invalid_pleroma_base(mock_request):
+    """
+    Check that a missing pleroma_base_url raises a KeyError exception
+    """
+    test_user = TestUser()
+    with pytest.raises(KeyError):
+        with mock_request['mock'] as mock:
+            config_users = get_config_users('config_nopleroma.yml')
+            for user_item in config_users['user_dict']:
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                         f"{user_item['twitter_username']}",
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                mock.get(f"{config_users['config']['pleroma_base_url']}"
+                         f"/api/v1/accounts/"
+                         f"{user_item['pleroma_username']}/statuses",
+                         json=mock_request['sample_data']['pleroma_statuses'],
+                         status_code=200)
+                user_obj = User(user_item, config_users['config'])
+        return user_obj
+
+
+def test_user_missing_twitter_base(mock_request):
+    """
+    Check that a missing pleroma_base_url raises a KeyError exception
+    """
+    test_user = TestUser()
+    with mock_request['mock'] as mock:
+        config_users = get_config_users('config_notwitter.yml')
+        for user_item in config_users['user_dict']:
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                     f"{user_item['twitter_username']}",
+                     json=mock_request['sample_data']['pinned'],
+                     status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/accounts/"
+                     f"{user_item['pleroma_username']}/statuses",
+                     json=mock_request['sample_data']['pleroma_statuses'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/users/"
+                     f"show.json?screen_name={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['twitter_info'],
+                     status_code=200)
+            user_obj = User(user_item, config_users['config'])
+            assert user_obj.twitter_base_url_v2 is not None
+            assert user_obj.twitter_base_url is not None
+            assert user_obj.twitter_base_url == test_user.twitter_base_url
+            assert (
+                user_obj.twitter_base_url_v2 ==
+                test_user.twitter_base_url_v2
+            )
+        return user_obj
+
+
+def test_user_nitter_global(mock_request):
+    """
+    Check that a missing pleroma_base_url raises a KeyError exception
+    """
+    test_user = TestUser()
+    with mock_request['mock'] as mock:
+        config_users = get_config_users('config_nitter_global.yml')
+        for user_item in config_users['user_dict']:
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                     f"{user_item['twitter_username']}",
+                     json=mock_request['sample_data']['pinned'],
+                     status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/accounts/"
+                     f"{user_item['pleroma_username']}/statuses",
+                     json=mock_request['sample_data']['pleroma_statuses'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/users/"
+                     f"show.json?screen_name={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['twitter_info'],
+                     status_code=200)
+            user_obj = User(user_item, config_users['config'])
+            nitter_url = f"http://nitter.net/{user_obj.twitter_username}"
+            assert user_obj.twitter_url is not None
+            assert user_obj.twitter_url == nitter_url
+        config_users = get_config_users('config_nonitter.yml')
+        # No global
+        for user_item in config_users['user_dict']:
+            user_obj = User(user_item, config_users['config'])
+            twitter_url = f"http://twitter.com/{user_obj.twitter_username}"
+            assert user_obj.twitter_url == twitter_url
+        return user_obj
+
+# TODO: Add media retrieval/posting (gif, video, img) tests
