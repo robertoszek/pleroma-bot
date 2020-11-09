@@ -6,8 +6,8 @@ import os
 from test_user import TestUser
 from conftest import get_config_users
 from pleroma_bot.cli import User
-from pleroma_bot.cli import random_string
-from pleroma_bot.cli import guess_type
+from pleroma_bot._utils import random_string
+from pleroma_bot._utils import guess_type
 
 
 def test_random_string():

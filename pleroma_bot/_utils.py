@@ -1,0 +1,292 @@
+import os
+import string
+import random
+
+import re
+import json
+import shutil
+import requests
+import mimetypes
+
+# Try to import libmagic
+# if it fails just use mimetypes
+try:
+    import magic
+except ImportError:
+    magic = None
+
+
+def check_pinned(self):
+    """
+    Checks if a tweet is pinned and needs to be retrieved and posted on the
+    Fediverse account
+    """
+    print("Current pinned:\t" + str(self.pinned_tweet_id))
+    pinned_file = os.path.join(self.user_path, "pinned_id.txt")
+    if os.path.isfile(pinned_file):
+        with open(pinned_file, "r") as file:
+            previous_pinned_tweet_id = file.readline().rstrip()
+            if previous_pinned_tweet_id == "":
+                previous_pinned_tweet_id = None
+    else:
+        previous_pinned_tweet_id = None
+    print("Previous pinned:\t" + str(previous_pinned_tweet_id))
+    if (
+            self.pinned_tweet_id != previous_pinned_tweet_id
+            and self.pinned_tweet_id is not None
+    ):
+        pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
+        tweets_to_post = {
+            "data": [pinned_tweet["data"]],
+            "includes": pinned_tweet["includes"],
+        }
+        tweets_to_post = self.process_tweets(tweets_to_post)
+        id_post_to_pin = self.post_pleroma(
+            self.pinned_tweet_id,
+            tweets_to_post["data"][0]["text"],
+            tweets_to_post["data"][0]["polls"],
+            tweets_to_post["data"][0]["possibly_sensitive"],
+        )
+        pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
+        with open(pinned_file, "w") as file:
+            file.write(self.pinned_tweet_id + "\n")
+        if pleroma_pinned_post is not None:
+            with open(
+                    os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
+            ) as file:
+                file.write(pleroma_pinned_post + "\n")
+    elif (
+            self.pinned_tweet_id != previous_pinned_tweet_id
+            and previous_pinned_tweet_id is not None
+    ):
+        pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
+        self.unpin_pleroma(pinned_file)
+
+
+def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
+    """
+    Returns a string with "{{ var_name }}" replaced with var_name's value
+    If no 'var_name' is provided, locals() (or self if it's an object
+    method) will be used and all variables found in locals() (or object
+    attributes) will be replaced with their values.
+
+    :param text: String to be parsed, replacing "{{ var_name }}" with
+    var_name's value. Multiple occurrences are supported.
+    :type text: str
+    :param var_name: Name of the variable to be replace. Multiple
+    occurrences are supported. If not provided, locals() will be used and
+    all variables will be replaced with their values.
+    :type var_name: str
+
+    :returns: A string with {{ var_name }} replaced with var_name's value.
+    :rtype: str
+    """
+    # Jinja-style string replacement i.e. vars encapsulated in {{ and }}
+    if var_name is not None:
+        matching_pattern = r"(?<=\{{)( " + var_name + r" )(?=\}})"
+        matches = re.findall(matching_pattern, text)
+    else:
+        matches = re.findall(r"(?<={{)(.*?)(?=}})", text)
+    for match in matches:
+        pattern = r"{{ " + match.strip() + " }}"
+        # Get attribute value if it's a method
+        # go for locals() if not, fallback to globals()
+        try:
+            value = getattr(self, match.strip())
+        except NameError:
+            try:
+                value = locals()[match.strip()]
+            except NameError:
+                value = globals()[match.strip()]
+        text = re.sub(pattern, value, text)
+    return text
+
+
+def process_tweets(self, tweets_to_post):
+    """Transforms tweets for posting them to Pleroma
+    Expands shortened URLs
+    Downloads tweet related media and prepares them for upload
+
+    :param tweets_to_post: Dict of tweet objects to be processed
+    :type tweets_to_post: dict
+    :returns: Tweets ready to be published
+    :rtype: list
+    """
+    for tweet in tweets_to_post["data"]:
+        media = []
+        # Replace shortened links
+        try:
+            for url_entity in tweet["entities"]["urls"]:
+                matching_pattern = url_entity["url"]
+                matches = re.findall(matching_pattern, tweet["text"])
+                for match in matches:
+                    tweet["text"] = re.sub(
+                        match, url_entity["expanded_url"], tweet["text"]
+                    )
+        except KeyError:
+            # URI regex
+            matching_pattern = (
+                r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
+                r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
+                r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
+                r';:\'".,<>?«»“”‘’]))'
+            )
+            matches = re.finditer(matching_pattern, tweet["text"])
+            for matchNum, match in enumerate(matches, start=1):
+                # don't be brave trying to unwound an URL when it gets
+                # cut off
+                if not match.group().__contains__("…"):
+                    session = requests.Session()  # so connections are
+                    # recycled
+                    response = session.head(
+                        match.group(), allow_redirects=True
+                    )
+                    if not response.ok:
+                        response.raise_for_status()
+                    expanded_url = response.url
+                    tweet["text"] = re.sub(
+                        match.group(), expanded_url, tweet["text"]
+                    )
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                matches = re.findall(r"\B\@\w+", tweet["text"])
+                for match in matches:
+                    mention_link = (
+                        f"[{match}](https://"
+                        f"twitter.com/"
+                        f"{match[1:]})"
+                    )
+                    tweet["text"] = re.sub(
+                        match, mention_link, tweet["text"]
+                    )
+        try:
+            if self.nitter:
+                matching_pattern = "https://twitter.com"
+                matches = re.findall(matching_pattern, tweet["text"])
+                for match in matches:
+                    tweet["text"] = re.sub(
+                        match, "https://nitter.net", tweet["text"]
+                    )
+        except AttributeError:
+            pass
+        try:
+            for item in tweet["attachments"]["media_keys"]:
+                for media_include in tweets_to_post["includes"]["media"]:
+                    if item == media_include["media_key"]:
+                        # Video download not implemented in v2 yet
+                        # fallback to v1.1
+                        if (
+                            media_include["type"] == "video"
+                            or media_include["type"] == "animated_gif"
+                        ):
+                            tweet_video = self._get_tweets(
+                                "v1.1", tweet["id"]
+                            )
+                            xmd = tweet_video["extended_entities"]["media"]
+                            for extended_media in xmd:
+                                media.append(extended_media)
+                        else:
+                            media.append(media_include)
+        except KeyError:
+            pass
+        # Create folder to store attachments related to the tweet ID
+        tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
+        if not os.path.isdir(tweet_path):
+            os.mkdir(tweet_path)
+        # Download media only if we plan to upload it later
+        if self.media_upload:
+            for idx, item in enumerate(media):
+                if (
+                    item["type"] != "video"
+                    and item["type"] != "animated_gif"
+                ):
+                    media_url = item["url"]
+                else:
+                    bitrate = 0
+                    for variant in item["video_info"]["variants"]:
+                        try:
+                            if variant["bitrate"] >= bitrate:
+                                media_url = variant["url"]
+                        except KeyError:
+                            pass
+                response = requests.get(media_url, stream=True)
+                if not response.ok:
+                    response.raise_for_status()
+                response.raw.decode_content = True
+                filename = str(idx) + mimetypes.guess_extension(
+                    response.headers["Content-Type"]
+                )
+                with open(
+                    os.path.join(
+                        self.tweets_temp_path, tweet["id"], filename
+                    ),
+                    "wb",
+                ) as outfile:
+                    shutil.copyfileobj(response.raw, outfile)
+
+        # Process poll if exists and no media is used
+        try:
+            if tweet["attachments"]["poll_ids"] and not media:
+
+                # tweet_poll = tweet['includes']['polls']
+                poll_url = self.twitter_base_url_v2 + "/tweets"
+
+                params = {
+                    "ids": tweet["id"],
+                    "expansions": "attachments.poll_ids",
+                    "poll.fields": "duration_minutes," "options",
+                }
+
+                response = requests.get(
+                    poll_url, headers=self.header_twitter, params=params
+                )
+                if not response.ok:
+                    response.raise_for_status()
+                response_content = json.loads(response.content)
+                tweet_poll = response_content["includes"]["polls"][0]
+
+                pleroma_poll = {
+                    "options": [
+                        option["label"] for option in tweet_poll["options"]
+                    ],
+                    "expires_in": tweet_poll["duration_minutes"] * 60,
+                }
+
+                # Add poll to tweet
+                tweet["polls"] = pleroma_poll
+
+            else:
+                tweet["polls"] = None
+        except KeyError:
+            tweet["polls"] = None
+            pass
+    return tweets_to_post
+
+
+def guess_type(media_file: str) -> str:
+    """Try to guess what MIME type the given file is.
+
+    :param media_file: The file to perform the guessing on
+    :returns: the MIME type result of guessing
+    :rtype: str
+    """
+    mime_type = None
+    try:
+        mime_type = magic.from_file(media_file, mime=True)
+    except AttributeError:
+        mime_type = mimetypes.guess_type(media_file)[0]
+    return mime_type
+
+
+def random_string(length: int) -> str:
+    """Returns a string of random characters of length 'length'
+    :param length: How long the string to return must be
+    :type length: int
+    :returns: an alpha-numerical string of specified length with random
+    characters
+    :rtype: str
+    """
+    return "".join(
+        random.choice(string.ascii_lowercase + string.digits)
+        for _ in range(length)
+    )
