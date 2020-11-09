@@ -33,6 +33,7 @@ script:
 after_script:
     - coverage xml
     - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+    - bash <(curl -s https://codecov.io/bash)
 
 notifications:
     email: false
