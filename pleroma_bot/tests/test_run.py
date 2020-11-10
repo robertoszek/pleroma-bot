@@ -54,6 +54,10 @@ def test_user_attrs(sample_users):
                 test_user.twitter_base_url_v2
             )
             assert sample_user_obj.nitter == test_user.nitter
+            assert (
+                sample_user_obj.get_pinned_tweet() ==
+                sample_user_obj.pinned_tweet_id
+            )
         return mock
 
 
