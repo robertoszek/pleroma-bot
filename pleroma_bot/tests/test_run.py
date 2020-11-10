@@ -447,7 +447,7 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                     options = poll['includes']['polls'][0]['options']
                     duration = poll['includes']['polls'][0]['duration_minutes']
                     assert len(tweet['polls']['options']) == len(options)
-                    assert tweet['polls']['expires_in'] == duration*60
+                    assert tweet['polls']['expires_in'] == duration * 60
                 # Test download
                 tweet_folder = os.path.join(
                     sample_user_obj.tweets_temp_path, tweet["id"]
