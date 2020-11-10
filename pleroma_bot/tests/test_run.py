@@ -7,6 +7,7 @@ import urllib.parse
 from test_user import TestUser
 from conftest import get_config_users
 
+from pleroma_bot import main
 from pleroma_bot._utils import random_string
 from pleroma_bot._utils import guess_type
 
@@ -466,4 +467,11 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                         f.close()
                         assert file_hash == dict_hash[file]
                         os.remove(file_path)
+    return mock
+
+
+def test_main(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            main()
     return mock
