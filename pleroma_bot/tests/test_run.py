@@ -1,10 +1,10 @@
-import hashlib
 import os
 import shutil
-from datetime import datetime, timedelta
+import hashlib
 import urllib.parse
+from datetime import datetime, timedelta
 
-from test_user import TestUser
+from test_user import UserTemplate
 from conftest import get_config_users
 
 from pleroma_bot import cli
@@ -25,7 +25,7 @@ def test_user_replace_vars_in_str(sample_users):
     Check that replace_vars_in_str replaces the var_name with the var_value
     correctly
     """
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         user_obj = sample_user['user_obj']
         replace = user_obj.replace_vars_in_str(test_user.replace_str)
@@ -36,7 +36,7 @@ def test_user_attrs(sample_users):
     """
     Check that test user matches sample data fed by the mock
     """
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -66,7 +66,7 @@ def test_check_pinned_tweet(sample_users, mock_request):
         None   -> None
         None   -> Pinned
     """
-    test_user = TestUser()
+    test_user = UserTemplate()
     # Pinned -> Pinned
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -228,7 +228,7 @@ def test_get_date_last_pleroma_post(sample_users):
 
 
 def test_get_date_last_pleroma_post_no_posts(sample_users):
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -323,7 +323,7 @@ def test_update_pleroma(mock_request, sample_users, rootdir):
 
 
 def test_post_pleroma_media(rootdir, sample_users, mock_request):
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -375,7 +375,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
 
 
 def test_get_tweets(sample_users, mock_request):
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -389,7 +389,7 @@ def test_get_tweets(sample_users, mock_request):
 
 
 def test_process_tweets(rootdir, sample_users, mock_request):
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -471,7 +471,7 @@ def test_process_tweets(rootdir, sample_users, mock_request):
 
 
 def test_main(rootdir, global_mock, mock_request, sample_users):
-    test_user = TestUser()
+    test_user = UserTemplate()
     with global_mock as mock:
         test_files_dir = os.path.join(rootdir, 'test_files')
         sample_data_dir = os.path.join(test_files_dir, 'sample_data')

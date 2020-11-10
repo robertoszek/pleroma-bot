@@ -1,10 +1,10 @@
 import os
-
 import pytest
-
 import requests
-from test_user import TestUser
+
+from test_user import UserTemplate
 from conftest import get_config_users
+
 from pleroma_bot.cli import User
 
 
@@ -12,7 +12,7 @@ def test_user_invalid_pleroma_base(mock_request):
     """
     Check that a missing pleroma_base_url raises a KeyError exception
     """
-    test_user = TestUser()
+    test_user = UserTemplate()
     with pytest.raises(KeyError):
         with mock_request['mock'] as mock:
             config_users = get_config_users('config_nopleroma.yml')
@@ -34,7 +34,7 @@ def test_user_missing_twitter_base(mock_request):
     """
     Check that a missing pleroma_base_url raises a KeyError exception
     """
-    test_user = TestUser()
+    test_user = UserTemplate()
     with mock_request['mock'] as mock:
         config_users = get_config_users('config_notwitter.yml')
         for user_item in config_users['user_dict']:
@@ -66,7 +66,7 @@ def test_user_nitter_global(mock_request):
     """
     Check that a missing pleroma_base_url raises a KeyError exception
     """
-    test_user = TestUser()
+    test_user = UserTemplate()
     with mock_request['mock'] as mock:
         config_users = get_config_users('config_nitter_global.yml')
         for user_item in config_users['user_dict']:
@@ -137,7 +137,7 @@ def test_user_invalid_max_tweets(mock_request):
 
 def test_check_pinned_exception_user(sample_users, mock_request):
     with pytest.raises(requests.exceptions.HTTPError) as error_info:
-        test_user = TestUser()
+        test_user = UserTemplate()
         url_user = (
             f"{test_user.twitter_base_url_v2}/tweets/{test_user.pinned}"
             f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
@@ -184,7 +184,7 @@ def test_check_pinned_exception_user(sample_users, mock_request):
 
 def test_check_pinned_exception_tweet(sample_users, mock_request):
     with pytest.raises(requests.exceptions.HTTPError) as error_info:
-        test_user = TestUser()
+        test_user = UserTemplate()
         url_tweet = (
             f"{test_user.twitter_base_url_v2}/tweets?ids={test_user.pinned}"
             f"&expansions=attachments.poll_ids"
@@ -231,7 +231,7 @@ def test_check_pinned_exception_tweet(sample_users, mock_request):
 
 
 def test_pin_pleroma_exception(sample_users, mock_request):
-    test_user = TestUser()
+    test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -247,7 +247,7 @@ def test_pin_pleroma_exception(sample_users, mock_request):
 
 def test_unpin_pleroma_exception(sample_users, mock_request):
     with pytest.raises(requests.exceptions.HTTPError) as error_info:
-        test_user = TestUser()
+        test_user = UserTemplate()
         url_unpin = (
             f"{test_user.pleroma_base_url}"
             f"/api/v1/statuses/"
@@ -276,7 +276,7 @@ def test_unpin_pleroma_exception(sample_users, mock_request):
 
 def test_get_date_last_pleroma_post_exception(sample_users, mock_request):
     with pytest.raises(requests.exceptions.HTTPError) as error_info:
-        test_user = TestUser()
+        test_user = UserTemplate()
 
         for sample_user in sample_users:
             with sample_user['mock'] as mock:
@@ -305,3 +305,28 @@ def test_get_tweets_unknown_version(sample_users, mock_request):
                 sample_user_obj._get_tweets("nonsense")
     assert str(error_info.value) == 'API version not supported: nonsense'
     return mock
+
+
+def test_unpin_pleroma_statuses_exception(sample_users, mock_request):
+    with pytest.raises(requests.exceptions.HTTPError) as error_info:
+        test_user = UserTemplate()
+
+        for sample_user in sample_users:
+            with sample_user['mock'] as mock:
+                sample_user_obj = sample_user['user_obj']
+                url_statuses = (
+                    f"{test_user.pleroma_base_url}"
+                    f"/api/v1/accounts/"
+                    f"{sample_user_obj.pleroma_username}/statuses"
+                )
+                mock.get(
+                    url_statuses,
+                    json=mock_request['sample_data']['pleroma_statuses_pin'],
+                    status_code=500
+                )
+                pinned_file = os.path.join(sample_user_obj.user_path,
+                                           "pinned_id_pleroma.txt")
+                sample_user_obj.unpin_pleroma(pinned_file)
+
+    exception_value = f"500 Server Error: None for url: {url_statuses}"
+    assert str(error_info.value) == exception_value

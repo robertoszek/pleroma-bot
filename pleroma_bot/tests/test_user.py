@@ -1,4 +1,4 @@
-class TestUser:
+class UserTemplate:
     def __init__(self):
         self.twitter_base_url = 'https://api.twitter.com/1.1'
         self.twitter_base_url_v2 = 'https://api.twitter.com/2'

@@ -6,7 +6,7 @@ import json
 import pytest
 import requests_mock
 
-from test_user import TestUser
+from test_user import UserTemplate
 from pleroma_bot.cli import User
 
 
@@ -17,7 +17,7 @@ def rootdir():
 
 @pytest.fixture
 def mock_request(rootdir):
-    test_user = TestUser()
+    test_user = UserTemplate()
     mock_return = {}
     twitter_base_url = test_user.twitter_base_url
     twitter_base_url_v2 = test_user.twitter_base_url_v2
@@ -47,7 +47,7 @@ def mock_request(rootdir):
 @pytest.fixture
 def _sample_users(mock_request, rootdir):
     users = []
-    test_user = TestUser()
+    test_user = UserTemplate()
     twitter_base_url_v2 = test_user.twitter_base_url_v2
     with mock_request['mock'] as mock:
         config_users = get_config_users('config.yml')
