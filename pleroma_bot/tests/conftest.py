@@ -69,6 +69,11 @@ def sample_users(mock_request, rootdir):
                         f'?limit=20&max_id={test_user.pleroma_pinned}>; '
                         f'rel="prev"'
             }
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids="
+                     f"{test_user.pinned}&expansions=attachments.poll_ids"
+                     f"&poll.fields=duration_minutes%2Coptions",
+                     json=mock_request['sample_data']['poll'],
+                     status_code=200)
             mock.get(f"{config_users['config']['pleroma_base_url']}"
                      f"/api/v1/accounts/"
                      f"{user_item['pleroma_username']}/statuses",
@@ -129,6 +134,17 @@ def sample_users(mock_request, rootdir):
             mock.patch(f"{config_users['config']['pleroma_base_url']}"
                        f"/api/v1/accounts/update_credentials",
                        status_code=200)
+            try:
+                max_tweets = user_item['max_tweets']
+            except KeyError:
+                max_tweets = config_users['config']['max_tweets']
+
+            mock.get(f"{config_users['config']['twitter_base_url']}"
+                     f"/statuses/user_timeline.json?screen_name="
+                     f"{user_item['twitter_username']}&count="
+                     f"{max_tweets}&include_rts=true",
+                     json=mock_request['sample_data']['tweets_v1'],
+                     status_code=200)
 
             users.append({'user_obj': User(user_item, config_users['config']),
                           'mock': mock, 'config': config_users['config']})

@@ -1,3 +1,4 @@
+import hashlib
 import os
 import shutil
 from datetime import datetime, timedelta
@@ -370,3 +371,99 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
 
                 for media_file in os.listdir(tweet_folder):
                     os.remove(os.path.join(tweet_folder, media_file))
+
+
+def test_get_tweets(sample_users, mock_request):
+    test_user = TestUser()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+            tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+            assert tweet == mock_request['sample_data']['tweet']
+            tweets = sample_user_obj._get_tweets("v1.1")
+            assert tweets == mock_request['sample_data']['tweets_v1']
+    return mock
+
+
+def test_process_tweets(rootdir, sample_users, mock_request):
+    test_user = TestUser()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+            tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+            assert tweet == mock_request['sample_data']['tweet']
+            tweets = sample_user_obj._get_tweets("v1.1")
+            assert tweets == mock_request['sample_data']['tweets_v1']
+            test_files_dir = os.path.join(rootdir, 'test_files')
+            sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+            media_dir = os.path.join(sample_data_dir, 'media')
+            mp4 = os.path.join(media_dir, 'video.mp4')
+            gif = os.path.join(media_dir, "animated_gif.gif")
+            png = os.path.join(media_dir, 'image.png')
+
+            gif_file = open(gif, 'rb')
+            gif_content = gif_file.read()
+            gif_hash = hashlib.sha256(gif_content).hexdigest()
+            gif_file.close()
+
+            png_file = open(png, 'rb')
+            png_content = png_file.read()
+            png_hash = hashlib.sha256(png_content).hexdigest()
+            png_file.close()
+
+            mp4_file = open(mp4, 'rb')
+            mp4_content = mp4_file.read()
+            mp4_hash = hashlib.sha256(mp4_content).hexdigest()
+            mp4_file.close()
+
+            mock.get("https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4",
+                     content=gif_content,
+                     headers={'Content-Type': 'image/gif'},
+                     status_code=200)
+            mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049214134407171",
+                     json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
+                     "/pu/vid/480x270/ZdOIMwg7XWgr1LA8.mp4?tag=10",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
+            tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+            for tweet in tweets_to_post['data']:
+                # Test poll retrieval
+                if tweet['id'] == test_user.pinned:
+                    poll = mock_request['sample_data']['poll']
+                    options = poll['includes']['polls'][0]['options']
+                    duration = poll['includes']['polls'][0]['duration_minutes']
+                    assert len(tweet['polls']['options']) == len(options)
+                    assert tweet['polls']['expires_in'] == duration*60
+                # Test download
+                tweet_folder = os.path.join(
+                    sample_user_obj.tweets_temp_path, tweet["id"]
+                )
+                dict_hash = {
+                    '0.mp4': mp4_hash,
+                    '0.png': png_hash,
+                    '0.gif': gif_hash
+                }
+                for file in os.listdir(tweet_folder):
+                    file_path = os.path.join(tweet_folder, file)
+                    if os.path.isfile(file_path):
+                        f = open(file_path, 'rb')
+                        file_content = f.read()
+                        file_hash = hashlib.sha256(file_content).hexdigest()
+                        f.close()
+                        assert file_hash == dict_hash[file]
+                        os.remove(file_path)
+    return mock

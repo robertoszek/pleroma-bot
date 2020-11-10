@@ -295,3 +295,13 @@ def test_get_date_last_pleroma_post_exception(sample_users, mock_request):
 
     exception_value = f"500 Server Error: None for url: {url_statuses}"
     assert str(error_info.value) == exception_value
+
+
+def test_get_tweets_unknown_version(sample_users, mock_request):
+    with pytest.raises(ValueError) as error_info:
+        for sample_user in sample_users:
+            with sample_user['mock'] as mock:
+                sample_user_obj = sample_user['user_obj']
+                sample_user_obj._get_tweets("nonsense")
+    assert str(error_info.value) == 'API version not supported: nonsense'
+    return mock
