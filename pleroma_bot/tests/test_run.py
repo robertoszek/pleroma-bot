@@ -7,7 +7,7 @@ import urllib.parse
 from test_user import TestUser
 from conftest import get_config_users
 
-from pleroma_bot import main
+from pleroma_bot import cli
 from pleroma_bot._utils import random_string
 from pleroma_bot._utils import guess_type
 
@@ -470,8 +470,84 @@ def test_process_tweets(rootdir, sample_users, mock_request):
     return mock
 
 
-def test_main(sample_users, mock_request):
-    for sample_user in sample_users:
-        with sample_user['mock'] as mock:
-            main()
-    return mock
+def test_main(rootdir, global_mock, mock_request, sample_users):
+    test_user = TestUser()
+    with global_mock as mock:
+        test_files_dir = os.path.join(rootdir, 'test_files')
+        sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+        media_dir = os.path.join(sample_data_dir, 'media')
+        mp4 = os.path.join(media_dir, 'video.mp4')
+        gif = os.path.join(media_dir, "animated_gif.gif")
+        png = os.path.join(media_dir, 'image.png')
+
+        gif_file = open(gif, 'rb')
+        gif_content = gif_file.read()
+        gif_file.close()
+
+        png_file = open(png, 'rb')
+        png_content = png_file.read()
+        png_file.close()
+
+        mp4_file = open(mp4, 'rb')
+        mp4_content = mp4_file.read()
+        mp4_file.close()
+
+        pinned = test_user.pinned
+        mock.get("https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4",
+                 content=gif_content,
+                 headers={'Content-Type': 'image/gif'},
+                 status_code=200)
+        mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+                 content=png_content,
+                 headers={'Content-Type': 'image/png'},
+                 status_code=200)
+        mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                 f"id=1323049214134407171",
+                 json=mock_request['sample_data']['tweet_video'],
+                 status_code=200)
+        mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
+                 "/pu/vid/480x270/ZdOIMwg7XWgr1LA8.mp4?tag=10",
+                 content=mp4_content,
+                 headers={'Content-Type': 'video/mp4'},
+                 status_code=200)
+        mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                 f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
+                 f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                 f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
+                 f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
+                 f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                 f"entities.mentions.username%2Cgeo.place_id%2C"
+                 f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                 f"referenced_tweets.id.author_id&tweet.fields=attachments"
+                 f"%2Cauthor_id%2Ccontext_annotations%2Cconversation_id%2"
+                 f"Ccreated_at%2Centities%2Cgeo%2Cid%2Cin_reply_to_user_id"
+                 f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                 f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                 json=mock_request['sample_data']['pinned_tweet'],
+                 status_code=200)
+        config_test = os.path.join(test_files_dir, 'config.yml')
+        prev_config = os.path.join(os.getcwd(), 'config.yml')
+        backup_config = os.path.join(os.getcwd(), 'config.yml.bak')
+        if os.path.isfile(prev_config):
+            shutil.copy(prev_config, backup_config)
+        shutil.copy(config_test, os.getcwd())
+
+        assert cli.main() == 0
+
+        # Clean-up
+        if os.path.isfile(backup_config):
+            shutil.copy(backup_config, prev_config)
+        for sample_user in sample_users:
+            sample_user_obj = sample_user['user_obj']
+            pinned_path = os.path.join(os.getcwd(),
+                                       'users',
+                                       sample_user_obj.twitter_username,
+                                       'pinned_id.txt')
+            pinned_pleroma = os.path.join(os.getcwd(),
+                                          'users',
+                                          sample_user_obj.twitter_username,
+                                          'pinned_id_pleroma.txt')
+            if os.path.isfile(pinned_path):
+                os.remove(pinned_path)
+            if os.path.isfile(pinned_pleroma):
+                os.remove(pinned_pleroma)

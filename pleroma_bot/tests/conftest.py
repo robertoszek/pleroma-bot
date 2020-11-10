@@ -45,7 +45,7 @@ def mock_request(rootdir):
 
 
 @pytest.fixture
-def sample_users(mock_request, rootdir):
+def _sample_users(mock_request, rootdir):
     users = []
     test_user = TestUser()
     twitter_base_url_v2 = test_user.twitter_base_url_v2
@@ -54,6 +54,12 @@ def sample_users(mock_request, rootdir):
         for user_item in config_users['user_dict']:
             mock.get(f"{twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
+                     json=mock_request['sample_data']['pinned'],
+                     status_code=200)
+            mock.get(f"{twitter_base_url_v2}/users/by/username/"
+                     f"{user_item['twitter_username']}?user.fields="
+                     f"pinned_tweet_id&expansions=pinned_tweet_id"
+                     f"&tweet.fields=entities",
                      json=mock_request['sample_data']['pinned'],
                      status_code=200)
 
@@ -148,7 +154,18 @@ def sample_users(mock_request, rootdir):
 
             users.append({'user_obj': User(user_item, config_users['config']),
                           'mock': mock, 'config': config_users['config']})
-        return users
+        sample_users = {'users': users, 'global_mock': mock}
+        return sample_users
+
+
+@pytest.fixture
+def sample_users(_sample_users):
+    return _sample_users['users']
+
+
+@pytest.fixture
+def global_mock(_sample_users):
+    return _sample_users['global_mock']
 
 
 def get_config_users(config):
