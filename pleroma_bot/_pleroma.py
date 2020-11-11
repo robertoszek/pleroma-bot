@@ -102,7 +102,7 @@ def post_pleroma(
                     logger.error("Exception occurred")
                     logger.error("Media size too large:")
                     logger.error(f"Filename: {file}")
-                    logger.error(f"Size: {file_size}")
+                    logger.error(f"Size: {round(file_size / 1048576, 2)}MB")
                     logger.error(
                         "Consider increasing the attachment"
                         " size limit of your instance"
