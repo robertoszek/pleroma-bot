@@ -65,3 +65,42 @@ def test_main_exception_logger(global_mock, sample_users, caplog):
                     os.remove(pinned_pleroma)
         mock.reset_mock()
     assert 'Exception occurred\nTraceback' in caplog.text
+
+
+def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            if sample_user_obj.media_upload:
+                test_files_dir = os.path.join(rootdir, 'test_files')
+                sample_data_dir = os.path.join(
+                    test_files_dir, 'sample_data'
+                )
+
+                media_dir = os.path.join(sample_data_dir, 'media')
+                png = os.path.join(media_dir, 'image.png')
+                svg = os.path.join(media_dir, 'image.svg')
+                mp4 = os.path.join(media_dir, 'video.mp4')
+                gif = os.path.join(media_dir, "animated_gif.gif")
+                tweet_folder = os.path.join(
+                    sample_user_obj.tweets_temp_path, test_user.pinned
+                )
+                shutil.copy(png, tweet_folder)
+                shutil.copy(svg, tweet_folder)
+                shutil.copy(mp4, tweet_folder)
+                shutil.copy(gif, tweet_folder)
+
+                media_url = (
+                    f"{test_user.pleroma_base_url}/api/v1/media"
+                )
+                mock.post(media_url, status_code=513)
+                with caplog.at_level(logging.ERROR):
+                    sample_user_obj.post_pleroma(
+                        test_user.pinned, "", None, False
+                    )
+                assert 'Exception occurred' in caplog.text
+                assert 'Media size too large' in caplog.text
+
+                for media_file in os.listdir(tweet_folder):
+                    os.remove(os.path.join(tweet_folder, media_file))
