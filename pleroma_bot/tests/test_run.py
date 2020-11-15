@@ -32,6 +32,49 @@ def test_user_replace_vars_in_str(sample_users):
         assert replace == sample_user['user_obj'].twitter_url
 
 
+def test_user_replace_vars_in_str_var(sample_users):
+    """
+    Check that replace_vars_in_str replaces the var_name with the var_value
+    correctly
+    """
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        user_obj = sample_user['user_obj']
+        replace = user_obj.replace_vars_in_str(
+            test_user.replace_str,
+            "twitter_url"
+        )
+        assert replace == sample_user['user_obj'].twitter_url
+
+
+def test_replace_vars_in_str_local(monkeypatch, sample_users):
+    """
+    Check that replace_vars_in_str replaces the var_name with the var_value
+    correctly
+    """
+    test_var = "test_var value"
+    for sample_user in sample_users:
+        user_obj = sample_user['user_obj']
+        user_obj.test_var = test_var
+        replace = user_obj.replace_vars_in_str("{{ test_var }}")
+        assert replace == test_var
+
+
+def test_replace_vars_in_str_global(sample_users):
+    """
+    Check that replace_vars_in_str replaces the var_name with the var_value
+    correctly
+    """
+    test_var = "value_global"
+    for sample_user in sample_users:
+        user_obj = sample_user['user_obj']
+        user_obj.replace_vars_in_str.__globals__.update({'test_var': test_var})
+        replace = user_obj.replace_vars_in_str(
+            "{{ test_var }}"
+        )
+    assert replace == test_var
+
+
 def test_user_attrs(sample_users):
     """
     Check that test user matches sample data fed by the mock
