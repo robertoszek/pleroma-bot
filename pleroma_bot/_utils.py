@@ -93,10 +93,10 @@ def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
         # go for locals() if not, fallback to globals()
         try:
             value = getattr(self, match.strip())
-        except NameError:
+        except (NameError, AttributeError):
             try:
                 value = locals()[match.strip()]
-            except NameError:
+            except (NameError, KeyError):
                 value = globals()[match.strip()]
         text = re.sub(pattern, value, text)
     return text
