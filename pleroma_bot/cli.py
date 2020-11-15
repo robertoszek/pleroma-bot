@@ -89,7 +89,8 @@ class User(object):
         except (KeyError, AttributeError):
             self.visibility = "unlisted"
             pass
-        if self.visibility not in ("public", "unlisted", "private", "direct"):
+        visibility_valid = ("public", "unlisted", "private", "direct")
+        if self.visibility not in visibility_valid:
             raise KeyError(
                 "Visibility not supported! Values allowed are: public, "
                 "unlisted, private and direct"
