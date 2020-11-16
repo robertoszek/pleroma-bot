@@ -168,19 +168,11 @@ def process_tweets(self, tweets_to_post):
         try:
             for item in tweet["attachments"]["media_keys"]:
                 for media_include in tweets_to_post["includes"]["media"]:
-                    if item == media_include["media_key"]:
-                        # Video download not implemented in v2 yet
-                        # fallback to v1.1
-                        if (
-                            media_include["type"] == "video"
-                            or media_include["type"] == "animated_gif"
-                        ):
-                            tweet_video = self._get_tweets("v1.1", tweet["id"])
-                            xmd = tweet_video["extended_entities"]["media"]
-                            for extended_media in xmd:
-                                media.append(extended_media)
-                        else:
-                            media.append(media_include)
+                    media_url = _get_media_url(
+                        self, item, media_include, tweet
+                    )
+                    if media_url:
+                        media.extend(media_url)
         except KeyError:
             pass
         # Create folder to store attachments related to the tweet ID
@@ -246,6 +238,25 @@ def process_tweets(self, tweets_to_post):
             tweet["polls"] = None
             pass
     return tweets_to_post
+
+
+def _get_media_url(self, item, media_include, tweet):
+    media_urls = []
+    if item == media_include["media_key"]:
+        # Video download not implemented in v2 yet
+        # fallback to v1.1
+        if (
+            media_include["type"] == "video"
+            or media_include["type"] == "animated_gif"
+        ):
+            tweet_video = self._get_tweets("v1.1", tweet["id"])
+            xmd = tweet_video["extended_entities"]["media"]
+            for extended_media in xmd:
+                media_urls.append(extended_media)
+            return media_urls
+        else:
+            media_urls.append(media_include)
+            return media_urls
 
 
 def _get_best_bitrate_video(self, item):
