@@ -114,55 +114,13 @@ def process_tweets(self, tweets_to_post):
     """
     for tweet in tweets_to_post["data"]:
         media = []
-        # Replace shortened links
-        try:
-            for url_entity in tweet["entities"]["urls"]:
-                matching_pattern = url_entity["url"]
-                matches = re.findall(matching_pattern, tweet["text"])
-                for match in matches:
-                    tweet["text"] = re.sub(
-                        match, url_entity["expanded_url"], tweet["text"]
-                    )
-        except KeyError:
-            # URI regex
-            matching_pattern = (
-                r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
-                r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
-                r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
-                r';:\'".,<>?«»“”‘’]))'
-            )
-            matches = re.finditer(matching_pattern, tweet["text"])
-            for matchNum, match in enumerate(matches, start=1):
-                # don't be brave trying to unwound an URL when it gets
-                # cut off
-                if not match.group().__contains__("…"):
-                    session = requests.Session()  # so connections are
-                    # recycled
-                    response = session.head(
-                        match.group(), allow_redirects=True
-                    )
-                    if not response.ok:
-                        response.raise_for_status()
-                    expanded_url = response.url
-                    tweet["text"] = re.sub(
-                        match.group(), expanded_url, tweet["text"]
-                    )
+        tweet["text"] = _expand_urls(self, tweet)
         if hasattr(self, "rich_text"):
             if self.rich_text:
-                matches = re.findall(r"\B\@\w+", tweet["text"])
-                for match in matches:
-                    mention_link = (
-                        f"[{match}](https://twitter.com/{match[1:]})"
-                    )
-                    tweet["text"] = re.sub(match, mention_link, tweet["text"])
+                tweet["text"] = _replace_mentions(self, tweet)
         try:
             if self.nitter:
-                matching_pattern = "https://twitter.com"
-                matches = re.findall(matching_pattern, tweet["text"])
-                for match in matches:
-                    tweet["text"] = re.sub(
-                        match, "https://nitter.net", tweet["text"]
-                    )
+                tweet["text"] = _replace_nitter(self, tweet)
         except AttributeError:
             pass
         try:
@@ -181,63 +139,130 @@ def process_tweets(self, tweets_to_post):
             os.mkdir(tweet_path)
         # Download media only if we plan to upload it later
         if self.media_upload:
-            for idx, item in enumerate(media):
-                if item["type"] != "video" and item["type"] != "animated_gif":
-                    media_url = item["url"]
-                else:
-                    media_url = _get_best_bitrate_video(self, item)
-
-                if media_url:
-                    response = requests.get(media_url, stream=True)
-                if not response.ok:
-                    response.raise_for_status()
-                response.raw.decode_content = True
-                filename = str(idx) + mimetypes.guess_extension(
-                    response.headers["Content-Type"]
-                )
-                with open(
-                    os.path.join(self.tweets_temp_path, tweet["id"], filename),
-                    "wb",
-                ) as outfile:
-                    shutil.copyfileobj(response.raw, outfile)
-
+            _download_media(self, media, tweet)
         # Process poll if exists and no media is used
-        try:
-            if tweet["attachments"]["poll_ids"] and not media:
+        tweet["polls"] = _process_polls(self, tweet, media)
 
-                # tweet_poll = tweet['includes']['polls']
-                poll_url = self.twitter_base_url_v2 + "/tweets"
+    return tweets_to_post
 
-                params = {
-                    "ids": tweet["id"],
-                    "expansions": "attachments.poll_ids",
-                    "poll.fields": "duration_minutes," "options",
-                }
 
-                response = requests.get(
-                    poll_url, headers=self.header_twitter, params=params
+def _process_polls(self, tweet, media):
+    try:
+        if tweet["attachments"]["poll_ids"] and not media:
+
+            # tweet_poll = tweet['includes']['polls']
+            poll_url = self.twitter_base_url_v2 + "/tweets"
+
+            params = {
+                "ids": tweet["id"],
+                "expansions": "attachments.poll_ids",
+                "poll.fields": "duration_minutes," "options",
+            }
+
+            response = requests.get(
+                poll_url, headers=self.header_twitter, params=params
+            )
+            if not response.ok:
+                response.raise_for_status()
+            response_content = json.loads(response.content)
+            tweet_poll = response_content["includes"]["polls"][0]
+
+            pleroma_poll = {
+                "options": [
+                    option["label"] for option in tweet_poll["options"]
+                ],
+                "expires_in": tweet_poll["duration_minutes"] * 60,
+            }
+
+            # Add poll to tweet
+            tweet["polls"] = pleroma_poll
+
+        else:
+            tweet["polls"] = None
+    except KeyError:
+        tweet["polls"] = None
+        pass
+
+    return tweet["polls"]
+
+
+def _download_media(self, media, tweet):
+    for idx, item in enumerate(media):
+        if item["type"] != "video" and item["type"] != "animated_gif":
+            media_url = item["url"]
+        else:
+            media_url = _get_best_bitrate_video(self, item)
+
+        if media_url:
+            response = requests.get(media_url, stream=True)
+        if not response.ok:
+            response.raise_for_status()
+        response.raw.decode_content = True
+        filename = str(idx) + mimetypes.guess_extension(
+            response.headers["Content-Type"]
+        )
+        with open(
+            os.path.join(self.tweets_temp_path, tweet["id"], filename),
+            "wb",
+        ) as outfile:
+            shutil.copyfileobj(response.raw, outfile)
+
+
+def _replace_nitter(self, tweet):
+    matching_pattern = "https://twitter.com"
+    matches = re.findall(matching_pattern, tweet["text"])
+    for match in matches:
+        tweet["text"] = re.sub(
+            match, "https://nitter.net", tweet["text"]
+        )
+    return tweet["text"]
+
+
+def _replace_mentions(self, tweet):
+    matches = re.findall(r"\B\@\w+", tweet["text"])
+    for match in matches:
+        mention_link = (
+            f"[{match}](https://twitter.com/{match[1:]})"
+        )
+        tweet["text"] = re.sub(match, mention_link, tweet["text"])
+    return tweet["text"]
+
+
+def _expand_urls(self, tweet):
+    # Replace shortened links
+    try:
+        for url_entity in tweet["entities"]["urls"]:
+            matching_pattern = url_entity["url"]
+            matches = re.findall(matching_pattern, tweet["text"])
+            for match in matches:
+                tweet["text"] = re.sub(
+                    match, url_entity["expanded_url"], tweet["text"]
+                )
+    except KeyError:
+        # URI regex
+        matching_pattern = (
+            r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
+            r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
+            r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
+            r';:\'".,<>?«»“”‘’]))'
+        )
+        matches = re.finditer(matching_pattern, tweet["text"])
+        for matchNum, match in enumerate(matches, start=1):
+            # don't be brave trying to unwound an URL when it gets
+            # cut off
+            if not match.group().__contains__("…"):
+                session = requests.Session()  # so connections are
+                # recycled
+                response = session.head(
+                    match.group(), allow_redirects=True
                 )
                 if not response.ok:
                     response.raise_for_status()
-                response_content = json.loads(response.content)
-                tweet_poll = response_content["includes"]["polls"][0]
-
-                pleroma_poll = {
-                    "options": [
-                        option["label"] for option in tweet_poll["options"]
-                    ],
-                    "expires_in": tweet_poll["duration_minutes"] * 60,
-                }
-
-                # Add poll to tweet
-                tweet["polls"] = pleroma_poll
-
-            else:
-                tweet["polls"] = None
-        except KeyError:
-            tweet["polls"] = None
-            pass
-    return tweets_to_post
+                expanded_url = response.url
+                tweet["text"] = re.sub(
+                    match.group(), expanded_url, tweet["text"]
+                )
+    return tweet["text"]
 
 
 def _get_media_url(self, item, media_include, tweet):
