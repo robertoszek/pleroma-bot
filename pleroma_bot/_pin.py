@@ -58,48 +58,51 @@ def unpin_pleroma(self, pinned_file):
             "File with previous pinned post ID not found or empty. "
             "Checking last posts for pinned post..."
         )
-        page = 0
-        headers_page_url = None
-        while page < 10:
-            if self.posts:
-                for post in self.posts:
-                    if post["pinned"]:
-                        with open(pinned_file, "w") as file:
-                            file.write(post["id"] + "\n")
-                        return self.unpin_pleroma(pinned_file)
-            page += 1
-            pleroma_posts_url = (
-                f"{self.pleroma_base_url}/api/v1/accounts/"
-                f"{self.pleroma_username}/statuses"
-            )
-
-            if headers_page_url:
-                statuses_url = headers_page_url
-            else:
-                statuses_url = pleroma_posts_url
-            response = requests.get(
-                statuses_url, headers=self.header_pleroma
-            )
-            if not response.ok:
-                response.raise_for_status()
-            posts = json.loads(response.text)
-            self.posts = posts
-            try:
-                links = requests.utils.parse_header_links(
-                    response.headers["link"].rstrip(">").replace(">,<", ",<")
-                )
-                for link in links:
-                    if link["rel"] == "next":
-                        headers_page_url = link["url"]
-            except KeyError:
-                break
-
+        _find_pinned(self, pinned_file)
         logger.warning("Pinned post not found. Giving up unpinning...")
     # Clear pinned ids
     with open(pinned_file, "w") as file:
         file.write("\n")
     with open(pinned_file_twitter, "w") as file:
         file.write("\n")
+
+
+def _find_pinned(self, pinned_file):
+    page = 0
+    headers_page_url = None
+    while page < 10:
+        if self.posts:
+            for post in self.posts:
+                if post["pinned"]:
+                    with open(pinned_file, "w") as file:
+                        file.write(post["id"] + "\n")
+                    return self.unpin_pleroma(pinned_file)
+        page += 1
+        pleroma_posts_url = (
+            f"{self.pleroma_base_url}/api/v1/accounts/"
+            f"{self.pleroma_username}/statuses"
+        )
+
+        if headers_page_url:
+            statuses_url = headers_page_url
+        else:
+            statuses_url = pleroma_posts_url
+        response = requests.get(
+            statuses_url, headers=self.header_pleroma
+        )
+        if not response.ok:
+            response.raise_for_status()
+        posts = json.loads(response.text)
+        self.posts = posts
+        try:
+            links = requests.utils.parse_header_links(
+                response.headers["link"].rstrip(">").replace(">,<", ",<")
+            )
+            for link in links:
+                if link["rel"] == "next":
+                    headers_page_url = link["url"]
+        except KeyError:
+            break
 
 
 def _get_pinned_tweet_id(self):
