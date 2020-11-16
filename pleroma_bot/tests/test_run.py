@@ -481,7 +481,7 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                      json=mock_request['sample_data']['tweet_video'],
                      status_code=200)
             mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
-                     "/pu/vid/480x270/ZdOIMwg7XWgr1LA8.mp4?tag=10",
+                     "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
                      content=mp4_content,
                      headers={'Content-Type': 'video/mp4'},
                      status_code=200)
@@ -553,7 +553,7 @@ def test_main(rootdir, global_mock, mock_request, sample_users):
                  json=mock_request['sample_data']['tweet_video'],
                  status_code=200)
         mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
-                 "/pu/vid/480x270/ZdOIMwg7XWgr1LA8.mp4?tag=10",
+                 "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
                  content=mp4_content,
                  headers={'Content-Type': 'video/mp4'},
                  status_code=200)

@@ -193,14 +193,10 @@ def process_tweets(self, tweets_to_post):
                 if item["type"] != "video" and item["type"] != "animated_gif":
                     media_url = item["url"]
                 else:
-                    bitrate = 0
-                    for variant in item["video_info"]["variants"]:
-                        try:
-                            if variant["bitrate"] >= bitrate:
-                                media_url = variant["url"]
-                        except KeyError:
-                            pass
-                response = requests.get(media_url, stream=True)
+                    media_url = _get_best_bitrate_video(self, item)
+
+                if media_url:
+                    response = requests.get(media_url, stream=True)
                 if not response.ok:
                     response.raise_for_status()
                 response.raw.decode_content = True
@@ -250,6 +246,16 @@ def process_tweets(self, tweets_to_post):
             tweet["polls"] = None
             pass
     return tweets_to_post
+
+
+def _get_best_bitrate_video(self, item):
+    bitrate = 0
+    for variant in item["video_info"]["variants"]:
+        try:
+            if variant["bitrate"] >= bitrate:
+                return variant["url"]
+        except KeyError:
+            pass
 
 
 def guess_type(media_file: str) -> str:
