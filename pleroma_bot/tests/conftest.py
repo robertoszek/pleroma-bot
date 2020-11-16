@@ -4,6 +4,7 @@ import re
 import yaml
 import json
 import pytest
+import requests
 import requests_mock
 
 from test_user import UserTemplate
@@ -36,6 +37,18 @@ def mock_request(rootdir):
         mock.get(f"{twitter_base_url}/users/show.json",
                  json=sample_data['twitter_info'],
                  status_code=200)
+        mock.get(
+            "https://cutt.ly/xg3TuY0",
+            status_code=301,
+            headers={'Location': 'http://github.com'}
+        )
+        mock.head(
+            "https://cutt.ly/xg3TuY0",
+            status_code=301,
+            headers={'Location': 'http://github.com'}
+        )
+        empty_resp = requests.packages.urllib3.response.HTTPResponse()
+        mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
                  status_code=200)
