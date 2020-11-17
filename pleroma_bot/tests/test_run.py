@@ -390,7 +390,9 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 shutil.copy(mp4, tweet_folder)
                 shutil.copy(gif, tweet_folder)
                 attach_number = len(os.listdir(tweet_folder))
-                sample_user_obj.post_pleroma(test_user.pinned, "", None, False)
+                sample_user_obj.post_pleroma(
+                    (test_user.pinned, ""), None, False
+                )
 
                 history = mock.request_history
                 post_url = (

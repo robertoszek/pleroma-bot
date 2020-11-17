@@ -97,7 +97,7 @@ def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
                 mock.post(media_url, status_code=513)
                 with caplog.at_level(logging.ERROR):
                     sample_user_obj.post_pleroma(
-                        test_user.pinned, "", None, False
+                        (test_user.pinned, ""), None, False
                     )
                 assert 'Exception occurred' in caplog.text
                 assert 'Media size too large' in caplog.text

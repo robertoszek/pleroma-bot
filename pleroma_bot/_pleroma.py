@@ -54,7 +54,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     """Post the given text to the Pleroma instance associated with the
     User object
 
-    :param tweet: Tuple containing tweet_id, tweet_text. The ID will be used to 
+    :param tweet: Tuple containing tweet_id, tweet_text. The ID will be used to
     link to the Twitter status if 'signature' is True and to find related media
     tweet_text is the literal text to use when creating the post.
     :type tweet: tuple
