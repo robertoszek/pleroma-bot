@@ -50,19 +50,16 @@ def get_date_last_pleroma_post(self):
     return date_pleroma
 
 
-def post_pleroma(
-        self, tweet_id: str, tweet_text: str, poll: dict, sensitive: bool
-) -> str:
+def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     """Post the given text to the Pleroma instance associated with the
     User object
 
-    :param tweet_id: It will be used to link to the Twitter status if
-    'signature' is True and to find related media
-    :type tweet_id: str
-    :param tweet_text: Literal text to use when creating the post.
-    :type tweet_text: str
+    :param tweet: Tuple containing tweet_id, tweet_text. The ID will be used to 
+    link to the Twitter status if 'signature' is True and to find related media
+    tweet_text is the literal text to use when creating the post.
+    :type tweet: tuple
     :param poll: dict of poll if attached to tweet
-    :type poll; dict
+    :type poll: dict
     :param sensitive: if tweet is possibly sensitive or not
     :type sensitive: bool
     :returns: id of post
@@ -73,6 +70,8 @@ def post_pleroma(
     pleroma_post_url = self.pleroma_base_url + "/api/v1/statuses"
     pleroma_media_url = self.pleroma_base_url + "/api/v1/media"
 
+    tweet_id = tweet[0]
+    tweet_text = tweet[1]
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
     media_files = os.listdir(tweet_folder)
     media_ids = []

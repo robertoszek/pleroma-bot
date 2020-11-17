@@ -198,8 +198,7 @@ def main():
                 print("tweets:", tweets_to_post["data"])
                 for tweet in tweets_to_post["data"]:
                     user.post_pleroma(
-                        tweet["id"],
-                        tweet["text"],
+                        (tweet["id"], tweet["text"]),
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )
