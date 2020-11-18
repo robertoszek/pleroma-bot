@@ -136,50 +136,61 @@ def test_user_invalid_max_tweets(mock_request):
 
 
 def test_check_pinned_exception_user(sample_users, mock_request):
-    with pytest.raises(requests.exceptions.HTTPError) as error_info:
-        test_user = UserTemplate()
-        url_user = (
-            f"{test_user.twitter_base_url_v2}/tweets/{test_user.pinned}"
-            f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
-            f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
-            f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
-            f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
-            f"attachments.poll_ids%2Cattachments.media_keys"
-            f"%2Cauthor_id%2Centities.mentions.username"
-            f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
-            f"referenced_tweets.id%2Creferenced_tweets.id."
-            f"author_id&tweet.fields=attachments%2Cauthor_id"
-            f"%2Ccontext_annotations%2Cconversation_id%2C"
-            f"created_at%2Centities%2Cgeo%2Cid%2C"
-            f"in_reply_to_user_id%2Clang%2Cpublic_metrics%2C"
-            f"possibly_sensitive%2Creferenced_tweets%2Csource%2C"
-            f"text%2Cwithheld"
-        )
-        # Test exceptions
-        for sample_user in sample_users:
-            with sample_user['mock'] as mock:
-                sample_user_obj = sample_user['user_obj']
-                pinned = sample_user_obj.pinned_tweet_id
-                mock.get(url_user,
-                         json=mock_request['sample_data']['pinned_tweet'],
-                         status_code=500)
-                mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
-                         f"&expansions=attachments.poll_ids"
-                         f"&poll.fields=duration_minutes%2Coptions",
-                         json=mock_request['sample_data']['poll'],
-                         status_code=200)
+    test_user = UserTemplate()
+    url_user = (
+        f"{test_user.twitter_base_url_v2}/tweets/{test_user.pinned}"
+        f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
+        f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
+        f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
+        f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+        f"attachments.poll_ids%2Cattachments.media_keys"
+        f"%2Cauthor_id%2Centities.mentions.username"
+        f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
+        f"referenced_tweets.id%2Creferenced_tweets.id."
+        f"author_id&tweet.fields=attachments%2Cauthor_id"
+        f"%2Ccontext_annotations%2Cconversation_id%2C"
+        f"created_at%2Centities%2Cgeo%2Cid%2C"
+        f"in_reply_to_user_id%2Clang%2Cpublic_metrics%2C"
+        f"possibly_sensitive%2Creferenced_tweets%2Csource%2C"
+        f"text%2Cwithheld"
+    )
+    # Test exceptions
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            pinned = sample_user_obj.pinned_tweet_id
+            mock.get(url_user,
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=500)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
+                     f"&expansions=attachments.poll_ids"
+                     f"&poll.fields=duration_minutes%2Coptions",
+                     json=mock_request['sample_data']['poll'],
+                     status_code=200)
+            tweet_folder = os.path.join(
+                sample_user_obj.tweets_temp_path,
+                sample_user_obj.pinned_tweet_id
+            )
+            os.makedirs(tweet_folder, exist_ok=True)
+            HTTPError = requests.exceptions.HTTPError
+            with pytest.raises(HTTPError) as error_info:
                 sample_user_obj.check_pinned()
 
-    exception_value = (
-        f"500 Server Error: None for url: {url_user}"
-    )
-    assert str(error_info.value) == exception_value
-    pin_p = os.path.join(sample_user_obj.user_path, "pinned_id_pleroma.txt")
-    pin_t = os.path.join(sample_user_obj.user_path, "pinned_id.txt")
-    if os.path.isfile(pin_p):
-        os.remove(pin_p)
-    if os.path.isfile(pin_t):
-        os.remove(pin_t)
+            exception_value = (
+                f"500 Server Error: None for url: {url_user}"
+            )
+            assert str(error_info.value) == exception_value
+            pin_p = os.path.join(
+                sample_user_obj.user_path, "pinned_id_pleroma.txt"
+            )
+            pin_t = os.path.join(
+                sample_user_obj.user_path, "pinned_id.txt"
+            )
+            if os.path.isfile(pin_p):
+                os.remove(pin_p)
+            if os.path.isfile(pin_t):
+                os.remove(pin_t)
+            os.rmdir(tweet_folder)
 
 
 def test_check_pinned_exception_tweet(sample_users, mock_request):
@@ -330,3 +341,44 @@ def test_unpin_pleroma_statuses_exception(sample_users, mock_request):
 
     exception_value = f"500 Server Error: None for url: {url_statuses}"
     assert str(error_info.value) == exception_value
+
+
+def test__get_pinned_tweet_id_exception(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            pinned = sample_user_obj.pinned_tweet_id
+            assert pinned == test_user.pinned
+            pinned_url = (
+                f"{test_user.twitter_base_url_v2}/users/by/username/"
+                f"{sample_user_obj.twitter_username}?user.fields="
+                f"pinned_tweet_id&expansions=pinned_tweet_id&"
+                f"tweet.fields=entities"
+            )
+            mock.get(pinned_url,
+                     json=mock_request['sample_data']['pinned'],
+                     status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_pinned_tweet_id()
+            exception_value = f"500 Server Error: None for url: {pinned_url}"
+            assert str(error_info.value) == exception_value
+
+
+def test_post_pleroma_exception(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets_folder = sample_user_obj.tweets_temp_path
+            tweet_folder = os.path.join(tweets_folder, test_user.pinned)
+            os.makedirs(tweet_folder, exist_ok=True)
+            post_url = f"{test_user.pleroma_base_url}/api/v1/statuses"
+            mock.post(post_url, status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj.post_pleroma(
+                    (test_user.pinned, ""), None, False
+                )
+            exception_value = f"500 Server Error: None for url: {post_url}"
+            assert str(error_info.value) == exception_value
+            os.rmdir(tweet_folder)
