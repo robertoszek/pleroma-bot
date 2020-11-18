@@ -155,12 +155,9 @@ class User(object):
         self.tweets_temp_path = os.path.join(self.user_path, "tweets")
         self.avatar_path = os.path.join(self.user_path, "profile.jpg")
         self.header_path = os.path.join(self.user_path, "banner.jpg")
-        if not os.path.isdir(self.users_path):
-            os.mkdir(self.users_path)
-        if not os.path.isdir(self.user_path):
-            os.mkdir(self.user_path)
-        if not os.path.isdir(self.tweets_temp_path):
-            os.mkdir(self.tweets_temp_path)
+        os.makedirs(self.users_path, exist_ok=True)
+        os.makedirs(self.user_path, exist_ok=True)
+        os.makedirs(self.tweets_temp_path, exist_ok=True)
         # Get Twitter info on instance creation
         self._get_twitter_info()
         self.posts = None

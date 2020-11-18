@@ -134,8 +134,7 @@ def process_tweets(self, tweets_to_post):
             pass
         # Create folder to store attachments related to the tweet ID
         tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
-        if not os.path.isdir(tweet_path):
-            os.mkdir(tweet_path)
+        os.makedirs(tweet_path, exist_ok=True)
         # Download media only if we plan to upload it later
         if self.media_upload:
             _download_media(self, media, tweet)

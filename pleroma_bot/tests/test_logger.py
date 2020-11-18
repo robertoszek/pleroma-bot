@@ -86,6 +86,7 @@ def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
                 tweet_folder = os.path.join(
                     sample_user_obj.tweets_temp_path, test_user.pinned
                 )
+                os.makedirs(tweet_folder, exist_ok=True)
                 shutil.copy(png, tweet_folder)
                 shutil.copy(svg, tweet_folder)
                 shutil.copy(mp4, tweet_folder)
@@ -104,3 +105,4 @@ def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
 
                 for media_file in os.listdir(tweet_folder):
                     os.remove(os.path.join(tweet_folder, media_file))
+                os.rmdir(tweet_folder)
