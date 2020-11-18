@@ -1,4 +1,5 @@
 import os
+import re
 import pytest
 import requests
 
@@ -382,3 +383,80 @@ def test_post_pleroma_exception(sample_users, mock_request):
             exception_value = f"500 Server Error: None for url: {post_url}"
             assert str(error_info.value) == exception_value
             os.rmdir(tweet_folder)
+
+
+def test_update_pleroma_exception(rootdir, mock_request, sample_users):
+    test_user = UserTemplate()
+    twitter_info = mock_request['sample_data']['twitter_info']
+    banner_url = twitter_info['profile_banner_url']
+    profile_small_url = twitter_info['profile_image_url_https']
+    profile_url = re.sub(r"normal", "400x400", profile_small_url)
+
+    test_files_dir = os.path.join(rootdir, 'test_files')
+    sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+    media_dir = os.path.join(sample_data_dir, 'media')
+    banner = os.path.join(media_dir, 'banner.jpg')
+
+    profile_banner = open(banner, 'rb')
+    profile_banner_content = profile_banner.read()
+    profile_banner.close()
+
+    profile_pic = os.path.join(media_dir, 'default_profile_normal.png')
+    profile_image = open(profile_pic, 'rb')
+    profile_image_content = profile_image.read()
+    profile_image.close()
+
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            mock.get(profile_url,
+                     content=profile_image_content,
+                     status_code=500)
+            mock.get(banner_url,
+                     content=profile_banner_content,
+                     status_code=200)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj.update_pleroma()
+            exception_value = f"500 Server Error: None for url: {profile_url}"
+            assert str(error_info.value) == exception_value
+            mock.get(profile_url,
+                     content=profile_image_content,
+                     status_code=200)
+            mock.get(banner_url,
+                     content=profile_banner_content,
+                     status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj.update_pleroma()
+            exception_value = f"500 Server Error: None for url: {banner_url}"
+            assert str(error_info.value) == exception_value
+            cred_url = (
+                f"{test_user.pleroma_base_url}/api/v1/"
+                f"accounts/update_credentials"
+            )
+            mock.patch(cred_url,
+                       status_code=500)
+            mock.get(profile_url,
+                     content=profile_image_content,
+                     status_code=200)
+            mock.get(banner_url,
+                     content=profile_banner_content,
+                     status_code=200)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj.update_pleroma()
+            exception_value = f"500 Server Error: None for url: {cred_url}"
+            assert str(error_info.value) == exception_value
+            mock_fields = [
+                {'name': 'Field1', 'value': 'Value1'},
+                {'name': 'Field2', 'value': 'Value2'},
+                {'name': 'Field3', 'value': 'Value3'},
+                {'name': 'Field4', 'value': 'Value4'},
+                {'name': 'Field5', 'value': 'Value5'}
+            ]
+            sample_user_obj.fields = mock_fields
+            with pytest.raises(Exception) as error_info:
+                sample_user_obj.update_pleroma()
+            exception_value = (
+                f"Total number of metadata fields cannot "
+                f"exceed 4.Provided: {len(mock_fields)}. Exiting..."
+            )
+            assert str(error_info.value) == exception_value
