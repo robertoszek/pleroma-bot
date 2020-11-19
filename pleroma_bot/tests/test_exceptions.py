@@ -505,3 +505,17 @@ def test__get_twitter_info_exception(sample_users, mock_request):
                 sample_user_obj._get_twitter_info()
             exception_value = f"500 Server Error: None for url: {info_url}"
             assert str(error_info.value) == exception_value
+
+
+def test__download_media_exception(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            media_url = "https://mymock.media/img.jpg"
+            mock.get(media_url, status_code=500)
+            media = [{'url': media_url, 'type': 'image'}]
+            tweet = None
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._download_media(media, tweet)
+            exception_value = f"500 Server Error: None for url: {media_url}"
+            assert str(error_info.value) == exception_value
