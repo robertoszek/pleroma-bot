@@ -39,14 +39,6 @@ from datetime import datetime
 
 from . import logger
 
-# Parameter to choose whether to update bio, avatar and banner or not - save
-# some bandwidth
-try:
-    arg = sys.argv[1]
-except IndexError:
-    arg = ""
-    print(f"Usage: {sys.argv[0]} [noProfile]")
-
 
 class User(object):
     from ._twitter import get_tweets
@@ -174,6 +166,14 @@ class User(object):
 
 
 def main():
+    # Parameter to choose whether to update bio, avatar and banner or not -
+    # save some bandwidth
+    try:
+        arg = sys.argv[1]
+    except IndexError:
+        arg = ""
+        print(f"Usage: {sys.argv[0]} [noProfile]")
+
     try:
         base_path = os.getcwd()
         with open(os.path.join(base_path, "config.yml"), "r") as stream:
@@ -223,5 +223,9 @@ def main():
     return 0
 
 
-if __name__ == "__main__":
-    exit(main())
+def init():
+    if __name__ == "__main__":
+        sys.exit(main())
+
+
+init()
