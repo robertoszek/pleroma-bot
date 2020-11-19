@@ -460,3 +460,48 @@ def test_update_pleroma_exception(rootdir, mock_request, sample_users):
                 f"exceed 4.Provided: {len(mock_fields)}. Exiting..."
             )
             assert str(error_info.value) == exception_value
+
+
+def test__get_tweets_exception(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweet_id_url = (
+                f"{sample_user_obj.twitter_base_url}/statuses/"
+                f"show.json?id={str(sample_user_obj.pinned_tweet_id)}"
+            )
+
+            mock.get(tweet_id_url, status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_tweets(
+                    "v1.1", sample_user_obj.pinned_tweet_id
+                )
+            exception_value = f"500 Server Error: None for url: {tweet_id_url}"
+            assert str(error_info.value) == exception_value
+            tweets_url = (
+                f"{sample_user_obj.twitter_base_url}"
+                f"/statuses/user_timeline.json?screen_name="
+                f"{sample_user_obj.twitter_username}"
+                f"&count={str(sample_user_obj.max_tweets)}&include_rts=true"
+            )
+            mock.get(tweets_url, status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_tweets("v1.1")
+            exception_value = f"500 Server Error: None for url: {tweets_url}"
+            assert str(error_info.value) == exception_value
+
+
+def test__get_twitter_info_exception(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            info_url = (
+                f"{sample_user_obj.twitter_base_url}"
+                f"/users/show.json?screen_name="
+                f"{sample_user_obj.twitter_username}"
+            )
+            mock.get(info_url, status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_twitter_info()
+            exception_value = f"500 Server Error: None for url: {info_url}"
+            assert str(error_info.value) == exception_value
