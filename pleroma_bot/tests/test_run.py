@@ -519,6 +519,18 @@ def test_process_tweets(rootdir, sample_users, mock_request):
     return mock
 
 
+def test__process_polls_with_media(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            media_url = "https://mymock.media/img.jpg"
+            mock.get(media_url, status_code=500)
+            media = [{'url': media_url, 'type': 'image'}]
+            tweet = {'attachments': {'poll_ids': 123}}
+            polls = sample_user_obj._process_polls(tweet, media)
+            assert polls is None
+
+
 def test_main(rootdir, global_mock, mock_request, sample_users):
     test_user = UserTemplate()
     with global_mock as mock:
