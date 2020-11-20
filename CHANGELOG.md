@@ -1,4 +1,4 @@
-## Unreleased
+## 0.5.0
 ## Added
 
 - Support for using the original tweet sensitivity (nsfw flag) when posting on the Fediverse account
@@ -6,6 +6,10 @@
 ## Fixed
 
 - Exception when no tweets are found within the last week (```/tweets/search/recent```)
+
+## Enhancements
+
+- Added tests and 100% code coverage
 
 ## Upgrade notes
 

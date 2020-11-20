@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/robertoszek/pleroma-twitter-info-grabber.svg?branch=develop)](https://travis-ci.com/robertoszek/pleroma-twitter-info-grabber)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)
+[![codecov](https://codecov.io/gh/robertoszek/pleroma-twitter-info-grabber/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-twitter-info-grabber)
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Requires.io (branch)](https://img.shields.io/requires/github/robertoszek/pleroma-twitter-info-grabber/master)](https://requires.io/github/robertoszek/pleroma-twitter-info-grabber/requirements/?branch=master)
 [![License](https://img.shields.io/github/license/robertoszek/pleroma-twitter-info-grabber)](https://github.com/robertoszek/pleroma-twitter-info-grabber/blob/master/LICENSE.md)
