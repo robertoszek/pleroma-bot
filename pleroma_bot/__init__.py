@@ -1,7 +1,7 @@
 import os
 import logging
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 log_path = os.path.join(os.getcwd(), "error.log")
 
