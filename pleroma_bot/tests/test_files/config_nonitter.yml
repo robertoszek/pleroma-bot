@@ -16,7 +16,6 @@ users:
   # If you want to download Twitter attachments and add them to the Pleroma posts
   media_upload: true
   # If twitter links should be changed to nitter.net ones
-  nitter: true
   # If mentions should be transformed to links to the mentioned Twitter profile
   rich_text: true
   # visibility of the post. Must one of the following: public, unlisted, private, direct
@@ -42,7 +41,6 @@ users:
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
-  nitter: true
   media_upload: false
   pleroma_url: https://another.pleroma.instance
   max_tweets: 50

@@ -42,7 +42,6 @@ users:
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
-  nitter: true
   media_upload: false
   pleroma_url: https://another.pleroma.instance
   max_tweets: 50

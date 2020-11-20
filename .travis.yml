@@ -1,0 +1,39 @@
+dist: xenial
+
+language: python
+
+python:
+    - 3.7
+    - 3.6
+
+matrix:
+    include:
+        - python: 3.7
+          env: TOXENV=lint
+
+#before_install:
+#    - sudo apt-get update -y
+
+env:
+  global:
+    CC_TEST_REPORTER_ID=f108a5ed53a9d98475fc6133c72c9a82756749e158e002c1345dc465e233999e
+
+install:
+    - pip install tox tox-travis coverage
+    - eval $(dbus-launch --sh-syntax)
+
+before_script:
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
+    - ./cc-test-reporter before-build
+
+script:
+    - tox
+
+after_script:
+    - coverage xml
+    - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+    - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+    email: false

@@ -3,7 +3,7 @@ twitter_base_url: https://api.twitter.com/1.1
 pleroma_base_url: https://pleroma.robertoszek.xyz
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200
-max_tweets: 40
+max_tweets: 50
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # List of users and their attributes
@@ -31,6 +31,7 @@ users:
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
   # Optional metadata fields and values for the Pleroma profile
+  max_tweets: 9
   fields:
   - name: "\U0001F426 Birdsite"
     value: "{{ twitter_url }}"
@@ -45,6 +46,6 @@ users:
   nitter: true
   media_upload: false
   pleroma_url: https://another.pleroma.instance
-  max_tweets: 50
+  max_tweets: 4
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \n Any issues please contact @robertoszek \n \n "

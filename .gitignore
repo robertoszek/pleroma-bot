@@ -7,3 +7,8 @@ config.yml
 /build
 /pleroma_bot.egg-info
 error.log
+/.tox/
+/.coverage
+/coverage.xml
+/config.yml.bak
+**/__pycache__/
