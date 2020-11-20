@@ -14,21 +14,19 @@ def test_user_invalid_pleroma_base(mock_request):
     Check that a missing pleroma_base_url raises a KeyError exception
     """
     test_user = UserTemplate()
-    with pytest.raises(KeyError):
-        with mock_request['mock'] as mock:
-            config_users = get_config_users('config_nopleroma.yml')
-            for user_item in config_users['user_dict']:
-                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
-                         f"{user_item['twitter_username']}",
-                         json=mock_request['sample_data']['pinned'],
-                         status_code=200)
-                mock.get(f"{config_users['config']['pleroma_base_url']}"
-                         f"/api/v1/accounts/"
-                         f"{user_item['pleroma_username']}/statuses",
-                         json=mock_request['sample_data']['pleroma_statuses'],
-                         status_code=200)
-                user_obj = User(user_item, config_users['config'])
-        return user_obj
+    with mock_request['mock'] as mock:
+        config_users = get_config_users('config_nopleroma.yml')
+        for user_item in config_users['user_dict']:
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                     f"{user_item['twitter_username']}",
+                     json=mock_request['sample_data']['pinned'],
+                     status_code=200)
+            with pytest.raises(KeyError) as error_info:
+                User(user_item, config_users['config'])
+            exception_value = (
+                "'No Pleroma URL defined in config! [pleroma_base_url]'"
+            )
+            assert str(error_info.value) == exception_value
 
 
 def test_user_missing_twitter_base(mock_request):
@@ -518,4 +516,17 @@ def test__download_media_exception(sample_users, mock_request):
             with pytest.raises(requests.exceptions.HTTPError) as error_info:
                 sample_user_obj._download_media(media, tweet)
             exception_value = f"500 Server Error: None for url: {media_url}"
+            assert str(error_info.value) == exception_value
+
+
+def test__expand_urls(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            fake_url = "https://cutt.ly/xg3TuY0"
+            mock.head(fake_url, status_code=500)
+            tweet = mock_request['sample_data']['pinned_tweet']['data']
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._expand_urls(tweet)
+            exception_value = f"500 Server Error: None for url: {fake_url}"
             assert str(error_info.value) == exception_value
