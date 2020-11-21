@@ -113,7 +113,9 @@ users:
   pleroma_base_url: https://another.pleroma.instance
   max_tweets: 50
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n Any issues please contact @robertoszek \n \n "``
+    \ account. \n Any issues please contact @robertoszek \n \n "
+```
+
 Changing the ```users``` to the desired ones. You can add as many users as needed.
 
 Also change the following to your Pleroma/Mastodon instance URL:
