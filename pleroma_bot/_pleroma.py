@@ -38,7 +38,7 @@ def get_date_last_pleroma_post(self):
     if posts:
         date_pleroma = datetime.strftime(
             datetime.strptime(
-                posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.000Z"
+                posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"
             ),
             "%Y-%m-%d %H:%M:%S",
         )

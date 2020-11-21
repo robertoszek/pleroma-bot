@@ -193,7 +193,7 @@ def main():
                     created_at = tweet["created_at"]
                     date_twitter = datetime.strftime(
                         datetime.strptime(
-                            created_at, "%Y-%m-%dT%H:%M:%S.000Z"
+                            created_at, "%Y-%m-%dT%H:%M:%S.%fZ"
                         ),
                         "%Y-%m-%d %H:%M:%S",
                     )
