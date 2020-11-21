@@ -1,4 +1,4 @@
-## 0.5.0
+## [0.5.0] - 2020-11-21
 ## Added
 
 - Support for using the original tweet sensitivity (nsfw flag) when posting on the Fediverse account
