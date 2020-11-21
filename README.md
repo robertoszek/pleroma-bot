@@ -13,7 +13,7 @@ Mirror one or multiple Twitter accounts in Pleroma/Mastodon.
 
 After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
 
-For precisely those cases I've written this Python project that automates them, asking such info to [Twitter's API](https://developer.twitter.com/en/docs/twitter-api/v1) and updating the relevant fields on the [Pleroma API](https://docs-develop.pleroma.social/backend/API/pleroma_api/) side.
+For precisely those cases I've written this Python project that automates them, asking such info to [Twitter's API](https://developer.twitter.com/en/docs/twitter-api/v1) and updating the relevant fields on the [Pleroma API](https://docs-develop.pleroma.social/backend/API/pleroma_api/)/[Mastodon API](https://docs.joinmastodon.org/client/intro/) side.
 
 
 So basically, it does the following:
@@ -37,7 +37,7 @@ $ pleroma-bot [noProfile]
 You'll need the following:
 
 * A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
-* The user/users [Pleroma Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
+* The user/users [Pleroma/Mastodon Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
 
 Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
@@ -53,6 +53,7 @@ twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 users:
 - twitter_username: KyleBosman
   pleroma_username: KyleBosman
+  # Mastodon/Pleroma token obtained by following the README.md
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   # If you want to add a link to the original status or not
   signature: true
@@ -81,17 +82,38 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+# Mastodon instance example
+- twitter_username: WoolieWoolz
+  pleroma_username: 24660
+  pleroma_base_url: https://botsin.space
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # Mastodon doesn't support rich text!
+  rich_text: false
+  signature: true
+  nitter: true
+  visibility: "unlisted"
+  media_upload: true
+  max_tweets: 50
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
+    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
+  fields:
+  - name: "\U0001F426 Birdsite"
+    value: "{{ twitter_url }}"
+  - name: "Status"
+    value: "I am completely operational, and all my circuits are functioning perfectly."
+  - name: "Source"
+    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
 - twitter_username: arstechnica
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
   nitter: true
+  visibility: "public"
   media_upload: false
-  pleroma_url: https://another.pleroma.instance
+  pleroma_base_url: https://another.pleroma.instance
   max_tweets: 50
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n Any issues please contact @robertoszek \n \n "
-```
+    \ account. \n Any issues please contact @robertoszek \n \n "``
 Changing the ```users``` to the desired ones. You can add as many users as needed.
 
 Also change the following to your Pleroma/Mastodon instance URL:
@@ -154,4 +176,5 @@ SOFTWARE.
 
 **Tested and confirmed working against** :
 * ```Pleroma BE 2.0.50-2547-g5c2b6922-develop```
-* ```Twitter API v1.1```
+* ```Mastodon v3.2.1```
+* ```Twitter API v1.1 and v2```
