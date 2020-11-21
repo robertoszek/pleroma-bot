@@ -1,3 +1,14 @@
+## Unreleased
+
+## Fixed
+
+- Timestamp format for Mastodon instances adjustments
+- Sensitivity boolean ignored by Mastodon instances if capitalized
+
+## Enhancements
+
+- Improved Mastodon compatibility
+
 ## [0.5.0] - 2020-11-21
 ## Added
 

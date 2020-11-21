@@ -123,7 +123,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
 
     data = {
         "status": tweet_text,
-        "sensitive": str(sensitive),
+        "sensitive": str(sensitive).lower(),
         "visibility": self.visibility,
         "media_ids[]": media_ids,
     }
