@@ -1,0 +1,761 @@
+[
+  {
+    "created_at": "Sun Nov 01 23:49:08 +0000 2020",
+    "id": 1323049466837032961,
+    "id_str": "1323049466837032961",
+    "text": "Poll",
+    "truncated": false,
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "user_mentions": [],
+      "urls": []
+    },
+    "source": "<a href=\"https:\/\/mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+    "in_reply_to_status_id": null,
+    "in_reply_to_status_id_str": null,
+    "in_reply_to_user_id": null,
+    "in_reply_to_user_id_str": null,
+    "in_reply_to_screen_name": null,
+    "user": {
+      "id": 1320506197913542656,
+      "id_str": "1320506197913542656",
+      "name": "test-pleroma-bot",
+      "screen_name": "BotPleroma",
+      "location": "",
+      "description": "",
+      "url": null,
+      "entities": {
+        "description": {
+          "urls": []
+        }
+      },
+      "protected": false,
+      "followers_count": 0,
+      "friends_count": 0,
+      "listed_count": 0,
+      "created_at": "Sun Oct 25 23:23:13 +0000 2020",
+      "favourites_count": 0,
+      "utc_offset": null,
+      "time_zone": null,
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 4,
+      "lang": null,
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "F5F8FA",
+      "profile_background_image_url": null,
+      "profile_background_image_url_https": null,
+      "profile_background_tile": false,
+      "profile_image_url": "http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_image_url_https": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_banner_url": "https://pbs.twimg.com/profile_banners/1320506197913542656/1604883750",
+      "profile_link_color": "1DA1F2",
+      "profile_sidebar_border_color": "C0DEED",
+      "profile_sidebar_fill_color": "DDEEF6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "has_extended_profile": true,
+      "default_profile": true,
+      "default_profile_image": true,
+      "following": null,
+      "follow_request_sent": null,
+      "notifications": null,
+      "translator_type": "none"
+    },
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "is_quote_status": false,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "favorited": false,
+    "retweeted": false,
+    "lang": "en"
+  },
+  {
+    "created_at": "Sun Nov 01 23:48:08 +0000 2020",
+    "id": 1323049214134407171,
+    "id_str": "1323049214134407171",
+    "text": "Video https://t.co/yMAZ4i0t0W",
+    "truncated": false,
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "user_mentions": [],
+      "urls": [],
+      "media": [
+        {
+          "id": 1323049175848833033,
+          "id_str": "1323049175848833033",
+          "indices": [
+            6,
+            29
+          ],
+          "media_url": "http://pbs.twimg.com/ext_tw_video_thumb/1323049175848833033/pu/img/_xRqkGnMX3DEB4UM.jpg",
+          "media_url_https": "https://pbs.twimg.com/ext_tw_video_thumb/1323049175848833033/pu/img/_xRqkGnMX3DEB4UM.jpg",
+          "url": "https://t.co/yMAZ4i0t0W",
+          "display_url": "pic.twitter.com/yMAZ4i0t0W",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323049214134407171/video/1",
+          "type": "photo",
+          "sizes": {
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 1200,
+              "h": 675,
+              "resize": "fit"
+            },
+            "small": {
+              "w": 680,
+              "h": 383,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 1280,
+              "h": 720,
+              "resize": "fit"
+            }
+          }
+        }
+      ]
+    },
+    "extended_entities": {
+      "media": [
+        {
+          "id": 1323049175848833033,
+          "id_str": "1323049175848833033",
+          "indices": [
+            6,
+            29
+          ],
+          "media_url": "http://pbs.twimg.com/ext_tw_video_thumb/1323049175848833033/pu/img/_xRqkGnMX3DEB4UM.jpg",
+          "media_url_https": "https://pbs.twimg.com/ext_tw_video_thumb/1323049175848833033/pu/img/_xRqkGnMX3DEB4UM.jpg",
+          "url": "https://t.co/yMAZ4i0t0W",
+          "display_url": "pic.twitter.com/yMAZ4i0t0W",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323049214134407171/video/1",
+          "type": "video",
+          "sizes": {
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 1200,
+              "h": 675,
+              "resize": "fit"
+            },
+            "small": {
+              "w": 680,
+              "h": 383,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 1280,
+              "h": 720,
+              "resize": "fit"
+            }
+          },
+          "video_info": {
+            "aspect_ratio": [
+              16,
+              9
+            ],
+            "duration_millis": 16684,
+            "variants": [
+              {
+                "content_type": "application/x-mpegURL",
+                "url": "https://video.twimg.com/ext_tw_video/1323049175848833033/pu/pl/J8UXpDCN1y6RD1zm.m3u8?tag=10"
+              },
+              {
+                "bitrate": 2176000,
+                "content_type": "video/mp4",
+                "url": "https://video.twimg.com/ext_tw_video/1323049175848833033/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10"
+              },
+              {
+                "bitrate": 832000,
+                "content_type": "video/mp4",
+                "url": "https://video.twimg.com/ext_tw_video/1323049175848833033/pu/vid/640x360/2sxbEKackm0OGyaH.mp4?tag=10"
+              },
+              {
+                "bitrate": 256000,
+                "content_type": "video/mp4",
+                "url": "https://video.twimg.com/ext_tw_video/1323049175848833033/pu/vid/480x270/ZdOIMwg7XWgr1LA8.mp4?tag=10"
+              }
+            ]
+          },
+          "additional_media_info": {
+            "monetizable": false
+          }
+        }
+      ]
+    },
+    "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+    "in_reply_to_status_id": null,
+    "in_reply_to_status_id_str": null,
+    "in_reply_to_user_id": null,
+    "in_reply_to_user_id_str": null,
+    "in_reply_to_screen_name": null,
+    "user": {
+      "id": 1320506197913542656,
+      "id_str": "1320506197913542656",
+      "name": "test-pleroma-bot",
+      "screen_name": "BotPleroma",
+      "location": "",
+      "description": "",
+      "url": null,
+      "entities": {
+        "description": {
+          "urls": []
+        }
+      },
+      "protected": false,
+      "followers_count": 0,
+      "friends_count": 0,
+      "listed_count": 0,
+      "created_at": "Sun Oct 25 23:23:13 +0000 2020",
+      "favourites_count": 0,
+      "utc_offset": null,
+      "time_zone": null,
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 4,
+      "lang": null,
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "F5F8FA",
+      "profile_background_image_url": null,
+      "profile_background_image_url_https": null,
+      "profile_background_tile": false,
+      "profile_image_url": "http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_image_url_https": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_banner_url": "https://pbs.twimg.com/profile_banners/1320506197913542656/1604883750",
+      "profile_link_color": "1DA1F2",
+      "profile_sidebar_border_color": "C0DEED",
+      "profile_sidebar_fill_color": "DDEEF6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "has_extended_profile": true,
+      "default_profile": true,
+      "default_profile_image": true,
+      "following": null,
+      "follow_request_sent": null,
+      "notifications": null,
+      "translator_type": "none"
+    },
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "is_quote_status": false,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "favorited": false,
+    "retweeted": false,
+    "possibly_sensitive": false,
+    "lang": "en"
+  },
+  {
+    "created_at": "Sun Nov 01 23:44:33 +0000 2020",
+    "id": 1323048312161947650,
+    "id_str": "1323048312161947650",
+    "text": "Animated GIF https://t.co/VzXV…",
+    "truncated": false,
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "user_mentions": [],
+      "urls": [],
+      "media": [
+        {
+          "id": 1323048298190721024,
+          "id_str": "1323048298190721024",
+          "indices": [
+            13,
+            36
+          ],
+          "media_url": "http://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "media_url_https": "https://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "url": "https://t.co/VzXVzMNIMF",
+          "display_url": "pic.twitter.com/VzXVzMNIMF",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323048312161947650/photo/1",
+          "type": "photo",
+          "sizes": {
+            "large": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "medium": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 122,
+              "h": 122,
+              "resize": "crop"
+            },
+            "small": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            }
+          }
+        }
+      ]
+    },
+    "extended_entities": {
+      "media": [
+        {
+          "id": 1323048298190721024,
+          "id_str": "1323048298190721024",
+          "indices": [
+            13,
+            36
+          ],
+          "media_url": "http://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "media_url_https": "https://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "url": "https://t.co/VzXVzMNIMF",
+          "display_url": "pic.twitter.com/VzXVzMNIMF",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323048312161947650/photo/1",
+          "type": "animated_gif",
+          "sizes": {
+            "large": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "medium": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 122,
+              "h": 122,
+              "resize": "crop"
+            },
+            "small": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            }
+          },
+          "video_info": {
+            "aspect_ratio": [
+              61,
+              66
+            ],
+            "variants": [
+              {
+                "bitrate": 0,
+                "content_type": "video/mp4",
+                "url": "https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+    "in_reply_to_status_id": null,
+    "in_reply_to_status_id_str": null,
+    "in_reply_to_user_id": null,
+    "in_reply_to_user_id_str": null,
+    "in_reply_to_screen_name": null,
+    "user": {
+      "id": 1320506197913542656,
+      "id_str": "1320506197913542656",
+      "name": "test-pleroma-bot",
+      "screen_name": "BotPleroma",
+      "location": "",
+      "description": "",
+      "url": null,
+      "entities": {
+        "description": {
+          "urls": []
+        }
+      },
+      "protected": false,
+      "followers_count": 0,
+      "friends_count": 0,
+      "listed_count": 0,
+      "created_at": "Sun Oct 25 23:23:13 +0000 2020",
+      "favourites_count": 0,
+      "utc_offset": null,
+      "time_zone": null,
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 4,
+      "lang": null,
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "F5F8FA",
+      "profile_background_image_url": null,
+      "profile_background_image_url_https": null,
+      "profile_background_tile": false,
+      "profile_image_url": "http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_image_url_https": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_banner_url": "https://pbs.twimg.com/profile_banners/1320506197913542656/1604883750",
+      "profile_link_color": "1DA1F2",
+      "profile_sidebar_border_color": "C0DEED",
+      "profile_sidebar_fill_color": "DDEEF6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "has_extended_profile": true,
+      "default_profile": true,
+      "default_profile_image": true,
+      "following": null,
+      "follow_request_sent": null,
+      "notifications": null,
+      "translator_type": "none"
+    },
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "is_quote_status": false,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "favorited": false,
+    "retweeted": false,
+    "possibly_sensitive": false,
+    "lang": "en"
+  },
+
+  {
+    "created_at": "Sun Nov 01 23:44:33 +0000 2020",
+    "id": 1323048312161947650,
+    "id_str": "1323048312161947650",
+    "text": "Animated GIF https://t.co/VzXVzMNIMF",
+    "truncated": false,
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "user_mentions": [],
+      "urls": [],
+      "media": [
+        {
+          "id": 1323048298190721024,
+          "id_str": "1323048298190721024",
+          "indices": [
+            13,
+            36
+          ],
+          "media_url": "http://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "media_url_https": "https://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "url": "https://t.co/VzXVzMNIMF",
+          "display_url": "pic.twitter.com/VzXVzMNIMF",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323048312161947650/photo/1",
+          "type": "photo",
+          "sizes": {
+            "large": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "medium": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 122,
+              "h": 122,
+              "resize": "crop"
+            },
+            "small": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            }
+          }
+        }
+      ]
+    },
+    "extended_entities": {
+      "media": [
+        {
+          "id": 1323048298190721024,
+          "id_str": "1323048298190721024",
+          "indices": [
+            13,
+            36
+          ],
+          "media_url": "http://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "media_url_https": "https://pbs.twimg.com/tweet_video_thumb/ElxpatpX0AAFCLC.jpg",
+          "url": "https://t.co/VzXVzMNIMF",
+          "display_url": "pic.twitter.com/VzXVzMNIMF",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323048312161947650/photo/1",
+          "type": "animated_gif",
+          "sizes": {
+            "large": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "medium": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            },
+            "thumb": {
+              "w": 122,
+              "h": 122,
+              "resize": "crop"
+            },
+            "small": {
+              "w": 122,
+              "h": 132,
+              "resize": "fit"
+            }
+          },
+          "video_info": {
+            "aspect_ratio": [
+              61,
+              66
+            ],
+            "variants": [
+              {
+                "bitrate": 0,
+                "content_type": "video/mp4",
+                "url": "https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+    "in_reply_to_status_id": null,
+    "in_reply_to_status_id_str": null,
+    "in_reply_to_user_id": null,
+    "in_reply_to_user_id_str": null,
+    "in_reply_to_screen_name": null,
+    "user": {
+      "id": 1320506197913542656,
+      "id_str": "1320506197913542656",
+      "name": "test-pleroma-bot",
+      "screen_name": "BotPleroma",
+      "location": "",
+      "description": "",
+      "url": null,
+      "entities": {
+        "description": {
+          "urls": []
+        }
+      },
+      "protected": false,
+      "followers_count": 0,
+      "friends_count": 0,
+      "listed_count": 0,
+      "created_at": "Sun Oct 25 23:23:13 +0000 2020",
+      "favourites_count": 0,
+      "utc_offset": null,
+      "time_zone": null,
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 4,
+      "lang": null,
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "F5F8FA",
+      "profile_background_image_url": null,
+      "profile_background_image_url_https": null,
+      "profile_background_tile": false,
+      "profile_image_url": "http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_image_url_https": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_banner_url": "https://pbs.twimg.com/profile_banners/1320506197913542656/1604883750",
+      "profile_link_color": "1DA1F2",
+      "profile_sidebar_border_color": "C0DEED",
+      "profile_sidebar_fill_color": "DDEEF6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "has_extended_profile": true,
+      "default_profile": true,
+      "default_profile_image": true,
+      "following": null,
+      "follow_request_sent": null,
+      "notifications": null,
+      "translator_type": "none"
+    },
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "is_quote_status": false,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "favorited": false,
+    "retweeted": false,
+    "possibly_sensitive": false,
+    "lang": "en"
+  },
+  {
+    "created_at": "Sun Nov 01 23:43:52 +0000 2020",
+    "id": 1323048139251658753,
+    "id_str": "1323048139251658753",
+    "text": "Image https://t.co/paDoCjOmxr",
+    "truncated": false,
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "user_mentions": [],
+      "urls": [],
+      "media": [
+        {
+          "id": 1323048111057604610,
+          "id_str": "1323048111057604610",
+          "indices": [
+            6,
+            29
+          ],
+          "media_url": "http://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+          "media_url_https": "https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+          "url": "https://t.co/paDoCjOmxr",
+          "display_url": "pic.twitter.com/paDoCjOmxr",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323048139251658753/photo/1",
+          "type": "photo",
+          "sizes": {
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 960,
+              "h": 540,
+              "resize": "fit"
+            },
+            "small": {
+              "w": 680,
+              "h": 383,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 960,
+              "h": 540,
+              "resize": "fit"
+            }
+          }
+        }
+      ]
+    },
+    "extended_entities": {
+      "media": [
+        {
+          "id": 1323048111057604610,
+          "id_str": "1323048111057604610",
+          "indices": [
+            6,
+            29
+          ],
+          "media_url": "http://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+          "media_url_https": "https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+          "url": "https://t.co/paDoCjOmxr",
+          "display_url": "pic.twitter.com/paDoCjOmxr",
+          "expanded_url": "https://twitter.com/BotPleroma/status/1323048139251658753/photo/1",
+          "type": "photo",
+          "sizes": {
+            "thumb": {
+              "w": 150,
+              "h": 150,
+              "resize": "crop"
+            },
+            "medium": {
+              "w": 960,
+              "h": 540,
+              "resize": "fit"
+            },
+            "small": {
+              "w": 680,
+              "h": 383,
+              "resize": "fit"
+            },
+            "large": {
+              "w": 960,
+              "h": 540,
+              "resize": "fit"
+            }
+          }
+        }
+      ]
+    },
+    "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+    "in_reply_to_status_id": null,
+    "in_reply_to_status_id_str": null,
+    "in_reply_to_user_id": null,
+    "in_reply_to_user_id_str": null,
+    "in_reply_to_screen_name": null,
+    "user": {
+      "id": 1320506197913542656,
+      "id_str": "1320506197913542656",
+      "name": "test-pleroma-bot",
+      "screen_name": "BotPleroma",
+      "location": "",
+      "description": "",
+      "url": null,
+      "entities": {
+        "description": {
+          "urls": []
+        }
+      },
+      "protected": false,
+      "followers_count": 0,
+      "friends_count": 0,
+      "listed_count": 0,
+      "created_at": "Sun Oct 25 23:23:13 +0000 2020",
+      "favourites_count": 0,
+      "utc_offset": null,
+      "time_zone": null,
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 4,
+      "lang": null,
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "F5F8FA",
+      "profile_background_image_url": null,
+      "profile_background_image_url_https": null,
+      "profile_background_tile": false,
+      "profile_image_url": "http://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_image_url_https": "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png",
+      "profile_banner_url": "https://pbs.twimg.com/profile_banners/1320506197913542656/1604883750",
+      "profile_link_color": "1DA1F2",
+      "profile_sidebar_border_color": "C0DEED",
+      "profile_sidebar_fill_color": "DDEEF6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "has_extended_profile": true,
+      "default_profile": true,
+      "default_profile_image": true,
+      "following": null,
+      "follow_request_sent": null,
+      "notifications": null,
+      "translator_type": "none"
+    },
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "is_quote_status": false,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "favorited": false,
+    "retweeted": false,
+    "possibly_sensitive": false,
+    "lang": "en"
+  }
+]

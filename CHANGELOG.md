@@ -1,3 +1,32 @@
+## Unreleased
+
+## Fixed
+
+- Timestamp format for Mastodon instances adjustments
+- Sensitivity boolean ignored by Mastodon instances if capitalized
+
+## Enhancements
+
+- Improved Mastodon compatibility
+
+## [0.5.0] - 2020-11-21
+## Added
+
+- Support for using the original tweet sensitivity (nsfw flag) when posting on the Fediverse account
+
+## Fixed
+
+- Exception when no tweets are found within the last week (```/tweets/search/recent```)
+
+## Enhancements
+
+- Added tests and 100% code coverage
+
+## Upgrade notes
+
+- Remove the attribute '```sensitive```' from your user section in your ```config.yml``` if you want to honor the 
+original tweet's sensitivity instead of forcing it globally for all the posts by that user.
+
 ## [0.4.0] - 2020-10-24
 ## Added
 

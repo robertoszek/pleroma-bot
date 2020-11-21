@@ -1,0 +1,179 @@
+[
+   {
+      "account":{
+         "acct":"testrss",
+         "avatar":"https://pleroma.robertoszek.xyz/media/70344ad2fc3386efb360e0ae9e3b2f2eb455175a76dc8e23f59d6b0c808ab775.jpg",
+         "avatar_static":"https://pleroma.robertoszek.xyz/media/70344ad2fc3386efb360e0ae9e3b2f2eb455175a76dc8e23f59d6b0c808ab775.jpg",
+         "bot":true,
+         "created_at":"2020-08-16T05:50:32.000Z",
+         "display_name":"Emoji Tetra Fast (10 minute polls)",
+         "emojis":[
+
+         ],
+         "fields":[
+            {
+               "name":"🐦 Birdsite",
+               "value":"<a href=\"http://nitter.net/EmojiTetraFast\" rel=\"ugc\">http://nitter.net/EmojiTetraFast</a>"
+            },
+            {
+               "name":"Status",
+               "value":"I am completely operational, and all my circuits are functioning perfectly."
+            },
+            {
+               "name":"Source",
+               "value":"<a href=\"https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber\" rel=\"ugc\">https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber</a>"
+            }
+         ],
+         "follow_requests_count":0,
+         "followers_count":1,
+         "following_count":0,
+         "header":"https://pleroma.robertoszek.xyz/media/3aedcb6c72257fa43c0a6019778bbc69a7b3aebbaf8de9f74b6e9e6259558801.jpg",
+         "header_static":"https://pleroma.robertoszek.xyz/media/3aedcb6c72257fa43c0a6019778bbc69a7b3aebbaf8de9f74b6e9e6259558801.jpg",
+         "id":"9yAdhVfWj9OOFwc01o",
+         "locked":false,
+         "note":"I&#39;m a bot made by @JoeSondow. Vote on the next move every 10m. Not to be confused with any trademarked block-fitting game. <a href=\"https://t.co/I8qlXalCSp\">https://t.co/I8qlXalCSp</a>",
+         "pleroma":{
+            "accepts_chat_messages":true,
+            "allow_following_move":true,
+            "ap_id":"https://pleroma.robertoszek.xyz/users/testrss",
+            "background_image":null,
+            "confirmation_pending":false,
+            "favicon":null,
+            "hide_favorites":true,
+            "hide_followers":false,
+            "hide_followers_count":false,
+            "hide_follows":false,
+            "hide_follows_count":false,
+            "is_admin":false,
+            "is_moderator":false,
+            "notification_settings":{
+               "block_from_strangers":false,
+               "hide_notification_contents":false
+            },
+            "relationship":{
+
+            },
+            "skip_thread_containment":false,
+            "tags":[
+
+            ],
+            "unread_conversation_count":0,
+            "unread_notifications_count":1
+         },
+         "source":{
+            "fields":[
+               {
+                  "name":"🐦 Birdsite",
+                  "value":"http://nitter.net/EmojiTetraFast"
+               },
+               {
+                  "name":"Status",
+                  "value":"I am completely operational, and all my circuits are functioning perfectly."
+               },
+               {
+                  "name":"Source",
+                  "value":"https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+               }
+            ],
+            "note":"I'm a bot made by @JoeSondow. Vote on the next move every 10m. Not to be confused with any trademarked block-fitting game. https://t.co/I8qlXalCSp",
+            "pleroma":{
+               "actor_type":"Service",
+               "discoverable":false,
+               "no_rich_text":false,
+               "show_role":true
+            },
+            "privacy":"public",
+            "sensitive":false
+         },
+         "statuses_count":110,
+         "url":"https://pleroma.robertoszek.xyz/users/testrss",
+         "username":"testrss"
+      },
+      "application":{
+         "name":"Web",
+         "website":null
+      },
+      "bookmarked":false,
+      "card":null,
+      "content":"◽◽◽🌸🌸◽◽<br/>◽◽◽◽🌸🌸◽　Next<br/>◽◽◽◽◽◽◽　🌺<br/>◽◽◽◽◽◽◽　🌺<br/>◽◽◽◽◽◽◽　🌺🌺<br/>◽◽◽◽◽◽◽<br/>◽◽◽◽◽◽◽<br/>◽◽◽◽◽◽◽　Score<br/>◽◽◽◽◽◽◽　37225<br/>◽◽◽🌸◽◽◽<br/>◽◽🌸🌸🍀🍀🍀<br/><br/> 🐦🔗: <a href=\"http://nitter.net/EmojiTetraFast/status/1316850583823765504\" rel=\"ugc\">http://nitter.net/EmojiTetraFast/status/1316850583823765504</a>",
+      "created_at":"2020-10-15T21:21:00.000Z",
+      "emojis":[
+
+      ],
+      "favourited":false,
+      "favourites_count":0,
+      "id":"A0CLZOxVw1UHTMa9Oi",
+      "in_reply_to_account_id":null,
+      "in_reply_to_id":null,
+      "language":null,
+      "media_attachments":[
+
+      ],
+      "mentions":[
+
+      ],
+      "muted":false,
+      "pinned":true,
+      "pleroma":{
+         "content":{
+            "text/plain":"◽◽◽🌸🌸◽◽◽◽◽◽🌸🌸◽　Next◽◽◽◽◽◽◽　🌺◽◽◽◽◽◽◽　🌺◽◽◽◽◽◽◽　🌺🌺◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽◽　Score◽◽◽◽◽◽◽　37225◽◽◽🌸◽◽◽◽◽🌸🌸🍀🍀🍀 🐦🔗: http://nitter.net/EmojiTetraFast/status/1316850583823765504"
+         },
+         "conversation_id":2255986,
+         "direct_conversation_id":null,
+         "emoji_reactions":[
+
+         ],
+         "expires_at":null,
+         "in_reply_to_account_acct":null,
+         "local":true,
+         "parent_visible":false,
+         "spoiler_text":{
+            "text/plain":""
+         },
+         "thread_muted":false
+      },
+      "poll":{
+         "emojis":[
+
+         ],
+         "expired":true,
+         "expires_at":"2020-10-15T21:31:00.000Z",
+         "id":"2255987",
+         "multiple":false,
+         "options":[
+            {
+               "title":"⬅️ Left",
+               "votes_count":0
+            },
+            {
+               "title":"➡️ Right",
+               "votes_count":0
+            },
+            {
+               "title":"🔄 Rotate",
+               "votes_count":0
+            },
+            {
+               "title":"⬇️ Down",
+               "votes_count":0
+            }
+         ],
+         "voted":true,
+         "voters_count":null,
+         "votes_count":0
+      },
+      "reblog":null,
+      "reblogged":false,
+      "reblogs_count":0,
+      "replies_count":0,
+      "sensitive":false,
+      "spoiler_text":"",
+      "tags":[
+
+      ],
+      "text":null,
+      "uri":"https://pleroma.robertoszek.xyz/objects/1150d5bf-9a40-4a1a-ab92-ca2df64e269a",
+      "url":"https://pleroma.robertoszek.xyz/notice/A0CLZOxVw1UHTMa9Oi",
+      "visibility":"unlisted"
+   }
+]

@@ -3,14 +3,13 @@ twitter_base_url: https://api.twitter.com/1.1
 pleroma_base_url: https://pleroma.robertoszek.xyz
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200
-max_tweets: 40
+max_tweets: 5
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # List of users and their attributes
 users:
 - twitter_username: KyleBosman
   pleroma_username: KyleBosman
-  # Mastodon/Pleroma token obtained by following the README.md
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   # If you want to add a link to the original status or not
   signature: true
@@ -39,35 +38,13 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
-# Mastodon instance example
-- twitter_username: WoolieWoolz
-  pleroma_username: 24660
-  pleroma_base_url: https://botsin.space
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  # Mastodon doesn't support rich text!
-  rich_text: false
-  signature: true
-  nitter: true
-  visibility: "unlisted"
-  media_upload: true
-  max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
-  fields:
-  - name: "\U0001F426 Birdsite"
-    value: "{{ twitter_url }}"
-  - name: "Status"
-    value: "I am completely operational, and all my circuits are functioning perfectly."
-  - name: "Source"
-    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
 - twitter_username: arstechnica
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
   nitter: true
-  visibility: "public"
   media_upload: false
-  pleroma_base_url: https://another.pleroma.instance
-  max_tweets: 50
+  pleroma_url: https://another.pleroma.instance
+  max_tweets: 11
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \n Any issues please contact @robertoszek \n \n "
