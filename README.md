@@ -57,18 +57,23 @@ users:
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   # If you want to add a link to the original status or not
   signature: true
-  # If you want to download Twitter attachments and add them to the Pleroma posts
+  # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.
+  # By default they are not
   media_upload: true
-  # If twitter links should be changed to nitter.net ones
+  # (optional) If twitter links should be changed to nitter.net ones. By default they are not
   nitter: true
-  # If mentions should be transformed to links to the mentioned Twitter profile
+  # (optional) If mentions should be transformed to links to the mentioned Twitter profile
   rich_text: true
-  # visibility of the post. Must one of the following: public, unlisted, private, direct
+  # (optional) visibility of the post. Must one of the following: public, unlisted, private, direct
+  # by default is "unlisted"
   visibility: "unlisted"
-  # Force all posts for this account to be sensitive or not
+  # (optional) Force all posts for this account to be sensitive or not
   # The NSFW banner for the instance will be shown for attachments as a warning if true
   # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
   sensitive: false
+  # (optional) If RTs are to be also be posted in the Fediverse account. By default they are included
+  include_rts: false
+  # additional custom-named attributes
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}

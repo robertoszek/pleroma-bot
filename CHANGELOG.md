@@ -1,5 +1,9 @@
 ## Unreleased
 
+## Added
+
+- New attribute ```include_rts``` allows choosing whether if retweets are to be posted or ignored.
+
 ## Fixed
 
 - Timestamp format for Mastodon instances adjustments
