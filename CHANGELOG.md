@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Settings to use different nitter instances
+  
 ## Fixed
 
 - Timestamp format for Mastodon instances adjustments

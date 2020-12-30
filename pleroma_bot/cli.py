@@ -123,17 +123,23 @@ class User(object):
         except KeyError:
             self.twitter_base_url_v2 = "https://api.twitter.com/2"
             pass
+        try:
+            if not hasattr(self, "nitter_base_url"):
+                self.nitter_base_url = cfg["nitter_base_url"]
+        except KeyError:
+            self.nitter_base_url = "http://nitter.net"
+            pass
         if not hasattr(self, "nitter"):
             try:
                 if cfg["nitter"]:
                     self.twitter_url = (
-                        f"http://nitter.net/{self.twitter_username}"
+                        f"{self.nitter_base_url}/{self.twitter_username}"
                     )
             except KeyError:
                 pass
         else:
             if self.nitter:
-                self.twitter_url = "http://nitter.net/" + self.twitter_username
+                self.twitter_url = self.nitter_base_url + "/" + self.twitter_username
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None

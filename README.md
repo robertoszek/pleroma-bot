@@ -59,7 +59,7 @@ users:
   signature: true
   # If you want to download Twitter attachments and add them to the Pleroma posts
   media_upload: true
-  # If twitter links should be changed to nitter.net ones
+  # If twitter links should be changed to nitter ones
   nitter: true
   # If mentions should be transformed to links to the mentioned Twitter profile
   rich_text: true
