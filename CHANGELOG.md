@@ -1,7 +1,10 @@
 ## Unreleased
 
+## Added
+
+- New attribute ```include_rts``` allows choosing whether if retweets are to be posted or ignored.
 - Settings to use different nitter instances
-  
+
 ## Fixed
 
 - Timestamp format for Mastodon instances adjustments
