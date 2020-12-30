@@ -60,7 +60,7 @@ users:
   # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.
   # By default they are not
   media_upload: true
-  # (optional) If twitter links should be changed to nitter.net ones. By default they are not
+  # (optional) If twitter links should be changed to nitter ones. By default they are not
   nitter: true
   # (optional) If mentions should be transformed to links to the mentioned Twitter profile
   rich_text: true

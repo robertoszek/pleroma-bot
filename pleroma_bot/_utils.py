@@ -221,7 +221,7 @@ def _replace_nitter(self, tweet):
     matches = re.findall(matching_pattern, tweet["text"])
     for match in matches:
         tweet["text"] = re.sub(
-            match, "https://nitter.net", tweet["text"]
+            match, self.nitter_base_url, tweet["text"]
         )
     return tweet["text"]
 
