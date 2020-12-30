@@ -139,7 +139,8 @@ class User(object):
                 pass
         else:
             if self.nitter:
-                self.twitter_url = self.nitter_base_url + "/" + self.twitter_username
+                self.twitter_url = self.nitter_base_url + "/" + \
+                    self.twitter_username
         try:
             if not hasattr(self, "include_rts"):
                 self.include_rts = cfg["include_rts"]
