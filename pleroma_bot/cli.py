@@ -127,7 +127,7 @@ class User(object):
             if not hasattr(self, "nitter_base_url"):
                 self.nitter_base_url = cfg["nitter_base_url"]
         except KeyError:
-            self.nitter_base_url = "http://nitter.net"
+            self.nitter_base_url = "https://nitter.net"
             pass
         if not hasattr(self, "nitter"):
             try:
