@@ -73,6 +73,9 @@ users:
   sensitive: false
   # (optional) If RTs are to be also be posted in the Fediverse account. By default they are included
   include_rts: false
+  # (optional) How big attachments can be before being ignored and not being uploaded to the Fediverse post
+  # Examples: "30MB", "1.5GB", "0.5TB"
+  file_max_size: 500MB
   # additional custom-named attributes
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced

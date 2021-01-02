@@ -15,6 +15,8 @@ try:
 except ImportError:
     magic = None
 
+from . import logger
+
 
 def check_pinned(self):
     """
@@ -209,11 +211,29 @@ def _download_media(self, media, tweet):
         filename = str(idx) + mimetypes.guess_extension(
             response.headers["Content-Type"]
         )
-        with open(
-            os.path.join(self.tweets_temp_path, tweet["id"], filename),
-            "wb",
-        ) as outfile:
+        file_path = os.path.join(self.tweets_temp_path, tweet["id"], filename)
+        with open(file_path, "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
+        # Remove attachment if exceeds the limit
+        if hasattr(self, "file_max_size"):
+            file_size_bytes = os.stat(file_path).st_size
+            max_file_size_bytes = parse_size(self.file_max_size)
+            if file_size_bytes > max_file_size_bytes:
+                logger.error(f"Attachment exceeded config file size limit "
+                             f"({self.file_max_size})")
+                logger.error(f"File size: "
+                             f"{round(file_size_bytes / 2**20, 2)}MB")
+                logger.error("Ignoring attachment and continuing...")
+                os.remove(file_path)
+
+
+def parse_size(size):
+    units = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
+    size = size.upper()
+    if not re.match(r' ', size):
+        size = re.sub(r'([KMGT]?B)', r' \1', size)
+    number, unit = [string.strip() for string in size.split()]
+    return int(float(number) * units[unit])
 
 
 def _replace_nitter(self, tweet):
