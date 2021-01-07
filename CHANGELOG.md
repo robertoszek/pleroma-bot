@@ -1,4 +1,20 @@
-## 0.5.0
+## [0.6.0] - 2021-01-07
+
+## Added
+
+- New attribute ```include_rts``` allows choosing whether if retweets are to be posted or ignored.
+- Settings to use different nitter instances (thanks zoenglinghou!)
+
+## Fixed
+
+- Timestamp format for Mastodon instances adjustments
+- Sensitivity boolean ignored by Mastodon instances if capitalized
+
+## Enhancements
+
+- Improved Mastodon compatibility
+
+## [0.5.0] - 2020-11-21
 ## Added
 
 - Support for using the original tweet sensitivity (nsfw flag) when posting on the Fediverse account

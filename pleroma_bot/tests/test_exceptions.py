@@ -83,7 +83,7 @@ def test_user_nitter_global(mock_request):
                      json=mock_request['sample_data']['twitter_info'],
                      status_code=200)
             user_obj = User(user_item, config_users['config'])
-            nitter_url = f"http://nitter.net/{user_obj.twitter_username}"
+            nitter_url = f"https://nitter.net/{user_obj.twitter_username}"
             assert user_obj.twitter_url is not None
             assert user_obj.twitter_url == nitter_url
         config_users = get_config_users('config_nonitter.yml')
