@@ -29,7 +29,8 @@ def _get_twitter_info(self):
         self.profile_image_url = user_twitter["profile_image_url_https"]
     # Check if user has banner image
     if "profile_banner_url" in user_twitter.keys():
-        self.profile_banner_url = user_twitter["profile_banner_url"]
+        base_banner_url = user_twitter["profile_banner_url"]
+        self.profile_banner_url = f"{base_banner_url}/1500x500"
     self.display_name = user_twitter["name"]
     return
 
