@@ -38,7 +38,7 @@ def get_date_last_pleroma_post(self):
     if posts:
         date_pleroma = datetime.strftime(
             datetime.strptime(
-                posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.000Z"
             ),
             "%Y-%m-%d %H:%M:%S",
         )
@@ -123,7 +123,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
 
     data = {
         "status": tweet_text,
-        "sensitive": str(sensitive).lower(),
+        "sensitive": str(sensitive),
         "visibility": self.visibility,
         "media_ids[]": media_ids,
     }

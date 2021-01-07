@@ -2,7 +2,7 @@
 
 # MIT License
 #
-# Copyright (c) 2021 Roberto Chamorro / project contributors
+# Copyright (c) 2020 Roberto Chamorro / project contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -123,30 +123,17 @@ class User(object):
         except KeyError:
             self.twitter_base_url_v2 = "https://api.twitter.com/2"
             pass
-        try:
-            if not hasattr(self, "nitter_base_url"):
-                self.nitter_base_url = cfg["nitter_base_url"]
-        except KeyError:
-            self.nitter_base_url = "https://nitter.net"
-            pass
         if not hasattr(self, "nitter"):
             try:
                 if cfg["nitter"]:
                     self.twitter_url = (
-                        f"{self.nitter_base_url}/{self.twitter_username}"
+                        f"http://nitter.net/{self.twitter_username}"
                     )
             except KeyError:
                 pass
         else:
             if self.nitter:
-                self.twitter_url = self.nitter_base_url + "/" + \
-                    self.twitter_username
-        try:
-            if not hasattr(self, "include_rts"):
-                self.include_rts = cfg["include_rts"]
-        except (KeyError, AttributeError):
-            self.include_rts = True
-            pass
+                self.twitter_url = "http://nitter.net/" + self.twitter_username
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None
@@ -206,7 +193,7 @@ def main():
                     created_at = tweet["created_at"]
                     date_twitter = datetime.strftime(
                         datetime.strptime(
-                            created_at, "%Y-%m-%dT%H:%M:%S.%fZ"
+                            created_at, "%Y-%m-%dT%H:%M:%S.000Z"
                         ),
                         "%Y-%m-%d %H:%M:%S",
                     )
