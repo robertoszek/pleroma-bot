@@ -7,7 +7,6 @@ max_tweets: 40
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 nitter: true
-nitter_base_url: https://nitter.net
 # List of users and their attributes
 users:
 - twitter_username: KyleBosman

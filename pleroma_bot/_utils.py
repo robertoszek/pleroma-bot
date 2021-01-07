@@ -111,16 +111,6 @@ def process_tweets(self, tweets_to_post):
     :returns: Tweets ready to be published
     :rtype: list
     """
-    # Remove RTs if include_rts is false
-    if not self.include_rts:
-        for tweet in tweets_to_post["data"][:]:
-            try:
-                for reference in tweet["referenced_tweets"]:
-                    if reference["type"] == "retweeted":
-                        tweets_to_post["data"].remove(tweet)
-                        break
-            except KeyError:
-                pass
     for tweet in tweets_to_post["data"]:
         media = []
         tweet["text"] = _expand_urls(self, tweet)
@@ -221,7 +211,7 @@ def _replace_nitter(self, tweet):
     matches = re.findall(matching_pattern, tweet["text"])
     for match in matches:
         tweet["text"] = re.sub(
-            match, self.nitter_base_url, tweet["text"]
+            match, "https://nitter.net", tweet["text"]
         )
     return tweet["text"]
 

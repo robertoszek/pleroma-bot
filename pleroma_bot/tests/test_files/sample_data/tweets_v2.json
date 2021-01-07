@@ -39,7 +39,7 @@
           }
         ]
       },
-      "text":"RT Video https://t.co/yMAZ4i0t0W",
+      "text":"Video https://t.co/yMAZ4i0t0W",
       "public_metrics":{
         "retweet_count":0,
         "reply_count":0,
@@ -51,13 +51,7 @@
       "source":"Twitter Web App",
       "conversation_id":"1323049214134407171",
       "possibly_sensitive":false,
-      "id":"1323049214134407171",
-      "referenced_tweets":[
-        {
-          "type":"retweeted",
-          "id":"1339829031147954177"
-        }
-      ]
+      "id":"1323049214134407171"
     },
     {
       "attachments":{
