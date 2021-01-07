@@ -164,7 +164,7 @@ Patches, pull requests, and bug reports are more than [welcome](https://github.c
 
 MIT License
 
-Copyright (c) 2020 Roberto Chamorro / project contributors
+Copyright (c) 2021 Roberto Chamorro / project contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
