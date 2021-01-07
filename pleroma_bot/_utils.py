@@ -15,6 +15,8 @@ try:
 except ImportError:
     magic = None
 
+from . import logger
+
 
 def check_pinned(self):
     """
@@ -111,6 +113,16 @@ def process_tweets(self, tweets_to_post):
     :returns: Tweets ready to be published
     :rtype: list
     """
+    # Remove RTs if include_rts is false
+    if not self.include_rts:
+        for tweet in tweets_to_post["data"][:]:
+            try:
+                for reference in tweet["referenced_tweets"]:
+                    if reference["type"] == "retweeted":
+                        tweets_to_post["data"].remove(tweet)
+                        break
+            except KeyError:
+                pass
     for tweet in tweets_to_post["data"]:
         media = []
         tweet["text"] = _expand_urls(self, tweet)
@@ -199,11 +211,29 @@ def _download_media(self, media, tweet):
         filename = str(idx) + mimetypes.guess_extension(
             response.headers["Content-Type"]
         )
-        with open(
-            os.path.join(self.tweets_temp_path, tweet["id"], filename),
-            "wb",
-        ) as outfile:
+        file_path = os.path.join(self.tweets_temp_path, tweet["id"], filename)
+        with open(file_path, "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
+        # Remove attachment if exceeds the limit
+        if hasattr(self, "file_max_size"):
+            file_size_bytes = os.stat(file_path).st_size
+            max_file_size_bytes = parse_size(self.file_max_size)
+            if file_size_bytes > max_file_size_bytes:
+                logger.error(f"Attachment exceeded config file size limit "
+                             f"({self.file_max_size})")
+                logger.error(f"File size: "
+                             f"{round(file_size_bytes / 2**20, 2)}MB")
+                logger.error("Ignoring attachment and continuing...")
+                os.remove(file_path)
+
+
+def parse_size(size):
+    units = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
+    size = size.upper()
+    if not re.match(r' ', size):
+        size = re.sub(r'([KMGT]?B)', r' \1', size)
+    number, unit = [string.strip() for string in size.split()]
+    return int(float(number) * units[unit])
 
 
 def _replace_nitter(self, tweet):
@@ -211,7 +241,7 @@ def _replace_nitter(self, tweet):
     matches = re.findall(matching_pattern, tweet["text"])
     for match in matches:
         tweet["text"] = re.sub(
-            match, "https://nitter.net", tweet["text"]
+            match, self.nitter_base_url, tweet["text"]
         )
     return tweet["text"]
 

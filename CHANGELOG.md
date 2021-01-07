@@ -1,4 +1,10 @@
-## Unreleased
+## [0.6.0] - 2020-01-07
+
+## Added
+
+- New attribute ```include_rts``` allows choosing whether if retweets are to be posted or ignored.
+- New attribute ```file_max_size``` allows setting a maximum size limit for attachments. If exceeded, the attachment will be dropped and won't be uploaded to the Fediverse instance.
+- Settings to use different nitter instances (thanks zoenglinghou!)
 
 ## Fixed
 
