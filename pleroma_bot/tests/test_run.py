@@ -324,7 +324,7 @@ def test_get_twitter_info(mock_request, sample_users, rootdir):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             twitter_info = mock_request['sample_data']['twitter_info']
-            banner_url = twitter_info['profile_banner_url']
+            banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
             profile_pic_url = twitter_info['profile_image_url_https']
 
             sample_user_obj._get_twitter_info()
