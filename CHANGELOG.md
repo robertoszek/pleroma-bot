@@ -1,4 +1,9 @@
-## [0.6.0] - 2020-01-07
+## [0.6.2] - 2020-01-07
+
+## Fixed
+- ```profile_banner_url``` returns a 404 for some users. Now we specifically request the biggest size (1500x500)
+
+## [0.6.1] - 2020-01-07
 
 ## Added
 
