@@ -139,7 +139,7 @@ def _sample_users(mock_request, rootdir):
             profile_image.close()
 
             twitter_info = mock_request['sample_data']['twitter_info']
-            banner_url = twitter_info['profile_banner_url']
+            banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
             mock.get(f"{banner_url}",
                      content=profile_banner_content,
                      status_code=200)

@@ -386,7 +386,7 @@ def test_post_pleroma_exception(sample_users, mock_request):
 def test_update_pleroma_exception(rootdir, mock_request, sample_users):
     test_user = UserTemplate()
     twitter_info = mock_request['sample_data']['twitter_info']
-    banner_url = twitter_info['profile_banner_url']
+    banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
     profile_small_url = twitter_info['profile_image_url_https']
     profile_url = re.sub(r"normal", "400x400", profile_small_url)
 
