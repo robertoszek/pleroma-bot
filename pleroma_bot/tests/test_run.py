@@ -5,11 +5,11 @@ import hashlib
 import urllib.parse
 from unittest.mock import patch
 from datetime import datetime, timedelta
-
+from urllib import parse
 from test_user import UserTemplate
 from conftest import get_config_users
 
-from pleroma_bot import cli
+from pleroma_bot import cli, User
 from pleroma_bot._utils import random_string
 from pleroma_bot._utils import guess_type
 
@@ -324,7 +324,7 @@ def test_get_twitter_info(mock_request, sample_users, rootdir):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             twitter_info = mock_request['sample_data']['twitter_info']
-            banner_url = twitter_info['profile_banner_url']
+            banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
             profile_pic_url = twitter_info['profile_image_url_https']
 
             sample_user_obj._get_twitter_info()
@@ -517,6 +517,214 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                         file_hash = hashlib.sha256(file_content).hexdigest()
                         f.close()
                         assert file_hash == dict_hash[file]
+                        os.remove(file_path)
+    return mock
+
+
+def test_include_rts(rootdir, sample_users, mock_request):
+    test_user = UserTemplate()
+    with mock_request['mock'] as mock:
+        config_users = get_config_users('config_norts.yml')
+        for user_item in config_users['user_dict']:
+            sample_user_obj = User(user_item, config_users['config'])
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+            tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+            assert tweet == mock_request['sample_data']['tweet']
+            tweets = sample_user_obj._get_tweets("v1.1")
+            assert tweets == mock_request['sample_data']['tweets_v1']
+            test_files_dir = os.path.join(rootdir, 'test_files')
+            sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+            media_dir = os.path.join(sample_data_dir, 'media')
+            mp4 = os.path.join(media_dir, 'video.mp4')
+            gif = os.path.join(media_dir, "animated_gif.gif")
+            png = os.path.join(media_dir, 'image.png')
+
+            gif_file = open(gif, 'rb')
+            gif_content = gif_file.read()
+            gif_file.close()
+
+            png_file = open(png, 'rb')
+            png_content = png_file.read()
+            png_file.close()
+
+            mp4_file = open(mp4, 'rb')
+            mp4_content = mp4_file.read()
+            mp4_file.close()
+
+            mock.get("https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4",
+                     content=gif_content,
+                     headers={'Content-Type': 'image/gif'},
+                     status_code=200)
+            mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049214134407171",
+                     json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
+                     "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
+            tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+            retweet_found = False
+            for tweet in tweets_to_post['data']:
+                if not sample_user_obj.include_rts:
+                    assert not tweet["text"].startswith("RT")
+                if tweet["text"].startswith("RT"):
+                    retweet_found = True
+                # Clean up
+                tweet_folder = os.path.join(
+                    sample_user_obj.tweets_temp_path, tweet["id"]
+                )
+                for file in os.listdir(tweet_folder):
+                    file_path = os.path.join(tweet_folder, file)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+            if retweet_found:
+                assert sample_user_obj.include_rts
+    return mock
+
+
+def test_nitter_instances(rootdir, sample_users, mock_request):
+    test_user = UserTemplate()
+    with mock_request['mock'] as mock:
+        users_nitter_net = get_config_users('config_nitter_global.yml')
+        users_nitter = get_config_users('config_nitter_different_instance.yml')
+
+        for user_item in users_nitter_net['user_dict']:
+            nitter_instance = users_nitter_net['config']['nitter_base_url']
+            sample_user_obj = User(user_item, users_nitter_net['config'])
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+            tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+            assert tweet == mock_request['sample_data']['tweet']
+            tweets = sample_user_obj._get_tweets("v1.1")
+            assert tweets == mock_request['sample_data']['tweets_v1']
+            test_files_dir = os.path.join(rootdir, 'test_files')
+            sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+            media_dir = os.path.join(sample_data_dir, 'media')
+            mp4 = os.path.join(media_dir, 'video.mp4')
+            gif = os.path.join(media_dir, "animated_gif.gif")
+            png = os.path.join(media_dir, 'image.png')
+
+            gif_file = open(gif, 'rb')
+            gif_content = gif_file.read()
+            gif_file.close()
+
+            png_file = open(png, 'rb')
+            png_content = png_file.read()
+            png_file.close()
+
+            mp4_file = open(mp4, 'rb')
+            mp4_content = mp4_file.read()
+            mp4_file.close()
+
+            mock.get("https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4",
+                     content=gif_content,
+                     headers={'Content-Type': 'image/gif'},
+                     status_code=200)
+            mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049214134407171",
+                     json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
+                     "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
+            tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+            for tweet in tweets_to_post['data']:
+                if sample_user_obj.signature:
+                    sample_user_obj.post_pleroma(
+                        (tweet["id"], tweet["text"]), None, False
+                    )
+                    history = mock.request_history
+                    assert nitter_instance in parse.unquote(history[-1].text)
+
+                    # Clean up
+                tweet_folder = os.path.join(
+                    sample_user_obj.tweets_temp_path, tweet["id"]
+                )
+                for file in os.listdir(tweet_folder):
+                    file_path = os.path.join(tweet_folder, file)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+
+        for user_item in users_nitter['user_dict']:
+            nitter_instance = users_nitter['config']['nitter_base_url']
+            sample_user_obj = User(user_item, users_nitter['config'])
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+            tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+            assert tweet == mock_request['sample_data']['tweet']
+            tweets = sample_user_obj._get_tweets("v1.1")
+            assert tweets == mock_request['sample_data']['tweets_v1']
+            test_files_dir = os.path.join(rootdir, 'test_files')
+            sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+            media_dir = os.path.join(sample_data_dir, 'media')
+            mp4 = os.path.join(media_dir, 'video.mp4')
+            gif = os.path.join(media_dir, "animated_gif.gif")
+            png = os.path.join(media_dir, 'image.png')
+
+            gif_file = open(gif, 'rb')
+            gif_content = gif_file.read()
+            gif_file.close()
+
+            png_file = open(png, 'rb')
+            png_content = png_file.read()
+            png_file.close()
+
+            mp4_file = open(mp4, 'rb')
+            mp4_content = mp4_file.read()
+            mp4_file.close()
+
+            mock.get("https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4",
+                     content=gif_content,
+                     headers={'Content-Type': 'image/gif'},
+                     status_code=200)
+            mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049214134407171",
+                     json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
+                     "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
+            tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+            for tweet in tweets_to_post['data']:
+                if sample_user_obj.signature:
+                    sample_user_obj.post_pleroma(
+                        (tweet["id"], tweet["text"]), None, False
+                    )
+                    history = mock.request_history
+                    assert nitter_instance in parse.unquote(history[-1].text)
+
+                # Clean up
+                tweet_folder = os.path.join(
+                    sample_user_obj.tweets_temp_path, tweet["id"]
+                )
+                for file in os.listdir(tweet_folder):
+                    file_path = os.path.join(tweet_folder, file)
+                    if os.path.isfile(file_path):
                         os.remove(file_path)
     return mock
 
