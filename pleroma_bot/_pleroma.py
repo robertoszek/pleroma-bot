@@ -110,7 +110,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
             try:
                 media_ids.append(json.loads(response.text)["id"])
             except (KeyError, JSONDecodeError):
-                print("Error uploading media:\t" + str(response.text))
+                logger.warning(f"Error uploading media:\t{str(response.text)}")
                 pass
 
     if self.signature:
@@ -144,7 +144,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     )
     if not response.ok:
         response.raise_for_status()
-    print("Post in Pleroma:\t" + str(response))
+    logger.info(f"Post in Pleroma:\t{str(response)}")
     post_id = json.loads(response.text)["id"]
     return post_id
 
@@ -243,5 +243,5 @@ def update_pleroma(self):
     )
     if not response.ok:
         response.raise_for_status()
-    print("Updating profile:\t" + str(response))  # for debugging
+    logger.info(f"Updating profile:\t {str(response)}")
     return

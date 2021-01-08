@@ -195,6 +195,8 @@ def main():
 
         for user_item in user_dict:
             user = User(user_item, config)
+            logger.info("======================================")
+            logger.info(f"Processing user:\t{user.pleroma_username}")
             date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets()
             if tweets["meta"]["result_count"] > 0:
@@ -214,7 +216,7 @@ def main():
                         tweets_to_post["data"].append(tweet)
 
                 tweets_to_post = user.process_tweets(tweets_to_post)
-                print("tweets:", tweets_to_post["data"])
+                logger.info(f"tweets: \t {tweets_to_post['data']}")
                 for tweet in tweets_to_post["data"]:
                     user.post_pleroma(
                         (tweet["id"], tweet["text"]),

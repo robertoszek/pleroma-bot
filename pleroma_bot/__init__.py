@@ -4,12 +4,12 @@ import logging
 __version__ = "0.6.2"
 
 log_path = os.path.join(os.getcwd(), "error.log")
-
+logging.root.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 c_handler = logging.StreamHandler()
 f_handler = logging.FileHandler(log_path)
-c_handler.setLevel(logging.WARNING)
+c_handler.setLevel(logging.INFO)
 f_handler.setLevel(logging.ERROR)
 
 c_format = logging.Formatter("%(name)s - %(levelname)s - %(message)s")

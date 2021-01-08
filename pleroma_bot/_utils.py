@@ -23,7 +23,7 @@ def check_pinned(self):
     Checks if a tweet is pinned and needs to be retrieved and posted on the
     Fediverse account
     """
-    print("Current pinned:\t" + str(self.pinned_tweet_id))
+    logger.info(f"Current pinned:\t{str(self.pinned_tweet_id)}")
     pinned_file = os.path.join(self.user_path, "pinned_id.txt")
     if os.path.isfile(pinned_file):
         with open(pinned_file, "r") as file:
@@ -32,7 +32,7 @@ def check_pinned(self):
                 previous_pinned_tweet_id = None
     else:
         previous_pinned_tweet_id = None
-    print("Previous pinned:\t" + str(previous_pinned_tweet_id))
+    logger.info(f"Previous pinned:\t{str(previous_pinned_tweet_id)}")
     if (
         self.pinned_tweet_id != previous_pinned_tweet_id
         and self.pinned_tweet_id is not None
