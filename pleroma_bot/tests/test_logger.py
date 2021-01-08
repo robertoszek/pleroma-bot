@@ -3,6 +3,8 @@ import shutil
 import logging
 
 from pleroma_bot import cli, User
+from pleroma_bot._utils import random_string
+
 from test_user import UserTemplate
 from conftest import get_config_users
 
@@ -187,10 +189,12 @@ def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
+            sample_user_obj.display_name = random_string(50)
             mock.get(f"{test_user.pleroma_base_url}/api/v1/instance",
                      json={'version': '3.2.1'},
                      status_code=200)
             rich_text_orig = False
+            assert len(sample_user_obj.display_name) == 50
             if hasattr(sample_user_obj, "rich_text"):
                 if sample_user_obj.rich_text:
                     rich_text_orig = True
@@ -201,4 +205,10 @@ def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
                 log_msg_rich_text = (
                     "Mastodon doesn't support rich text. Disabling it..."
                 )
+                log_msg_display_name = (
+                    "Mastodon doesn't support display names longer than 30 "
+                    "characters, truncating it and trying again..."
+                )
                 assert log_msg_rich_text in caplog.text
+                assert log_msg_display_name in caplog.text
+                assert len(sample_user_obj.display_name) == 30
