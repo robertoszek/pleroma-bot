@@ -354,3 +354,24 @@ def random_string(length: int) -> str:
         random.choice(string.ascii_lowercase + string.digits)
         for _ in range(length)
     )
+
+
+def _get_instance_info(self):
+    instance_url = f"{self.pleroma_base_url}/api/v1/instance"
+    response = requests.get(instance_url)
+    instance_info = json.loads(response.text)
+    if "Pleroma" not in instance_info["version"]:
+        logger.debug("Assuming target instance is Mastodon...")
+        if len(self.display_name) > 30:
+            self.display_name = self.display_name[:30]
+            log_msg = (
+                "Mastodon doesn't support display names longer than 30 "
+                "characters, truncating it and trying again..."
+            )
+            logger.warning(log_msg)
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                self.rich_text = False
+                logger.warning(
+                    "Mastodon doesn't support rich text. Disabling it..."
+                )

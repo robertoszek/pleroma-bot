@@ -22,6 +22,7 @@ def mock_request(rootdir):
     mock_return = {}
     twitter_base_url = test_user.twitter_base_url
     twitter_base_url_v2 = test_user.twitter_base_url_v2
+    pleroma_base_url = test_user.pleroma_base_url
     sample_data_dir = os.path.join(rootdir, 'test_files', 'sample_data')
     sample_data = {}
     for file in os.listdir(sample_data_dir):
@@ -36,6 +37,9 @@ def mock_request(rootdir):
                  status_code=200)
         mock.get(f"{twitter_base_url}/users/show.json",
                  json=sample_data['twitter_info'],
+                 status_code=200)
+        mock.get(f"{pleroma_base_url}/api/v1/instance",
+                 json={'version': '2.7.2 (compatible; Pleroma 2.2.1)'},
                  status_code=200)
         mock.get(
             "https://cutt.ly/xg3TuY0",

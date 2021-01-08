@@ -1,7 +1,7 @@
 import os
 import logging
 
-__version__ = "0.6.2"
+__version__ = "0.6.6"
 
 log_path = os.path.join(os.getcwd(), "error.log")
 logging.root.setLevel(logging.INFO)

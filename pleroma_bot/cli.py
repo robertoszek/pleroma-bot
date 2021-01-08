@@ -59,12 +59,14 @@ class User(object):
     from ._utils import random_string
     from ._utils import process_tweets
     from ._utils import replace_vars_in_str
+
     from ._utils import _expand_urls
     from ._utils import _get_media_url
     from ._utils import _process_polls
     from ._utils import _replace_nitter
     from ._utils import _download_media
     from ._utils import _replace_mentions
+    from ._utils import _get_instance_info
     from ._utils import _get_best_bitrate_video
 
     def __init__(self, user_cfg: dict, cfg: dict):
@@ -175,6 +177,7 @@ class User(object):
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         # Get Twitter info on instance creation
         self._get_twitter_info()
+        self._get_instance_info()
         self.posts = None
         return
 
@@ -195,9 +198,9 @@ def main():
         user_dict = config["users"]
 
         for user_item in user_dict:
-            user = User(user_item, config)
             logger.info("======================================")
-            logger.info(f"Processing user:\t{user.pleroma_username}")
+            logger.info(f'Processing user:\t{user_item["pleroma_username"]}')
+            user = User(user_item, config)
             date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets()
             if tweets["meta"]["result_count"] > 0:
