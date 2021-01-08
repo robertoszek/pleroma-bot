@@ -1,3 +1,12 @@
+## Unreleased
+
+## Fixed
+- Exception when Twitter display name is longer than 30 Characters and target instance platform is Mastodon (which supports only up to 30)
+
+## Enhancements
+- Refactored and aligned the format of old code
+- More readable console output when mirroring multiple users
+
 ## [0.6.2] - 2020-01-07
 
 ## Fixed
