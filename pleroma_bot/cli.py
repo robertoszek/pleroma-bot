@@ -75,7 +75,7 @@ class User(object):
         # iterate attrs defined in config
         for attribute in user_cfg:
             self.__setattr__(attribute, user_cfg[attribute])
-        self.twitter_url = "http://twitter.com/" + self.twitter_username
+        self.twitter_url = f"http://twitter.com/{self.twitter_username}"
         try:
             if not hasattr(self, "max_tweets"):
                 self.max_tweets = cfg["max_tweets"]
@@ -139,8 +139,9 @@ class User(object):
                 pass
         else:
             if self.nitter:
-                self.twitter_url = self.nitter_base_url + "/" + \
-                    self.twitter_username
+                self.twitter_url = (
+                    f"{self.nitter_base_url}/{self.twitter_username}"
+                )
         try:
             if not hasattr(self, "include_rts"):
                 self.include_rts = cfg["include_rts"]
@@ -157,8 +158,8 @@ class User(object):
             self.fields = []
         self.bio_text = self.replace_vars_in_str(str(user_cfg["bio_text"]))
         # Auth
-        self.header_pleroma = {"Authorization": "Bearer " + self.pleroma_token}
-        self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
+        self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
+        self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
         self.tweets = self._get_tweets("v2")
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
@@ -207,9 +208,7 @@ def main():
                 for tweet in tweets["data"]:
                     created_at = tweet["created_at"]
                     date_twitter = datetime.strftime(
-                        datetime.strptime(
-                            created_at, "%Y-%m-%dT%H:%M:%S.%fZ"
-                        ),
+                        datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.%fZ"),
                         "%Y-%m-%d %H:%M:%S",
                     )
                     if date_twitter > date_pleroma:

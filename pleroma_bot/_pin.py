@@ -75,7 +75,7 @@ def _find_pinned(self, pinned_file):
             for post in self.posts:
                 if post["pinned"]:
                     with open(pinned_file, "w") as file:
-                        file.write(post["id"] + "\n")
+                        file.write(f'{post["id"]}\n')
                     return self.unpin_pleroma(pinned_file)
         page += 1
         pleroma_posts_url = (
@@ -87,9 +87,7 @@ def _find_pinned(self, pinned_file):
             statuses_url = headers_page_url
         else:
             statuses_url = pleroma_posts_url
-        response = requests.get(
-            statuses_url, headers=self.header_pleroma
-        )
+        response = requests.get(statuses_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
         posts = json.loads(response.text)
@@ -119,9 +117,7 @@ def _get_pinned_tweet_id(self):
         "expansions": "pinned_tweet_id",
         "tweet.fields": "entities",
     }
-    response = requests.get(
-        url, headers=self.header_twitter, params=params
-    )
+    response = requests.get(url, headers=self.header_twitter, params=params)
     if not response.ok:
         response.raise_for_status()
     try:
