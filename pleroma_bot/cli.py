@@ -150,6 +150,12 @@ class User(object):
         except (KeyError, AttributeError):
             self.include_rts = True
             pass
+        try:
+            if not hasattr(self, "include_replies"):
+                self.include_rts = cfg["include_replies"]
+        except (KeyError, AttributeError):
+            self.include_replies = True
+            pass
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None

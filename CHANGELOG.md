@@ -1,5 +1,8 @@
 ## Unreleased
 
+## Added
+- New config attribute added (```include_replies```) which allows filtering tweets which are replies. Users now can choose whether to drop reply tweets or not (by default ```include_replies``` is ```true```)
+
 ## Fixed
 - Exception when Twitter display name is longer than 30 Characters and target instance platform is Mastodon (which supports only up to 30)
 

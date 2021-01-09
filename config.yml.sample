@@ -32,6 +32,8 @@ users:
   sensitive: false
   # (optional) If RTs are to be also be posted in the Fediverse account. By default they are included
   include_rts: false
+  # (optional) If replies are to be also posted in the Fediverse account. By default they are included
+  include_replies: false
   # (optional) How big attachments can be before not being uploaded to the Fediverse post
   # Examples: "30MB", "1.5GB", "0.5TB"
   file_max_size: 500MB

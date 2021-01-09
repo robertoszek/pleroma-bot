@@ -123,6 +123,16 @@ def process_tweets(self, tweets_to_post):
                         break
             except KeyError:
                 pass
+    # Remove replies if include_replies is false
+    if not self.include_replies:
+        for tweet in tweets_to_post["data"][:]:
+            try:
+                for reference in tweet["referenced_tweets"]:
+                    if reference["type"] == "replied_to":
+                        tweets_to_post["data"].remove(tweet)
+                        break
+            except KeyError:
+                pass
     for tweet in tweets_to_post["data"]:
         media = []
         tweet["text"] = _expand_urls(self, tweet)
