@@ -16,14 +16,23 @@ After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-b
 For precisely those cases I've written this Python project that automates them, asking such info to [Twitter's API](https://developer.twitter.com/en/docs/twitter-api/v1) and updating the relevant fields on the [Pleroma API](https://docs-develop.pleroma.social/backend/API/pleroma_api/)/[Mastodon API](https://docs.joinmastodon.org/client/intro/) side.
 
 
+## Features 
+
 So basically, it does the following:
 
-* Retrieves **last 'max_tweets' tweets** and posts them on the Fediverse account if their timestamp is newer than the last post. 
-* Gets the **display name** from Twitter and updates it in on the Fediverse account
-* Gets the **profile picture** from Twitter and updates it on the Fediverse account
-* Gets the **banner image** from Twitter and updates it on the Fediverse account
-* Gets the **bio text** from Twitter and updates it on the Fediverse account
-* Adds some **metadata fields** to the Fediverse account, pointing to the original Twitter account
+* Retrieves **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
+  * Can filter out RTs or not
+  * Can filter out replies or not
+* Media retrieval and upload of multiple **attachments**. This includes:
+  * Video
+  * Images
+  * Animated GIFs 
+* Retrieves **profile info** from Twitter and updates it in on the Fediverse account. This includes:
+  * *Display name*
+  * *Profile picture*
+  * *Banner image*
+  * *Bio text*
+* Adds some **metadata fields** to the Fediverse account, pointing to the original Twitter account or custom text.
 
 ## Installation
 ```
@@ -147,6 +156,14 @@ NOTE: An ```error.log``` file will be created at the path from which ```pleroma-
 # Update pleroma profile with Twitter info every day at 6:15 AM
 15 6 * * * cd /home/robertoszek/myvenv/ && . bin/activate && pleroma-bot
 ```
+
+## Screenshots
+
+![Screenshot](img/cmd.png)
+
+
+![Screenshot](img/screenshot.png)
+
 ## Acknowledgements
 These projects proved to be immensely useful, they are Python wrappers for the Mastodon API and Twitter API respectively:
 
