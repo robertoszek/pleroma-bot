@@ -23,7 +23,7 @@ def _get_twitter_info(self):
     if not response.ok:
         response.raise_for_status()
     user_twitter = json.loads(response.text)
-    self.bio_text = self.bio_text + user_twitter["description"]
+    self.bio_text = f'{self.bio_text}{user_twitter["description"]}'
     # Check if user has profile image
     if "profile_image_url_https" in user_twitter.keys():
         self.profile_image_url = user_twitter["profile_image_url_https"]
@@ -83,7 +83,7 @@ def _get_tweets(self, version: str, tweet_id=None):
             params.update(
                 {
                     "max_results": self.max_tweets,
-                    "query": "from:" + self.twitter_username,
+                    "query": f"from:{self.twitter_username}",
                 }
             )
         # Tweet number must be between 10 and 100

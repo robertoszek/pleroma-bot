@@ -21,7 +21,7 @@ def pin_pleroma(self, id_post):
 
     pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
     response = requests.post(pin_url, headers=self.header_pleroma)
-    print("Pinning post:\t" + str(response.text))
+    logger.info(f"Pinning post:\t{str(response.text)}")
     try:
         pin_id = json.loads(response.text)["id"]
     except KeyError:
@@ -52,9 +52,9 @@ def unpin_pleroma(self, pinned_file):
         response = requests.post(unpin_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
-        print("Unpinning previous:\t" + response.text)
+        logger.info(f"Unpinning previous:\t{response.text}")
     else:
-        print(
+        logger.info(
             "File with previous pinned post ID not found or empty. "
             "Checking last posts for pinned post..."
         )
@@ -75,7 +75,7 @@ def _find_pinned(self, pinned_file):
             for post in self.posts:
                 if post["pinned"]:
                     with open(pinned_file, "w") as file:
-                        file.write(post["id"] + "\n")
+                        file.write(f'{post["id"]}\n')
                     return self.unpin_pleroma(pinned_file)
         page += 1
         pleroma_posts_url = (
@@ -87,9 +87,7 @@ def _find_pinned(self, pinned_file):
             statuses_url = headers_page_url
         else:
             statuses_url = pleroma_posts_url
-        response = requests.get(
-            statuses_url, headers=self.header_pleroma
-        )
+        response = requests.get(statuses_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
         posts = json.loads(response.text)
@@ -119,9 +117,7 @@ def _get_pinned_tweet_id(self):
         "expansions": "pinned_tweet_id",
         "tweet.fields": "entities",
     }
-    response = requests.get(
-        url, headers=self.header_twitter, params=params
-    )
+    response = requests.get(url, headers=self.header_twitter, params=params)
     if not response.ok:
         response.raise_for_status()
     try:

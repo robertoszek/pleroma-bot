@@ -23,7 +23,7 @@ def check_pinned(self):
     Checks if a tweet is pinned and needs to be retrieved and posted on the
     Fediverse account
     """
-    print("Current pinned:\t" + str(self.pinned_tweet_id))
+    logger.info(f"Current pinned:\t{str(self.pinned_tweet_id)}")
     pinned_file = os.path.join(self.user_path, "pinned_id.txt")
     if os.path.isfile(pinned_file):
         with open(pinned_file, "r") as file:
@@ -32,7 +32,7 @@ def check_pinned(self):
                 previous_pinned_tweet_id = None
     else:
         previous_pinned_tweet_id = None
-    print("Previous pinned:\t" + str(previous_pinned_tweet_id))
+    logger.info(f"Previous pinned:\t{str(previous_pinned_tweet_id)}")
     if (
         self.pinned_tweet_id != previous_pinned_tweet_id
         and self.pinned_tweet_id is not None
@@ -50,12 +50,12 @@ def check_pinned(self):
         )
         pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
         with open(pinned_file, "w") as file:
-            file.write(self.pinned_tweet_id + "\n")
+            file.write(f"{self.pinned_tweet_id}\n")
         if pleroma_pinned_post is not None:
             with open(
                 os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
             ) as file:
-                file.write(pleroma_pinned_post + "\n")
+                file.write(f"{pleroma_pinned_post}\n")
     elif (
         self.pinned_tweet_id != previous_pinned_tweet_id
         and previous_pinned_tweet_id is not None
@@ -123,6 +123,16 @@ def process_tweets(self, tweets_to_post):
                         break
             except KeyError:
                 pass
+    # Remove replies if include_replies is false
+    if not self.include_replies:
+        for tweet in tweets_to_post["data"][:]:
+            try:
+                for reference in tweet["referenced_tweets"]:
+                    if reference["type"] == "replied_to":
+                        tweets_to_post["data"].remove(tweet)
+                        break
+            except KeyError:
+                pass
     for tweet in tweets_to_post["data"]:
         media = []
         tweet["text"] = _expand_urls(self, tweet)
@@ -161,7 +171,7 @@ def _process_polls(self, tweet, media):
         if tweet["attachments"]["poll_ids"] and not media:
 
             # tweet_poll = tweet['includes']['polls']
-            poll_url = self.twitter_base_url_v2 + "/tweets"
+            poll_url = f"{self.twitter_base_url_v2}/tweets"
 
             params = {
                 "ids": tweet["id"],
@@ -205,33 +215,44 @@ def _download_media(self, media, tweet):
 
         if media_url:
             response = requests.get(media_url, stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        filename = str(idx) + mimetypes.guess_extension(
-            response.headers["Content-Type"]
-        )
-        file_path = os.path.join(self.tweets_temp_path, tweet["id"], filename)
-        with open(file_path, "wb") as outfile:
-            shutil.copyfileobj(response.raw, outfile)
-        # Remove attachment if exceeds the limit
-        if hasattr(self, "file_max_size"):
-            file_size_bytes = os.stat(file_path).st_size
-            max_file_size_bytes = parse_size(self.file_max_size)
-            if file_size_bytes > max_file_size_bytes:
-                logger.error(f"Attachment exceeded config file size limit "
-                             f"({self.file_max_size})")
-                logger.error(f"File size: "
-                             f"{round(file_size_bytes / 2**20, 2)}MB")
-                logger.error("Ignoring attachment and continuing...")
-                os.remove(file_path)
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            filename = str(idx) + mimetypes.guess_extension(
+                response.headers["Content-Type"]
+            )
+            file_path = os.path.join(
+                self.tweets_temp_path, tweet["id"], filename
+            )
+            with open(file_path, "wb") as outfile:
+                shutil.copyfileobj(response.raw, outfile)
+            # Remove attachment if exceeds the limit
+            if hasattr(self, "file_max_size"):
+                file_size_bytes = os.stat(file_path).st_size
+                max_file_size_bytes = parse_size(self.file_max_size)
+                if file_size_bytes > max_file_size_bytes:
+                    logger.error(
+                        f"Attachment exceeded config file size limit "
+                        f"({self.file_max_size})"
+                    )
+                    logger.error(
+                        f"File size: {round(file_size_bytes / 2**20, 2)}MB"
+                    )
+                    logger.error("Ignoring attachment and continuing...")
+                    os.remove(file_path)
 
 
 def parse_size(size):
-    units = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
+    units = {
+        "B": 1,
+        "KB": 2 ** 10,
+        "MB": 2 ** 20,
+        "GB": 2 ** 30,
+        "TB": 2 ** 40,
+    }
     size = size.upper()
-    if not re.match(r' ', size):
-        size = re.sub(r'([KMGT]?B)', r' \1', size)
+    if not re.match(r" ", size):
+        size = re.sub(r"([KMGT]?B)", r" \1", size)
     number, unit = [string.strip() for string in size.split()]
     return int(float(number) * units[unit])
 
@@ -240,18 +261,14 @@ def _replace_nitter(self, tweet):
     matching_pattern = "https://twitter.com"
     matches = re.findall(matching_pattern, tweet["text"])
     for match in matches:
-        tweet["text"] = re.sub(
-            match, self.nitter_base_url, tweet["text"]
-        )
+        tweet["text"] = re.sub(match, self.nitter_base_url, tweet["text"])
     return tweet["text"]
 
 
 def _replace_mentions(self, tweet):
     matches = re.findall(r"\B\@\w+", tweet["text"])
     for match in matches:
-        mention_link = (
-            f"[{match}](https://twitter.com/{match[1:]})"
-        )
+        mention_link = f"[{match}](https://twitter.com/{match[1:]})"
         tweet["text"] = re.sub(match, mention_link, tweet["text"])
     return tweet["text"]
 
@@ -281,9 +298,7 @@ def _expand_urls(self, tweet):
             if not match.group().__contains__("…"):
                 session = requests.Session()  # so connections are
                 # recycled
-                response = session.head(
-                    match.group(), allow_redirects=True
-                )
+                response = session.head(match.group(), allow_redirects=True)
                 if not response.ok:
                     response.raise_for_status()
                 expanded_url = response.url
@@ -349,3 +364,24 @@ def random_string(length: int) -> str:
         random.choice(string.ascii_lowercase + string.digits)
         for _ in range(length)
     )
+
+
+def _get_instance_info(self):
+    instance_url = f"{self.pleroma_base_url}/api/v1/instance"
+    response = requests.get(instance_url)
+    instance_info = json.loads(response.text)
+    if "Pleroma" not in instance_info["version"]:
+        logger.debug("Assuming target instance is Mastodon...")
+        if len(self.display_name) > 30:
+            self.display_name = self.display_name[:30]
+            log_msg = (
+                "Mastodon doesn't support display names longer than 30 "
+                "characters, truncating it and trying again..."
+            )
+            logger.warning(log_msg)
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                self.rich_text = False
+                logger.warning(
+                    "Mastodon doesn't support rich text. Disabling it..."
+                )

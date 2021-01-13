@@ -59,12 +59,14 @@ class User(object):
     from ._utils import random_string
     from ._utils import process_tweets
     from ._utils import replace_vars_in_str
+
     from ._utils import _expand_urls
     from ._utils import _get_media_url
     from ._utils import _process_polls
     from ._utils import _replace_nitter
     from ._utils import _download_media
     from ._utils import _replace_mentions
+    from ._utils import _get_instance_info
     from ._utils import _get_best_bitrate_video
 
     def __init__(self, user_cfg: dict, cfg: dict):
@@ -75,7 +77,7 @@ class User(object):
         # iterate attrs defined in config
         for attribute in user_cfg:
             self.__setattr__(attribute, user_cfg[attribute])
-        self.twitter_url = "http://twitter.com/" + self.twitter_username
+        self.twitter_url = f"http://twitter.com/{self.twitter_username}"
         try:
             if not hasattr(self, "max_tweets"):
                 self.max_tweets = cfg["max_tweets"]
@@ -139,13 +141,20 @@ class User(object):
                 pass
         else:
             if self.nitter:
-                self.twitter_url = self.nitter_base_url + "/" + \
-                    self.twitter_username
+                self.twitter_url = (
+                    f"{self.nitter_base_url}/{self.twitter_username}"
+                )
         try:
             if not hasattr(self, "include_rts"):
                 self.include_rts = cfg["include_rts"]
         except (KeyError, AttributeError):
             self.include_rts = True
+            pass
+        try:
+            if not hasattr(self, "include_replies"):
+                self.include_rts = cfg["include_replies"]
+        except (KeyError, AttributeError):
+            self.include_replies = True
             pass
         self.profile_image_url = None
         self.profile_banner_url = None
@@ -157,8 +166,8 @@ class User(object):
             self.fields = []
         self.bio_text = self.replace_vars_in_str(str(user_cfg["bio_text"]))
         # Auth
-        self.header_pleroma = {"Authorization": "Bearer " + self.pleroma_token}
-        self.header_twitter = {"Authorization": "Bearer " + self.twitter_token}
+        self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
+        self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
         self.tweets = self._get_tweets("v2")
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
@@ -174,6 +183,7 @@ class User(object):
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         # Get Twitter info on instance creation
         self._get_twitter_info()
+        self._get_instance_info()
         self.posts = None
         return
 
@@ -194,6 +204,8 @@ def main():
         user_dict = config["users"]
 
         for user_item in user_dict:
+            logger.info("======================================")
+            logger.info(f'Processing user:\t{user_item["pleroma_username"]}')
             user = User(user_item, config)
             date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets()
@@ -205,16 +217,14 @@ def main():
                 for tweet in tweets["data"]:
                     created_at = tweet["created_at"]
                     date_twitter = datetime.strftime(
-                        datetime.strptime(
-                            created_at, "%Y-%m-%dT%H:%M:%S.%fZ"
-                        ),
+                        datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.%fZ"),
                         "%Y-%m-%d %H:%M:%S",
                     )
                     if date_twitter > date_pleroma:
                         tweets_to_post["data"].append(tweet)
 
                 tweets_to_post = user.process_tweets(tweets_to_post)
-                print("tweets:", tweets_to_post["data"])
+                logger.info(f"tweets: \t {tweets_to_post['data']}")
                 for tweet in tweets_to_post["data"]:
                     user.post_pleroma(
                         (tweet["id"], tweet["text"]),

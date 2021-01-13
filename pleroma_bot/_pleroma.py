@@ -37,9 +37,7 @@ def get_date_last_pleroma_post(self):
     self.posts = posts
     if posts:
         date_pleroma = datetime.strftime(
-            datetime.strptime(
-                posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"
-            ),
+            datetime.strptime(posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"),
             "%Y-%m-%d %H:%M:%S",
         )
     else:
@@ -67,8 +65,8 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     """
     # TODO: transform twitter links to nitter links, if self.nitter
     #  'true' in resolved shortened urls
-    pleroma_post_url = self.pleroma_base_url + "/api/v1/statuses"
-    pleroma_media_url = self.pleroma_base_url + "/api/v1/media"
+    pleroma_post_url = f"{self.pleroma_base_url}/api/v1/statuses"
+    pleroma_media_url = f"{self.pleroma_base_url}/api/v1/media"
 
     tweet_id = tweet[0]
     tweet_text = tweet[1]
@@ -110,12 +108,12 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
             try:
                 media_ids.append(json.loads(response.text)["id"])
             except (KeyError, JSONDecodeError):
-                print("Error uploading media:\t" + str(response.text))
+                logger.warning(f"Error uploading media:\t{str(response.text)}")
                 pass
 
     if self.signature:
         signature = f"\n\n 🐦🔗: {self.twitter_url}/status/{tweet_id}"
-        tweet_text = tweet_text + signature
+        tweet_text = f"{tweet_text} {signature}"
 
     # config setting override tweet attr
     if hasattr(self, "sensitive"):
@@ -144,7 +142,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     )
     if not response.ok:
         response.raise_for_status()
-    print("Post in Pleroma:\t" + str(response))
+    logger.info(f"Post in Pleroma:\t{str(response)}")
     post_id = json.loads(response.text)["id"]
     return post_id
 
@@ -165,9 +163,7 @@ def update_pleroma(self):
     # Get the biggest resolution for the profile picture (400x400)
     # instead of 'normal'
     if self.profile_image_url:
-        profile_img_big = re.sub(
-            r"normal", "400x400", self.profile_image_url
-        )
+        profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
         response = requests.get(profile_img_big, stream=True)
         if not response.ok:
             response.raise_for_status()
@@ -184,9 +180,7 @@ def update_pleroma(self):
             shutil.copyfileobj(response.raw, outfile)
 
     # Set it on Pleroma
-    cred_url = (
-        f"{self.pleroma_base_url}/api/v1/accounts/update_credentials"
-    )
+    cred_url = f"{self.pleroma_base_url}/api/v1/accounts/update_credentials"
 
     # Construct fields
     fields = []
@@ -207,18 +201,20 @@ def update_pleroma(self):
             f"Provided: {len(fields)}. Exiting..."
         )
     for idx, (field_name, field_value) in enumerate(fields):
-        data["fields_attributes[" + str(idx) + "][name]"] = field_name
-        data["fields_attributes[" + str(idx) + "][value]"] = field_value
+        data[f'fields_attributes["{str(idx)}"][name]'] = field_name
+        data[f'fields_attributes["{str(idx)}"][value]'] = field_value
 
+    files = {}
+    timestamp = str(datetime.now().timestamp())
     if self.profile_image_url:
         avatar = open(self.avatar_path, "rb")
         avatar_mime_type = guess_type(self.avatar_path)
-        timestamp = str(datetime.now().timestamp())
         avatar_file_name = (
             f"pleromapyupload_{timestamp}_"
             f"{random_string(10)}"
             f"{mimetypes.guess_extension(avatar_mime_type)}"
         )
+        files.update({"avatar": (avatar_file_name, avatar, avatar_mime_type)})
     if self.profile_banner_url:
         header = open(self.header_path, "rb")
         header_mime_type = guess_type(self.header_path)
@@ -227,21 +223,12 @@ def update_pleroma(self):
             f"{random_string(10)}"
             f"{mimetypes.guess_extension(header_mime_type)}"
         )
+        files.update({"header": (header_file_name, header, header_mime_type)})
 
-    files = {}
-
-    if self.profile_image_url:
-        files.update(
-            {"avatar": (avatar_file_name, avatar, avatar_mime_type)}
-        )
-    if self.profile_banner_url:
-        files.update(
-            {"header": (header_file_name, header, header_mime_type)}
-        )
     response = requests.patch(
         cred_url, data, headers=self.header_pleroma, files=files
     )
     if not response.ok:
         response.raise_for_status()
-    print("Updating profile:\t" + str(response))  # for debugging
+    logger.info(f"Updating profile:\t {str(response)}")
     return
