@@ -1,4 +1,4 @@
-## Unreleased
+## [0.6.8] - 2021-01-13
 
 ## Added
 - New config attribute added (```include_replies```) which allows filtering tweets which are replies. Users now can choose whether to drop reply tweets or not (by default ```include_replies``` is ```true```)
