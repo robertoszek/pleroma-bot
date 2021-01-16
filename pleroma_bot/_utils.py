@@ -1,12 +1,13 @@
 import os
-import string
-import random
-
 import re
 import json
+import string
+import random
 import shutil
 import requests
 import mimetypes
+
+from json.decoder import JSONDecodeError
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -369,7 +370,13 @@ def random_string(length: int) -> str:
 def _get_instance_info(self):
     instance_url = f"{self.pleroma_base_url}/api/v1/instance"
     response = requests.get(instance_url)
-    instance_info = json.loads(response.text)
+    if not response.ok:
+        response.raise_for_status()
+    try:
+        instance_info = json.loads(response.text)
+    except JSONDecodeError:
+        msg = f"Instance response was not understood {response.text}"
+        raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
         logger.debug("Assuming target instance is Mastodon...")
         if len(self.display_name) > 30:
