@@ -4,6 +4,12 @@ import logging
 
 __version__ = "0.6.8"
 
+
+class StdOutFilter(logging.Filter):
+    def filter(self, rec):
+        return rec.levelno in (logging.DEBUG, logging.INFO)
+
+
 log_path = os.path.join(os.getcwd(), "error.log")
 logging.root.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,6 +27,7 @@ f_format = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
 c_handler.setFormatter(c_format)
 e_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
+c_handler.addFilter(StdOutFilter())
 
 logger.addHandler(c_handler)
 logger.addHandler(e_handler)
