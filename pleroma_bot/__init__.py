@@ -7,7 +7,7 @@ __version__ = "0.6.8"
 
 class StdOutFilter(logging.Filter):
     def filter(self, rec):
-        return rec.levelno in (logging.DEBUG, logging.INFO)
+        return rec.levelno in (logging.WARNING, logging.DEBUG, logging.INFO)
 
 
 log_path = os.path.join(os.getcwd(), "error.log")
