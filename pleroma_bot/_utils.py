@@ -392,3 +392,8 @@ def _get_instance_info(self):
                 logger.warning(
                     "Mastodon doesn't support rich text. Disabling it..."
                 )
+
+
+def force_date():
+    # TODO: Implement this
+    pass

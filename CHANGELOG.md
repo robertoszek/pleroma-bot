@@ -1,3 +1,11 @@
+## Unreleased
+
+## Added
+- New and shiny help page
+
+## Enhancements
+- Reworked how arguments are parsed and processed
+
 ## [0.6.8] - 2021-01-13
 
 ## Added
@@ -8,7 +16,7 @@
 
 ## Enhancements
 - Refactored and aligned the format of old code
-- More readable console output when mirroring multiple users
+- More readable console output when mirroring multiple users 
 
 ## [0.6.2] - 2020-01-07
 

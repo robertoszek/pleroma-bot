@@ -31,13 +31,14 @@
 import os
 import sys
 import time
-
 import yaml
 import shutil
+import argparse
 
 from datetime import datetime
 
 from . import logger
+from .__init__ import __version__
 
 
 class User(object):
@@ -54,6 +55,7 @@ class User(object):
     from ._pleroma import update_pleroma
     from ._pleroma import get_date_last_pleroma_post
 
+    from ._utils import force_date
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
@@ -188,14 +190,57 @@ class User(object):
         return
 
 
+def get_args(sysargs):
+    """
+    Supports the command-line arguments listed below.
+    """
+    parser = argparse.ArgumentParser(
+        description=(
+            "Bot for mirroring one or multiple Twitter accounts "
+            "in Pleroma/Mastodon."
+        )
+    )
+
+    parser.add_argument(
+        "-n",
+        "--noProfile",
+        required=False,
+        action="store_true",
+        help=(
+            "skips Fediverse profile update (no background "
+            "image, profile image, bio text, etc.)"
+        ),
+    )
+
+    parser.add_argument(
+        "--forceDate",
+        nargs="?",
+        required=False,
+        action="store",
+        const="all",
+        help=(
+            "forces the tweet retrieval to start from a "
+            "specific date. The twitter_username value "
+            "(FORCEDATE) can be supplied to only force it for "
+            "that particular user in the config"
+        ),
+    )
+
+    parser.add_argument(
+        "--version", action="version", version=f"{__version__}"
+    )
+
+    args, extra = parser.parse_known_args(sysargs)
+    return args
+
+
 def main():
-    # Parameter to choose whether to update bio, avatar and banner or not -
-    # save some bandwidth
-    try:
-        arg = sys.argv[1]
-    except IndexError:
-        arg = ""
-        print(f"Usage: {sys.argv[0]} [noProfile]")
+    # Convert legacy flag to proper flag format
+    mangle_args = "noProfile"
+    arguments = [
+        "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
+    ]
+    args = get_args(sysargs=arguments)
 
     try:
         base_path = os.getcwd()
@@ -207,7 +252,10 @@ def main():
             logger.info("======================================")
             logger.info(f'Processing user:\t{user_item["pleroma_username"]}')
             user = User(user_item, config)
-            date_pleroma = user.get_date_last_pleroma_post()
+            if args.forceDate and args.forceDate == user.twitter_username:
+                date_pleroma = user.force_date()
+            else:
+                date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets()
             if tweets["meta"]["result_count"] > 0:
                 # Put oldest first to iterate them and post them in order
@@ -235,7 +283,7 @@ def main():
 
             user.check_pinned()
 
-            if not arg == "noProfile":
+            if not args.noProfile:
                 user.update_pleroma()
             # Clean-up
             shutil.rmtree(user.tweets_temp_path)
