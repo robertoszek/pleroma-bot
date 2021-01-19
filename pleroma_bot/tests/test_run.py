@@ -867,6 +867,11 @@ def test_force_date(sample_users, monkeypatch):
             )
             assert date == ts
             sample_user_obj.posts = None
+            mock.get(f"{sample_user_obj.pleroma_base_url}"
+                     f"/api/v1/accounts/"
+                     f"{sample_user_obj.pleroma_username}/statuses",
+                     json={},
+                     status_code=200)
             monkeypatch.setattr('builtins.input', lambda: "continue")
             date = sample_user_obj.force_date()
             assert date == sample_user_obj.get_date_last_pleroma_post()
@@ -940,7 +945,7 @@ def test_main(rootdir, global_mock, mock_request, sample_users, monkeypatch):
         shutil.rmtree(users_path)
 
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
-        with patch.object(sys, 'argv', ['-s']):
+        with patch.object(sys, 'argv', ['']):
             assert cli.main() == 0
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):

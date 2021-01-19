@@ -537,6 +537,25 @@ def test__get_tweets_exception(sample_users, mock_request):
             assert str(error_info.value) == exception_value
 
 
+def test__get_tweets_v2_exception(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets_url = (
+                f"{test_user.twitter_base_url_v2}/users/by?"
+                f"usernames={sample_user_obj.twitter_username}"
+            )
+            mock.get(tweets_url, status_code=500)
+            start_time = sample_user_obj.get_date_last_pleroma_post()
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_tweets(
+                    "v2", start_time=start_time
+                )
+            exception_value = f"500 Server Error: None for url: {tweets_url}"
+            assert str(error_info.value) == exception_value
+
+
 def test__get_twitter_info_exception(sample_users, mock_request):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
