@@ -5,7 +5,7 @@ import hashlib
 import logging
 import urllib.parse
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib import parse
 from test_user import UserTemplate
 from conftest import get_config_users
@@ -856,10 +856,25 @@ def test_force_date(sample_users, monkeypatch):
             monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
             date = sample_user_obj.force_date()
             assert date == '2020-12-30T00:00:00Z'
+            monkeypatch.setattr('builtins.input', lambda: None)
+            date = sample_user_obj.force_date()
+            assert date == '2010-11-06T00:00:00Z'
+            sample_user_obj.posts = 'none_found'
+            monkeypatch.setattr('builtins.input', lambda: "continue")
+            date = sample_user_obj.force_date()
+            ts = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
+            assert date == ts
+            sample_user_obj.posts = None
+            monkeypatch.setattr('builtins.input', lambda: "continue")
+            date = sample_user_obj.force_date()
+            assert date == sample_user_obj.get_date_last_pleroma_post()
+
     return mock
 
 
-def test_main(rootdir, global_mock, mock_request, sample_users):
+def test_main(rootdir, global_mock, mock_request, sample_users, monkeypatch):
     test_user = UserTemplate()
     with global_mock as g_mock:
         test_files_dir = os.path.join(rootdir, 'test_files')
@@ -921,6 +936,10 @@ def test_main(rootdir, global_mock, mock_request, sample_users):
             shutil.copy(prev_config, backup_config)
         shutil.copy(config_test, os.getcwd())
 
+        users_path = os.path.join(os.getcwd(), 'users')
+        shutil.rmtree(users_path)
+
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
         with patch.object(sys, 'argv', ['-s']):
             assert cli.main() == 0
         # Test main() is called correctly when name equals __main__
