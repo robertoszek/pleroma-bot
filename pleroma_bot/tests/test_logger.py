@@ -212,3 +212,27 @@ def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
                 assert log_msg_rich_text in caplog.text
                 assert log_msg_display_name in caplog.text
                 assert len(sample_user_obj.display_name) == 30
+
+
+def test_force_date_logger(sample_users, monkeypatch, caplog):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+            with caplog.at_level(logging.DEBUG):
+                date = sample_user_obj.force_date()
+            assert date == '2020-12-30T00:00:00Z'
+            msg = ("How far back should we retrieve tweets from the "
+                   "Twitter account?")
+            msg_2 = "Enter a date (YYYY-MM-DD):"
+            msg_3 = (
+                "[Leave it empty to retrieve *ALL* tweets or enter 'continue'"
+            )
+            msg_4 = (
+                "if you want the bot to execute as normal (checking date of"
+            )
+            msg_5 = "last post in the Fediverse account)]"
+            msgs = [msg, msg_2, msg_3, msg_4, msg_5]
+            for msg in msgs:
+                assert msg in caplog.text
+    return mock

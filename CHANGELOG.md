@@ -1,3 +1,17 @@
+## [0.7.0] - 2021-01-19
+
+## Added
+- New and shiny help page
+- Checks for first run (no posts/toots on the Fediverse account, or no user folder present)
+- Argument ```--forceDate``` to allow setting a starting date for tweet retrieval (optionally forcing it on a user-by-user basis by providing ```twitter_username``` to identify the user on the config file)
+
+## Fixed
+- Handle instances being unreachable when trying to get version info to identify their platform
+
+## Enhancements
+- Reworked how arguments are parsed and processed with ```argparse```
+- Pagination implemented for tweet retrieval (which allows tweets older than one week to be retrieved)
+
 ## [0.6.8] - 2021-01-13
 
 ## Added
@@ -8,7 +22,7 @@
 
 ## Enhancements
 - Refactored and aligned the format of old code
-- More readable console output when mirroring multiple users
+- More readable console output when mirroring multiple users 
 
 ## [0.6.2] - 2020-01-07
 

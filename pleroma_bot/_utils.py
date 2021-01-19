@@ -1,12 +1,14 @@
 import os
-import string
-import random
-
 import re
 import json
+import string
+import random
 import shutil
 import requests
 import mimetypes
+
+from json.decoder import JSONDecodeError
+from datetime import datetime, timedelta
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -369,7 +371,13 @@ def random_string(length: int) -> str:
 def _get_instance_info(self):
     instance_url = f"{self.pleroma_base_url}/api/v1/instance"
     response = requests.get(instance_url)
-    instance_info = json.loads(response.text)
+    if not response.ok:
+        response.raise_for_status()
+    try:
+        instance_info = json.loads(response.text)
+    except JSONDecodeError:
+        msg = f"Instance response was not understood {response.text}"
+        raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
         logger.debug("Assuming target instance is Mastodon...")
         if len(self.display_name) > 30:
@@ -385,3 +393,32 @@ def _get_instance_info(self):
                 logger.warning(
                     "Mastodon doesn't support rich text. Disabling it..."
                 )
+
+
+def force_date(self):
+    logger.info(
+        "How far back should we retrieve tweets from the Twitter account?"
+    )
+    logger.info("Enter a date (YYYY-MM-DD):")
+    logger.info("[Leave it empty to retrieve *ALL* tweets or enter 'continue'")
+    logger.info("if you want the bot to execute as normal (checking date of ")
+    logger.info("last post in the Fediverse account)] ")
+    input_date = input()
+    if input_date == 'continue':
+        if self.posts != 'none_found':
+            date = self.get_date_last_pleroma_post()
+        else:
+            date = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
+    elif input_date is None:
+        self.max_tweets = 100
+        # Minimum date allowed
+        date = "2010-11-06T00:00:00Z"
+    else:
+        self.max_tweets = 100
+        date = datetime.strftime(
+            datetime.strptime(input_date, "%Y-%m-%d"),
+            "%Y-%m-%dT%H:%M:%SZ",
+        )
+    return date

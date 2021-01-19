@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import hashlib
+import logging
 import urllib.parse
 from unittest.mock import patch
 from datetime import datetime, timedelta
@@ -272,11 +273,11 @@ def test_get_date_last_pleroma_post(sample_users):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             date = sample_user_obj.get_date_last_pleroma_post()
-            ts = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
+            ts = datetime.strptime(str(date), "%Y-%m-%dT%H:%M:%S.%fZ")
     return ts, mock
 
 
-def test_get_date_last_pleroma_post_no_posts(sample_users):
+def test_get_date_last_pleroma_post_no_posts(sample_users, caplog):
     test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -288,14 +289,11 @@ def test_get_date_last_pleroma_post_no_posts(sample_users):
                 f"{sample_user_obj.pleroma_username}/statuses"
             )
             mock.get(url_statuses, json={}, status_code=200)
-
-            date_sample = sample_user_obj.get_date_last_pleroma_post()
-            ts = datetime.strptime(str(date_sample), "%Y-%m-%d %H:%M:%S")
-            date_pleroma = datetime.strftime(
-                datetime.now() - timedelta(days=2), "%Y-%m-%d %H:%M:%S"
-            )
-            assert date_sample == date_pleroma
-    return ts
+            with caplog.at_level(logging.WARNING):
+                date = sample_user_obj.get_date_last_pleroma_post(skip=True)
+            warning_msg = 'No posts were found in the target Fediverse account'
+            assert warning_msg in caplog.text
+    return date
 
 
 def test_guess_type(rootdir):
@@ -436,6 +434,29 @@ def test_get_tweets(sample_users, mock_request):
             assert tweet == mock_request['sample_data']['tweet']
             tweets = sample_user_obj._get_tweets("v1.1")
             assert tweets == mock_request['sample_data']['tweets_v1']
+    return mock
+
+
+def test_get_tweets_next_token(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2_next_token'],
+                     status_code=200)
+            sample_user_obj = sample_user['user_obj']
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert 10 == len(tweets_v2["data"])
+
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2_next_token2'],
+                     status_code=200)
+
+            sample_user_obj = sample_user['user_obj']
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert 10 == len(tweets_v2["data"])
     return mock
 
 
@@ -816,7 +837,7 @@ def test_nitter_instances(rootdir, sample_users, mock_request):
     return mock
 
 
-def test__process_polls_with_media(sample_users, mock_request):
+def test__process_polls_with_media(sample_users):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -828,7 +849,37 @@ def test__process_polls_with_media(sample_users, mock_request):
             assert polls is None
 
 
-def test_main(rootdir, global_mock, mock_request, sample_users):
+def test_force_date(sample_users, monkeypatch):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+            date = sample_user_obj.force_date()
+            assert date == '2020-12-30T00:00:00Z'
+            monkeypatch.setattr('builtins.input', lambda: None)
+            date = sample_user_obj.force_date()
+            assert date == '2010-11-06T00:00:00Z'
+            sample_user_obj.posts = 'none_found'
+            monkeypatch.setattr('builtins.input', lambda: "continue")
+            date = sample_user_obj.force_date()
+            ts = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
+            assert date == ts
+            sample_user_obj.posts = None
+            mock.get(f"{sample_user_obj.pleroma_base_url}"
+                     f"/api/v1/accounts/"
+                     f"{sample_user_obj.pleroma_username}/statuses",
+                     json={},
+                     status_code=200)
+            monkeypatch.setattr('builtins.input', lambda: "continue")
+            date = sample_user_obj.force_date()
+            assert date == sample_user_obj.get_date_last_pleroma_post()
+
+    return mock
+
+
+def test_main(rootdir, global_mock, mock_request, sample_users, monkeypatch):
     test_user = UserTemplate()
     with global_mock as g_mock:
         test_files_dir = os.path.join(rootdir, 'test_files')
@@ -890,7 +941,15 @@ def test_main(rootdir, global_mock, mock_request, sample_users):
             shutil.copy(prev_config, backup_config)
         shutil.copy(config_test, os.getcwd())
 
+        users_path = os.path.join(os.getcwd(), 'users')
+        shutil.rmtree(users_path)
+
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
         with patch.object(sys, 'argv', ['']):
+            assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+        with patch.object(sys, 'argv', ['--skipChecks']):
             assert cli.main() == 0
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):

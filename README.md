@@ -27,6 +27,7 @@ So basically, it does the following:
   * Video
   * Images
   * Animated GIFs 
+  * Polls
 * Retrieves **profile info** from Twitter and updates it in on the Fediverse account. This includes:
   * *Display name*
   * *Profile picture*
@@ -40,7 +41,23 @@ $ pip install pleroma-bot
 ```
 ## Usage
 ```console
-$ pleroma-bot [noProfile]
+$ pleroma-bot [--noProfile] [--forceDate [FORCEDATE]]
+```
+
+```console
+Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n, --noProfile       skips Fediverse profile update (no background image,
+                        profile image, bio text, etc.)
+  --forceDate [FORCEDATE]
+                        forces the tweet retrieval to start from a specific
+                        date. The twitter_username value (FORCEDATE) can be
+                        supplied to only force it for that particular user in
+                        the config
+  -s, --skipChecks      skips first run checks
+  --version             show program's version number and exit
 ```
 ### Before running
 You'll need the following:
@@ -143,7 +160,18 @@ pleroma_base_url: https://pleroma.robertoszek.xyz
 ```
 ### Running
 
-If the ```noProfile``` argument is passed, *only* new tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account.
+If you're running the bot for the first time it will ask you for the date you wish to start retrieving tweets from (it will gather all from that date up to the present).
+To force this behaviour in future runs you can use the ```--forceDate``` argument (be careful, no validation is performed with the already posted toots/posts by that Fediverse account and you can end up with duplicates!).
+
+Additionally, you can provide a ```twitter_username``` if you only want to force the date for one user in your config.
+
+For example:
+
+```console
+$ pleroma-bot --forceDate WoolieWoolz
+```
+
+If the ```--noProfile``` argument is passed, *only* new tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account.
 
 NOTE: An ```error.log``` file will be created at the path from which ```pleroma-bot``` is being called.
 

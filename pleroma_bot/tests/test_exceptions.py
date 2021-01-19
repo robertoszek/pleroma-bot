@@ -50,6 +50,14 @@ def test_user_missing_twitter_base(mock_request):
                      f"show.json?screen_name={user_item['twitter_username']}",
                      json=mock_request['sample_data']['twitter_info'],
                      status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                     f"usernames={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['user_id'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2'],
+                     status_code=200)
             user_obj = User(user_item, config_users['config'])
             assert user_obj.twitter_base_url_v2 is not None
             assert user_obj.twitter_base_url is not None
@@ -81,6 +89,14 @@ def test_user_nitter_global(mock_request):
             mock.get(f"{test_user.twitter_base_url}/users/"
                      f"show.json?screen_name={user_item['twitter_username']}",
                      json=mock_request['sample_data']['twitter_info'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                     f"usernames={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['user_id'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2'],
                      status_code=200)
             user_obj = User(user_item, config_users['config'])
             nitter_url = f"https://nitter.net/{user_obj.twitter_username}"
@@ -121,15 +137,47 @@ def test_user_invalid_max_tweets(mock_request):
     error_str = 'max_tweets must be between 10 and 100. max_tweets: 5'
     with pytest.raises(ValueError) as error_info:
         with mock_request['mock'] as mock:
+            test_user = UserTemplate()
             config_users = get_config_users('config_max_tweets_global.yml')
             for user_item in config_users['user_dict']:
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                         f"{user_item['twitter_username']}",
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                mock.get(f"{config_users['config']['pleroma_base_url']}"
+                         f"/api/v1/accounts/"
+                         f"{user_item['pleroma_username']}/statuses",
+                         json=mock_request['sample_data']['pleroma_statuses'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url}/users/"
+                         f"show.json?"
+                         f"screen_name={user_item['twitter_username']}",
+                         json=mock_request['sample_data']['twitter_info'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                         f"usernames={user_item['twitter_username']}",
+                         json=mock_request['sample_data']['user_id'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                         f"usernames={user_item['twitter_username']}",
+                         json=mock_request['sample_data']['user_id'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                         f"/tweets",
+                         json=mock_request['sample_data']['tweets_v2'],
+                         status_code=200)
                 user_obj = User(user_item, config_users['config'])
+                start_time = user_obj.get_date_last_pleroma_post()
+                user_obj.get_tweets(start_time=start_time)
+
     assert str(error_info.value) == error_str
     with pytest.raises(ValueError):
         with mock_request['mock'] as mock:
             config_users = get_config_users('config_max_tweets_user.yml')
             for user_item in config_users['user_dict']:
                 user_obj = User(user_item, config_users['config'])
+                start_time = user_obj.get_date_last_pleroma_post()
+                user_obj.get_tweets(start_time=start_time)
             user_obj['mock'] = mock
     assert str(error_info.value) == error_str
 
@@ -489,6 +537,25 @@ def test__get_tweets_exception(sample_users, mock_request):
             assert str(error_info.value) == exception_value
 
 
+def test__get_tweets_v2_exception(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets_url = (
+                f"{test_user.twitter_base_url_v2}/users/by?"
+                f"usernames={sample_user_obj.twitter_username}"
+            )
+            mock.get(tweets_url, status_code=500)
+            start_time = sample_user_obj.get_date_last_pleroma_post()
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_tweets(
+                    "v2", start_time=start_time
+                )
+            exception_value = f"500 Server Error: None for url: {tweets_url}"
+            assert str(error_info.value) == exception_value
+
+
 def test__get_twitter_info_exception(sample_users, mock_request):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -502,6 +569,29 @@ def test__get_twitter_info_exception(sample_users, mock_request):
             with pytest.raises(requests.exceptions.HTTPError) as error_info:
                 sample_user_obj._get_twitter_info()
             exception_value = f"500 Server Error: None for url: {info_url}"
+            assert str(error_info.value) == exception_value
+
+
+def test__get_instance_info_exception(sample_users, mock_request):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            info_url = (
+                f"{sample_user_obj.pleroma_base_url}/api/v1/instance"
+            )
+            mock.get(info_url, status_code=500)
+            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+                sample_user_obj._get_instance_info()
+            exception_value = f"500 Server Error: None for url: {info_url}"
+            assert str(error_info.value) == exception_value
+
+            down_msg = "Instance under maintenance"
+            mock.get(info_url, text=down_msg, status_code=200)
+            with pytest.raises(ValueError) as error_info:
+                sample_user_obj._get_instance_info()
+            exception_value = (
+                f"Instance response was not understood {down_msg}"
+            )
             assert str(error_info.value) == exception_value
 
 

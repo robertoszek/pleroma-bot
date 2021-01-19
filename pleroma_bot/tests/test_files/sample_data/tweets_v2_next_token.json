@@ -228,12 +228,12 @@
         "height": 540,
         "width": 960
       }
-    ],
-    "tweets": []
+    ]
   },
   "meta": {
     "newest_id": "1323049466837032961",
     "oldest_id": "1323048139251658753",
+    "next_token": "XXXXXXXXXXXXXXXXXX",
     "result_count": 4
   }
 }
