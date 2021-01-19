@@ -158,6 +158,10 @@ def _get_tweets_v2(
                 _ = tweets_v2["includes"][include]
             except KeyError:
                 tweets_v2["includes"].update({include: []})
+            try:
+                _ = next_tweets["includes"][include]
+            except KeyError:
+                next_tweets["includes"].update({include: []})
 
         for tweet in next_tweets["data"]:
             tweets_v2["data"].append(tweet)
@@ -169,6 +173,7 @@ def _get_tweets_v2(
             tweets_v2["includes"]["media"].append(media)
         for poll in next_tweets["includes"]["polls"]:
             tweets_v2["includes"]["polls"].append(poll)
+        tweets_v2["meta"] = next_tweets["meta"]
     else:
         tweets_v2 = json.loads(response.text)
 
