@@ -7,6 +7,7 @@
 
 ## Enhancements
 - Reworked how arguments are parsed and processed
+- Pagination implemented for tweet retrieval (which allows tweets older than one week to be retrieved)
 
 ## [0.6.8] - 2021-01-13
 

@@ -165,7 +165,11 @@ def _get_tweets_v2(
     try:
         next_token = response.json()["meta"]["next_token"]
         if next_token:
-            self._get_tweets_v2(tweets_v2=tweets_v2, next_token=next_token)
+            self._get_tweets_v2(
+                start_time=start_time,
+                tweets_v2=tweets_v2,
+                next_token=next_token
+            )
     except KeyError:
         pass
 
