@@ -50,6 +50,14 @@ def test_user_missing_twitter_base(mock_request):
                      f"show.json?screen_name={user_item['twitter_username']}",
                      json=mock_request['sample_data']['twitter_info'],
                      status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                     f"usernames={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['user_id'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2'],
+                     status_code=200)
             user_obj = User(user_item, config_users['config'])
             assert user_obj.twitter_base_url_v2 is not None
             assert user_obj.twitter_base_url is not None
@@ -81,6 +89,14 @@ def test_user_nitter_global(mock_request):
             mock.get(f"{test_user.twitter_base_url}/users/"
                      f"show.json?screen_name={user_item['twitter_username']}",
                      json=mock_request['sample_data']['twitter_info'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                     f"usernames={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['user_id'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2'],
                      status_code=200)
             user_obj = User(user_item, config_users['config'])
             nitter_url = f"https://nitter.net/{user_obj.twitter_username}"
@@ -121,15 +137,47 @@ def test_user_invalid_max_tweets(mock_request):
     error_str = 'max_tweets must be between 10 and 100. max_tweets: 5'
     with pytest.raises(ValueError) as error_info:
         with mock_request['mock'] as mock:
+            test_user = UserTemplate()
             config_users = get_config_users('config_max_tweets_global.yml')
             for user_item in config_users['user_dict']:
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                         f"{user_item['twitter_username']}",
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                mock.get(f"{config_users['config']['pleroma_base_url']}"
+                         f"/api/v1/accounts/"
+                         f"{user_item['pleroma_username']}/statuses",
+                         json=mock_request['sample_data']['pleroma_statuses'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url}/users/"
+                         f"show.json?"
+                         f"screen_name={user_item['twitter_username']}",
+                         json=mock_request['sample_data']['twitter_info'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                         f"usernames={user_item['twitter_username']}",
+                         json=mock_request['sample_data']['user_id'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by?"
+                         f"usernames={user_item['twitter_username']}",
+                         json=mock_request['sample_data']['user_id'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                         f"/tweets",
+                         json=mock_request['sample_data']['tweets_v2'],
+                         status_code=200)
                 user_obj = User(user_item, config_users['config'])
+                start_time = user_obj.get_date_last_pleroma_post()
+                user_obj.get_tweets(start_time=start_time)
+
     assert str(error_info.value) == error_str
     with pytest.raises(ValueError):
         with mock_request['mock'] as mock:
             config_users = get_config_users('config_max_tweets_user.yml')
             for user_item in config_users['user_dict']:
                 user_obj = User(user_item, config_users['config'])
+                start_time = user_obj.get_date_last_pleroma_post()
+                user_obj.get_tweets(start_time=start_time)
             user_obj['mock'] = mock
     assert str(error_info.value) == error_str
 

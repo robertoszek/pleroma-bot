@@ -5,7 +5,7 @@ class UserTemplate:
         self.pleroma_base_url = 'https://pleroma.robertoszek.xyz'
         self.pinned = '1323049466837032961'
         self.pinned_2 = '1323049466837032962'
-        self.pleroma_date = '2020-10-15 21:21:00'
+        self.pleroma_date = '2020-10-15T21:21:00.000Z'
         self.twitter_token = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' \
                              'XXXXXXXXXXXXXXXXXXXXXXXXX'
         self.pleroma_token = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'

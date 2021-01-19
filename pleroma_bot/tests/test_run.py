@@ -2,9 +2,10 @@ import os
 import sys
 import shutil
 import hashlib
+import logging
 import urllib.parse
 from unittest.mock import patch
-from datetime import datetime, timedelta
+from datetime import datetime
 from urllib import parse
 from test_user import UserTemplate
 from conftest import get_config_users
@@ -272,11 +273,11 @@ def test_get_date_last_pleroma_post(sample_users):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             date = sample_user_obj.get_date_last_pleroma_post()
-            ts = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
+            ts = datetime.strptime(str(date), "%Y-%m-%dT%H:%M:%S.%fZ")
     return ts, mock
 
 
-def test_get_date_last_pleroma_post_no_posts(sample_users):
+def test_get_date_last_pleroma_post_no_posts(sample_users, caplog):
     test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -288,14 +289,11 @@ def test_get_date_last_pleroma_post_no_posts(sample_users):
                 f"{sample_user_obj.pleroma_username}/statuses"
             )
             mock.get(url_statuses, json={}, status_code=200)
-
-            date_sample = sample_user_obj.get_date_last_pleroma_post()
-            ts = datetime.strptime(str(date_sample), "%Y-%m-%d %H:%M:%S")
-            date_pleroma = datetime.strftime(
-                datetime.now() - timedelta(days=2), "%Y-%m-%d %H:%M:%S"
-            )
-            assert date_sample == date_pleroma
-    return ts
+            with caplog.at_level(logging.WARNING):
+                date = sample_user_obj.get_date_last_pleroma_post(skip=True)
+            warning_msg = 'No posts were found in the target Fediverse account'
+            assert warning_msg in caplog.text
+    return date
 
 
 def test_guess_type(rootdir):
@@ -890,7 +888,7 @@ def test_main(rootdir, global_mock, mock_request, sample_users):
             shutil.copy(prev_config, backup_config)
         shutil.copy(config_test, os.getcwd())
 
-        with patch.object(sys, 'argv', ['']):
+        with patch.object(sys, 'argv', ['-s']):
             assert cli.main() == 0
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):

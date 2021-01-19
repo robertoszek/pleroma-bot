@@ -2,6 +2,8 @@
 
 ## Added
 - New and shiny help page
+- Checks for first run (no posts/toots on Fedi account, or no user folder present)
+- Option ```--forceDate``` allows setting a starting date for tweet retrieval (allows a user per user)
 
 ## Enhancements
 - Reworked how arguments are parsed and processed

@@ -35,6 +35,7 @@ def mock_request(rootdir):
         mock.get(f"{twitter_base_url_v2}/tweets/search/recent",
                  json=sample_data['tweets_v2'],
                  status_code=200)
+
         mock.get(f"{twitter_base_url}/users/show.json",
                  json=sample_data['twitter_info'],
                  status_code=200)
@@ -73,6 +74,14 @@ def _sample_users(mock_request, rootdir):
                      f"{user_item['twitter_username']}",
                      json=mock_request['sample_data']['pinned'],
                      status_code=200)
+            mock.get(f"{twitter_base_url_v2}/users/by?"
+                     f"usernames={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['user_id'],
+                     status_code=200)
+            mock.get(f"{twitter_base_url_v2}/users/2244994945/tweets",
+                     json=mock_request['sample_data']['tweets_v2'],
+                     status_code=200)
+
             mock.get(f"{twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}?user.fields="
                      f"pinned_tweet_id&expansions=pinned_tweet_id"

@@ -35,7 +35,6 @@ import yaml
 import shutil
 import argparse
 
-from datetime import datetime
 
 from . import logger
 from .__init__ import __version__
@@ -44,6 +43,7 @@ from .__init__ import __version__
 class User(object):
     from ._twitter import get_tweets
     from ._twitter import _get_tweets
+    from ._twitter import _get_tweets_v2
     from ._twitter import _get_twitter_info
 
     from ._pin import pin_pleroma
@@ -161,6 +161,7 @@ class User(object):
         self.profile_image_url = None
         self.profile_banner_url = None
         self.display_name = None
+        self.first_time = False
         try:
             self.fields = self.replace_vars_in_str(str(user_cfg["fields"]))
             self.fields = eval(self.fields)
@@ -170,7 +171,7 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
-        self.tweets = self._get_tweets("v2")
+        self.tweets = None
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
@@ -227,6 +228,13 @@ def get_args(sysargs):
     )
 
     parser.add_argument(
+        "-s",
+        "--skipChecks",
+        required=False,
+        action="store_true",
+        help=("skips first run checks"),
+    )
+    parser.add_argument(
         "--version", action="version", version=f"{__version__}"
     )
 
@@ -247,31 +255,38 @@ def main():
         with open(os.path.join(base_path, "config.yml"), "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
+        users_path = os.path.join(base_path, "users")
 
         for user_item in user_dict:
+            first_time = False
             logger.info("======================================")
             logger.info(f'Processing user:\t{user_item["pleroma_username"]}')
+            user_path = os.path.join(users_path, user_item["twitter_username"])
+
+            if not os.path.exists(user_path):
+                first_time_msg = (
+                    "It seems like pleroma-bot is running for the "
+                    "first time for this user"
+                )
+                logger.info(first_time_msg)
+                first_time = True
             user = User(user_item, config)
-            if args.forceDate and args.forceDate == user.twitter_username:
+            if first_time:
+                user.first_time = True
+            if (
+                (args.forceDate and args.forceDate == user.twitter_username)
+                or args.forceDate == "all"
+                or user.first_time
+            ) and not args.skipChecks:
                 date_pleroma = user.force_date()
             else:
                 date_pleroma = user.get_date_last_pleroma_post()
-            tweets = user.get_tweets()
+
+            tweets = user.get_tweets(start_time=date_pleroma)
             if tweets["meta"]["result_count"] > 0:
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
-                tweets_to_post = {"data": [], "includes": tweets["includes"]}
-                # Get rid of old tweets
-                for tweet in tweets["data"]:
-                    created_at = tweet["created_at"]
-                    date_twitter = datetime.strftime(
-                        datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                        "%Y-%m-%d %H:%M:%S",
-                    )
-                    if date_twitter > date_pleroma:
-                        tweets_to_post["data"].append(tweet)
-
-                tweets_to_post = user.process_tweets(tweets_to_post)
+                tweets_to_post = user.process_tweets(tweets)
                 logger.info(f"tweets: \t {tweets_to_post['data']}")
                 for tweet in tweets_to_post["data"]:
                     user.post_pleroma(

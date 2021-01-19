@@ -8,6 +8,7 @@ import requests
 import mimetypes
 
 from json.decoder import JSONDecodeError
+from datetime import datetime, timedelta
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -394,6 +395,30 @@ def _get_instance_info(self):
                 )
 
 
-def force_date():
-    # TODO: Implement this
-    pass
+def force_date(self):
+    logger.info(
+        "How far back should we retrieve tweets from the Twitter account?"
+    )
+    logger.info("Enter a date (YYYY-MM-DD):")
+    logger.info("[Leave it empty to retrieve *ALL* tweets or enter 'continue'")
+    logger.info("if you want the bot to execute as normal (checking date of ")
+    logger.info("last post in the Fediverse account)] ")
+    input_date = input()
+    if input_date == 'continue':
+        if self.posts != 'none_found':
+            date = self.get_date_last_pleroma_post()
+        else:
+            date = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
+    elif input_date is None:
+        self.max_tweets = 100
+        # Minimum date allowed
+        date = "2010-11-06T00:00:00Z"
+    else:
+        self.max_tweets = 100
+        date = datetime.strftime(
+            datetime.strptime(input_date, "%Y-%m-%d"),
+            "%Y-%m-%dT%H:%M:%SZ",
+        )
+    return date

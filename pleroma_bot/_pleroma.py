@@ -20,11 +20,11 @@ from . import logger
 from ._utils import random_string, guess_type
 
 
-def get_date_last_pleroma_post(self):
+def get_date_last_pleroma_post(self, skip=False):
     """Gathers last post from the user in Pleroma and returns the date
     of creation.
 
-    :returns: Date of last Pleroma post in '%Y-%m-%d %H:%M:%S' format
+    :returns: Date of last Pleroma post in '%Y-%m-%dT%H:%M:%SZ' format
     """
     pleroma_posts_url = (
         f"{self.pleroma_base_url}/api/v1/accounts/"
@@ -36,14 +36,16 @@ def get_date_last_pleroma_post(self):
     posts = json.loads(response.text)
     self.posts = posts
     if posts:
-        date_pleroma = datetime.strftime(
-            datetime.strptime(posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "%Y-%m-%d %H:%M:%S",
-        )
+        date_pleroma = posts[0]["created_at"]
     else:
-        date_pleroma = datetime.strftime(
-            datetime.now() - timedelta(days=2), "%Y-%m-%d %H:%M:%S"
-        )
+        self.posts = 'none_found'
+        logger.warning("No posts were found in the target Fediverse account")
+        if not skip:
+            date_pleroma = self.force_date()
+        else:
+            date_pleroma = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
 
     return date_pleroma
 

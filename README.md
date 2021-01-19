@@ -27,6 +27,7 @@ So basically, it does the following:
   * Video
   * Images
   * Animated GIFs 
+  * Polls
 * Retrieves **profile info** from Twitter and updates it in on the Fediverse account. This includes:
   * *Display name*
   * *Profile picture*
@@ -55,6 +56,7 @@ optional arguments:
                         date. The twitter_username value (FORCEDATE) can be
                         supplied to only force it for that particular user in
                         the config
+  -s, --skipChecks      skips first run checks
   --version             show program's version number and exit
 ```
 ### Before running
