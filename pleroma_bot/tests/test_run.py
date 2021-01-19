@@ -448,6 +448,15 @@ def test_get_tweets_next_token(sample_users, mock_request):
             sample_user_obj = sample_user['user_obj']
             tweets_v2 = sample_user_obj._get_tweets("v2")
             assert 10 == len(tweets_v2["data"])
+
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2_next_token2'],
+                     status_code=200)
+
+            sample_user_obj = sample_user['user_obj']
+            tweets_v2 = sample_user_obj._get_tweets("v2")
+            assert 10 == len(tweets_v2["data"])
     return mock
 
 

@@ -83,7 +83,12 @@ def _get_tweets(self, version: str, tweet_id=None, start_time=None):
 
 
 def _get_tweets_v2(
-        self, start_time, tweet_id=None, next_token=None, tweets_v2=None
+    self,
+    start_time,
+    tweet_id=None,
+    next_token=None,
+    previous_token=None,
+    tweets_v2=None,
 ):
     # Tweet number must be between 10 and 100
     if not (100 >= self.max_tweets > 10):
@@ -92,6 +97,7 @@ def _get_tweets_v2(
             f"{self.max_tweets}"
         )
     params = {}
+    previous_token = next_token
     if tweet_id:
         url = f"{self.twitter_base_url_v2}/tweets/{tweet_id}"
     else:
@@ -99,9 +105,7 @@ def _get_tweets_v2(
             f"{self.twitter_base_url_v2}/users/by?"
             f"usernames={self.twitter_username}"
         )
-        response = requests.get(
-            url, headers=self.header_twitter
-        )
+        response = requests.get(url, headers=self.header_twitter)
         if not response.ok:
             response.raise_for_status()
         response = json.loads(response.text)
@@ -109,11 +113,7 @@ def _get_tweets_v2(
 
         url = f"{self.twitter_base_url_v2}/users/{twitter_id}/tweets"
         if next_token:
-            params.update(
-                {
-                    "pagination_token": next_token
-                }
-            )
+            params.update({"pagination_token": next_token})
 
         params.update(
             {
@@ -125,50 +125,61 @@ def _get_tweets_v2(
     params.update(
         {
             "poll.fields": "duration_minutes,end_datetime,id,options,"
-                           "voting_status",
+            "voting_status",
             "media.fields": "duration_ms,height,media_key,"
-                            "preview_image_url,type,url,width,"
-                            "public_metrics",
+            "preview_image_url,type,url,width,"
+            "public_metrics",
             "expansions": "attachments.poll_ids,"
-                          "attachments.media_keys,author_id,"
-                          "entities.mentions.username,geo.place_id,"
-                          "in_reply_to_user_id,referenced_tweets.id,"
-                          "referenced_tweets.id.author_id",
+            "attachments.media_keys,author_id,"
+            "entities.mentions.username,geo.place_id,"
+            "in_reply_to_user_id,referenced_tweets.id,"
+            "referenced_tweets.id.author_id",
             "tweet.fields": "attachments,author_id,"
-                            "context_annotations,conversation_id,"
-                            "created_at,entities,"
-                            "geo,id,in_reply_to_user_id,lang,"
-                            "public_metrics,"
-                            "possibly_sensitive,referenced_tweets,"
-                            "source,text,"
-                            "withheld",
+            "context_annotations,conversation_id,"
+            "created_at,entities,"
+            "geo,id,in_reply_to_user_id,lang,"
+            "public_metrics,"
+            "possibly_sensitive,referenced_tweets,"
+            "source,text,"
+            "withheld",
         }
     )
 
-    response = requests.get(
-        url, headers=self.header_twitter, params=params
-    )
+    response = requests.get(url, headers=self.header_twitter, params=params)
     if not response.ok:
         response.raise_for_status()
 
     if tweets_v2:
         next_tweets = response.json()
+
+        includes = ["users", "tweets", "media", "polls"]
+        for include in includes:
+            try:
+                _ = tweets_v2["includes"][include]
+            except KeyError:
+                tweets_v2["includes"].update({include: []})
+
         for tweet in next_tweets["data"]:
             tweets_v2["data"].append(tweet)
         for user in next_tweets["includes"]["users"]:
             tweets_v2["includes"]["users"].append(user)
         for tweet_include in next_tweets["includes"]["tweets"]:
             tweets_v2["includes"]["tweets"].append(tweet_include)
+        for media in next_tweets["includes"]["media"]:
+            tweets_v2["includes"]["media"].append(media)
+        for poll in next_tweets["includes"]["polls"]:
+            tweets_v2["includes"]["polls"].append(poll)
     else:
         tweets_v2 = json.loads(response.text)
 
     try:
         next_token = response.json()["meta"]["next_token"]
-        if next_token:
+        if next_token and next_token != previous_token:
             self._get_tweets_v2(
                 start_time=start_time,
                 tweets_v2=tweets_v2,
-                next_token=next_token
+                next_token=next_token,
+                previous_token=previous_token,
             )
     except KeyError:
         pass
