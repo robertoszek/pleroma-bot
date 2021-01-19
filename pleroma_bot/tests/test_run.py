@@ -828,7 +828,7 @@ def test_nitter_instances(rootdir, sample_users, mock_request):
     return mock
 
 
-def test__process_polls_with_media(sample_users, mock_request):
+def test__process_polls_with_media(sample_users):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -838,6 +838,16 @@ def test__process_polls_with_media(sample_users, mock_request):
             tweet = {'attachments': {'poll_ids': 123}}
             polls = sample_user_obj._process_polls(tweet, media)
             assert polls is None
+
+
+def test_force_date(sample_users, monkeypatch):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+            date = sample_user_obj.force_date()
+            assert date == '2020-12-30T00:00:00Z'
+    return mock
 
 
 def test_main(rootdir, global_mock, mock_request, sample_users):
