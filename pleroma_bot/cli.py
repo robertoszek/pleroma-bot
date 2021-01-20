@@ -288,6 +288,7 @@ def main():
                 tweets["data"].reverse()
                 tweets_to_post = user.process_tweets(tweets)
                 logger.info(f"tweets: \t {tweets_to_post['data']}")
+                logger.info(f"tweet count: \t {len(tweets_to_post['data'])}")
                 for tweet in tweets_to_post["data"]:
                     user.post_pleroma(
                         (tweet["id"], tweet["text"]),
