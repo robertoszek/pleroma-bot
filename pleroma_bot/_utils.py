@@ -411,7 +411,7 @@ def force_date(self):
             date = datetime.strftime(
                 datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
             )
-    elif input_date is None:
+    elif input_date is None or input_date == '':
         self.max_tweets = 100
         # Minimum date allowed
         date = "2010-11-06T00:00:00Z"
