@@ -33,6 +33,7 @@ import sys
 import time
 import yaml
 import shutil
+import logging
 import argparse
 
 
@@ -234,6 +235,9 @@ def get_args(sysargs):
         action="store_true",
         help=("skips first run checks"),
     )
+
+    parser.add_argument("--verbose", "-v", action="count", default=0)
+
     parser.add_argument(
         "--version", action="version", version=f"{__version__}"
     )
@@ -249,6 +253,10 @@ def main():
         "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
     ]
     args = get_args(sysargs=arguments)
+
+    if args.verbose > 0:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug("Debug logging enabled")
 
     try:
         base_path = os.getcwd()
@@ -281,15 +289,21 @@ def main():
                 date_pleroma = user.force_date()
             else:
                 date_pleroma = user.get_date_last_pleroma_post()
-
+            logger.info("Gathering tweets...")
             tweets = user.get_tweets(start_time=date_pleroma)
             if tweets["meta"]["result_count"] > 0:
+                logger.info(f"tweet count: \t {len(tweets['data'])}")
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
+                logger.info("Processing tweets...")
                 tweets_to_post = user.process_tweets(tweets)
-                logger.info(f"tweets: \t {tweets_to_post['data']}")
-                logger.info(f"tweet count: \t {len(tweets_to_post['data'])}")
+                logger.debug(f"tweets: \t {tweets_to_post['data']}")
+                tweet_counter = 0
                 for tweet in tweets_to_post["data"]:
+                    tweet_counter += 1
+                    logger.info(
+                        f"({tweet_counter}/{len(tweets_to_post['data'])})"
+                    )
                     user.post_pleroma(
                         (tweet["id"], tweet["text"]),
                         tweet["polls"],
