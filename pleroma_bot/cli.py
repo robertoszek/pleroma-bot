@@ -60,17 +60,18 @@ class User(object):
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
-    from ._utils import process_tweets
+    from ._utils import _get_instance_info
     from ._utils import replace_vars_in_str
 
-    from ._utils import _expand_urls
-    from ._utils import _get_media_url
-    from ._utils import _process_polls
-    from ._utils import _replace_nitter
-    from ._utils import _download_media
-    from ._utils import _replace_mentions
-    from ._utils import _get_instance_info
-    from ._utils import _get_best_bitrate_video
+    from ._processing import process_tweets
+
+    from ._processing import _expand_urls
+    from ._processing import _get_media_url
+    from ._processing import _process_polls
+    from ._processing import _replace_nitter
+    from ._processing import _download_media
+    from ._processing import _replace_mentions
+    from ._processing import _get_best_bitrate_video
 
     def __init__(self, user_cfg: dict, cfg: dict):
         self.twitter_token = cfg["twitter_token"]
