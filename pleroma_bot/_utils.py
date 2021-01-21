@@ -236,7 +236,6 @@ def process_tweets(self, tweets_to_post):
                         media.extend(media_url)
         except KeyError:
             pass
-        raise Exception("GOTCHAAA!")
         # Create folder to store attachments related to the tweet ID
         tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
         os.makedirs(tweet_path, exist_ok=True)
