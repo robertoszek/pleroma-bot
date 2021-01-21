@@ -289,13 +289,12 @@ def main():
                 date_pleroma = user.force_date()
             else:
                 date_pleroma = user.get_date_last_pleroma_post()
-            logger.info("Gathering tweets...")
             tweets = user.get_tweets(start_time=date_pleroma)
+
             if tweets["meta"]["result_count"] > 0:
                 logger.info(f"tweet count: \t {len(tweets['data'])}")
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
-                logger.info("Processing tweets...")
                 tweets_to_post = user.process_tweets(tweets)
                 logger.debug(f"tweets: \t {tweets_to_post['data']}")
                 tweet_counter = 0
@@ -309,7 +308,7 @@ def main():
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )
-                    time.sleep(2)
+                    time.sleep(0.5)
 
             user.check_pinned()
 

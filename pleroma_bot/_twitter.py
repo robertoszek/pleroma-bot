@@ -1,6 +1,8 @@
 import json
 import requests
 
+from pleroma_bot._utils import spinner
+
 
 def _get_twitter_info(self):
     """Updates User object attributes with current Twitter info
@@ -192,5 +194,6 @@ def _get_tweets_v2(
     return tweets_v2
 
 
+@spinner("Gathering tweets... ")
 def get_tweets(self, start_time):
     return self._get_tweets("v2", start_time=start_time)

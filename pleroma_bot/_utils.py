@@ -1,12 +1,18 @@
 import os
 import re
+import sys
+import time
 import json
 import string
 import random
 import shutil
 import requests
+import threading
+import functools
 import mimetypes
 
+from queue import Queue
+from itertools import cycle
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
 
@@ -18,6 +24,92 @@ except ImportError:
     magic = None
 
 from . import logger
+
+
+def f(args):
+    logger.error(
+        f"caught {args.exc_type} with value {args.exc_value} "
+        f"in thread {args.thread}\n"
+    )
+    sys.excepthook(args.exc_type, args.exc_value, args.exc_traceback)
+    # Dirty exit
+    os._exit(1)
+
+
+threading.excepthook = f
+
+
+class PropagatingThread(threading.Thread):
+    def run(self):
+        self.exc = None
+        # Event to keep track if thread has started
+        self.started_evt = threading.Event()
+        try:
+            self.ret = self._target(*self._args, **self._kwargs)
+            self.started_evt.set()
+        except BaseException as e:
+            self.exc = e
+            self.started_evt.clear()
+
+    def join(self):
+        if not self.exc:
+            self.started_evt.wait()
+        super(PropagatingThread, self).join()
+        self.started_evt.clear()
+        if self.exc:
+            raise self.exc
+        return self.ret
+
+
+def spinner(message, spinner_symbols: list = None):
+    """
+    Decorator that launches the function wrapped and the spinner each in a
+    separate thread
+    :param message: Message to display next to the spinner
+    :param spinner_symbols:
+    :return:
+    """
+    spinner_symbols = spinner_symbols or list("|/-\\")
+    spinner_symbols = cycle(spinner_symbols)
+    global input_thread
+
+    def start():
+        while input_thread.is_alive():
+            symbol = next(spinner_symbols)
+            print(
+                "\r{message} {symbol}".format(message=message, symbol=symbol),
+                end="",
+            )
+            time.sleep(0.3)
+
+    def stop():
+        print("\r", end="")
+
+    def external(fct):
+        @functools.wraps(fct)
+        def wrapper(*args, **kwargs):
+            return_que = Queue()
+            global input_thread
+            input_thread = PropagatingThread(
+                target=lambda q, *arg1, **kwarg1: q.put(fct(*arg1, **kwarg1)),
+                args=(return_que, *args),
+                kwargs=dict(**kwargs),
+            )
+            input_thread.start()
+            spinner_thread = threading.Thread(target=start)
+            spinner_thread.start()
+
+            spinner_thread.join()
+            input_thread.join()
+            stop()
+
+            result = return_que.get()
+
+            return result
+
+        return wrapper
+
+    return external
 
 
 def check_pinned(self):
@@ -105,6 +197,7 @@ def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
     return text
 
 
+@spinner("Processing tweets... ")
 def process_tweets(self, tweets_to_post):
     """Transforms tweets for posting them to Pleroma
     Expands shortened URLs
@@ -238,7 +331,7 @@ def _download_media(self, media, tweet):
                         f"({self.file_max_size})"
                     )
                     logger.error(
-                        f"File size: {round(file_size_bytes / 2**20, 2)}MB"
+                        f"File size: {round(file_size_bytes / 2 ** 20, 2)}MB"
                     )
                     logger.error("Ignoring attachment and continuing...")
                     os.remove(file_path)
@@ -404,14 +497,14 @@ def force_date(self):
     logger.info("if you want the bot to execute as normal (checking date of ")
     logger.info("last post in the Fediverse account)] ")
     input_date = input()
-    if input_date == 'continue':
-        if self.posts != 'none_found':
+    if input_date == "continue":
+        if self.posts != "none_found":
             date = self.get_date_last_pleroma_post()
         else:
             date = datetime.strftime(
                 datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
             )
-    elif input_date is None or input_date == '':
+    elif input_date is None or input_date == "":
         self.max_tweets = 100
         # Minimum date allowed
         date = "2010-11-06T00:00:00Z"

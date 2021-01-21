@@ -1,3 +1,13 @@
+## Unreleased
+
+## Added
+- Verbose argument ``-v`` for debugging
+
+## Fixed
+
+## Enhancements
+- Provide feedback when long operations are running (spinner)
+
 ## [0.7.0] - 2021-01-19
 
 ## Added

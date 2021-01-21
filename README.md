@@ -57,6 +57,7 @@ optional arguments:
                         supplied to only force it for that particular user in
                         the config
   -s, --skipChecks      skips first run checks
+  --verbose, -v
   --version             show program's version number and exit
 ```
 ### Before running
