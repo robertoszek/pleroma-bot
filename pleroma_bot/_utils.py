@@ -26,19 +26,6 @@ except ImportError:
 from . import logger
 
 
-def f(args):
-    logger.error(
-        f"caught {args.exc_type} with value {args.exc_value} "
-        f"in thread {args.thread}\n"
-    )
-    sys.excepthook(args.exc_type, args.exc_value, args.exc_traceback)
-    # Dirty exit
-    os._exit(1)
-
-
-threading.excepthook = f
-
-
 class PropagatingThread(threading.Thread):
     def run(self):
         self.exc = None
@@ -249,6 +236,7 @@ def process_tweets(self, tweets_to_post):
                         media.extend(media_url)
         except KeyError:
             pass
+        raise Exception("GOTCHAAA!")
         # Create folder to store attachments related to the tweet ID
         tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
         os.makedirs(tweet_path, exist_ok=True)
