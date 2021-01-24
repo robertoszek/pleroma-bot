@@ -71,6 +71,8 @@ Create a ```config.yml``` file in the same path where you are calling ```pleroma
 twitter_base_url: https://api.twitter.com/1.1
 # Change this to your Fediverse instance
 pleroma_base_url: https://pleroma.robertoszek.xyz
+# (optional) Change this to your preferred nitter instance
+nitter_base_url: https://nitter.net
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200
 max_tweets: 40
