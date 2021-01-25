@@ -18,8 +18,8 @@ class CustomFormatter(logging.Formatter):
     reset = "\x1b[0m"
     format_r = "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
     format_l = (
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%("
-        "filename)s:%(lineno)d) "
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
+        "(%(filename)s:%(lineno)d) "
     )
 
     FORMATS = {

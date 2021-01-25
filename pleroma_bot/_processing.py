@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import html
 import shutil
 import requests
 import mimetypes
@@ -51,6 +52,7 @@ def process_tweets(self, tweets_to_post):
     for tweet in tweets_to_post["data"]:
         media = []
         tweet["text"] = _expand_urls(self, tweet)
+        tweet["text"] = html.unescape(tweet["text"])
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 tweet["text"] = _replace_mentions(self, tweet)
