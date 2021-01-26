@@ -730,12 +730,12 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
     with global_mock as g_mock:
         test_files_dir = os.path.join(rootdir, 'test_files')
 
-        config_test = os.path.join(test_files_dir, 'config.yml')
+        config_test = os.path.join(test_files_dir, 'config_multiple_users.yml')
         prev_config = os.path.join(os.getcwd(), 'config.yml')
         backup_config = os.path.join(os.getcwd(), 'config.yml.bak')
         if os.path.isfile(prev_config):
             shutil.copy(prev_config, backup_config)
-        shutil.copy(config_test, os.getcwd())
+        shutil.copy(config_test, prev_config)
 
         users_path = os.path.join(os.getcwd(), 'users')
         shutil.rmtree(users_path)

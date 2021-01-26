@@ -38,21 +38,18 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
-- twitter_username: arstechnica
+- twitter_username:
+    - arstechnica
+    - HackerNews
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
   media_upload: false
   pleroma_url: https://another.pleroma.instance
   max_tweets: 50
+  list:
+    - "My first value"
+    - 2
+    - "ThirdValue"
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n Any issues please contact @robertoszek \n \n "
-- twitter_username: HackerNews
-  pleroma_username: hackernews
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  signature: true
-  media_upload: false
-  pleroma_url: https://another.pleroma.instance
-  max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n Any issues please contact @robertoszek \n \n "
+    \ account. \n This is a list {{ list }} Any issues please contact @robertoszek \n \n "
