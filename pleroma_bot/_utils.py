@@ -181,6 +181,8 @@ def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
                 value = locals()[match.strip()]
             except (NameError, KeyError):
                 value = globals()[match.strip()]
+        if isinstance(value, list):
+            value = ", ".join([str(elem) for elem in value])
         text = re.sub(pattern, value, text)
     return text
 
