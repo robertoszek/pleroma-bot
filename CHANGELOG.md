@@ -2,11 +2,14 @@
 
 ## Added
 - Verbose argument ``-v`` for debugging
+- ```twitter_username``` can take list values. They are internally broken apart into multiple ```User``` objects
 
 ## Fixed
+- HTML character entities incorrect escaping in tweet's body
 
 ## Enhancements
-- Provide feedback when long operations are running (spinner)
+- Provide feedback when long operations are running (speeen)
+- Color output based on logging level
 
 ## [0.7.0] - 2021-01-19
 
