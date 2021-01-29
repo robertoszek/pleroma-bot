@@ -306,13 +306,14 @@ def main():
             else:
                 date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets(start_time=date_pleroma)
+            logger.debug(f"tweets: \t {tweets}")
 
             if tweets["meta"]["result_count"] > 0:
                 logger.info(f"tweet count: \t {len(tweets['data'])}")
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
                 tweets_to_post = user.process_tweets(tweets)
-                logger.debug(f"tweets: \t {tweets_to_post['data']}")
+                logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
                 tweet_counter = 0
                 for tweet in tweets_to_post["data"]:
                     tweet_counter += 1
