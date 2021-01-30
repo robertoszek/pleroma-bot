@@ -22,7 +22,7 @@ class CustomFormatter(logging.Formatter):
         "(%(filename)s:%(lineno)d) "
     )
 
-    if os.name != 'nt':
+    if sys.platform != 'win32':
         FORMATS = {
             logging.DEBUG: grey + format_r + reset,
             logging.INFO: grey + "ℹ " + format_r + reset,
@@ -67,5 +67,7 @@ c_handler.addFilter(StdOutFilter())
 logger.addHandler(c_handler)
 logger.addHandler(e_handler)
 logger.addHandler(f_handler)
+
+logger.propagate = True
 
 from .cli import *
