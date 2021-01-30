@@ -277,7 +277,9 @@ def test_get_date_last_pleroma_post(sample_users):
     return ts, mock
 
 
-def test_get_date_last_pleroma_post_no_posts(sample_users, caplog):
+def test_get_date_last_pleroma_post_no_posts(
+        sample_users, caplog, monkeypatch
+):
     test_user = UserTemplate()
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -290,7 +292,14 @@ def test_get_date_last_pleroma_post_no_posts(sample_users, caplog):
             )
             mock.get(url_statuses, json={}, status_code=200)
             with caplog.at_level(logging.WARNING):
-                date = sample_user_obj.get_date_last_pleroma_post(skip=True)
+                sample_user_obj.first_time = False
+                date = sample_user_obj.get_date_last_pleroma_post()
+            warning_msg = 'No posts were found in the target Fediverse account'
+            assert warning_msg in caplog.text
+            with caplog.at_level(logging.WARNING):
+                sample_user_obj.first_time = True
+                monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+                date = sample_user_obj.get_date_last_pleroma_post()
             warning_msg = 'No posts were found in the target Fediverse account'
             assert warning_msg in caplog.text
     return date
