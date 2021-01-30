@@ -30,7 +30,8 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         'requests>=2.24.0',
-        'PyYAML>=5.3.1'
+        'PyYAML>=5.3.1',
+        'requests-oauthlib>=1.3.0'
     ],
     extras_require={
         'lint': [

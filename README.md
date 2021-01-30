@@ -66,6 +66,10 @@ You'll need the following:
 * A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
 * The user/users [Pleroma/Mastodon Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
 
+If you plan on retrieving tweets from an account which have their tweets **protected**, you'll also need the following:
+* Consumer Key and Secret. You'll find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard)
+* Access Token Key and Secret. You can obtain them by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
+
 Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
 twitter_base_url: https://api.twitter.com/1.1
@@ -84,6 +88,11 @@ users:
   pleroma_username: KyleBosman
   # Mastodon/Pleroma token obtained by following the README.md
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # (optional) keys and secrets for using OAuth 1.0a (for protected accounts)
+  consumer_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+  consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   # If you want to add a link to the original status or not
   signature: true
   # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.

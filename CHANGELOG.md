@@ -1,6 +1,7 @@
 ## Unreleased
 
 ## Added
+- Support for OAuth 1.0a authentication (needed if retrieving tweets from protected accounts)
 - Verbose argument ``-v`` for debugging
 - ```twitter_username``` can take list values. They are internally broken apart into multiple ```User``` objects
 
