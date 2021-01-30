@@ -202,7 +202,6 @@ def test_logger_nt(global_mock, sample_users, caplog, monkeypatch):
                     rich_text_orig = True
             with caplog.at_level(logging.DEBUG):
                 sample_user_obj._get_instance_info()
-            raise Exception(caplog.text)
             assert 'Assuming target instance is Mastodon...' in caplog.text
             if rich_text_orig:
                 log_msg_rich_text = (
