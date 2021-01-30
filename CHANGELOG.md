@@ -7,6 +7,7 @@
 
 ## Fixed
 - HTML character entities incorrect escaping in tweet's body
+- First run skip condition if the Fediverse had no posts/tweets published as a result of a manual first run
 
 ## Enhancements
 - Provide feedback when long operations are running (speeen)
