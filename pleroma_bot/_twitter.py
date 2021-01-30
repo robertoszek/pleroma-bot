@@ -22,7 +22,9 @@ def _get_twitter_info(self):
         f"/users/show.json?screen_name="
         f"{self.twitter_username}"
     )
-    response = requests.get(twitter_user_url, headers=self.header_twitter)
+    response = requests.get(
+        twitter_user_url, headers=self.header_twitter, auth=self.auth
+    )
     if not response.ok:
         response.raise_for_status()
     user_twitter = json.loads(response.text)
@@ -56,7 +58,7 @@ def _get_tweets(self, version: str, tweet_id=None, start_time=None):
                 f"show.json?id={str(tweet_id)}"
             )
             response = requests.get(
-                twitter_status_url, headers=self.header_twitter
+                twitter_status_url, headers=self.header_twitter, auth=self.auth
             )
             if not response.ok:
                 response.raise_for_status()
@@ -70,7 +72,7 @@ def _get_tweets(self, version: str, tweet_id=None, start_time=None):
                 f"&count={str(self.max_tweets)}&include_rts=true"
             )
             response = requests.get(
-                twitter_status_url, headers=self.header_twitter
+                twitter_status_url, headers=self.header_twitter, auth=self.auth
             )
             if not response.ok:
                 response.raise_for_status()
@@ -108,7 +110,9 @@ def _get_tweets_v2(
             f"{self.twitter_base_url_v2}/users/by?"
             f"usernames={self.twitter_username}"
         )
-        response = requests.get(url, headers=self.header_twitter)
+        response = requests.get(
+            url, headers=self.header_twitter, auth=self.auth
+        )
         if not response.ok:
             response.raise_for_status()
         response = json.loads(response.text)
