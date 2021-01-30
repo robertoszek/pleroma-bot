@@ -316,7 +316,7 @@ def main():
                 logger.info(first_time_msg)
                 first_time = True
             user = User(user_item, config)
-            if first_time:
+            if first_time and not args.skipChecks:
                 user.first_time = True
             if (
                 (args.forceDate and args.forceDate == user.twitter_username)

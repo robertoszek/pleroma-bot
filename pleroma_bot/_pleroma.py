@@ -20,7 +20,7 @@ from . import logger
 from ._utils import random_string, guess_type
 
 
-def get_date_last_pleroma_post(self, skip=False):
+def get_date_last_pleroma_post(self):
     """Gathers last post from the user in Pleroma and returns the date
     of creation.
 
@@ -40,7 +40,7 @@ def get_date_last_pleroma_post(self, skip=False):
     else:
         self.posts = "none_found"
         logger.warning("No posts were found in the target Fediverse account")
-        if not skip:
+        if self.first_time:
             date_pleroma = self.force_date()
         else:
             date_pleroma = datetime.strftime(
