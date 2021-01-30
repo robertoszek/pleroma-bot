@@ -1,11 +1,17 @@
+import logging
 import os
 import re
+import shutil
+import sys
+from unittest.mock import patch
+
 import pytest
 import requests
 
 from test_user import UserTemplate
 from conftest import get_config_users
 
+from pleroma_bot import cli
 from pleroma_bot.cli import User
 
 
@@ -474,6 +480,63 @@ def test__get_twitter_info_exception(sample_users):
                 sample_user_obj._get_twitter_info()
             exception_value = f"500 Server Error: None for url: {info_url}"
             assert str(error_info.value) == exception_value
+
+
+def test_main_oauth_exception(
+        rootdir, global_mock, sample_users, mock_request, monkeypatch, caplog
+):
+    test_user = UserTemplate()
+    with global_mock as g_mock:
+        test_files_dir = os.path.join(rootdir, 'test_files')
+
+        config_test = os.path.join(test_files_dir, 'config_multiple_users.yml')
+        prev_config = os.path.join(os.getcwd(), 'config.yml')
+        backup_config = os.path.join(os.getcwd(), 'config.yml.bak')
+        if os.path.isfile(prev_config):
+            shutil.copy(prev_config, backup_config)
+        shutil.copy(config_test, prev_config)
+
+        users_path = os.path.join(os.getcwd(), 'users')
+        shutil.rmtree(users_path)
+
+        g_mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                   f"/tweets",
+                   json={},
+                   status_code=200)
+
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+        with patch.object(sys, 'argv', ['']):
+            with caplog.at_level(logging.ERROR):
+                assert cli.main() == 1
+                err_msg = (
+                    "Unable to retrieve tweets. Is the account protected? "
+                    "If so, you need to provide the following OAuth 1.0a "
+                    "fields in the user config:"
+                )
+                assert err_msg in caplog.text
+
+        # Clean-up
+        g_mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                   f"/tweets",
+                   json=mock_request['sample_data']['tweets_v2'],
+                   status_code=200)
+        if os.path.isfile(backup_config):
+            shutil.copy(backup_config, prev_config)
+        for sample_user in sample_users:
+            sample_user_obj = sample_user['user_obj']
+            pinned_path = os.path.join(os.getcwd(),
+                                       'users',
+                                       sample_user_obj.twitter_username,
+                                       'pinned_id.txt')
+            pinned_pleroma = os.path.join(os.getcwd(),
+                                          'users',
+                                          sample_user_obj.twitter_username,
+                                          'pinned_id_pleroma.txt')
+            if os.path.isfile(pinned_path):
+                os.remove(pinned_path)
+            if os.path.isfile(pinned_pleroma):
+                os.remove(pinned_pleroma)
+    return g_mock
 
 
 def test__get_instance_info_exception(sample_users):
