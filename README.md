@@ -68,7 +68,8 @@ You'll need the following:
 
 If you plan on retrieving tweets from an account which has their tweets **protected**, you'll also need the following:
 * Consumer Key and Secret. You'll find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard)
-* Access Token Key and Secret. You can obtain them by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
+* Access Token Key and Secret.  You'll also find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard). 
+Alternatively, you can obtain the Access Token and Secret by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
 
 Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
