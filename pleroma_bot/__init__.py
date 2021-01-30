@@ -22,13 +22,13 @@ class CustomFormatter(logging.Formatter):
         "(%(filename)s:%(lineno)d) "
     )
 
-    if sys.platform != 'win32':
+    if sys.platform != "win32":
         FORMATS = {
             logging.DEBUG: grey + format_r + reset,
             logging.INFO: grey + "ℹ " + format_r + reset,
             logging.WARNING: yellow + "⚠ " + format_l + reset,
             logging.ERROR: red + "✖ " + format_l + reset,
-            logging.CRITICAL: bold_red + format_l + reset
+            logging.CRITICAL: bold_red + format_l + reset,
         }
     else:
         FORMATS = {
@@ -36,7 +36,7 @@ class CustomFormatter(logging.Formatter):
             logging.INFO: "¡ " + format_r,
             logging.WARNING: "!!" + format_l,
             logging.ERROR: "× " + format_l,
-            logging.CRITICAL: "× " + format_l
+            logging.CRITICAL: "× " + format_l,
         }
 
     def format(self, record):

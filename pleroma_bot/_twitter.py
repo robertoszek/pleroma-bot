@@ -152,10 +152,9 @@ def _get_tweets_v2(
         }
     )
 
-    response = requests.get(url,
-                            headers=self.header_twitter,
-                            params=params,
-                            auth=self.auth)
+    response = requests.get(
+        url, headers=self.header_twitter, params=params, auth=self.auth
+    )
     if not response.ok:
         response.raise_for_status()
 

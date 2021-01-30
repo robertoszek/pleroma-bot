@@ -38,7 +38,7 @@ def get_date_last_pleroma_post(self, skip=False):
     if posts:
         date_pleroma = posts[0]["created_at"]
     else:
-        self.posts = 'none_found'
+        self.posts = "none_found"
         logger.warning("No posts were found in the target Fediverse account")
         if not skip:
             date_pleroma = self.force_date()

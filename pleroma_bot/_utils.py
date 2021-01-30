@@ -28,6 +28,7 @@ class PropagatingThread(threading.Thread):
     """
     Thread that surfaces exceptions that occur inside of it
     """
+
     def run(self):
         self.exc = None
         # Event to keep track if thread has started
