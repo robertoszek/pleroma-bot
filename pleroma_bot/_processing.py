@@ -132,8 +132,18 @@ def _download_media(self, media, tweet):
 
         if media_url:
             response = requests.get(media_url, stream=True)
-            if not response.ok:
-                response.raise_for_status()
+            try:
+                if not response.ok:
+                    response.raise_for_status()
+            except requests.exceptions.HTTPError:
+                if response.status_code == 404:
+                    logger.warning("Exception occurred")
+                    logger.warning("Media not found (404)")
+                    logger.warning(f"{tweet} - {media_url}")
+                    logger.warning("Ignoring attachment and continuing...")
+                    return
+                else:
+                    response.raise_for_status()
             response.raw.decode_content = True
             filename = str(idx) + mimetypes.guess_extension(
                 response.headers["Content-Type"]

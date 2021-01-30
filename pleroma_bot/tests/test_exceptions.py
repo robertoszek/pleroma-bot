@@ -562,7 +562,7 @@ def test__get_instance_info_exception(sample_users):
             assert str(error_info.value) == exception_value
 
 
-def test__download_media_exception(sample_users):
+def test__download_media_exception(sample_users, caplog):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -574,6 +574,14 @@ def test__download_media_exception(sample_users):
                 sample_user_obj._download_media(media, tweet)
             exception_value = f"500 Server Error: None for url: {media_url}"
             assert str(error_info.value) == exception_value
+            mock.get(media_url, status_code=404)
+            tweet = None
+            with caplog.at_level(logging.WARNING):
+                sample_user_obj._download_media(media, tweet)
+            warn_msg1 = "Media not found (404)"
+            warn_msg2 = "Ignoring attachment and continuing..."
+            assert warn_msg1 in caplog.text
+            assert warn_msg2 in caplog.text
 
 
 def test__expand_urls(sample_users, mock_request):

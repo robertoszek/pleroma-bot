@@ -2,6 +2,9 @@ import os
 import shutil
 import logging
 
+import pytest
+import requests
+
 from pleroma_bot import cli, User
 from pleroma_bot._utils import random_string
 
@@ -108,6 +111,18 @@ def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
                     )
                 assert 'Exception occurred' in caplog.text
                 assert 'Media size too large' in caplog.text
+
+                mock.post(media_url, status_code=500)
+                with pytest.raises(
+                        requests.exceptions.HTTPError
+                ) as error_info:
+                    sample_user_obj.post_pleroma(
+                        (test_user.pinned, ""), None, False
+                    )
+                exception_value = (
+                    f"500 Server Error: None for url: {media_url}"
+                )
+                assert str(error_info.value) == exception_value
 
                 for media_file in os.listdir(tweet_folder):
                     os.remove(os.path.join(tweet_folder, media_file))

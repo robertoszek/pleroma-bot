@@ -107,6 +107,8 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                         " size limit of your instance"
                     )
                     pass
+                else:
+                    response.raise_for_status()
             try:
                 media_ids.append(json.loads(response.text)["id"])
             except (KeyError, JSONDecodeError):
