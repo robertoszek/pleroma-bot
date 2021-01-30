@@ -66,7 +66,7 @@ You'll need the following:
 * A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
 * The user/users [Pleroma/Mastodon Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
 
-If you plan on retrieving tweets from an account which have their tweets **protected**, you'll also need the following:
+If you plan on retrieving tweets from an account which has their tweets **protected**, you'll also need the following:
 * Consumer Key and Secret. You'll find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard)
 * Access Token Key and Secret. You can obtain them by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
 
