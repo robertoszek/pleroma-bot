@@ -22,7 +22,7 @@ class CustomFormatter(logging.Formatter):
         "(%(filename)s:%(lineno)d) "
     )
 
-    if os.name != 'Windows':
+    if os.name != 'nt':
         FORMATS = {
             logging.DEBUG: grey + format_r + reset,
             logging.INFO: grey + "ℹ " + format_r + reset,
