@@ -1,6 +1,7 @@
 import json
 import requests
 
+
 from pleroma_bot._utils import spinner
 
 
@@ -147,7 +148,10 @@ def _get_tweets_v2(
         }
     )
 
-    response = requests.get(url, headers=self.header_twitter, params=params)
+    response = requests.get(url,
+                            headers=self.header_twitter,
+                            params=params,
+                            auth=self.auth)
     if not response.ok:
         response.raise_for_status()
 

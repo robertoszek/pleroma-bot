@@ -36,6 +36,7 @@ import shutil
 import logging
 import argparse
 
+from requests_oauthlib import OAuth1
 
 from . import logger
 from .__init__ import __version__
@@ -173,6 +174,26 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
+        try:
+            if all([
+                self.consumer_key,
+                self.consumer_secret,
+                self.access_token_key,
+                self.access_token_secret
+            ]):
+                self.auth = OAuth1(
+                    self.consumer_key,
+                    self.consumer_secret,
+                    self.access_token_key,
+                    self.access_token_secret
+                )
+        except AttributeError:
+            logger.debug(
+                "Some or all OAuth 1.0a tokens missing, "
+                "falling back to application-only authentication"
+            )
+            self.auth = None
+
         self.tweets = None
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
@@ -307,6 +328,16 @@ def main():
                 date_pleroma = user.get_date_last_pleroma_post()
             tweets = user.get_tweets(start_time=date_pleroma)
             logger.debug(f"tweets: \t {tweets}")
+
+            if 'meta' not in tweets:
+                error_msg = (
+                    "Unable to retrieve tweets. Is the account protected?"
+                    " If so, you need to provide the following OAuth 1.0a"
+                    " fields in the user config:\n - consumer_key \n "
+                    "- consumer_secret \n - access_token_key \n "
+                    "- access_token_secret"
+                )
+                logger.error(error_msg)
 
             if tweets["meta"]["result_count"] > 0:
                 logger.info(f"tweet count: \t {len(tweets['data'])}")
