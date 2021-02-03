@@ -117,7 +117,9 @@ def _get_pinned_tweet_id(self):
         "expansions": "pinned_tweet_id",
         "tweet.fields": "entities",
     }
-    response = requests.get(url, headers=self.header_twitter, params=params)
+    response = requests.get(
+        url, headers=self.header_twitter, params=params, auth=self.auth
+    )
     if not response.ok:
         response.raise_for_status()
     try:

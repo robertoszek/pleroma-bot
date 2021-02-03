@@ -20,7 +20,7 @@ from . import logger
 from ._utils import random_string, guess_type
 
 
-def get_date_last_pleroma_post(self, skip=False):
+def get_date_last_pleroma_post(self):
     """Gathers last post from the user in Pleroma and returns the date
     of creation.
 
@@ -38,9 +38,9 @@ def get_date_last_pleroma_post(self, skip=False):
     if posts:
         date_pleroma = posts[0]["created_at"]
     else:
-        self.posts = 'none_found'
+        self.posts = "none_found"
         logger.warning("No posts were found in the target Fediverse account")
-        if not skip:
+        if self.first_time:
             date_pleroma = self.force_date()
         else:
             date_pleroma = datetime.strftime(
@@ -107,6 +107,8 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                         " size limit of your instance"
                     )
                     pass
+                else:
+                    response.raise_for_status()
             try:
                 media_ids.append(json.loads(response.text)["id"])
             except (KeyError, JSONDecodeError):

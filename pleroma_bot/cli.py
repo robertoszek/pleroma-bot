@@ -33,8 +33,10 @@ import sys
 import time
 import yaml
 import shutil
+import logging
 import argparse
 
+from requests_oauthlib import OAuth1
 
 from . import logger
 from .__init__ import __version__
@@ -59,17 +61,18 @@ class User(object):
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
-    from ._utils import process_tweets
+    from ._utils import _get_instance_info
     from ._utils import replace_vars_in_str
 
-    from ._utils import _expand_urls
-    from ._utils import _get_media_url
-    from ._utils import _process_polls
-    from ._utils import _replace_nitter
-    from ._utils import _download_media
-    from ._utils import _replace_mentions
-    from ._utils import _get_instance_info
-    from ._utils import _get_best_bitrate_video
+    from ._processing import process_tweets
+
+    from ._processing import _expand_urls
+    from ._processing import _get_media_url
+    from ._processing import _process_polls
+    from ._processing import _replace_nitter
+    from ._processing import _download_media
+    from ._processing import _replace_mentions
+    from ._processing import _get_best_bitrate_video
 
     def __init__(self, user_cfg: dict, cfg: dict):
         self.twitter_token = cfg["twitter_token"]
@@ -171,6 +174,26 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
+        try:
+            if all([
+                self.consumer_key,
+                self.consumer_secret,
+                self.access_token_key,
+                self.access_token_secret
+            ]):
+                self.auth = OAuth1(
+                    self.consumer_key,
+                    self.consumer_secret,
+                    self.access_token_key,
+                    self.access_token_secret
+                )
+        except AttributeError:
+            logger.debug(
+                "Some or all OAuth 1.0a tokens missing, "
+                "falling back to application-only authentication"
+            )
+            self.auth = None
+
         self.tweets = None
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
@@ -234,6 +257,9 @@ def get_args(sysargs):
         action="store_true",
         help=("skips first run checks"),
     )
+
+    parser.add_argument("--verbose", "-v", action="count", default=0)
+
     parser.add_argument(
         "--version", action="version", version=f"{__version__}"
     )
@@ -250,12 +276,31 @@ def main():
     ]
     args = get_args(sysargs=arguments)
 
+    if args.verbose > 0:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug("Debug logging enabled")
+
     try:
         base_path = os.getcwd()
         with open(os.path.join(base_path, "config.yml"), "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
         users_path = os.path.join(base_path, "users")
+        # TODO: Merge tweets of multiple accounts and order them by date
+        for user_item in user_dict[:]:
+            user_item["skip_pin"] = False
+            if isinstance(user_item["twitter_username"], list):
+                warn_msg = (
+                    "Multiple twitter users for one Fediverse account, "
+                    "skipping profile and pinned tweet."
+                )
+                logger.warning(warn_msg)
+                user_item["skip_pin"] = True
+                for twitter_user in user_item["twitter_username"]:
+                    new_user = dict(user_item)
+                    new_user["twitter_username"] = twitter_user
+                    user_dict.append(new_user)
+                user_dict.remove(user_item)
 
         for user_item in user_dict:
             first_time = False
@@ -271,7 +316,7 @@ def main():
                 logger.info(first_time_msg)
                 first_time = True
             user = User(user_item, config)
-            if first_time:
+            if first_time and not args.skipChecks:
                 user.first_time = True
             if (
                 (args.forceDate and args.forceDate == user.twitter_username)
@@ -281,25 +326,47 @@ def main():
                 date_pleroma = user.force_date()
             else:
                 date_pleroma = user.get_date_last_pleroma_post()
-
             tweets = user.get_tweets(start_time=date_pleroma)
+            logger.debug(f"tweets: \t {tweets}")
+
+            if 'meta' not in tweets:
+                error_msg = (
+                    "Unable to retrieve tweets. Is the account protected?"
+                    " If so, you need to provide the following OAuth 1.0a"
+                    " fields in the user config:\n - consumer_key \n "
+                    "- consumer_secret \n - access_token_key \n "
+                    "- access_token_secret"
+                )
+                logger.error(error_msg)
+
             if tweets["meta"]["result_count"] > 0:
+                logger.info(f"tweet count: \t {len(tweets['data'])}")
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
                 tweets_to_post = user.process_tweets(tweets)
-                logger.info(f"tweets: \t {tweets_to_post['data']}")
+                logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
+                tweet_counter = 0
                 for tweet in tweets_to_post["data"]:
+                    tweet_counter += 1
+                    logger.info(
+                        f"({tweet_counter}/{len(tweets_to_post['data'])})"
+                    )
                     user.post_pleroma(
                         (tweet["id"], tweet["text"]),
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )
-                    time.sleep(2)
-
-            user.check_pinned()
+                    time.sleep(0.5)
+            if not user.skip_pin:
+                user.check_pinned()
 
             if not args.noProfile:
-                user.update_pleroma()
+                if user.skip_pin:
+                    logger.warning(
+                        "Multiple twitter users, not updating profile"
+                    )
+                else:
+                    user.update_pleroma()
             # Clean-up
             shutil.rmtree(user.tweets_temp_path)
     except Exception:

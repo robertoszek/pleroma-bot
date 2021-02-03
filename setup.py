@@ -16,7 +16,7 @@ setuptools.setup(
     description="Mirror one or multiple Twitter accounts in Pleroma/Mastodon",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/robertoszek/pleroma-twitter-info-grabber",
+    url="https://github.com/robertoszek/pleroma-bot",
     packages=['pleroma_bot'],
     classifiers=[
         'Environment :: Console',
@@ -30,7 +30,8 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=[
         'requests>=2.24.0',
-        'PyYAML>=5.3.1'
+        'PyYAML>=5.3.1',
+        'requests-oauthlib>=1.3.0'
     ],
     extras_require={
         'lint': [

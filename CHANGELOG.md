@@ -1,3 +1,18 @@
+## [0.8.0] - 2021-02-03
+
+## Added
+- Support for OAuth 1.0a authentication (needed if retrieving tweets from protected accounts)
+- Verbose argument ``-v`` for debugging
+- ```twitter_username``` can take a list as a value. They are internally broken apart into multiple ```User``` objects
+
+## Fixed
+- HTML character entities incorrect escaping in tweet's body
+- First run skip condition if the Fediverse had no posts/tweets published as a result of a manual first run
+
+## Enhancements
+- Provide feedback when long operations are running (speeen)
+- Color output based on logging level
+
 ## [0.7.0] - 2021-01-19
 
 ## Added

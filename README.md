@@ -1,11 +1,13 @@
-# pleroma-twitter-info-grabber
+# Stork (pleroma-bot)
 
-[![Build Status](https://travis-ci.com/robertoszek/pleroma-twitter-info-grabber.svg?branch=develop)](https://travis-ci.com/robertoszek/pleroma-twitter-info-grabber)
+[![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=develop)](https://travis-ci.com/robertoszek/pleroma-bot)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)
-[![codecov](https://codecov.io/gh/robertoszek/pleroma-twitter-info-grabber/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-twitter-info-grabber)
+[![codecov](https://codecov.io/gh/robertoszek/pleroma-bot/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-bot)
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
-[![Requires.io (branch)](https://img.shields.io/requires/github/robertoszek/pleroma-twitter-info-grabber/master)](https://requires.io/github/robertoszek/pleroma-twitter-info-grabber/requirements/?branch=master)
-[![License](https://img.shields.io/github/license/robertoszek/pleroma-twitter-info-grabber)](https://github.com/robertoszek/pleroma-twitter-info-grabber/blob/master/LICENSE.md)
+[![Requires.io (branch)](https://img.shields.io/requires/github/robertoszek/pleroma-bot/master)](https://requires.io/github/robertoszek/pleroma-bot/requirements/?branch=master)
+[![License](https://img.shields.io/github/license/robertoszek/pleroma-bot)](https://github.com/robertoszek/pleroma-bot/blob/master/LICENSE.md)
+
+![Stork](img/stork-smaller.svg)
 
 Mirror one or multiple Twitter accounts in Pleroma/Mastodon.
 
@@ -57,6 +59,7 @@ optional arguments:
                         supplied to only force it for that particular user in
                         the config
   -s, --skipChecks      skips first run checks
+  --verbose, -v
   --version             show program's version number and exit
 ```
 ### Before running
@@ -65,11 +68,18 @@ You'll need the following:
 * A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
 * The user/users [Pleroma/Mastodon Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
 
+If you plan on retrieving tweets from an account which has their tweets **protected**, you'll also need the following:
+* Consumer Key and Secret. You'll find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard)
+* Access Token Key and Secret.  You'll also find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard). 
+Alternatively, you can obtain the Access Token and Secret by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
+
 Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
 ```yaml
 twitter_base_url: https://api.twitter.com/1.1
 # Change this to your Fediverse instance
 pleroma_base_url: https://pleroma.robertoszek.xyz
+# (optional) Change this to your preferred nitter instance
+nitter_base_url: https://nitter.net
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200
 max_tweets: 40
@@ -81,6 +91,11 @@ users:
   pleroma_username: KyleBosman
   # Mastodon/Pleroma token obtained by following the README.md
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # (optional) keys and secrets for using OAuth 1.0a (for protected accounts)
+  consumer_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+  consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   # If you want to add a link to the original status or not
   signature: true
   # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.
@@ -160,8 +175,10 @@ pleroma_base_url: https://pleroma.robertoszek.xyz
 ```
 ### Running
 
-If you're running the bot for the first time it will ask you for the date you wish to start retrieving tweets from (it will gather all from that date up to the present).
-To force this behaviour in future runs you can use the ```--forceDate``` argument (be careful, no validation is performed with the already posted toots/posts by that Fediverse account and you can end up with duplicates!).
+If you're running the bot for the first time it will ask you for the date you wish to start retrieving tweets from (it will gather all from that date up to the present). 
+If you leave it empty and just press enter it will default to the oldest date that Twitter's API allows ('```2010-11-06T00:00:00Z```') for tweet retrieval.
+
+To force this behaviour in future runs you can use the ```--forceDate``` argument (be careful, no validation is performed with the already posted toots/posts by that Fediverse account and you can end up with duplicates posts/toots!).
 
 Additionally, you can provide a ```twitter_username``` if you only want to force the date for one user in your config.
 
@@ -204,7 +221,7 @@ That and [mastodon-bot](https://github.com/yogthos/mastodon-bot) not working aft
 
 ## Contributing
 
-Patches, pull requests, and bug reports are more than [welcome](https://github.com/robertoszek/pleroma-twitter-info-grabber/issues/new/choose), please keep the style consistent with the original source.
+Patches, pull requests, and bug reports are more than [welcome](https://github.com/robertoszek/pleroma-bot/issues/new/choose), please keep the style consistent with the original source.
 
 
 ## License

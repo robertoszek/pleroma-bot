@@ -14,6 +14,11 @@ users:
   pleroma_username: KyleBosman
   # Mastodon/Pleroma token obtained by following the README.md
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # (optional) keys and secrets for using OAuth 1.0a (for protected accounts)
+  consumer_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+  consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   # If you want to add a link to the original status or not
   signature: true
   # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.
