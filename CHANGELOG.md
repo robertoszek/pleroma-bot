@@ -1,4 +1,4 @@
-## [0.8.0] - 2021-01-19
+## [0.8.0] - 2021-02-03
 
 ## Added
 - Support for OAuth 1.0a authentication (needed if retrieving tweets from protected accounts)
