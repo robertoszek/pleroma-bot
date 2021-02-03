@@ -1,9 +1,9 @@
-## Unreleased
+## [0.8.0] - 2021-01-19
 
 ## Added
 - Support for OAuth 1.0a authentication (needed if retrieving tweets from protected accounts)
 - Verbose argument ``-v`` for debugging
-- ```twitter_username``` can take list values. They are internally broken apart into multiple ```User``` objects
+- ```twitter_username``` can take a list as a value. They are internally broken apart into multiple ```User``` objects
 
 ## Fixed
 - HTML character entities incorrect escaping in tweet's body

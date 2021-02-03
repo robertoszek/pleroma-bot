@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 
-__version__ = "0.7.9"
+__version__ = "0.8.0"
 
 
 class StdOutFilter(logging.Filter):
