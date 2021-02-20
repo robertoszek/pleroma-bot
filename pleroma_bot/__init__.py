@@ -70,4 +70,31 @@ logger.addHandler(f_handler)
 
 logger.propagate = True
 
+stork = r'''
+                        `^y6gB@@BBQA{,
+                      :fB@@@@@@BBBBBQgU"
+                    `f@@@@@@@@BBBBQgg80H~
+                    H@@B@BB@BBBB#Qgg&0RNT
+                   z@@&B@BBBBBBQgg80RD6HK
+                  ;@@@QB@BBBB#Qgg&0RN6WqS
+                  q@@@@@BBBBQgg80RN6HAqSo             _             _
+                 z@@@@BBBB#Qg8&0RN6WqSUhr            | |           | |
+               -H@@@@BBBBQQg80RD6HAqSKh(          ___| |_ ___  _ __| | __
+              rB@@@BBBB#6Lm00DN6WqSUhfv          / __| __/ _ \| '__| |/ /
+             f@@@@BBBBf= |0RD6HAqSKhfv           \__ \ || (_) | |  |   <
+           =g@@@BBBBF=  "RDN6WqSUhff{            |___/\__\___/|_|  |_|\_|
+          c@@@@BBgu_   ~WD9HAqSKhfkl`
+        _6@@@BBNr     'qN6WqSUhhfXI'          .                           .       .
+       rB@@@B0r      `S6HAqSKhfkoCr       ,-. |  ,-. ,-. ,-. ,-,-. ,-.    |-. ,-. |-
+     `X@@@BQx       `I6WASShhfXFIy_       | | |  |-' |   | | | | | ,-| -- | | | | |
+    _g@@@Q\`        JHAqSKhfXoCwJz_       |-' `' `-' '   `-' ' ' ' `-^    `-' `-' `'
+   rB@@#x`         }WASShhfXsIyzuu,       |
+ `y@@&|          .IAqSKhfXoCwJzu1lr       '
+`D@&|           :KqSUhffXsIyzuu1llc,
+ff=            `==:::""",,,,________
+
+'''
+if __name__ == "pleroma_bot.__init__":
+    print(stork)
+
 from .cli import *
