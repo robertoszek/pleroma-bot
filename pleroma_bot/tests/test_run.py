@@ -749,12 +749,22 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         users_path = os.path.join(os.getcwd(), 'users')
         shutil.rmtree(users_path)
 
+        parent_config = os.path.join(
+            os.getcwd(), os.pardir, 'config.yml'
+        )
+
+        if os.path.isfile(config_test):
+            shutil.copy(config_test, parent_config)
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
-        with patch.object(sys, 'argv', ['']):
+        with patch.object(sys, 'argv', ['', '--config', '../config.yml']):
             assert cli.main() == 0
 
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
-        with patch.object(sys, 'argv', ['--skipChecks', '-v']):
+        with patch.object(sys, 'argv', ['', '--skipChecks', '-v']):
+            assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+        with patch.object(sys, 'argv', ['']):
             assert cli.main() == 0
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):

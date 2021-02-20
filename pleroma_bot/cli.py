@@ -226,6 +226,18 @@ def get_args(sysargs):
     )
 
     parser.add_argument(
+        "-c",
+        "--config",
+        required=False,
+        action="store",
+        help=(
+            "path of config file (config.yml) to use and parse. If not"
+            " specified, it will try to find it in the current working "
+            "directory."
+        ),
+    )
+
+    parser.add_argument(
         "-n",
         "--noProfile",
         required=False,
@@ -282,7 +294,12 @@ def main():
 
     try:
         base_path = os.getcwd()
-        with open(os.path.join(base_path, "config.yml"), "r") as stream:
+        if args.config:
+            config_path = args.config
+        else:
+            config_path = os.path.join(base_path, "config.yml")
+
+        with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
         users_path = os.path.join(base_path, "users")

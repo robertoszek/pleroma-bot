@@ -51,7 +51,7 @@ Here's a list of the available packages.
 
 ## Usage
 ```console
-$ pleroma-bot [--noProfile] [--forceDate [FORCEDATE]]
+$ pleroma-bot [--noProfile] [--forceDate [FORCEDATE]] [-c CONFIG]
 ```
 
 ```console
@@ -59,6 +59,10 @@ Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
 
 optional arguments:
   -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        path of config file (config.yml) to use and parse. If
+                        not specified, it will try to find it in the current
+                        working directory.
   -n, --noProfile       skips Fediverse profile update (no background image,
                         profile image, bio text, etc.)
   --forceDate [FORCEDATE]

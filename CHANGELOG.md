@@ -1,3 +1,10 @@
+## Unreleased
+## Added
+- Argument ```--config```, the user can specify a custom path for the config.yml file to be parsed
+
+## Enhancements
+- Created a package in the Arch User Repository: [python-pleroma-bot](https://aur.archlinux.org/packages/python-pleroma-bot)
+
 ## [0.8.0] - 2021-02-03
 
 ## Added
