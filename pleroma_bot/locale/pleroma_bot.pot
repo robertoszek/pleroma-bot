@@ -2,40 +2,45 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-02-21 19:12+CET\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-02-21 20:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
-"Content-Transfer-Encoding: ENCODING\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 2.0.6\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: tests\n"
 
-
-#: ../_pin.py:25
+#: _pin.py:25
 msgid "Pinning post:\t{}"
 msgstr ""
 
-#: ../_pin.py:56
+#: _pin.py:56
 msgid "Unpinning previous:\t{}"
 msgstr ""
 
-#: ../_pin.py:59
+#: _pin.py:60
 msgid "File with previous pinned post ID not found or empty. Checking last posts for pinned post..."
 msgstr ""
 
-#: ../_pin.py:65
+#: _pin.py:65
 msgid "Pinned post not found. Giving up unpinning..."
 msgstr ""
 
-#: ../_pleroma.py:43
+#: _pleroma.py:43
 msgid "No posts were found in the target Fediverse account"
 msgstr ""
 
-#: ../_pleroma.py:103
+#: _pleroma.py:104
+#, python-brace-format
 msgid ""
 "Exception occurred\n"
 "Media size too large:\n"
@@ -45,29 +50,30 @@ msgid ""
 " size limit of your instance"
 msgstr ""
 
-#: ../_pleroma.py:119
+#: _pleroma.py:119
 msgid "Error uploading media:\t{}"
 msgstr ""
 
-#: ../_pleroma.py:154
+#: _pleroma.py:154
 msgid "Post in Pleroma:\t{}"
 msgstr ""
 
-#: ../_pleroma.py:209
+#: _pleroma.py:210
 msgid ""
 "Total number of metadata fields cannot exceed 4.\n"
 "Provided: {}. Exiting..."
 msgstr ""
 
-#: ../_pleroma.py:244
+#: _pleroma.py:244
 msgid "Updating profile:\t {}"
 msgstr ""
 
-#: ../_processing.py:22
+#: _processing.py:22
 msgid "Processing tweets... "
 msgstr ""
 
-#: ../_processing.py:141
+#: _processing.py:142
+#, python-brace-format
 msgid ""
 "Exception occurred\n"
 "Media not found (404)\n"
@@ -75,59 +81,59 @@ msgid ""
 "Ignoring attachment and continuing..."
 msgstr ""
 
-#: ../_processing.py:166
+#: _processing.py:167
 msgid "Attachment exceeded config file size limit ({})"
 msgstr ""
 
-#: ../_processing.py:171
+#: _processing.py:172
 msgid "File size: {}MB"
 msgstr ""
 
-#: ../_processing.py:175
+#: _processing.py:175
 msgid "Ignoring attachment and continuing..."
 msgstr ""
 
-#: ../_twitter.py:88
+#: _twitter.py:88
 msgid "API version not supported: {}"
 msgstr ""
 
-#: ../_twitter.py:102
+#: _twitter.py:103
 msgid "max_tweets must be between 10 and 100. max_tweets: {}"
 msgstr ""
 
-#: ../_twitter.py:206
+#: _twitter.py:206
 msgid "Gathering tweets... "
 msgstr ""
 
-#: ../_utils.py:110
+#: _utils.py:110
 msgid "Current pinned:\t{}"
 msgstr ""
 
-#: ../_utils.py:120
+#: _utils.py:120
 msgid "Previous pinned:\t{}"
 msgstr ""
 
-#: ../_utils.py:231
+#: _utils.py:232
 msgid "Instance response was not understood {}"
 msgstr ""
 
-#: ../_utils.py:236
+#: _utils.py:236
 msgid "Assuming target instance is Mastodon..."
 msgstr ""
 
-#: ../_utils.py:239
+#: _utils.py:240
 msgid "Mastodon doesn't support display names longer than 30 characters, truncating it and trying again..."
 msgstr ""
 
-#: ../_utils.py:248
+#: _utils.py:248
 msgid "Mastodon doesn't support rich text. Disabling it..."
 msgstr ""
 
-#: ../_utils.py:254
+#: _utils.py:254
 msgid "How far back should we retrieve tweets from the Twitter account?"
 msgstr ""
 
-#: ../_utils.py:256
+#: _utils.py:257
 msgid ""
 "\n"
 "Enter a date (YYYY-MM-DD):\n"
@@ -136,55 +142,55 @@ msgid ""
 "last post in the Fediverse account)] "
 msgstr ""
 
-#: ../cli.py:104
+#: cli.py:105
 msgid "Visibility not supported! Values allowed are: public, unlisted, private and direct"
 msgstr ""
 
-#: ../cli.py:122
+#: cli.py:123
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 
-#: ../cli.py:197
+#: cli.py:198
 msgid "Some or all OAuth 1.0a tokens missing, falling back to application-only authentication"
 msgstr ""
 
-#: ../cli.py:230
+#: cli.py:231
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr ""
 
-#: ../cli.py:243
+#: cli.py:244
 msgid "path of config file (config.yml) to use and parse. If not specified, it will try to find it in the current working directory."
 msgstr ""
 
-#: ../cli.py:257
+#: cli.py:258
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: ../cli.py:271
+#: cli.py:272
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: ../cli.py:285
+#: cli.py:285
 msgid "skips first run checks"
 msgstr ""
 
-#: ../cli.py:308
+#: cli.py:308
 msgid "Debug logging enabled"
 msgstr ""
 
-#: ../cli.py:325
+#: cli.py:326
 msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
 msgstr ""
 
-#: ../cli.py:341
+#: cli.py:341
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: ../cli.py:346
+#: cli.py:347
 msgid "It seems like pleroma-bot is running for the first time for this user"
 msgstr ""
 
-#: ../cli.py:367
+#: cli.py:368
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -193,15 +199,14 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: ../cli.py:378
+#: cli.py:378
 msgid "tweet count: \t {}"
 msgstr ""
 
-#: ../cli.py:402
+#: cli.py:402
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: ../cli.py:409
+#: cli.py:409
 msgid "Exception occurred"
 msgstr ""
-
