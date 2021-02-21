@@ -1,6 +1,8 @@
-import setuptools
 import re
+import setuptools
+
 from os.path import join
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -18,6 +20,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/robertoszek/pleroma-bot",
     packages=['pleroma_bot'],
+    package_data={'pleroma_bot': ['locale/*/*/*.mo']},
+    include_package_data=True,
     classifiers=[
         'Environment :: Console',
         "Programming Language :: Python :: 3",
