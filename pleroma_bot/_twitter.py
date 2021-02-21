@@ -2,6 +2,7 @@ import json
 import requests
 
 
+from pleroma_bot.i18n import _
 from pleroma_bot._utils import spinner
 
 
@@ -84,7 +85,7 @@ def _get_tweets(self, version: str, tweet_id=None, start_time=None):
         )
         return tweets_v2
     else:
-        raise ValueError(f"API version not supported: {version}")
+        raise ValueError(_("API version not supported: {}").format(version))
 
 
 def _get_tweets_v2(
@@ -97,10 +98,11 @@ def _get_tweets_v2(
 ):
     # Tweet number must be between 10 and 100
     if not (100 >= self.max_tweets > 10):
-        raise ValueError(
-            f"max_tweets must be between 10 and 100. max_tweets: "
-            f"{self.max_tweets}"
-        )
+        global _
+        error_msg = _(
+            "max_tweets must be between 10 and 100. max_tweets: {}"
+        ).format(self.max_tweets)
+        raise ValueError(error_msg)
     params = {}
     previous_token = next_token
     if tweet_id:
@@ -201,6 +203,6 @@ def _get_tweets_v2(
     return tweets_v2
 
 
-@spinner("Gathering tweets... ")
+@spinner(_("Gathering tweets... "))
 def get_tweets(self, start_time):
     return self._get_tweets("v2", start_time=start_time)

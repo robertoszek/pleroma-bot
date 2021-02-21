@@ -413,7 +413,7 @@ def test_update_pleroma_exception(rootdir, mock_request, sample_users):
                 sample_user_obj.update_pleroma()
             exception_value = (
                 f"Total number of metadata fields cannot "
-                f"exceed 4.Provided: {len(mock_fields)}. Exiting..."
+                f"exceed 4.\nProvided: {len(mock_fields)}. Exiting..."
             )
             assert str(error_info.value) == exception_value
 
