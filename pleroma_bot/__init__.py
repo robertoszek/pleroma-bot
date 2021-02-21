@@ -1,5 +1,6 @@
 import os
 import sys
+import locale
 import logging
 
 __version__ = "0.8.0"
@@ -77,24 +78,31 @@ stork = r'''
                     H@@B@BB@BBBB#Qgg&0RNT
                    z@@&B@BBBBBBQgg80RD6HK
                   ;@@@QB@BBBB#Qgg&0RN6WqS
-                  q@@@@@BBBBQgg80RN6HAqSo             _             _
-                 z@@@@BBBB#Qg8&0RN6WqSUhr            | |           | |
-               -H@@@@BBBBQQg80RD6HAqSKh(          ___| |_ ___  _ __| | __
-              rB@@@BBBB#6Lm00DN6WqSUhfv          / __| __/ _ \| '__| |/ /
-             f@@@@BBBBf= |0RD6HAqSKhfv           \__ \ || (_) | |  |   <
-           =g@@@BBBBF=  "RDN6WqSUhff{            |___/\__\___/|_|  |_|\_|
+                  q@@@@@BBBBQgg80RN6HAqSo          _             _
+                 z@@@@BBBB#Qg8&0RN6WqSUhr         | |           | |
+               -H@@@@BBBBQQg80RD6HAqSKh(       ___| |_ ___  _ __| | __
+              rB@@@BBBB#6Lm00DN6WqSUhfv       / __| __/ _ \| '__| |/ /
+             f@@@@BBBBf= |0RD6HAqSKhfv        \__ \ || (_) | |  |   <
+           =g@@@BBBBF=  "RDN6WqSUhff{         |___/\__\___/|_|  |_|\_|
           c@@@@BBgu_   ~WD9HAqSKhfkl`
-        _6@@@BBNr     'qN6WqSUhhfXI'          .                           .       .
-       rB@@@B0r      `S6HAqSKhfkoCr       ,-. |  ,-. ,-. ,-. ,-,-. ,-.    |-. ,-. |-
-     `X@@@BQx       `I6WASShhfXFIy_       | | |  |-' |   | | | | | ,-| -- | | | | |
-    _g@@@Q\`        JHAqSKhfXoCwJz_       |-' `' `-' '   `-' ' ' ' `-^    `-' `-' `'
-   rB@@#x`         }WASShhfXsIyzuu,       |
- `y@@&|          .IAqSKhfXoCwJzu1lr       '
+        _6@@@BBNr     'qN6WqSUhhfXI'     .                           .       .
+       rB@@@B0r      `S6HAqSKhfkoCr  ,-. |  ,-. ,-. ,-. ,-,-. ,-.    |-. ,-. |-
+     `X@@@BQx       `I6WASShhfXFIy_  | | |  |-' |   | | | | | ,-| -- | | | | |
+    _g@@@Q\`        JHAqSKhfXoCwJz_  |-' `' `-' '   `-' ' ' ' `-^    `-' `-' `'
+   rB@@#x`         }WASShhfXsIyzuu,  |
+ `y@@&|          .IAqSKhfXoCwJzu1lr  '
 `D@&|           :KqSUhffXsIyzuu1llc,
 ff=            `==:::""",,,,________
 
 '''
 if __name__ == "pleroma_bot.__init__":
     print(stork)
+
+# fill env locale vars in case we're running in other platforms
+default_lang, default_enc = locale.getdefaultlocale()
+
+if 'LANG' not in os.environ:
+    os.environ['LANG'] = default_lang
+    os.environ['LANGUAGE'] = f"{default_lang}.{default_enc}"
 
 from .cli import *
