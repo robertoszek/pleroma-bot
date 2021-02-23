@@ -1,8 +1,9 @@
 import os
 import sys
+import locale
 import logging
 
-__version__ = "0.8.0"
+__version__ = "0.8.5"
 
 
 class StdOutFilter(logging.Filter):
@@ -45,29 +46,57 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-log_path = os.path.join(os.getcwd(), "error.log")
 logging.root.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 c_handler = logging.StreamHandler(sys.stdout)
 e_handler = logging.StreamHandler(sys.stderr)
-f_handler = logging.FileHandler(log_path)
 c_handler.setLevel(logging.INFO)
 e_handler.setLevel(logging.ERROR)
-f_handler.setLevel(logging.ERROR)
 
 c_format = CustomFormatter()
 e_format = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-f_format = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
 c_handler.setFormatter(c_format)
 e_handler.setFormatter(c_format)
-f_handler.setFormatter(f_format)
 c_handler.addFilter(StdOutFilter())
 
 logger.addHandler(c_handler)
 logger.addHandler(e_handler)
-logger.addHandler(f_handler)
 
 logger.propagate = True
+
+stork = r'''
+                        `^y6gB@@BBQA{,
+                      :fB@@@@@@BBBBBQgU"
+                    `f@@@@@@@@BBBBQgg80H~
+                    H@@B@BB@BBBB#Qgg&0RNT
+                   z@@&B@BBBBBBQgg80RD6HK
+                  ;@@@QB@BBBB#Qgg&0RN6WqS
+                  q@@@@@BBBBQgg80RN6HAqSo          _             _
+                 z@@@@BBBB#Qg8&0RN6WqSUhr         | |           | |
+               -H@@@@BBBBQQg80RD6HAqSKh(       ___| |_ ___  _ __| | __
+              rB@@@BBBB#6Lm00DN6WqSUhfv       / __| __/ _ \| '__| |/ /
+             f@@@@BBBBf= |0RD6HAqSKhfv        \__ \ || (_) | |  |   <
+           =g@@@BBBBF=  "RDN6WqSUhff{         |___/\__\___/|_|  |_|\_|
+          c@@@@BBgu_   ~WD9HAqSKhfkl`
+        _6@@@BBNr     'qN6WqSUhhfXI'     .                           .       .
+       rB@@@B0r      `S6HAqSKhfkoCr  ,-. |  ,-. ,-. ,-. ,-,-. ,-.    |-. ,-. |-
+     `X@@@BQx       `I6WASShhfXFIy_  | | |  |-' |   | | | | | ,-| -- | | | | |
+    _g@@@Q\`        JHAqSKhfXoCwJz_  |-' `' `-' '   `-' ' ' ' `-^    `-' `-' `'
+   rB@@#x`         }WASShhfXsIyzuu,  |
+ `y@@&|          .IAqSKhfXoCwJzu1lr  '
+`D@&|           :KqSUhffXsIyzuu1llc,
+ff=            `==:::""",,,,________
+
+'''
+if __name__ == "pleroma_bot.__init__":
+    print(stork)
+
+# fill env locale vars in case we're running in other platforms
+default_lang, default_enc = locale.getdefaultlocale()
+
+if 'LANG' not in os.environ:
+    os.environ['LANG'] = default_lang
+    os.environ['LANGUAGE'] = f"{default_lang}.{default_enc}"
 
 from .cli import *

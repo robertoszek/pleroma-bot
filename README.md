@@ -11,6 +11,8 @@
 
 Mirror one or multiple Twitter accounts in Pleroma/Mastodon.
 
+[![Documentation](img/docs.png)](https://robertoszek.github.io/pleroma-bot)
+
 ## Introduction
 
 After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
@@ -38,12 +40,20 @@ So basically, it does the following:
 * Adds some **metadata fields** to the Fediverse account, pointing to the original Twitter account or custom text.
 
 ## Installation
+### Using pip
 ```
 $ pip install pleroma-bot
 ```
+### Using a package manager
+Here's a list of the available packages.
+
+| Package type   | Link                                                    | Maintainer                                    |
+|:--------------:|:-------------------------------------------------------:|:---------------------------------------------:|
+| AUR (Arch)     | https://aur.archlinux.org/packages/python-pleroma-bot  | [robertoszek](https://github.com/robertoszek) |
+
 ## Usage
 ```console
-$ pleroma-bot [--noProfile] [--forceDate [FORCEDATE]]
+$ pleroma-bot [--noProfile] [--forceDate [FORCEDATE]] [-c CONFIG]
 ```
 
 ```console
@@ -51,6 +61,10 @@ Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
 
 optional arguments:
   -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        path of config file (config.yml) to use and parse. If
+                        not specified, it will try to find it in the current
+                        working directory.
   -n, --noProfile       skips Fediverse profile update (no background image,
                         profile image, bio text, etc.)
   --forceDate [FORCEDATE]
@@ -154,17 +168,11 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+# Minimal config example
 - twitter_username: arstechnica
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  signature: true
-  nitter: true
-  visibility: "public"
-  media_upload: false
-  pleroma_base_url: https://another.pleroma.instance
-  max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n Any issues please contact @robertoszek \n \n "
+  bio_text: ""
 ```
 
 Changing the ```users``` to the desired ones. You can add as many users as needed.

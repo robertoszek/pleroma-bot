@@ -539,7 +539,9 @@ def test_include_rts(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_norts.yml')
             for user_item in config_users['user_dict']:
-                sample_user_obj = User(user_item, config_users['config'])
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd()
+                )
                 tweets_v2 = sample_user_obj._get_tweets("v2")
                 assert tweets_v2 == mock_request['sample_data']['tweets_v2']
                 tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
@@ -574,7 +576,9 @@ def test_include_replies(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_noreplies.yml')
             for user_item in config_users['user_dict']:
-                sample_user_obj = User(user_item, config_users['config'])
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd()
+                )
                 tweets_v2 = sample_user_obj._get_tweets("v2")
                 assert tweets_v2 == mock_request['sample_data']['tweets_v2']
                 tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
@@ -631,7 +635,9 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
 
             for user_item in users_nitter_net['user_dict']:
                 nitter_instance = users_nitter_net['config']['nitter_base_url']
-                sample_user_obj = User(user_item, users_nitter_net['config'])
+                sample_user_obj = User(
+                    user_item, users_nitter_net['config'], os.getcwd()
+                )
                 tweets_v2 = sample_user_obj._get_tweets("v2")
                 assert tweets_v2 == mock_request['sample_data']['tweets_v2']
                 tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
@@ -662,7 +668,9 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
 
             for user_item in users_nitter['user_dict']:
                 nitter_instance = users_nitter['config']['nitter_base_url']
-                sample_user_obj = User(user_item, users_nitter['config'])
+                sample_user_obj = User(
+                    user_item, users_nitter['config'], os.getcwd()
+                )
                 tweets_v2 = sample_user_obj._get_tweets("v2")
                 assert tweets_v2 == mock_request['sample_data']['tweets_v2']
                 tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
@@ -749,19 +757,45 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         users_path = os.path.join(os.getcwd(), 'users')
         shutil.rmtree(users_path)
 
+        parent_config = os.path.join(
+            os.getcwd(), os.pardir, 'config.yml'
+        )
+        if os.path.isfile(config_test):
+            shutil.copy(config_test, parent_config)
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
-        with patch.object(sys, 'argv', ['']):
+        with patch.object(sys, 'argv', ['', '--config', '../config.yml']):
             assert cli.main() == 0
 
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
-        with patch.object(sys, 'argv', ['--skipChecks', '-v']):
+        with patch.object(sys, 'argv', ['', '--skipChecks', '-v']):
+            assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+        with patch.object(sys, 'argv', ['']):
             assert cli.main() == 0
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):
             with patch.object(cli, "__name__", "__main__"):
                 with patch.object(cli.sys, 'exit') as mock_exit:
+                    with patch.object(
+                            sys, 'argv', ['', '--log', '../error.log']
+                    ):
+                        cli.init()
+                        assert mock_exit.call_args[0][0] == 42
+        with patch.object(cli, "main", return_value=42):
+            with patch.object(cli, "__name__", "__main__"):
+                with patch.object(cli.sys, 'exit') as mock_exit:
+                    with patch.object(
+                            sys, 'argv', ['', '--config', 'config.yml']
+                    ):
+                        cli.init()
+                        assert mock_exit.call_args[0][0] == 42
+        with patch.object(cli, "main", return_value=42):
+            with patch.object(cli, "__name__", "__main__"):
+                with patch.object(cli.sys, 'exit') as mock_exit:
                     cli.init()
                     assert mock_exit.call_args[0][0] == 42
+
         # Clean-up
         if os.path.isfile(backup_config):
             shutil.copy(backup_config, prev_config)

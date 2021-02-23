@@ -23,7 +23,7 @@ def test_user_invalid_pleroma_base(mock_request):
         config_users = get_config_users('config_nopleroma.yml')
         for user_item in config_users['user_dict']:
             with pytest.raises(KeyError) as error_info:
-                User(user_item, config_users['config'])
+                User(user_item, config_users['config'], os.getcwd())
             exception_value = (
                 "'No Pleroma URL defined in config! [pleroma_base_url]'"
             )
@@ -40,7 +40,7 @@ def test_user_missing_twitter_base(sample_users):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_notwitter.yml')
             for user_item in config_users['user_dict']:
-                user_obj = User(user_item, config_users['config'])
+                user_obj = User(user_item, config_users['config'], os.getcwd())
                 assert user_obj.twitter_base_url_v2 is not None
                 assert user_obj.twitter_base_url is not None
                 assert user_obj.twitter_base_url == test_user.twitter_base_url
@@ -59,14 +59,14 @@ def test_user_nitter_global(sample_users):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_nitter_global.yml')
             for user_item in config_users['user_dict']:
-                user_obj = User(user_item, config_users['config'])
+                user_obj = User(user_item, config_users['config'], os.getcwd())
                 nitter_url = f"https://nitter.net/{user_obj.twitter_username}"
                 assert user_obj.twitter_url is not None
                 assert user_obj.twitter_url == nitter_url
             config_users = get_config_users('config_nonitter.yml')
             # No global
             for user_item in config_users['user_dict']:
-                user_obj = User(user_item, config_users['config'])
+                user_obj = User(user_item, config_users['config'], os.getcwd())
                 twitter_url = f"http://twitter.com/{user_obj.twitter_username}"
                 assert user_obj.twitter_url == twitter_url
         return mock
@@ -82,7 +82,9 @@ def test_user_invalid_visibility(sample_users):
             with sample_user['mock'] as mock:
                 config_users = get_config_users('config_visibility.yml')
                 for user_item in config_users['user_dict']:
-                    user_obj = User(user_item, config_users['config'])
+                    user_obj = User(
+                        user_item, config_users['config'], os.getcwd()
+                    )
                     user_obj['mock'] = mock
     str_error = (
         "'Visibility not supported! Values allowed are: "
@@ -102,7 +104,9 @@ def test_user_invalid_max_tweets(sample_users):
             with sample_user['mock'] as mock:
                 config_users = get_config_users('config_max_tweets_global.yml')
                 for user_item in config_users['user_dict']:
-                    user_obj = User(user_item, config_users['config'])
+                    user_obj = User(
+                        user_item, config_users['config'], os.getcwd()
+                    )
                     start_time = user_obj.get_date_last_pleroma_post()
                     user_obj.get_tweets(start_time=start_time)
 
@@ -112,7 +116,9 @@ def test_user_invalid_max_tweets(sample_users):
             with sample_user['mock'] as mock:
                 config_users = get_config_users('config_max_tweets_user.yml')
                 for user_item in config_users['user_dict']:
-                    user_obj = User(user_item, config_users['config'])
+                    user_obj = User(
+                        user_item, config_users['config'], os.getcwd()
+                    )
                     start_time = user_obj.get_date_last_pleroma_post()
                     user_obj.get_tweets(start_time=start_time)
                 user_obj['mock'] = mock
@@ -413,7 +419,7 @@ def test_update_pleroma_exception(rootdir, mock_request, sample_users):
                 sample_user_obj.update_pleroma()
             exception_value = (
                 f"Total number of metadata fields cannot "
-                f"exceed 4.Provided: {len(mock_fields)}. Exiting..."
+                f"exceed 4.\nProvided: {len(mock_fields)}. Exiting..."
             )
             assert str(error_info.value) == exception_value
 

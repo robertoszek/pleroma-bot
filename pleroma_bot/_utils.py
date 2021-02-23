@@ -21,6 +21,7 @@ try:
 except ImportError:
     magic = None
 
+from .i18n import _
 from . import logger
 
 
@@ -106,7 +107,7 @@ def check_pinned(self):
     Checks if a tweet is pinned and needs to be retrieved and posted on the
     Fediverse account
     """
-    logger.info(f"Current pinned:\t{str(self.pinned_tweet_id)}")
+    logger.info(_("Current pinned:\t{}").format(str(self.pinned_tweet_id)))
     pinned_file = os.path.join(self.user_path, "pinned_id.txt")
     if os.path.isfile(pinned_file):
         with open(pinned_file, "r") as file:
@@ -115,7 +116,9 @@ def check_pinned(self):
                 previous_pinned_tweet_id = None
     else:
         previous_pinned_tweet_id = None
-    logger.info(f"Previous pinned:\t{str(previous_pinned_tweet_id)}")
+    logger.info(
+        _("Previous pinned:\t{}").format(str(previous_pinned_tweet_id))
+    )
     if (
         self.pinned_tweet_id != previous_pinned_tweet_id
         and self.pinned_tweet_id is not None
@@ -225,13 +228,15 @@ def _get_instance_info(self):
     try:
         instance_info = json.loads(response.text)
     except JSONDecodeError:
-        msg = f"Instance response was not understood {response.text}"
+        msg = _(
+            "Instance response was not understood {}"
+        ).format(response.text)
         raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
-        logger.debug("Assuming target instance is Mastodon...")
+        logger.debug(_("Assuming target instance is Mastodon..."))
         if len(self.display_name) > 30:
             self.display_name = self.display_name[:30]
-            log_msg = (
+            log_msg = _(
                 "Mastodon doesn't support display names longer than 30 "
                 "characters, truncating it and trying again..."
             )
@@ -240,18 +245,21 @@ def _get_instance_info(self):
             if self.rich_text:
                 self.rich_text = False
                 logger.warning(
-                    "Mastodon doesn't support rich text. Disabling it..."
+                    _("Mastodon doesn't support rich text. Disabling it...")
                 )
 
 
 def force_date(self):
     logger.info(
-        "How far back should we retrieve tweets from the Twitter account?"
+        _("How far back should we retrieve tweets from the Twitter account?")
     )
-    logger.info("Enter a date (YYYY-MM-DD):")
-    logger.info("[Leave it empty to retrieve *ALL* tweets or enter 'continue'")
-    logger.info("if you want the bot to execute as normal (checking date of ")
-    logger.info("last post in the Fediverse account)] ")
+    date_msg = _(
+        "\nEnter a date (YYYY-MM-DD):"
+        "\n[Leave it empty to retrieve *ALL* tweets or enter 'continue'"
+        "\nif you want the bot to execute as normal (checking date of "
+        "\nlast post in the Fediverse account)] "
+    )
+    logger.info(date_msg)
     input_date = input()
     if input_date == "continue":
         if self.posts != "none_found":

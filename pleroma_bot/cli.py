@@ -38,6 +38,7 @@ import argparse
 
 from requests_oauthlib import OAuth1
 
+from .i18n import _
 from . import logger
 from .__init__ import __version__
 
@@ -74,7 +75,7 @@ class User(object):
     from ._processing import _replace_mentions
     from ._processing import _get_best_bitrate_video
 
-    def __init__(self, user_cfg: dict, cfg: dict):
+    def __init__(self, user_cfg: dict, cfg: dict, base_path: str):
         self.twitter_token = cfg["twitter_token"]
         self.signature = ""
         self.media_upload = False
@@ -100,8 +101,10 @@ class User(object):
         visibility_valid = ("public", "unlisted", "private", "direct")
         if self.visibility not in visibility_valid:
             raise KeyError(
-                "Visibility not supported! Values allowed are: public, "
-                "unlisted, private and direct"
+                _(
+                    "Visibility not supported! Values allowed are: public, "
+                    "unlisted, private and direct"
+                )
             )
         try:
             if not hasattr(self, "sensitive"):
@@ -116,7 +119,9 @@ class User(object):
                 self.pleroma_base_url = cfg["pleroma_base_url"]
         except KeyError:
             raise KeyError(
-                "No Pleroma URL defined in config! [pleroma_base_url]"
+                _(
+                    "No Pleroma URL defined in config! [pleroma_base_url]"
+                )
             )
         try:
             if not hasattr(self, "twitter_base_url"):
@@ -189,8 +194,10 @@ class User(object):
                 )
         except AttributeError:
             logger.debug(
-                "Some or all OAuth 1.0a tokens missing, "
-                "falling back to application-only authentication"
+                _(
+                    "Some or all OAuth 1.0a tokens missing, "
+                    "falling back to application-only authentication"
+                )
             )
             self.auth = None
 
@@ -198,7 +205,9 @@ class User(object):
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
-        self.base_path = os.getcwd()
+        # self.base_path = os.getcwd()
+        self.base_path = base_path
+        self.users_path = os.path.join(self.base_path, "users")
         self.users_path = os.path.join(self.base_path, "users")
         self.user_path = os.path.join(self.users_path, self.twitter_username)
         self.tweets_temp_path = os.path.join(self.user_path, "tweets")
@@ -220,9 +229,38 @@ def get_args(sysargs):
     """
     parser = argparse.ArgumentParser(
         description=(
-            "Bot for mirroring one or multiple Twitter accounts "
-            "in Pleroma/Mastodon."
+            _(
+                "Bot for mirroring one or multiple Twitter accounts "
+                "in Pleroma/Mastodon."
+            )
         )
+    )
+
+    parser.add_argument(
+        "-c",
+        "--config",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of config file (config.yml) to use and parse. If not"
+                " specified, it will try to find it in the current working "
+                "directory."
+            )
+        ),
+    )
+
+    parser.add_argument(
+        "-l",
+        "--log",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of log file (error.log) to create. If not"
+                " specified, it will try to store it at your config file path"
+            )
+        ),
     )
 
     parser.add_argument(
@@ -231,8 +269,10 @@ def get_args(sysargs):
         required=False,
         action="store_true",
         help=(
-            "skips Fediverse profile update (no background "
-            "image, profile image, bio text, etc.)"
+            _(
+                "skips Fediverse profile update (no background "
+                "image, profile image, bio text, etc.)"
+            )
         ),
     )
 
@@ -243,10 +283,12 @@ def get_args(sysargs):
         action="store",
         const="all",
         help=(
-            "forces the tweet retrieval to start from a "
-            "specific date. The twitter_username value "
-            "(FORCEDATE) can be supplied to only force it for "
-            "that particular user in the config"
+            _(
+                "forces the tweet retrieval to start from a "
+                "specific date. The twitter_username value "
+                "(FORCEDATE) can be supplied to only force it for "
+                "that particular user in the config"
+            )
         ),
     )
 
@@ -255,7 +297,7 @@ def get_args(sysargs):
         "--skipChecks",
         required=False,
         action="store_true",
-        help=("skips first run checks"),
+        help=(_("skips first run checks")),
     )
 
     parser.add_argument("--verbose", "-v", action="count", default=0)
@@ -278,11 +320,17 @@ def main():
 
     if args.verbose > 0:
         logging.getLogger().setLevel(logging.DEBUG)
-        logging.debug("Debug logging enabled")
+        logging.debug(_("Debug logging enabled"))
 
     try:
         base_path = os.getcwd()
-        with open(os.path.join(base_path, "config.yml"), "r") as stream:
+        if args.config:
+            config_path = args.config
+            base_path, cfg_file = os.path.split(os.path.abspath(config_path))
+        else:
+            config_path = os.path.join(base_path, "config.yml")
+
+        with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
         users_path = os.path.join(base_path, "users")
@@ -290,7 +338,7 @@ def main():
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
             if isinstance(user_item["twitter_username"], list):
-                warn_msg = (
+                warn_msg = _(
                     "Multiple twitter users for one Fediverse account, "
                     "skipping profile and pinned tweet."
                 )
@@ -305,17 +353,19 @@ def main():
         for user_item in user_dict:
             first_time = False
             logger.info("======================================")
-            logger.info(f'Processing user:\t{user_item["pleroma_username"]}')
+            logger.info(
+                _('Processing user:\t{}').format(user_item["pleroma_username"])
+            )
             user_path = os.path.join(users_path, user_item["twitter_username"])
 
             if not os.path.exists(user_path):
-                first_time_msg = (
+                first_time_msg = _(
                     "It seems like pleroma-bot is running for the "
                     "first time for this user"
                 )
                 logger.info(first_time_msg)
                 first_time = True
-            user = User(user_item, config)
+            user = User(user_item, config, base_path)
             if first_time and not args.skipChecks:
                 user.first_time = True
             if (
@@ -330,7 +380,7 @@ def main():
             logger.debug(f"tweets: \t {tweets}")
 
             if 'meta' not in tweets:
-                error_msg = (
+                error_msg = _(
                     "Unable to retrieve tweets. Is the account protected?"
                     " If so, you need to provide the following OAuth 1.0a"
                     " fields in the user config:\n - consumer_key \n "
@@ -340,7 +390,9 @@ def main():
                 logger.error(error_msg)
 
             if tweets["meta"]["result_count"] > 0:
-                logger.info(f"tweet count: \t {len(tweets['data'])}")
+                logger.info(
+                    _("tweet count: \t {}").format(len(tweets['data']))
+                )
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
                 tweets_to_post = user.process_tweets(tweets)
@@ -363,14 +415,14 @@ def main():
             if not args.noProfile:
                 if user.skip_pin:
                     logger.warning(
-                        "Multiple twitter users, not updating profile"
+                        _("Multiple twitter users, not updating profile")
                     )
                 else:
                     user.update_pleroma()
             # Clean-up
             shutil.rmtree(user.tweets_temp_path)
     except Exception:
-        logger.error("Exception occurred", exc_info=True)
+        logger.error(_("Exception occurred"), exc_info=True)
         return 1
 
     return 0
@@ -378,6 +430,27 @@ def main():
 
 def init():
     if __name__ == "__main__":
+        # Convert legacy flag to proper flag format
+        mangle_args = "noProfile"
+        arguments = [
+            "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
+        ]
+        args = get_args(sysargs=arguments)
+        if args.log:
+            log_path = args.log
+        elif args.config:
+            base_path, cfg_file = os.path.split(os.path.abspath(args.config))
+            log_path = os.path.join(base_path, "error.log")
+        else:
+            log_path = os.path.join(os.getcwd(), "error.log")
+        f_handler = logging.FileHandler(log_path)
+        f_handler.setLevel(logging.ERROR)
+        f_format = logging.Formatter(
+            "%(asctime)s %(name)s %(levelname)s: %(message)s"
+        )
+        f_handler.setFormatter(f_format)
+        logger.addHandler(f_handler)
+
         sys.exit(main())
 
 

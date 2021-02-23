@@ -16,9 +16,10 @@ except ImportError:
     magic = None
 
 from . import logger
+from .i18n import _
 
 
-@spinner("Processing tweets... ")
+@spinner(_("Processing tweets... "))
 def process_tweets(self, tweets_to_post):
     """Transforms tweets for posting them to Pleroma
     Expands shortened URLs
@@ -137,10 +138,13 @@ def _download_media(self, media, tweet):
                     response.raise_for_status()
             except requests.exceptions.HTTPError:
                 if response.status_code == 404:
-                    logger.warning("Exception occurred")
-                    logger.warning("Media not found (404)")
-                    logger.warning(f"{tweet} - {media_url}")
-                    logger.warning("Ignoring attachment and continuing...")
+                    att_not_found = _(
+                        "Exception occurred"
+                        "\nMedia not found (404)"
+                        "\n{tweet} - {media_url}"
+                        "\nIgnoring attachment and continuing..."
+                    ).format(tweet=tweet, media_url=media_url)
+                    logger.warning(att_not_found)
                     return
                 else:
                     response.raise_for_status()
@@ -159,13 +163,16 @@ def _download_media(self, media, tweet):
                 max_file_size_bytes = parse_size(self.file_max_size)
                 if file_size_bytes > max_file_size_bytes:
                     logger.error(
-                        f"Attachment exceeded config file size limit "
-                        f"({self.file_max_size})"
+                        _(
+                            "Attachment exceeded config file size limit ({})"
+                        ).format(self.file_max_size)
                     )
                     logger.error(
-                        f"File size: {round(file_size_bytes / 2 ** 20, 2)}MB"
+                        _(
+                            "File size: {}MB"
+                        ).format(round(file_size_bytes / 2 ** 20, 2))
                     )
-                    logger.error("Ignoring attachment and continuing...")
+                    logger.error(_("Ignoring attachment and continuing..."))
                     os.remove(file_path)
 
 
