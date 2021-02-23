@@ -5,6 +5,7 @@
 ## Enhancements
 - Created a package in the Arch User Repository: [python-pleroma-bot](https://aur.archlinux.org/packages/python-pleroma-bot)
 - Added es_ES translation
+- Created [documentation site](https://robertoszek.github.io/pleroma-bot)
 
 ## [0.8.0] - 2021-02-03
 
