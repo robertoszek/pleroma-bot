@@ -1,4 +1,4 @@
-## Unreleased
+## [0.8.5] - 2021-02-23
 ## Added
 - Argument ```--config```, the user can specify a custom path for the config.yml file to be parsed
 - Argument ```--log```, the user can specify a custom path for the error.log to create during execution
