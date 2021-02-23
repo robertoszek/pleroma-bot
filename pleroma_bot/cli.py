@@ -75,7 +75,7 @@ class User(object):
     from ._processing import _replace_mentions
     from ._processing import _get_best_bitrate_video
 
-    def __init__(self, user_cfg: dict, cfg: dict):
+    def __init__(self, user_cfg: dict, cfg: dict, base_path: str):
         self.twitter_token = cfg["twitter_token"]
         self.signature = ""
         self.media_upload = False
@@ -205,7 +205,9 @@ class User(object):
         self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.last_post_pleroma = None
         # Filesystem
-        self.base_path = os.getcwd()
+        # self.base_path = os.getcwd()
+        self.base_path = base_path
+        self.users_path = os.path.join(self.base_path, "users")
         self.users_path = os.path.join(self.base_path, "users")
         self.user_path = os.path.join(self.users_path, self.twitter_username)
         self.tweets_temp_path = os.path.join(self.user_path, "tweets")
@@ -244,6 +246,19 @@ def get_args(sysargs):
                 "path of config file (config.yml) to use and parse. If not"
                 " specified, it will try to find it in the current working "
                 "directory."
+            )
+        ),
+    )
+
+    parser.add_argument(
+        "-l",
+        "--log",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of log file (error.log) to create. If not"
+                " specified, it will try to store it at your config file path"
             )
         ),
     )
@@ -311,6 +326,7 @@ def main():
         base_path = os.getcwd()
         if args.config:
             config_path = args.config
+            base_path, cfg_file = os.path.split(os.path.abspath(config_path))
         else:
             config_path = os.path.join(base_path, "config.yml")
 
@@ -349,7 +365,7 @@ def main():
                 )
                 logger.info(first_time_msg)
                 first_time = True
-            user = User(user_item, config)
+            user = User(user_item, config, base_path)
             if first_time and not args.skipChecks:
                 user.first_time = True
             if (
@@ -414,6 +430,27 @@ def main():
 
 def init():
     if __name__ == "__main__":
+        # Convert legacy flag to proper flag format
+        mangle_args = "noProfile"
+        arguments = [
+            "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
+        ]
+        args = get_args(sysargs=arguments)
+        if args.log:
+            log_path = args.log
+        elif args.config:
+            base_path, cfg_file = os.path.split(os.path.abspath(args.config))
+            log_path = os.path.join(base_path, "error.log")
+        else:
+            log_path = os.path.join(os.getcwd(), "error.log")
+        f_handler = logging.FileHandler(log_path)
+        f_handler.setLevel(logging.ERROR)
+        f_format = logging.Formatter(
+            "%(asctime)s %(name)s %(levelname)s: %(message)s"
+        )
+        f_handler.setFormatter(f_format)
+        logger.addHandler(f_handler)
+
         sys.exit(main())
 
 

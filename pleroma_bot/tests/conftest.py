@@ -233,8 +233,14 @@ def _sample_users(mock_request, rootdir):
                      json=mock_request['sample_data']['tweets_v1'],
                      status_code=200)
 
-            users.append({'user_obj': User(user_item, config_users['config']),
-                          'mock': mock, 'config': config_users['config']})
+            users.append(
+                {
+                    'user_obj': User(
+                        user_item, config_users['config'], os.getcwd()
+                    ),
+                    'mock': mock,
+                    'config': config_users['config']}
+            )
         sample_users = {'users': users, 'global_mock': mock}
         return sample_users
 

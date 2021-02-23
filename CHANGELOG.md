@@ -1,6 +1,7 @@
 ## Unreleased
 ## Added
 - Argument ```--config```, the user can specify a custom path for the config.yml file to be parsed
+- Argument ```--log```, the user can specify a custom path for the error.log to create during execution
 - Support for localization
 ## Enhancements
 - Created a package in the Arch User Repository: [python-pleroma-bot](https://aur.archlinux.org/packages/python-pleroma-bot)

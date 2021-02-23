@@ -137,7 +137,9 @@ def test_post_pleroma_media_size_logger(
         users_file_size = get_config_users('config_file_size.yml')
 
         for user_item in users_file_size['user_dict']:
-            sample_user_obj = User(user_item, users_file_size['config'])
+            sample_user_obj = User(
+                user_item, users_file_size['config'], os.getcwd()
+            )
             tweets_v2 = sample_user_obj._get_tweets("v2")
             assert tweets_v2 == mock_request['sample_data']['tweets_v2']
             tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
