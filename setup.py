@@ -19,6 +19,9 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/robertoszek/pleroma-bot",
+    project_urls={
+        "Documentation": "https://robertoszek.github.io/pleroma-bot",
+    },
     packages=['pleroma_bot'],
     package_data={'pleroma_bot': ['locale/*/*/*.mo']},
     include_package_data=True,

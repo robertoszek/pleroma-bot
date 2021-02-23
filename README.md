@@ -11,6 +11,8 @@
 
 Mirror one or multiple Twitter accounts in Pleroma/Mastodon.
 
+[![Documentation](img/docs.png)](https://robertoszek.github.io/pleroma-bot)
+
 ## Introduction
 
 After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
