@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pleroma-bot\n"
-"POT-Creation-Date: 2021-02-21 20:32+0100\n"
-"PO-Revision-Date: 2021-02-21 20:32+0100\n"
+"POT-Creation-Date: 2021-02-23 17:34+0100\n"
+"PO-Revision-Date: 2021-02-23 17:35+0100\n"
 "Last-Translator: robertoszek <robertoszek@robertoszek.xyz>\n"
 "Language-Team: \n"
 "Language: es_ES\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.4.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-SearchPath-0: .\n"
@@ -190,11 +190,11 @@ msgstr ""
 "No todos los tokens OAuth 1.0a han sido encontrados. Usando autenticación de "
 "aplicación en su lugar"
 
-#: cli.py:231
+#: cli.py:233
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr "Bot para replicar una o varias cuentas de Twitter en Pleroma/Mastodon."
 
-#: cli.py:244
+#: cli.py:246
 msgid ""
 "path of config file (config.yml) to use and parse. If not specified, it will "
 "try to find it in the current working directory."
@@ -202,7 +202,15 @@ msgstr ""
 "ruta del fichero de configuración (config.yml) a usar e interpretar. Si no "
 "se especifica, se intentará usar el del directorio de trabajo actual."
 
-#: cli.py:258
+#: cli.py:260
+msgid ""
+"path of log file (error.log) to create. If not specified, it will try to "
+"store it at your config file path"
+msgstr ""
+"ruta del fichero de log (error.log) a escribir. Si no se especifica, se "
+"intentará usar la ruta en la que se encuentra el fichero de configuración"
+
+#: cli.py:273
 msgid ""
 "skips Fediverse profile update (no background image, profile image, bio "
 "text, etc.)"
@@ -210,7 +218,7 @@ msgstr ""
 "omite la actualización de perfil en la cuenta del Fediverso (imagen de "
 "fondo, imagen de perfil, biografía, etc.)"
 
-#: cli.py:272
+#: cli.py:287
 msgid ""
 "forces the tweet retrieval to start from a specific date. The "
 "twitter_username value (FORCEDATE) can be supplied to only force it for that "
@@ -221,15 +229,15 @@ msgstr ""
 "fecha de inicio de recopilación sólo para ese usuario específico del archivo "
 "de configuración"
 
-#: cli.py:285
+#: cli.py:300
 msgid "skips first run checks"
 msgstr "omite las validaciones de la primera ejecución"
 
-#: cli.py:308
+#: cli.py:323
 msgid "Debug logging enabled"
 msgstr "Modo de depuración activado"
 
-#: cli.py:326
+#: cli.py:342
 msgid ""
 "Multiple twitter users for one Fediverse account, skipping profile and "
 "pinned tweet."
@@ -237,16 +245,16 @@ msgstr ""
 "Varios usuarios de Twitter definidos para una cuenta de Fediverso, omitiendo "
 "la actualización de perfil y tweet fijado."
 
-#: cli.py:341
+#: cli.py:357
 msgid "Processing user:\t{}"
 msgstr "Procesando usuario:\t{}"
 
-#: cli.py:347
+#: cli.py:363
 msgid "It seems like pleroma-bot is running for the first time for this user"
 msgstr ""
 "Parece que pleroma-bot está ejecutándose por primera vez para este usuario"
 
-#: cli.py:368
+#: cli.py:384
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to "
 "provide the following OAuth 1.0a fields in the user config:\n"
@@ -263,14 +271,14 @@ msgstr ""
 " - access_token_key \n"
 " - access_token_secret"
 
-#: cli.py:378
+#: cli.py:394
 msgid "tweet count: \t {}"
 msgstr "número de tweets: \t {}"
 
-#: cli.py:402
+#: cli.py:418
 msgid "Multiple twitter users, not updating profile"
 msgstr "Varios usuarios de Twitter, omitiendo actualizado de perfil"
 
-#: cli.py:409
+#: cli.py:425
 msgid "Exception occurred"
 msgstr "Se produjo una excepción"

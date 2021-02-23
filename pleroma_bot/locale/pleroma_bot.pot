@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-02-21 20:33+0100\n"
+"POT-Creation-Date: 2021-02-23 17:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: tests\n"
@@ -154,43 +154,47 @@ msgstr ""
 msgid "Some or all OAuth 1.0a tokens missing, falling back to application-only authentication"
 msgstr ""
 
-#: cli.py:231
+#: cli.py:233
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr ""
 
-#: cli.py:244
+#: cli.py:246
 msgid "path of config file (config.yml) to use and parse. If not specified, it will try to find it in the current working directory."
 msgstr ""
 
-#: cli.py:258
+#: cli.py:260
+msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
+msgstr ""
+
+#: cli.py:273
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: cli.py:272
+#: cli.py:287
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: cli.py:285
+#: cli.py:300
 msgid "skips first run checks"
 msgstr ""
 
-#: cli.py:308
+#: cli.py:323
 msgid "Debug logging enabled"
 msgstr ""
 
-#: cli.py:326
+#: cli.py:342
 msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
 msgstr ""
 
-#: cli.py:341
+#: cli.py:357
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: cli.py:347
+#: cli.py:363
 msgid "It seems like pleroma-bot is running for the first time for this user"
 msgstr ""
 
-#: cli.py:368
+#: cli.py:384
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -199,14 +203,14 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: cli.py:378
+#: cli.py:394
 msgid "tweet count: \t {}"
 msgstr ""
 
-#: cli.py:402
+#: cli.py:418
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: cli.py:409
+#: cli.py:425
 msgid "Exception occurred"
 msgstr ""
