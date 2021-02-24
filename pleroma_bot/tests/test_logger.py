@@ -104,7 +104,7 @@ def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
                 media_url = (
                     f"{test_user.pleroma_base_url}/api/v1/media"
                 )
-                mock.post(media_url, status_code=513)
+                mock.post(media_url, status_code=413)
                 with caplog.at_level(logging.ERROR):
                     sample_user_obj.post_pleroma(
                         (test_user.pinned, ""), None, False
