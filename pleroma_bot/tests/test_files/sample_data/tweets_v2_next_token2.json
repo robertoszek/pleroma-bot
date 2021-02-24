@@ -229,11 +229,12 @@
         "width": 960
       }
     ],
-    "tweets": []
+    "tweets": [{"tweet_1": 2}]
   },
   "meta": {
-    "newest_id": "1323049466837032961",
+    "newest_id": "1323049466837032960",
     "oldest_id": "1323048139251658753",
+    "next_token": "XXXXXXXXXXXXXXXXXX",
     "result_count": 4
   }
 }

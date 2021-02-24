@@ -16,7 +16,7 @@ except ImportError:
     magic = None
 
 from . import logger
-
+from .i18n import _
 from ._utils import random_string, guess_type
 
 
@@ -24,7 +24,7 @@ def get_date_last_pleroma_post(self):
     """Gathers last post from the user in Pleroma and returns the date
     of creation.
 
-    :returns: Date of last Pleroma post in '%Y-%m-%d %H:%M:%S' format
+    :returns: Date of last Pleroma post in '%Y-%m-%dT%H:%M:%SZ' format
     """
     pleroma_posts_url = (
         f"{self.pleroma_base_url}/api/v1/accounts/"
@@ -36,14 +36,18 @@ def get_date_last_pleroma_post(self):
     posts = json.loads(response.text)
     self.posts = posts
     if posts:
-        date_pleroma = datetime.strftime(
-            datetime.strptime(posts[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ"),
-            "%Y-%m-%d %H:%M:%S",
-        )
+        date_pleroma = posts[0]["created_at"]
     else:
-        date_pleroma = datetime.strftime(
-            datetime.now() - timedelta(days=2), "%Y-%m-%d %H:%M:%S"
+        self.posts = "none_found"
+        logger.warning(
+            _("No posts were found in the target Fediverse account")
         )
+        if self.first_time:
+            date_pleroma = self.force_date()
+        else:
+            date_pleroma = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
 
     return date_pleroma
 
@@ -95,20 +99,25 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                 if not response.ok:
                     response.raise_for_status()
             except requests.exceptions.HTTPError:
-                if response.status_code == 513:
-                    logger.error("Exception occurred")
-                    logger.error("Media size too large:")
-                    logger.error(f"Filename: {file}")
-                    logger.error(f"Size: {round(file_size / 1048576, 2)}MB")
-                    logger.error(
-                        "Consider increasing the attachment"
-                        " size limit of your instance"
-                    )
+                if response.status_code == 413:
+                    size_msg = _(
+                        "Exception occurred"
+                        "\nMedia size too large:"
+                        "\nFilename: {file}"
+                        "\nSize: {size}MB"
+                        "\nConsider increasing the attachment"
+                        "\n size limit of your instance"
+                    ).format(file=file, size=round(file_size / 1048576, 2))
+                    logger.error(size_msg)
                     pass
+                else:
+                    response.raise_for_status()
             try:
                 media_ids.append(json.loads(response.text)["id"])
             except (KeyError, JSONDecodeError):
-                logger.warning(f"Error uploading media:\t{str(response.text)}")
+                logger.warning(
+                    _("Error uploading media:\t{}").format(str(response.text))
+                )
                 pass
 
     if self.signature:
@@ -142,7 +151,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     )
     if not response.ok:
         response.raise_for_status()
-    logger.info(f"Post in Pleroma:\t{str(response)}")
+    logger.info(_("Post in Pleroma:\t{}").format(str(response)))
     post_id = json.loads(response.text)["id"]
     return post_id
 
@@ -197,8 +206,10 @@ def update_pleroma(self):
 
     if len(fields) > 4:
         raise Exception(
-            f"Total number of metadata fields cannot exceed 4."
-            f"Provided: {len(fields)}. Exiting..."
+            _(
+                "Total number of metadata fields cannot exceed 4."
+                "\nProvided: {}. Exiting..."
+            ).format(len(fields))
         )
     for idx, (field_name, field_value) in enumerate(fields):
         data[f'fields_attributes["{str(idx)}"][name]'] = field_name
@@ -230,5 +241,5 @@ def update_pleroma(self):
     )
     if not response.ok:
         response.raise_for_status()
-    logger.info(f"Updating profile:\t {str(response)}")
+    logger.info(_("Updating profile:\t {}").format(str(response)))
     return

@@ -35,6 +35,7 @@ def mock_request(rootdir):
         mock.get(f"{twitter_base_url_v2}/tweets/search/recent",
                  json=sample_data['tweets_v2'],
                  status_code=200)
+
         mock.get(f"{twitter_base_url}/users/show.json",
                  json=sample_data['twitter_info'],
                  status_code=200)
@@ -69,15 +70,44 @@ def _sample_users(mock_request, rootdir):
     with mock_request['mock'] as mock:
         config_users = get_config_users('config.yml')
         for user_item in config_users['user_dict']:
+            pinned = test_user.pinned
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                     f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
+                     f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                     f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
+                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
+                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"entities.mentions.username%2Cgeo.place_id%2C"
+                     f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                     f"referenced_tweets.id.author_id&tweet.fields=attachments"
+                     f"%2Cauthor_id%2Ccontext_annotations%2Cconversation_id%2"
+                     f"Ccreated_at%2Centities%2Cgeo%2Cid%2Cin_reply_to_user_id"
+                     f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                     f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
             mock.get(f"{twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
                      json=mock_request['sample_data']['pinned'],
                      status_code=200)
-            mock.get(f"{twitter_base_url_v2}/users/by/username/"
-                     f"{user_item['twitter_username']}?user.fields="
-                     f"pinned_tweet_id&expansions=pinned_tweet_id"
-                     f"&tweet.fields=entities",
+            mock.get(f"{twitter_base_url_v2}/users/by?"
+                     f"usernames={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['user_id'],
+                     status_code=200)
+
+            mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                     f"{user_item['twitter_username']}",
                      json=mock_request['sample_data']['pinned'],
+                     status_code=200)
+
+            mock.get(f"{test_user.twitter_base_url}/users/"
+                     f"show.json?screen_name={user_item['twitter_username']}",
+                     json=mock_request['sample_data']['twitter_info'],
+                     status_code=200)
+
+            mock.get(f"{test_user.twitter_base_url_v2}/users/2244994945"
+                     f"/tweets",
+                     json=mock_request['sample_data']['tweets_v2'],
                      status_code=200)
 
             headers_statuses = {
@@ -142,6 +172,40 @@ def _sample_users(mock_request, rootdir):
             profile_image_content = profile_image.read()
             profile_image.close()
 
+            mp4 = os.path.join(media_dir, 'video.mp4')
+            gif = os.path.join(media_dir, "animated_gif.gif")
+            png = os.path.join(media_dir, 'image.png')
+
+            gif_file = open(gif, 'rb')
+            gif_content = gif_file.read()
+            gif_file.close()
+
+            png_file = open(png, 'rb')
+            png_content = png_file.read()
+            png_file.close()
+
+            mp4_file = open(mp4, 'rb')
+            mp4_content = mp4_file.read()
+            mp4_file.close()
+
+            mock.get("https://video.twimg.com/tweet_video/ElxpatpX0AAFCLC.mp4",
+                     content=gif_content,
+                     headers={'Content-Type': 'image/gif'},
+                     status_code=200)
+            mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049214134407171",
+                     json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
+                     "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
             twitter_info = mock_request['sample_data']['twitter_info']
             banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
             mock.get(f"{banner_url}",
@@ -169,8 +233,14 @@ def _sample_users(mock_request, rootdir):
                      json=mock_request['sample_data']['tweets_v1'],
                      status_code=200)
 
-            users.append({'user_obj': User(user_item, config_users['config']),
-                          'mock': mock, 'config': config_users['config']})
+            users.append(
+                {
+                    'user_obj': User(
+                        user_item, config_users['config'], os.getcwd()
+                    ),
+                    'mock': mock,
+                    'config': config_users['config']}
+            )
         sample_users = {'users': users, 'global_mock': mock}
         return sample_users
 

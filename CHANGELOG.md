@@ -1,3 +1,42 @@
+## [0.8.5] - 2021-02-23
+## Added
+- Argument ```--config```, the user can specify a custom path for the config.yml file to be parsed
+- Argument ```--log```, the user can specify a custom path for the error.log to create during execution
+- Support for localization
+## Enhancements
+- Created a package in the Arch User Repository: [python-pleroma-bot](https://aur.archlinux.org/packages/python-pleroma-bot)
+- Added es_ES translation
+- Created [documentation site](https://robertoszek.github.io/pleroma-bot)
+
+## [0.8.0] - 2021-02-03
+
+## Added
+- Support for OAuth 1.0a authentication (needed if retrieving tweets from protected accounts)
+- Verbose argument ``-v`` for debugging
+- ```twitter_username``` can take a list as a value. They are internally broken apart into multiple ```User``` objects
+
+## Fixed
+- HTML character entities incorrect escaping in tweet's body
+- First run skip condition if the Fediverse had no posts/tweets published as a result of a manual first run
+
+## Enhancements
+- Provide feedback when long operations are running (speeen)
+- Color output based on logging level
+
+## [0.7.0] - 2021-01-19
+
+## Added
+- New and shiny help page
+- Checks for first run (no posts/toots on the Fediverse account, or no user folder present)
+- Argument ```--forceDate``` to allow setting a starting date for tweet retrieval (optionally forcing it on a user-by-user basis by providing ```twitter_username``` to identify the user on the config file)
+
+## Fixed
+- Handle instances being unreachable when trying to get version info to identify their platform
+
+## Enhancements
+- Reworked how arguments are parsed and processed with ```argparse```
+- Pagination implemented for tweet retrieval (which allows tweets older than one week to be retrieved)
+
 ## [0.6.8] - 2021-01-13
 
 ## Added
@@ -8,7 +47,7 @@
 
 ## Enhancements
 - Refactored and aligned the format of old code
-- More readable console output when mirroring multiple users
+- More readable console output when mirroring multiple users 
 
 ## [0.6.2] - 2020-01-07
 

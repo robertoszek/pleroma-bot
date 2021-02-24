@@ -14,6 +14,11 @@ users:
   pleroma_username: KyleBosman
   # Mastodon/Pleroma token obtained by following the README.md
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # (optional) keys and secrets for using OAuth 1.0a (for protected accounts)
+  consumer_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+  consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   # If you want to add a link to the original status or not
   signature: true
   # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.
@@ -72,14 +77,8 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+# Minimal config example
 - twitter_username: arstechnica
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  signature: true
-  nitter: true
-  visibility: "public"
-  media_upload: false
-  pleroma_base_url: https://another.pleroma.instance
-  max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n Any issues please contact @robertoszek \n \n "
+  bio_text: ""

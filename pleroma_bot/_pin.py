@@ -5,6 +5,7 @@ import json
 import requests
 
 from . import logger
+from .i18n import _
 
 
 def pin_pleroma(self, id_post):
@@ -21,7 +22,7 @@ def pin_pleroma(self, id_post):
 
     pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
     response = requests.post(pin_url, headers=self.header_pleroma)
-    logger.info(f"Pinning post:\t{str(response.text)}")
+    logger.info(_("Pinning post:\t{}").format(str(response.text)))
     try:
         pin_id = json.loads(response.text)["id"]
     except KeyError:
@@ -52,14 +53,16 @@ def unpin_pleroma(self, pinned_file):
         response = requests.post(unpin_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
-        logger.info(f"Unpinning previous:\t{response.text}")
+        logger.info(_("Unpinning previous:\t{}").format(response.text))
     else:
         logger.info(
-            "File with previous pinned post ID not found or empty. "
-            "Checking last posts for pinned post..."
+            _(
+                "File with previous pinned post ID not found or empty. "
+                "Checking last posts for pinned post..."
+            )
         )
         _find_pinned(self, pinned_file)
-        logger.warning("Pinned post not found. Giving up unpinning...")
+        logger.warning(_("Pinned post not found. Giving up unpinning..."))
     # Clear pinned ids
     with open(pinned_file, "w") as file:
         file.write("\n")
@@ -117,7 +120,9 @@ def _get_pinned_tweet_id(self):
         "expansions": "pinned_tweet_id",
         "tweet.fields": "entities",
     }
-    response = requests.get(url, headers=self.header_twitter, params=params)
+    response = requests.get(
+        url, headers=self.header_twitter, params=params, auth=self.auth
+    )
     if not response.ok:
         response.raise_for_status()
     try:

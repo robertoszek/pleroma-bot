@@ -1,12 +1,18 @@
 import os
+import re
+import time
+import json
 import string
 import random
-
-import re
-import json
-import shutil
 import requests
+import threading
+import functools
 import mimetypes
+
+from queue import Queue
+from itertools import cycle
+from json.decoder import JSONDecodeError
+from datetime import datetime, timedelta
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -15,7 +21,85 @@ try:
 except ImportError:
     magic = None
 
+from .i18n import _
 from . import logger
+
+
+class PropagatingThread(threading.Thread):
+    """
+    Thread that surfaces exceptions that occur inside of it
+    """
+
+    def run(self):
+        self.exc = None
+        # Event to keep track if thread has started
+        self.started_evt = threading.Event()
+        try:
+            self.ret = self._target(*self._args, **self._kwargs)
+            self.started_evt.set()
+        except BaseException as e:
+            self.exc = e
+            self.started_evt.clear()
+
+    def join(self):
+        if not self.exc:
+            self.started_evt.wait()
+        super(PropagatingThread, self).join()
+        self.started_evt.clear()
+        if self.exc:
+            raise self.exc
+        return self.ret
+
+
+def spinner(message, spinner_symbols: list = None):
+    """
+    Decorator that launches the function wrapped and the spinner each in a
+    separate thread
+    :param message: Message to display next to the spinner
+    :param spinner_symbols:
+    :return:
+    """
+    spinner_symbols = spinner_symbols or list("|/-\\")
+    spinner_symbols = cycle(spinner_symbols)
+    global input_thread
+
+    def start():
+        while input_thread.is_alive():
+            symbol = next(spinner_symbols)
+            print(
+                "\r{message} {symbol}".format(message=message, symbol=symbol),
+                end="",
+            )
+            time.sleep(0.3)
+
+    def stop():
+        print("\r", end="")
+
+    def external(fct):
+        @functools.wraps(fct)
+        def wrapper(*args, **kwargs):
+            return_que = Queue()
+            global input_thread
+            input_thread = PropagatingThread(
+                target=lambda q, *arg1, **kwarg1: q.put(fct(*arg1, **kwarg1)),
+                args=(return_que, *args),
+                kwargs=dict(**kwargs),
+            )
+            input_thread.start()
+            spinner_thread = threading.Thread(target=start)
+            spinner_thread.start()
+
+            spinner_thread.join()
+            input_thread.join()
+            stop()
+
+            result = return_que.get()
+
+            return result
+
+        return wrapper
+
+    return external
 
 
 def check_pinned(self):
@@ -23,7 +107,7 @@ def check_pinned(self):
     Checks if a tweet is pinned and needs to be retrieved and posted on the
     Fediverse account
     """
-    logger.info(f"Current pinned:\t{str(self.pinned_tweet_id)}")
+    logger.info(_("Current pinned:\t{}").format(str(self.pinned_tweet_id)))
     pinned_file = os.path.join(self.user_path, "pinned_id.txt")
     if os.path.isfile(pinned_file):
         with open(pinned_file, "r") as file:
@@ -32,7 +116,9 @@ def check_pinned(self):
                 previous_pinned_tweet_id = None
     else:
         previous_pinned_tweet_id = None
-    logger.info(f"Previous pinned:\t{str(previous_pinned_tweet_id)}")
+    logger.info(
+        _("Previous pinned:\t{}").format(str(previous_pinned_tweet_id))
+    )
     if (
         self.pinned_tweet_id != previous_pinned_tweet_id
         and self.pinned_tweet_id is not None
@@ -99,242 +185,10 @@ def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
                 value = locals()[match.strip()]
             except (NameError, KeyError):
                 value = globals()[match.strip()]
+        if isinstance(value, list):
+            value = ", ".join([str(elem) for elem in value])
         text = re.sub(pattern, value, text)
     return text
-
-
-def process_tweets(self, tweets_to_post):
-    """Transforms tweets for posting them to Pleroma
-    Expands shortened URLs
-    Downloads tweet related media and prepares them for upload
-
-    :param tweets_to_post: Dict of tweet objects to be processed
-    :type tweets_to_post: dict
-    :returns: Tweets ready to be published
-    :rtype: list
-    """
-    # Remove RTs if include_rts is false
-    if not self.include_rts:
-        for tweet in tweets_to_post["data"][:]:
-            try:
-                for reference in tweet["referenced_tweets"]:
-                    if reference["type"] == "retweeted":
-                        tweets_to_post["data"].remove(tweet)
-                        break
-            except KeyError:
-                pass
-    # Remove replies if include_replies is false
-    if not self.include_replies:
-        for tweet in tweets_to_post["data"][:]:
-            try:
-                for reference in tweet["referenced_tweets"]:
-                    if reference["type"] == "replied_to":
-                        tweets_to_post["data"].remove(tweet)
-                        break
-            except KeyError:
-                pass
-    for tweet in tweets_to_post["data"]:
-        media = []
-        tweet["text"] = _expand_urls(self, tweet)
-        if hasattr(self, "rich_text"):
-            if self.rich_text:
-                tweet["text"] = _replace_mentions(self, tweet)
-        try:
-            if self.nitter:
-                tweet["text"] = _replace_nitter(self, tweet)
-        except AttributeError:
-            pass
-        try:
-            for item in tweet["attachments"]["media_keys"]:
-                for media_include in tweets_to_post["includes"]["media"]:
-                    media_url = _get_media_url(
-                        self, item, media_include, tweet
-                    )
-                    if media_url:
-                        media.extend(media_url)
-        except KeyError:
-            pass
-        # Create folder to store attachments related to the tweet ID
-        tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
-        os.makedirs(tweet_path, exist_ok=True)
-        # Download media only if we plan to upload it later
-        if self.media_upload:
-            _download_media(self, media, tweet)
-        # Process poll if exists and no media is used
-        tweet["polls"] = _process_polls(self, tweet, media)
-
-    return tweets_to_post
-
-
-def _process_polls(self, tweet, media):
-    try:
-        if tweet["attachments"]["poll_ids"] and not media:
-
-            # tweet_poll = tweet['includes']['polls']
-            poll_url = f"{self.twitter_base_url_v2}/tweets"
-
-            params = {
-                "ids": tweet["id"],
-                "expansions": "attachments.poll_ids",
-                "poll.fields": "duration_minutes," "options",
-            }
-
-            response = requests.get(
-                poll_url, headers=self.header_twitter, params=params
-            )
-            if not response.ok:
-                response.raise_for_status()
-            response_content = json.loads(response.content)
-            tweet_poll = response_content["includes"]["polls"][0]
-
-            pleroma_poll = {
-                "options": [
-                    option["label"] for option in tweet_poll["options"]
-                ],
-                "expires_in": tweet_poll["duration_minutes"] * 60,
-            }
-
-            # Add poll to tweet
-            tweet["polls"] = pleroma_poll
-
-        else:
-            tweet["polls"] = None
-    except KeyError:
-        tweet["polls"] = None
-        pass
-
-    return tweet["polls"]
-
-
-def _download_media(self, media, tweet):
-    for idx, item in enumerate(media):
-        if item["type"] != "video" and item["type"] != "animated_gif":
-            media_url = item["url"]
-        else:
-            media_url = _get_best_bitrate_video(self, item)
-
-        if media_url:
-            response = requests.get(media_url, stream=True)
-            if not response.ok:
-                response.raise_for_status()
-            response.raw.decode_content = True
-            filename = str(idx) + mimetypes.guess_extension(
-                response.headers["Content-Type"]
-            )
-            file_path = os.path.join(
-                self.tweets_temp_path, tweet["id"], filename
-            )
-            with open(file_path, "wb") as outfile:
-                shutil.copyfileobj(response.raw, outfile)
-            # Remove attachment if exceeds the limit
-            if hasattr(self, "file_max_size"):
-                file_size_bytes = os.stat(file_path).st_size
-                max_file_size_bytes = parse_size(self.file_max_size)
-                if file_size_bytes > max_file_size_bytes:
-                    logger.error(
-                        f"Attachment exceeded config file size limit "
-                        f"({self.file_max_size})"
-                    )
-                    logger.error(
-                        f"File size: {round(file_size_bytes / 2**20, 2)}MB"
-                    )
-                    logger.error("Ignoring attachment and continuing...")
-                    os.remove(file_path)
-
-
-def parse_size(size):
-    units = {
-        "B": 1,
-        "KB": 2 ** 10,
-        "MB": 2 ** 20,
-        "GB": 2 ** 30,
-        "TB": 2 ** 40,
-    }
-    size = size.upper()
-    if not re.match(r" ", size):
-        size = re.sub(r"([KMGT]?B)", r" \1", size)
-    number, unit = [string.strip() for string in size.split()]
-    return int(float(number) * units[unit])
-
-
-def _replace_nitter(self, tweet):
-    matching_pattern = "https://twitter.com"
-    matches = re.findall(matching_pattern, tweet["text"])
-    for match in matches:
-        tweet["text"] = re.sub(match, self.nitter_base_url, tweet["text"])
-    return tweet["text"]
-
-
-def _replace_mentions(self, tweet):
-    matches = re.findall(r"\B\@\w+", tweet["text"])
-    for match in matches:
-        mention_link = f"[{match}](https://twitter.com/{match[1:]})"
-        tweet["text"] = re.sub(match, mention_link, tweet["text"])
-    return tweet["text"]
-
-
-def _expand_urls(self, tweet):
-    # Replace shortened links
-    try:
-        for url_entity in tweet["entities"]["urls"]:
-            matching_pattern = url_entity["url"]
-            matches = re.findall(matching_pattern, tweet["text"])
-            for match in matches:
-                tweet["text"] = re.sub(
-                    match, url_entity["expanded_url"], tweet["text"]
-                )
-    except KeyError:
-        # URI regex
-        matching_pattern = (
-            r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
-            r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
-            r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
-            r';:\'".,<>?«»“”‘’]))'
-        )
-        matches = re.finditer(matching_pattern, tweet["text"])
-        for matchNum, match in enumerate(matches, start=1):
-            # don't be brave trying to unwound an URL when it gets
-            # cut off
-            if not match.group().__contains__("…"):
-                session = requests.Session()  # so connections are
-                # recycled
-                response = session.head(match.group(), allow_redirects=True)
-                if not response.ok:
-                    response.raise_for_status()
-                expanded_url = response.url
-                tweet["text"] = re.sub(
-                    match.group(), expanded_url, tweet["text"]
-                )
-    return tweet["text"]
-
-
-def _get_media_url(self, item, media_include, tweet):
-    media_urls = []
-    if item == media_include["media_key"]:
-        # Video download not implemented in v2 yet
-        # fallback to v1.1
-        if (
-            media_include["type"] == "video"
-            or media_include["type"] == "animated_gif"
-        ):
-            tweet_video = self._get_tweets("v1.1", tweet["id"])
-            xmd = tweet_video["extended_entities"]["media"]
-            for extended_media in xmd:
-                media_urls.append(extended_media)
-            return media_urls
-        else:
-            media_urls.append(media_include)
-            return media_urls
-
-
-def _get_best_bitrate_video(self, item):
-    bitrate = 0
-    for variant in item["video_info"]["variants"]:
-        try:
-            if variant["bitrate"] >= bitrate:
-                return variant["url"]
-        except KeyError:
-            pass
 
 
 def guess_type(media_file: str) -> str:
@@ -369,12 +223,20 @@ def random_string(length: int) -> str:
 def _get_instance_info(self):
     instance_url = f"{self.pleroma_base_url}/api/v1/instance"
     response = requests.get(instance_url)
-    instance_info = json.loads(response.text)
+    if not response.ok:
+        response.raise_for_status()
+    try:
+        instance_info = json.loads(response.text)
+    except JSONDecodeError:
+        msg = _(
+            "Instance response was not understood {}"
+        ).format(response.text)
+        raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
-        logger.debug("Assuming target instance is Mastodon...")
+        logger.debug(_("Assuming target instance is Mastodon..."))
         if len(self.display_name) > 30:
             self.display_name = self.display_name[:30]
-            log_msg = (
+            log_msg = _(
                 "Mastodon doesn't support display names longer than 30 "
                 "characters, truncating it and trying again..."
             )
@@ -383,5 +245,37 @@ def _get_instance_info(self):
             if self.rich_text:
                 self.rich_text = False
                 logger.warning(
-                    "Mastodon doesn't support rich text. Disabling it..."
+                    _("Mastodon doesn't support rich text. Disabling it...")
                 )
+
+
+def force_date(self):
+    logger.info(
+        _("How far back should we retrieve tweets from the Twitter account?")
+    )
+    date_msg = _(
+        "\nEnter a date (YYYY-MM-DD):"
+        "\n[Leave it empty to retrieve *ALL* tweets or enter 'continue'"
+        "\nif you want the bot to execute as normal (checking date of "
+        "\nlast post in the Fediverse account)] "
+    )
+    logger.info(date_msg)
+    input_date = input()
+    if input_date == "continue":
+        if self.posts != "none_found":
+            date = self.get_date_last_pleroma_post()
+        else:
+            date = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
+    elif input_date is None or input_date == "":
+        self.max_tweets = 100
+        # Minimum date allowed
+        date = "2010-11-06T00:00:00Z"
+    else:
+        self.max_tweets = 100
+        date = datetime.strftime(
+            datetime.strptime(input_date, "%Y-%m-%d"),
+            "%Y-%m-%dT%H:%M:%SZ",
+        )
+    return date
