@@ -99,7 +99,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                 if not response.ok:
                     response.raise_for_status()
             except requests.exceptions.HTTPError:
-                if response.status_code == 513:
+                if response.status_code == 413:
                     size_msg = _(
                         "Exception occurred"
                         "\nMedia size too large:"
