@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=develop)](https://travis-ci.com/robertoszek/pleroma-bot)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)
-![AUR version](https://img.shields.io/aur/version/python-pleroma-bot)
+[![AUR version](https://img.shields.io/aur/version/python-pleroma-bot)](https://aur.archlinux.org/packages/python-pleroma-bot)
 [![codecov](https://codecov.io/gh/robertoszek/pleroma-bot/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-bot)
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![Requires.io (branch)](https://img.shields.io/requires/github/robertoszek/pleroma-bot/master)](https://requires.io/github/robertoszek/pleroma-bot/requirements/?branch=master)
