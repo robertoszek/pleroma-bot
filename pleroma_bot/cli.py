@@ -429,28 +429,27 @@ def main():
 
 
 def init():
+    # Convert legacy flag to proper flag format
+    mangle_args = "noProfile"
+    arguments = [
+        "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
+    ]
+    args = get_args(sysargs=arguments)
+    if args.log:
+        log_path = args.log
+    elif args.config:
+        base_path, cfg_file = os.path.split(os.path.abspath(args.config))
+        log_path = os.path.join(base_path, "error.log")
+    else:
+        log_path = os.path.join(os.getcwd(), "error.log")
+    f_handler = logging.FileHandler(log_path)
+    f_handler.setLevel(logging.ERROR)
+    f_format = logging.Formatter(
+        "%(asctime)s %(name)s %(levelname)s: %(message)s"
+    )
+    f_handler.setFormatter(f_format)
+    logger.addHandler(f_handler)
     if __name__ == "__main__":
-        # Convert legacy flag to proper flag format
-        mangle_args = "noProfile"
-        arguments = [
-            "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
-        ]
-        args = get_args(sysargs=arguments)
-        if args.log:
-            log_path = args.log
-        elif args.config:
-            base_path, cfg_file = os.path.split(os.path.abspath(args.config))
-            log_path = os.path.join(base_path, "error.log")
-        else:
-            log_path = os.path.join(os.getcwd(), "error.log")
-        f_handler = logging.FileHandler(log_path)
-        f_handler.setLevel(logging.ERROR)
-        f_format = logging.Formatter(
-            "%(asctime)s %(name)s %(levelname)s: %(message)s"
-        )
-        f_handler.setFormatter(f_format)
-        logger.addHandler(f_handler)
-
         sys.exit(main())
 
 
