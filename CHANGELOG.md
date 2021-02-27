@@ -1,3 +1,7 @@
+## Unreleased
+## Fixed
+- Log file handler not being attached when running as a module
+
 ## [0.8.5] - 2021-02-23
 ## Added
 - Argument ```--config```, the user can specify a custom path for the config.yml file to be parsed
