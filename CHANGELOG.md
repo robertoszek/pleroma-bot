@@ -1,4 +1,4 @@
-## Unreleased
+## [0.8.6] - 2021-02-27
 ## Fixed
 - Log file handler not being attached when running as a module
 
