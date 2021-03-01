@@ -1,0 +1,89 @@
+site_name: Stork (pleroma-bot)
+site_description: pleroma-bot
+site_author: robertoszek
+site_url: https://robertoszek.github.io/pleroma-bot/
+
+# Repository
+repo_name: robertoszek/pleroma-bot
+repo_url: https://github.com/robertoszek/pleroma-bot
+edit_uri: ""
+# Copyright
+# copyright: Copyright &copy; 2016 - 2020 Martin Donath
+
+# Configuration
+theme:
+  features:
+    - navigation.tabs
+  favicon: images/Stork.ico
+  logo: images/logo.png
+  name: material
+  custom_dir: overrides
+  language: en
+  palette:
+    primary: purple
+    accent: cyan
+    scheme: preference
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+# Extras
+extra:
+  social:
+    - icon: fontawesome/regular/comment-dots
+      link: https://pleroma.robertoszek.xyz/robertoszek
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/robertoszek
+    - icon: fontawesome/brands/gitlab
+      link: https://gitlab.com/robertoszek
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/robertoszek
+
+# Google Analytics
+#google_analytics:
+#  - UA-XXXXXXXX-X
+#  - auto
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: true
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed
+  - pymdownx.tilde
+  - footnotes
+  - pymdownx.highlight:
+      use_pygments: true
+  - attr_list
+plugins:
+  - search
+
+
+nav:
+  - Home: index.md
+  - Getting started:
+    - Installation: gettingstarted/installation.md
+    - Before running: gettingstarted/beforerunning.md
+    - Configuration: gettingstarted/configuration.md
+    - Usage: gettingstarted/usage.md
+    - Automate it: gettingstarted/automateit.md
+  - Contribute:
+    - Contributing: contribute/contributing.md

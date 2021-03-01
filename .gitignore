@@ -12,3 +12,4 @@ error.log
 /coverage.xml
 /config.yml.bak
 **/__pycache__/
+/site
