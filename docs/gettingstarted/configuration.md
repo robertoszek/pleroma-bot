@@ -171,3 +171,21 @@ users:
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   bio_text: ""
 ```
+
+## Mastodon
+If you use ```pleroma-bot``` with a Mastodon instance, please do take into account that you'll need to fill the ```pleroma_username``` mapping with your Mastodon account ID, *not* the username or nickname.
+```yaml
+# Mastodon instance example
+- twitter_username: WoolieWoolz
+  pleroma_username: 24660 # <--
+  pleroma_base_url: https://botsin.space
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  [...]
+```
+The ease of finding the ID for your Mastodon account varies between instances, sometimes is as easy as to navigate to your profile and copy it from the URL.
+
+You can try searching for it this way:
+```shell
+curl 'https://mastodon.social/api/v2/search?q=<username>&resolve=true&limit=5' 
+    -H 'Authorization: Bearer xxxxx' 
+```
