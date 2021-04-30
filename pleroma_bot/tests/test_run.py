@@ -624,6 +624,21 @@ def test_include_replies(sample_users, mock_request):
     return mock
 
 
+def test_delay_post(sample_users, mock_request, global_mock):
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users = get_config_users('config_delay_post.yml')
+
+            for user_item in users['user_dict']:
+                delay_post = users['config']['delay_post']
+                sample_user_obj = User(
+                    user_item, users['config'], os.getcwd()
+                )
+                assert delay_post == sample_user_obj.delay_post
+
+    return mock, sample_user
+
+
 def test_nitter_instances(sample_users, mock_request, global_mock):
     test_user = UserTemplate()
     for sample_user in sample_users:

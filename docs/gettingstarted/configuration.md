@@ -87,6 +87,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | visibility          | Yes        | unlisted                    | Visibility of the post. Must one of the following: public, unlisted, private, direct          |
 | sensitive           | Yes        | original tweet sensitivity  | Force all posts to be sensitive (NSFW) or not                         |
 | file_max_size       | Yes        |                             | How big attachments can be before being ignored. Examples: "30MB", "1.5GB", "0.5TB"          |
+| delay_post          | Yes        | 0.5                         | How long to wait (in seconds) between submitting posts to the Fedi instance (useful when trying to avoid rate limits)|
 
 
 There a few mapping *exclusive* to users:

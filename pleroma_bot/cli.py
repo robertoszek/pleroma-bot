@@ -111,6 +111,12 @@ class User(object):
                 self.sensitive = cfg["sensitive"]
         except (KeyError, AttributeError):
             pass
+        try:
+            if not hasattr(self, "delay_post"):
+                self.delay_post = cfg["delay_post"]
+        except (KeyError, AttributeError):
+            self.delay_post = 0.5
+            pass
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 self.content_type = "text/markdown"
@@ -408,7 +414,8 @@ def main():
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )
-                    time.sleep(0.5)
+
+                    time.sleep(user.delay_post)
             if not user.skip_pin:
                 user.check_pinned()
 
