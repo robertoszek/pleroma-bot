@@ -405,6 +405,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#mastodon" class="md-nav__link">
+    Mastodon
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -533,6 +540,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mastodon" class="md-nav__link">
+    Mastodon
+  </a>
   
 </li>
       
@@ -827,6 +841,20 @@ A minimal config looks something like this:</p>
   <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
   <span class="nt">bio_text</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
 </code></pre></div>
+<h2 id="mastodon">Mastodon<a class="headerlink" href="#mastodon" title="Permanent link">&para;</a></h2>
+<p>If you use <code>pleroma-bot</code> with a Mastodon instance, please do take into account that you'll need to fill the <code>pleroma_username</code> mapping with your Mastodon account ID, <em>not</em> the username or nickname.
+<div class="highlight"><pre><span></span><code><span class="c1"># Mastodon instance example</span>
+<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span>
+  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">24660</span> <span class="c1"># &lt;--</span>
+  <span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span>
+  <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
+  <span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+The ease of finding the ID for your Mastodon account varies between instances, sometimes is as easy as to navigate to your profile and copy it from the URL.</p>
+<p>You can try searching for it this way:
+<div class="highlight"><pre><span></span><code>curl <span class="s1">&#39;https://mastodon.social/api/v2/search?q=&lt;username&gt;&amp;resolve=true&amp;limit=5&#39;</span> 
+    -H <span class="s1">&#39;Authorization: Bearer xxxxx&#39;</span> 
+</code></pre></div></p>
                 
               
               
