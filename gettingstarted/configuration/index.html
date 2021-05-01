@@ -710,6 +710,12 @@ A minimal config looks something like this:</p>
 <td align="left">Include replies when posting tweets in the Fediverse account</td>
 </tr>
 <tr>
+<td align="left">hashtags</td>
+<td align="center">Yes</td>
+<td align="left"></td>
+<td align="left">List of hashtags to filter out tweets which don't include any of them</td>
+</tr>
+<tr>
 <td align="left">visibility</td>
 <td align="center">Yes</td>
 <td align="left">unlisted</td>
@@ -732,6 +738,12 @@ A minimal config looks something like this:</p>
 <td align="center">Yes</td>
 <td align="left">0.5</td>
 <td align="left">How long to wait (in seconds) between submitting posts to the Fedi instance (useful when trying to avoid rate limits)</td>
+</tr>
+<tr>
+<td align="left">tweet_ids</td>
+<td align="center">Yes</td>
+<td align="left"></td>
+<td align="left">List of specific tweet IDs to retrieve and post</td>
 </tr>
 </tbody>
 </table>
@@ -803,6 +815,8 @@ A minimal config looks something like this:</p>
   <span class="nt">sensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="nt">include_rts</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="nt">include_replies</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="nt">hashtags</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sponsored</span>
   <span class="nt">file_max_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500MB</span>
   <span class="c1"># additional custom-named mappings</span>
   <span class="nt">support_account</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">robertoszek</span>
