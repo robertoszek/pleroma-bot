@@ -117,6 +117,12 @@ class User(object):
         except (KeyError, AttributeError):
             self.delay_post = 0.5
             pass
+        try:
+            if not hasattr(self, "hashtags"):
+                self.hashtags = cfg["hashtags"]
+        except (KeyError, AttributeError):
+            self.hashtags = []
+            pass
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 self.content_type = "text/markdown"

@@ -131,6 +131,9 @@ users:
   include_rts: false
   # (optional) If replies are to be also posted in the Fediverse account. By default they are included
   include_replies: false
+  # (optional) List of hashtags to use for filtering out tweets which don't include any of them
+  hashtags:
+    - sponsored
   # (optional) How big attachments can be before being ignored and not being uploaded to the Fediverse post
   # Examples: "30MB", "1.5GB", "0.5TB"
   file_max_size: 500MB

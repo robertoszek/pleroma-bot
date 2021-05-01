@@ -84,6 +84,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | rich_text           | Yes        | false                       | Transform mentions to links pointing to the mentioned Twitter profile          |
 | include_rts         | Yes        | false                       | Include RTs when posting tweets in the Fediverse account              |
 | include_replies     | Yes        | false                       | Include replies when posting tweets in the Fediverse account          |
+| hashtags            | Yes        |                             | List of hashtags to filter out tweets which don't include any of them        |
 | visibility          | Yes        | unlisted                    | Visibility of the post. Must one of the following: public, unlisted, private, direct          |
 | sensitive           | Yes        | original tweet sensitivity  | Force all posts to be sensitive (NSFW) or not                         |
 | file_max_size       | Yes        |                             | How big attachments can be before being ignored. Examples: "30MB", "1.5GB", "0.5TB"          |
@@ -128,6 +129,8 @@ users:
   sensitive: false
   include_rts: false
   include_replies: false
+  hashtags:
+    - sponsored
   file_max_size: 500MB
   # additional custom-named mappings
   support_account: robertoszek

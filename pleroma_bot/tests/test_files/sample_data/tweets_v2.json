@@ -37,7 +37,8 @@
             "expanded_url": "https://twitter.com/BotPleroma/status/1323049214134407171/video/1",
             "display_url": "pic.twitter.com/yMAZ4i0t0W"
           }
-        ]
+        ],
+        "hashtags": [{"start": 52, "end": 62, "tag": "notsponsored"}]
       },
       "text": "RT Video https://t.co/yMAZ4i0t0W",
       "public_metrics": {
@@ -120,9 +121,10 @@
             "expanded_url": "https://twitter.com/BotPleroma/status/1323048139251658753/photo/1",
             "display_url": "pic.twitter.com/paDoCjOmxr"
           }
-        ]
+        ],
+        "hashtags": [{"start": 30, "end": 40, "tag": "sponsored"}]
       },
-      "text": "Image https://t.co/paDoCjOmxr",
+      "text": "Image https://t.co/paDoCjOmxr #sponsored",
       "public_metrics": {
         "retweet_count": 0,
         "reply_count": 0,
@@ -153,7 +155,7 @@
         "like_count": 37,
         "quote_count": 0
       },
-      "text": "@imdevKc It's not hypothetical. It's based on data.",
+      "text": "@imdevKc It's not hypothetical. It's based on data. #sponsored",
       "entities": {
         "mentions": [
           {
@@ -161,7 +163,8 @@
             "end": 8,
             "username": "imdevKc"
           }
-        ]
+        ],
+        "hashtags": [{"start": 52, "end": 62, "tag": "notsponsored"}, {"start": 52, "end": 62, "tag": "sponsored"}]
       },
       "conversation_id": "1347717302280712192",
       "created_at": "2021-01-09T05:51:31.000Z",
