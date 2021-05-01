@@ -1,4 +1,4 @@
-## Unreleased
+## [0.8.7] - 2021-05-01
 ## Added
 - ```delay_post``` mapping, for setting how long to wait (in seconds) between each post request to avoid hitting rate limits of the target Fediverse instance
 - ```hashtags``` mapping (list), for filtering out tweets which don't match any of them
