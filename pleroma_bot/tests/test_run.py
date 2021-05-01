@@ -803,6 +803,7 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         test_files_dir = os.path.join(rootdir, 'test_files')
 
         config_test = os.path.join(test_files_dir, 'config_multiple_users.yml')
+        config_tweet_ids = os.path.join(test_files_dir, 'config_tweet_ids.yml')
         prev_config = os.path.join(os.getcwd(), 'config.yml')
         backup_config = os.path.join(os.getcwd(), 'config.yml.bak')
         if os.path.isfile(prev_config):
@@ -819,6 +820,9 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
             shutil.copy(config_test, parent_config)
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
         with patch.object(sys, 'argv', ['', '--config', '../config.yml']):
+            assert cli.main() == 0
+
+        with patch.object(sys, 'argv', ['', '--config', config_tweet_ids]):
             assert cli.main() == 0
 
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")

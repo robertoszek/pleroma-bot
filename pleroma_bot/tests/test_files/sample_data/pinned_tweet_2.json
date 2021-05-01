@@ -46,6 +46,18 @@
         ]
       }
     ],
+    "media": [
+      {
+        "preview_image_url": "https://pbs.twimg.com/ext_tw_video_thumb/1323049175848833033/pu/img/_xRqkGnMX3DEB4UM.jpg",
+        "type": "video",
+        "media_key": "7_1323049175848833033",
+        "duration_ms": 16684,
+        "height": 720,
+        "width": 1280,
+        "public_metrics": {
+          "view_count": 0
+        }
+      }],
     "users": [
       {
         "id": "1320506197913542656",

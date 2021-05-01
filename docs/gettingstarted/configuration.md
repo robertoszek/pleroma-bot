@@ -89,6 +89,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | sensitive           | Yes        | original tweet sensitivity  | Force all posts to be sensitive (NSFW) or not                         |
 | file_max_size       | Yes        |                             | How big attachments can be before being ignored. Examples: "30MB", "1.5GB", "0.5TB"          |
 | delay_post          | Yes        | 0.5                         | How long to wait (in seconds) between submitting posts to the Fedi instance (useful when trying to avoid rate limits)|
+| tweet_ids           | Yes        |                             | List of specific tweet IDs to retrieve and post |
 
 
 There a few mapping *exclusive* to users:

@@ -123,6 +123,12 @@ class User(object):
         except (KeyError, AttributeError):
             self.hashtags = []
             pass
+        try:
+            if not hasattr(self, "tweet_ids"):
+                self.tweet_ids = cfg["tweet_ids"]
+        except (KeyError, AttributeError):
+            self.tweet_ids = []
+            pass
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 self.content_type = "text/markdown"
@@ -388,7 +394,39 @@ def main():
                 date_pleroma = user.force_date()
             else:
                 date_pleroma = user.get_date_last_pleroma_post()
-            tweets = user.get_tweets(start_time=date_pleroma)
+
+            if user.tweet_ids:
+                tweets = {
+                    "data": [],
+                    "includes": {},
+                    "meta": {"result_count": len(user.tweet_ids)}
+                }
+                includes = ["users", "tweets", "media", "polls"]
+                for include in includes:
+                    try:
+                        _include = tweets["includes"][include]
+                    except KeyError:
+                        tweets["includes"].update({include: []})
+                for tweet_id in user.tweet_ids:
+                    next_tweet = user._get_tweets("v2", tweet_id=tweet_id)
+                    includes = ["users", "tweets", "media", "polls"]
+                    for include in includes:
+                        try:
+                            _include = next_tweet["includes"][include]
+                            _include = _include
+                        except KeyError:
+                            next_tweet["includes"].update({include: []})
+                    tweets["data"].append(next_tweet["data"])
+                    for user_tweet in next_tweet["includes"]["users"]:
+                        tweets["includes"]["users"].append(user_tweet)
+                    for tweet_include in next_tweet["includes"]["tweets"]:
+                        tweets["includes"]["tweets"].append(tweet_include)
+                    for media in next_tweet["includes"]["media"]:
+                        tweets["includes"]["media"].append(media)
+                    for poll in next_tweet["includes"]["polls"]:
+                        tweets["includes"]["polls"].append(poll)
+            else:
+                tweets = user.get_tweets(start_time=date_pleroma)
             logger.debug(f"tweets: \t {tweets}")
 
             if 'meta' not in tweets:
