@@ -50,6 +50,21 @@ def process_tweets(self, tweets_to_post):
                         break
             except KeyError:
                 pass
+    if self.hashtags:
+        for tweet in tweets_to_post["data"][:]:
+            try:
+                tweet_hashtags = tweet["entities"]["hashtags"]
+                i = 0
+                while i < len(tweet_hashtags):
+                    if tweet_hashtags[i]["tag"] in self.hashtags:
+                        break
+                    i += 1
+                else:
+                    tweets_to_post["data"].remove(tweet)
+            except KeyError:
+                tweets_to_post["data"].remove(tweet)
+                pass
+
     for tweet in tweets_to_post["data"]:
         media = []
         tweet["text"] = _expand_urls(self, tweet)
