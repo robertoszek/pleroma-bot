@@ -1,3 +1,11 @@
+## Unreleased
+## Added
+- ```delay_post``` mapping, for setting how long to wait (in seconds) between each post request to avoid hitting rate limits of the target Fediverse instance
+- ```hashtags``` mapping (list), for filtering out tweets which don't match any of them
+## Enhancements
+- Provide a more meaningful exception message when an HTTP error code 422 is returned when updating the Fediverse profile
+- Referenced more directly in the documentation the need to use an account ID instead of a username when targeting a Mastodon instance
+
 ## [0.8.6] - 2021-02-27
 ## Fixed
 - Log file handler not being attached when running as a module
