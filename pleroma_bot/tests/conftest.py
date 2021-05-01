@@ -71,6 +71,7 @@ def _sample_users(mock_request, rootdir):
         config_users = get_config_users('config.yml')
         for user_item in config_users['user_dict']:
             pinned = test_user.pinned
+            pinned2 = test_user.pinned_2
             mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
                      f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
                      f"options%2Cvoting_status&media.fields=duration_ms%2C"
@@ -85,6 +86,21 @@ def _sample_users(mock_request, rootdir):
                      f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
                      f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
                      json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned2}"
+                     f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
+                     f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                     f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
+                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
+                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"entities.mentions.username%2Cgeo.place_id%2C"
+                     f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                     f"referenced_tweets.id.author_id&tweet.fields=attachments"
+                     f"%2Cauthor_id%2Ccontext_annotations%2Cconversation_id%2"
+                     f"Ccreated_at%2Centities%2Cgeo%2Cid%2Cin_reply_to_user_id"
+                     f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                     f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet_2'],
                      status_code=200)
             mock.get(f"{twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
@@ -124,6 +140,11 @@ def _sample_users(mock_request, rootdir):
             }
             mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids="
                      f"{test_user.pinned}&expansions=attachments.poll_ids"
+                     f"&poll.fields=duration_minutes%2Coptions",
+                     json=mock_request['sample_data']['poll'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids="
+                     f"{test_user.pinned_2}&expansions=attachments.poll_ids"
                      f"&poll.fields=duration_minutes%2Coptions",
                      json=mock_request['sample_data']['poll'],
                      status_code=200)

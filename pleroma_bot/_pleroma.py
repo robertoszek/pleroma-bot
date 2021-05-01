@@ -239,7 +239,21 @@ def update_pleroma(self):
     response = requests.patch(
         cred_url, data, headers=self.header_pleroma, files=files
     )
-    if not response.ok:
-        response.raise_for_status()
+    try:
+        if not response.ok:
+            response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        if response.status_code == 422:
+            bio_msg = _(
+                "Exception occurred"
+                "\nError code 422"
+                "\n(Unprocessable Entity)"
+                "\nPlease check that the bio text or the metadata fields text"
+                "\naren't too long."
+            )
+            logger.error(bio_msg)
+            pass
+        else:
+            response.raise_for_status()
     logger.info(_("Updating profile:\t {}").format(str(response)))
     return

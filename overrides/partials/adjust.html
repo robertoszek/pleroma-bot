@@ -1,0 +1,19 @@
+<div class="md-adjust__icon md-source__icon md-icon" style="cursor:pointer">
+    {% set icon = "fontawesome/solid/moon" %}
+    {% include ".icons/" ~ icon ~ ".svg" %}
+</div>
+
+<script>
+    var div = document.getElementsByClassName("md-adjust__icon")[0]
+    div.onclick = function(){
+        var currentScheme = document.body.getAttribute("data-md-color-scheme")
+        if (currentScheme == "slate"){
+            newAttr = "default"
+        }else{
+            newAttr = "slate"
+        }
+        document.body.setAttribute("data-md-color-scheme", newAttr)
+        var name = document.querySelector("#__code_0 code span:nth-child(7)")
+        name.textContent = newAttr
+    }
+</script> 

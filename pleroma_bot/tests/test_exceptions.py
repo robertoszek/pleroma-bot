@@ -350,7 +350,7 @@ def test_post_pleroma_exception(sample_users, mock_request):
             os.rmdir(tweet_folder)
 
 
-def test_update_pleroma_exception(rootdir, mock_request, sample_users):
+def test_update_pleroma_exception(rootdir, mock_request, sample_users, caplog):
     test_user = UserTemplate()
     twitter_info = mock_request['sample_data']['twitter_info']
     banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
@@ -407,6 +407,25 @@ def test_update_pleroma_exception(rootdir, mock_request, sample_users):
                 sample_user_obj.update_pleroma()
             exception_value = f"500 Server Error: None for url: {cred_url}"
             assert str(error_info.value) == exception_value
+            mock.patch(cred_url,
+                       status_code=422)
+            mock.get(profile_url,
+                     content=profile_image_content,
+                     status_code=200)
+            mock.get(banner_url,
+                     content=profile_banner_content,
+                     status_code=200)
+            with caplog.at_level(logging.ERROR):
+                sample_user_obj.update_pleroma()
+                exception_value = (
+                    "Exception occurred"
+                    "\nError code 422"
+                    "\n(Unprocessable Entity)"
+                    "\nPlease check that the bio text or "
+                    "the metadata fields text"
+                    "\naren't too long."
+                )
+                assert exception_value in caplog.text
             mock_fields = [
                 {'name': 'Field1', 'value': 'Value1'},
                 {'name': 'Field2', 'value': 'Value2'},
