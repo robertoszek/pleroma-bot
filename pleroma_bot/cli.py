@@ -154,6 +154,12 @@ class User(object):
             self.twitter_base_url_v2 = "https://api.twitter.com/2"
             pass
         try:
+            if not hasattr(self, "twitter_bio"):
+                self.twitter_bio = cfg["twitter_bio"]
+        except KeyError:
+            self.twitter_bio = True
+            pass
+        try:
             if not hasattr(self, "nitter_base_url"):
                 self.nitter_base_url = cfg["nitter_base_url"]
         except KeyError:
