@@ -5,6 +5,7 @@ pleroma_base_url: https://pleroma.robertoszek.xyz
 # Twitter's API hard limit is 3,200
 max_tweets: 40
 delay_post: 2
+twitter_bio: false
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # List of users and their attributes

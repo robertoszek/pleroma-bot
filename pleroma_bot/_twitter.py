@@ -29,7 +29,11 @@ def _get_twitter_info(self):
     if not response.ok:
         response.raise_for_status()
     user_twitter = json.loads(response.text)
-    self.bio_text = f'{self.bio_text}{user_twitter["description"]}'
+    self.bio_text = (
+        f'{self.bio_text}{user_twitter["description"]}'
+        if self.twitter_bio
+        else f'{self.bio_text}'
+    )
     # Check if user has profile image
     if "profile_image_url_https" in user_twitter.keys():
         self.profile_image_url = user_twitter["profile_image_url_https"]
