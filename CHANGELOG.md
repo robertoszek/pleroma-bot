@@ -1,3 +1,7 @@
+## Unreleased
+## Fixed
+- URL expansion when regex match doesn't include protocol (http, https)
+
 ## [0.8.8] - 2021-05-15
 ## Added
 - ```twitter_bio``` for allowing the user to choose if they want to retrieve and append the Twitter bio to their Fediverse user or not.
