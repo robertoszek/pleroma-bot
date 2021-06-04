@@ -242,12 +242,15 @@ def _expand_urls(self, tweet):
         )
         matches = re.finditer(matching_pattern, tweet["text"])
         for matchNum, match in enumerate(matches, start=1):
+            group = match.group()
             # don't be brave trying to unwound an URL when it gets
             # cut off
-            if not match.group().__contains__("…"):
+            if not group.__contains__("…"):
+                if not group.startswith(('http://', 'https://')):
+                    group = f'http://{group}'
                 session = requests.Session()  # so connections are
                 # recycled
-                response = session.head(match.group(), allow_redirects=True)
+                response = session.head(group, allow_redirects=True)
                 if not response.ok:
                     response.raise_for_status()
                 expanded_url = response.url
