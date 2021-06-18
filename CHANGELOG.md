@@ -1,3 +1,11 @@
+## Unreleased
+## Fixed
+- URL expansion when regex match doesn't include protocol (http, https)
+
+## [0.8.8] - 2021-05-15
+## Added
+- ```twitter_bio``` for allowing the user to choose if they want to retrieve and append the Twitter bio to their Fediverse user or not.
+
 ## [0.8.7] - 2021-05-01
 ## Added
 - ```delay_post``` mapping, for setting how long to wait (in seconds) between each post request to avoid hitting rate limits of the target Fediverse instance

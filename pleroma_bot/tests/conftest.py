@@ -52,6 +52,11 @@ def mock_request(rootdir):
             status_code=301,
             headers={'Location': 'http://github.com'}
         )
+        mock.head(
+            "http://cutt.ly/xg3TuY0",
+            status_code=301,
+            headers={'Location': 'http://github.com'}
+        )
         empty_resp = requests.packages.urllib3.response.HTTPResponse()
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",

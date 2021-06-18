@@ -90,6 +90,8 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | file_max_size       | Yes        |                             | How big attachments can be before being ignored. Examples: "30MB", "1.5GB", "0.5TB"          |
 | delay_post          | Yes        | 0.5                         | How long to wait (in seconds) between submitting posts to the Fedi instance (useful when trying to avoid rate limits)|
 | tweet_ids           | Yes        |                             | List of specific tweet IDs to retrieve and post |
+| twitter_bio         | Yes        | true                        | Append Twitter's bio to Pleroma/Mastodon target user |
+
 
 
 There a few mapping *exclusive* to users:
