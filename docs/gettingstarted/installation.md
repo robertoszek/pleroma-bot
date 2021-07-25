@@ -11,7 +11,7 @@ First you need to intall ```pleroma-bot``` on your system. There are multiple me
     * Or in a [virtual environment :octicons-file-code-24:](https://docs.python.org/3/tutorial/venv.html):
     ```console
     $ python3 -m venv myvenv
-    $ source myenv/bin/activate
+    $ source myvenv/bin/activate
     (myenv) $ pip install pleroma-bot
     ```
     
