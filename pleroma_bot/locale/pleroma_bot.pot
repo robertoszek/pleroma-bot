@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-04-30 23:27+0200\n"
+"POT-Creation-Date: 2021-12-04 22:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.0\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: tests\n"
@@ -39,7 +39,7 @@ msgstr ""
 msgid "No posts were found in the target Fediverse account"
 msgstr ""
 
-#: _pleroma.py:104
+#: _pleroma.py:105
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -50,21 +50,21 @@ msgid ""
 " size limit of your instance"
 msgstr ""
 
-#: _pleroma.py:119
+#: _pleroma.py:120
 msgid "Error uploading media:\t{}"
 msgstr ""
 
-#: _pleroma.py:154
+#: _pleroma.py:160
 msgid "Post in Pleroma:\t{}"
 msgstr ""
 
-#: _pleroma.py:210
+#: _pleroma.py:216
 msgid ""
 "Total number of metadata fields cannot exceed 4.\n"
 "Provided: {}. Exiting..."
 msgstr ""
 
-#: _pleroma.py:248
+#: _pleroma.py:254
 msgid ""
 "Exception occurred\n"
 "Error code 422\n"
@@ -73,7 +73,7 @@ msgid ""
 "aren't too long."
 msgstr ""
 
-#: _pleroma.py:258
+#: _pleroma.py:264
 msgid "Updating profile:\t {}"
 msgstr ""
 
@@ -81,7 +81,7 @@ msgstr ""
 msgid "Processing tweets... "
 msgstr ""
 
-#: _processing.py:142
+#: _processing.py:155
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -90,27 +90,27 @@ msgid ""
 "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:167
+#: _processing.py:180
 msgid "Attachment exceeded config file size limit ({})"
 msgstr ""
 
-#: _processing.py:172
+#: _processing.py:184
 msgid "File size: {}MB"
 msgstr ""
 
-#: _processing.py:175
+#: _processing.py:188
 msgid "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _twitter.py:88
+#: _twitter.py:92
 msgid "API version not supported: {}"
 msgstr ""
 
-#: _twitter.py:103
+#: _twitter.py:107
 msgid "max_tweets must be between 10 and 100. max_tweets: {}"
 msgstr ""
 
-#: _twitter.py:206
+#: _twitter.py:210
 msgid "Gathering tweets... "
 msgstr ""
 
@@ -122,7 +122,7 @@ msgstr ""
 msgid "Previous pinned:\t{}"
 msgstr ""
 
-#: _utils.py:232
+#: _utils.py:231
 msgid "Instance response was not understood {}"
 msgstr ""
 
@@ -151,59 +151,59 @@ msgid ""
 "last post in the Fediverse account)] "
 msgstr ""
 
-#: cli.py:105
-msgid "Visibility not supported! Values allowed are: public, unlisted, private and direct"
-msgstr ""
-
-#: cli.py:123
+#: cli.py:128
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 
-#: cli.py:198
+#: cli.py:132
+msgid "Visibility not supported! Values allowed are: {}"
+msgstr ""
+
+#: cli.py:164
 msgid "Some or all OAuth 1.0a tokens missing, falling back to application-only authentication"
 msgstr ""
 
-#: cli.py:233
+#: cli.py:196
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr ""
 
-#: cli.py:246
+#: cli.py:209
 msgid "path of config file (config.yml) to use and parse. If not specified, it will try to find it in the current working directory."
 msgstr ""
 
-#: cli.py:260
+#: cli.py:223
 msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
 msgstr ""
 
-#: cli.py:273
+#: cli.py:236
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: cli.py:287
+#: cli.py:250
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: cli.py:300
+#: cli.py:263
 msgid "skips first run checks"
 msgstr ""
 
-#: cli.py:323
+#: cli.py:286
 msgid "Debug logging enabled"
 msgstr ""
 
-#: cli.py:342
+#: cli.py:305
 msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
 msgstr ""
 
-#: cli.py:357
+#: cli.py:320
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: cli.py:363
+#: cli.py:326
 msgid "It seems like pleroma-bot is running for the first time for this user"
 msgstr ""
 
-#: cli.py:384
+#: cli.py:379
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -212,14 +212,14 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: cli.py:394
+#: cli.py:389
 msgid "tweet count: \t {}"
 msgstr ""
 
-#: cli.py:418
+#: cli.py:414
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: cli.py:425
+#: cli.py:421
 msgid "Exception occurred"
 msgstr ""
