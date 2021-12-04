@@ -228,9 +228,9 @@ def _get_instance_info(self):
     try:
         instance_info = json.loads(response.text)
     except JSONDecodeError:
-        msg = _(
-            "Instance response was not understood {}"
-        ).format(response.text)
+        msg = _("Instance response was not understood {}").format(
+            response.text
+        )
         raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
         logger.debug(_("Assuming target instance is Mastodon..."))

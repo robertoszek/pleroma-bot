@@ -32,7 +32,7 @@ def _get_twitter_info(self):
     self.bio_text = (
         f'{self.bio_text}{user_twitter["description"]}'
         if self.twitter_bio
-        else f'{self.bio_text}'
+        else f"{self.bio_text}"
     )
     # Check if user has profile image
     if "profile_image_url_https" in user_twitter.keys():

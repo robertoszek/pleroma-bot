@@ -3,7 +3,7 @@ import sys
 import locale
 import logging
 
-__version__ = "0.8.8"
+__version__ = "0.8.9"
 
 
 class StdOutFilter(logging.Filter):
@@ -95,8 +95,8 @@ if __name__ == "pleroma_bot.__init__":
 # fill env locale vars in case we're running in other platforms
 default_lang, default_enc = locale.getdefaultlocale()
 
-if 'LANG' not in os.environ:
-    os.environ['LANG'] = default_lang
-    os.environ['LANGUAGE'] = f"{default_lang}.{default_enc}"
+if "LANG" not in os.environ:
+    os.environ["LANG"] = default_lang
+    os.environ["LANGUAGE"] = f"{default_lang}.{default_enc}"
 
 from .cli import *

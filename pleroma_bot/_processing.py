@@ -181,9 +181,9 @@ def _download_media(self, media, tweet):
                         ).format(self.file_max_size)
                     )
                     logger.error(
-                        _(
-                            "File size: {}MB"
-                        ).format(round(file_size_bytes / 2 ** 20, 2))
+                        _("File size: {}MB").format(
+                            round(file_size_bytes / 2 ** 20, 2)
+                        )
                     )
                     logger.error(_("Ignoring attachment and continuing..."))
                     os.remove(file_path)
@@ -244,8 +244,8 @@ def _expand_urls(self, tweet):
             # don't be brave trying to unwound an URL when it gets
             # cut off
             if not group.__contains__("…"):
-                if not group.startswith(('http://', 'https://')):
-                    group = f'http://{group}'
+                if not group.startswith(("http://", "https://")):
+                    group = f"http://{group}"
                 session = requests.Session()  # so connections are
                 # recycled
                 response = session.head(group, allow_redirects=True)
