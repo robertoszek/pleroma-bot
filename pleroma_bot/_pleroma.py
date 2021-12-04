@@ -125,7 +125,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
         tweet_text = f"{tweet_text} {signature}"
 
     # config setting override tweet attr
-    if hasattr(self, "sensitive"):
+    if self.sensitive:
         sensitive = self.sensitive
 
     data = {

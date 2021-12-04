@@ -88,7 +88,7 @@ def test_user_invalid_visibility(sample_users):
                     user_obj['mock'] = mock
     str_error = (
         "'Visibility not supported! Values allowed are: "
-        "public, unlisted, private and direct'"
+        "public, unlisted, private, direct'"
     )
     assert str(error_info.value) == str(str_error)
 

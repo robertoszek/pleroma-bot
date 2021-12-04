@@ -72,11 +72,9 @@ def process_tweets(self, tweets_to_post):
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 tweet["text"] = _replace_mentions(self, tweet)
-        try:
-            if self.nitter:
-                tweet["text"] = _replace_nitter(self, tweet)
-        except AttributeError:
-            pass
+        if self.nitter:
+            tweet["text"] = _replace_nitter(self, tweet)
+
         try:
             for item in tweet["attachments"]["media_keys"]:
                 for media_include in tweets_to_post["includes"]["media"]:
