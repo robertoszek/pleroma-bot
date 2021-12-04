@@ -130,7 +130,11 @@ def check_pinned(self):
         }
         tweets_to_post = self.process_tweets(tweets_to_post)
         id_post_to_pin = self.post_pleroma(
-            (self.pinned_tweet_id, tweets_to_post["data"][0]["text"]),
+            (
+                self.pinned_tweet_id,
+                tweets_to_post["data"][0]["text"],
+                pinned_tweet["data"]["created_at"],
+            ),
             tweets_to_post["data"][0]["polls"],
             tweets_to_post["data"][0]["possibly_sensitive"],
         )

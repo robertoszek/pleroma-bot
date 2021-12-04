@@ -74,6 +74,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
 
     tweet_id = tweet[0]
     tweet_text = tweet[1]
+    tweet_date = tweet[2]
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
     media_files = os.listdir(tweet_folder)
     media_ids = []
@@ -123,7 +124,12 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     if self.signature:
         signature = f"\n\n 🐦🔗: {self.twitter_url}/status/{tweet_id}"
         tweet_text = f"{tweet_text} {signature}"
-
+    if self.original_date:
+        date = datetime.strftime(
+            datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
+            self.original_date_format,
+        )
+        tweet_text = f"{tweet_text} \n\n[{date}]"
     # config setting override tweet attr
     if self.sensitive:
         sensitive = self.sensitive

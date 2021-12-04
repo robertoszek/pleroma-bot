@@ -107,6 +107,8 @@ class User(object):
             "consumer_secret": None,
             "access_token_key": None,
             "access_token_secret": None,
+            "original_date": False,
+            "original_date_format": "%Y-%m-%d %H:%M",
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -399,7 +401,7 @@ def main():
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
                     user.post_pleroma(
-                        (tweet["id"], tweet["text"]),
+                        (tweet["id"], tweet["text"], tweet["created_at"]),
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )

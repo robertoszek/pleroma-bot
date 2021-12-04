@@ -1,4 +1,6 @@
 ## Unreleased
+## Added
+- ```original_date``` and ```original_date_format``` for adding the original tweet's creation date to the post body
 ## Fixed
 - URL expansion when regex match doesn't include protocol (http, https)
 
