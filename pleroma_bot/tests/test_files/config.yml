@@ -24,7 +24,7 @@ users:
   # Force all posts for this account to be sensitive or not
   # The NSFW banner for the instance will be shown for attachments as a warning if true
   # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
-  sensitive: false
+  sensitive: true
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}
