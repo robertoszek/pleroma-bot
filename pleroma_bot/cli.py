@@ -294,7 +294,8 @@ def main():
             base_path, cfg_file = os.path.split(os.path.abspath(config_path))
         else:
             config_path = os.path.join(base_path, "config.yml")
-
+        # TODO: Add config generator wizard if config file is not found?
+        #  create a minimal config asking the user for the values
         with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]

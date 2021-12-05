@@ -32,7 +32,8 @@ def process_tweets(self, tweets_to_post):
     """
     # TODO: Break into smaller functions
 
-    # TODO: Parallel processing/download of media
+    # TODO: Parallel processing/download of media, when processing large
+    #  numbers of tweets performance is far from acceptable
 
     # Remove RTs if include_rts is false
     if not self.include_rts:
