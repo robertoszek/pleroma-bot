@@ -30,6 +30,10 @@ def process_tweets(self, tweets_to_post):
     :returns: Tweets ready to be published
     :rtype: list
     """
+    # TODO: Break into smaller functions
+
+    # TODO: Parallel processing/download of media
+
     # Remove RTs if include_rts is false
     if not self.include_rts:
         for tweet in tweets_to_post["data"][:]:
@@ -50,6 +54,9 @@ def process_tweets(self, tweets_to_post):
                         break
             except KeyError:
                 pass
+    # TODO: Check with low max_tweets, posting sequentially and reversing order
+    #  Some interactions could lead to unexpected behavior (date forcing?)
+    #  Find public account which can be used to test
     if self.hashtags:
         for tweet in tweets_to_post["data"][:]:
             try:
@@ -215,12 +222,16 @@ def _replace_nitter(self, tweet):
 def _replace_mentions(self, tweet):
     matches = re.findall(r"\B\@\w+", tweet["text"])
     for match in matches:
+        # TODO: Use nitter if asked (self.nitter)
         mention_link = f"[{match}](https://twitter.com/{match[1:]})"
         tweet["text"] = re.sub(match, mention_link, tweet["text"])
     return tweet["text"]
 
 
 def _expand_urls(self, tweet):
+    # TODO: transform twitter links to nitter links, if self.nitter
+    #  'true' in resolved shortened urls
+
     # Replace shortened links
     try:
         for url_entity in tweet["entities"]["urls"]:
@@ -259,6 +270,7 @@ def _expand_urls(self, tweet):
 
 
 def _get_media_url(self, item, media_include, tweet):
+    # TODO: Verify if video download is available on v2 and migrate to it
     media_urls = []
     if item == media_include["media_key"]:
         # Video download not implemented in v2 yet
@@ -282,6 +294,12 @@ def _get_best_bitrate_video(self, item):
     for variant in item["video_info"]["variants"]:
         try:
             if variant["bitrate"] >= bitrate:
-                return variant["url"]
+                # TODO: Verify current bitrate selection method
+                # Why was the bitrate value not increased within the loop?
+                # Should look something like this:
+                # bitrate = variant["bitrate"]
+                # url = variant["url"]
+                return variant["url"]  # comment this after verifying
         except KeyError:
             pass
+    # return url

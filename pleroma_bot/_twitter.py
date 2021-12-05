@@ -100,6 +100,7 @@ def _get_tweets_v2(
     previous_token=None,
     tweets_v2=None,
 ):
+    # TODO: Raise cap to 3200
     # Tweet number must be between 10 and 100
     if not (100 >= self.max_tweets > 10):
         global _
@@ -165,6 +166,7 @@ def _get_tweets_v2(
         response.raise_for_status()
 
     if tweets_v2:
+        # TODO: Tidy up this mess
         next_tweets = response.json()
 
         includes = ["users", "tweets", "media", "polls"]

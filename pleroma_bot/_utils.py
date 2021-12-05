@@ -254,6 +254,7 @@ def _get_instance_info(self):
 
 
 def force_date(self):
+    # TODO: Is 100 the maximum for this reverse searching endpoint?
     logger.info(
         _("How far back should we retrieve tweets from the Twitter account?")
     )

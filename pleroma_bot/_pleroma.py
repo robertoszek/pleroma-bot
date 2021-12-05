@@ -67,8 +67,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     :returns: id of post
     :rtype: str
     """
-    # TODO: transform twitter links to nitter links, if self.nitter
-    #  'true' in resolved shortened urls
+
     pleroma_post_url = f"{self.pleroma_base_url}/api/v1/statuses"
     pleroma_media_url = f"{self.pleroma_base_url}/api/v1/media"
 
