@@ -1,4 +1,4 @@
-## Unreleased
+## [0.8.9] - 2021-12-05
 ## Added
 - ```original_date``` and ```original_date_format``` for adding the original tweet's creation date to the post body
 ## Fixed
