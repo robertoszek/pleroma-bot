@@ -79,8 +79,11 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     media_ids = []
     if self.media_upload:
         for file in media_files:
-            media_file = open(os.path.join(tweet_folder, file), "rb")
+            file_path = os.path.join(tweet_folder, file)
+            media_file = open(file_path, "rb")
             file_size = os.stat(os.path.join(tweet_folder, file)).st_size
+            size_mb = round(file_size / 1048576, 2)
+
             mime_type = guess_type(os.path.join(tweet_folder, file))
             timestamp = str(datetime.now().timestamp())
             file_name = (
@@ -107,7 +110,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                         "\nSize: {size}MB"
                         "\nConsider increasing the attachment"
                         "\n size limit of your instance"
-                    ).format(file=file, size=round(file_size / 1048576, 2))
+                    ).format(file=file_path, size=size_mb)
                     logger.error(size_msg)
                     pass
                 else:
