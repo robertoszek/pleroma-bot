@@ -130,7 +130,11 @@ def check_pinned(self):
         }
         tweets_to_post = self.process_tweets(tweets_to_post)
         id_post_to_pin = self.post_pleroma(
-            (self.pinned_tweet_id, tweets_to_post["data"][0]["text"]),
+            (
+                self.pinned_tweet_id,
+                tweets_to_post["data"][0]["text"],
+                pinned_tweet["data"]["created_at"],
+            ),
             tweets_to_post["data"][0]["polls"],
             tweets_to_post["data"][0]["possibly_sensitive"],
         )
@@ -228,9 +232,9 @@ def _get_instance_info(self):
     try:
         instance_info = json.loads(response.text)
     except JSONDecodeError:
-        msg = _(
-            "Instance response was not understood {}"
-        ).format(response.text)
+        msg = _("Instance response was not understood {}").format(
+            response.text
+        )
         raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
         logger.debug(_("Assuming target instance is Mastodon..."))

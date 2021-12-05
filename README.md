@@ -5,7 +5,6 @@
 [![AUR version](https://img.shields.io/aur/version/python-pleroma-bot)](https://aur.archlinux.org/packages/python-pleroma-bot)
 [![codecov](https://codecov.io/gh/robertoszek/pleroma-bot/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-bot)
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
-[![Requires.io (branch)](https://img.shields.io/requires/github/robertoszek/pleroma-bot/master)](https://requires.io/github/robertoszek/pleroma-bot/requirements/?branch=master)
 [![License](https://img.shields.io/github/license/robertoszek/pleroma-bot)](https://github.com/robertoszek/pleroma-bot/blob/master/LICENSE.md)
 
 ![Stork](img/stork-smaller.svg)
@@ -127,6 +126,10 @@ users:
   # The NSFW banner for the instance will be shown for attachments as a warning if true
   # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
   sensitive: false
+  # (optional) Include the creation date of the tweet on the Fediverse post body
+  original_date: true
+  # (optional) Date format to use when adding the creation date of the tweet to the Fediverse post
+  original_date_format: "%Y/%m/%d %H:%"
   # (optional) If RTs are to be also be posted in the Fediverse account. By default they are included
   include_rts: false
   # (optional) If replies are to be also posted in the Fediverse account. By default they are included

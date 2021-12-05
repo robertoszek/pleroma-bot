@@ -76,124 +76,65 @@ class User(object):
     from ._processing import _get_best_bitrate_video
 
     def __init__(self, user_cfg: dict, cfg: dict, base_path: str):
-        self.twitter_token = cfg["twitter_token"]
-        self.signature = ""
-        self.media_upload = False
-        self.support_account = None
-        # iterate attrs defined in config
-        for attribute in user_cfg:
-            self.__setattr__(attribute, user_cfg[attribute])
-        self.twitter_url = f"http://twitter.com/{self.twitter_username}"
-        try:
-            if not hasattr(self, "max_tweets"):
-                self.max_tweets = cfg["max_tweets"]
-        except (KeyError, AttributeError):
-            # Limit to 50 last tweets - just to make a bit easier and faster
-            # to process given how often it is pulled
-            self.max_tweets = 50
-            pass
-        try:
-            if not hasattr(self, "visibility"):
-                self.visibility = cfg["visibility"]
-        except (KeyError, AttributeError):
-            self.visibility = "unlisted"
-            pass
-        visibility_valid = ("public", "unlisted", "private", "direct")
-        if self.visibility not in visibility_valid:
-            raise KeyError(
-                _(
-                    "Visibility not supported! Values allowed are: public, "
-                    "unlisted, private and direct"
-                )
-            )
-        try:
-            if not hasattr(self, "sensitive"):
-                self.sensitive = cfg["sensitive"]
-        except (KeyError, AttributeError):
-            pass
-        try:
-            if not hasattr(self, "delay_post"):
-                self.delay_post = cfg["delay_post"]
-        except (KeyError, AttributeError):
-            self.delay_post = 0.5
-            pass
-        try:
-            if not hasattr(self, "hashtags"):
-                self.hashtags = cfg["hashtags"]
-        except (KeyError, AttributeError):
-            self.hashtags = []
-            pass
-        try:
-            if not hasattr(self, "tweet_ids"):
-                self.tweet_ids = cfg["tweet_ids"]
-        except (KeyError, AttributeError):
-            self.tweet_ids = []
-            pass
-        if hasattr(self, "rich_text"):
-            if self.rich_text:
-                self.content_type = "text/markdown"
-        try:
-            if not hasattr(self, "pleroma_base_url"):
-                self.pleroma_base_url = cfg["pleroma_base_url"]
-        except KeyError:
-            raise KeyError(
-                _(
-                    "No Pleroma URL defined in config! [pleroma_base_url]"
-                )
-            )
-        try:
-            if not hasattr(self, "twitter_base_url"):
-                self.twitter_base_url = cfg["twitter_base_url"]
-        except KeyError:
-            self.twitter_base_url = "https://api.twitter.com/1.1"
-            pass
-        try:
-            if not hasattr(self, "twitter_base_url_v2"):
-                self.twitter_base_url = cfg["twitter_base_url_v2"]
-        except KeyError:
-            self.twitter_base_url_v2 = "https://api.twitter.com/2"
-            pass
-        try:
-            if not hasattr(self, "twitter_bio"):
-                self.twitter_bio = cfg["twitter_bio"]
-        except KeyError:
-            self.twitter_bio = True
-            pass
-        try:
-            if not hasattr(self, "nitter_base_url"):
-                self.nitter_base_url = cfg["nitter_base_url"]
-        except KeyError:
-            self.nitter_base_url = "https://nitter.net"
-            pass
-        if not hasattr(self, "nitter"):
-            try:
-                if cfg["nitter"]:
-                    self.twitter_url = (
-                        f"{self.nitter_base_url}/{self.twitter_username}"
-                    )
-            except KeyError:
-                pass
-        else:
-            if self.nitter:
-                self.twitter_url = (
-                    f"{self.nitter_base_url}/{self.twitter_username}"
-                )
-        try:
-            if not hasattr(self, "include_rts"):
-                self.include_rts = cfg["include_rts"]
-        except (KeyError, AttributeError):
-            self.include_rts = True
-            pass
-        try:
-            if not hasattr(self, "include_replies"):
-                self.include_rts = cfg["include_replies"]
-        except (KeyError, AttributeError):
-            self.include_replies = True
-            pass
+        self.posts = None
+        self.tweets = None
+        self.first_time = False
+        self.display_name = None
+        self.last_post_pleroma = None
         self.profile_image_url = None
         self.profile_banner_url = None
-        self.display_name = None
-        self.first_time = False
+        valid_visibility = ("public", "unlisted", "private", "direct")
+        default_cfg_attributes = {
+            "twitter_base_url": "https://api.twitter.com/1.1",
+            "twitter_base_url_v2": "https://api.twitter.com/2",
+            "nitter_base_url": "https://nitter.net",
+            "pleroma_base_url": None,
+            "nitter": False,
+            "twitter_token": None,
+            "signature": False,
+            "media_upload": False,
+            "sensitive": False,
+            "max_tweets": 50,
+            "delay_post": 0.5,
+            "visibility": "unlisted",
+            "hashtags": [],
+            "tweet_ids": [],
+            "rich_text": False,
+            "twitter_bio": True,
+            "include_rts": True,
+            "include_replies": True,
+            "consumer_key": None,
+            "consumer_secret": None,
+            "access_token_key": None,
+            "access_token_secret": None,
+            "original_date": False,
+            "original_date_format": "%Y-%m-%d %H:%M",
+        }
+        # iterate attrs defined in config
+        for attribute in default_cfg_attributes:
+            if attribute in cfg:
+                self.__setattr__(attribute, cfg[attribute])
+            if not hasattr(self, attribute):
+                self.__setattr__(attribute, default_cfg_attributes[attribute])
+        for user_attribute in user_cfg:
+            self.__setattr__(user_attribute, user_cfg[user_attribute])
+
+        twitter_url = (
+            self.nitter_base_url if self.nitter else "http://twitter.com"
+        )
+        self.twitter_url = f"{twitter_url}/{self.twitter_username}"
+        if self.rich_text:
+            self.content_type = "text/markdown"
+        if not self.pleroma_base_url:
+            raise KeyError(
+                _("No Pleroma URL defined in config! [pleroma_base_url]")
+            )
+        if self.visibility not in valid_visibility:
+            raise KeyError(
+                _("Visibility not supported! Values allowed are: {}").format(
+                    ", ".join(valid_visibility)
+                )
+            )
         try:
             self.fields = self.replace_vars_in_str(str(user_cfg["fields"]))
             self.fields = eval(self.fields)
@@ -203,33 +144,33 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
-        try:
-            if all([
+
+        if all(
+            [
                 self.consumer_key,
                 self.consumer_secret,
                 self.access_token_key,
-                self.access_token_secret
-            ]):
-                self.auth = OAuth1(
-                    self.consumer_key,
-                    self.consumer_secret,
-                    self.access_token_key,
-                    self.access_token_secret
-                )
-        except AttributeError:
+                self.access_token_secret,
+            ]
+        ):
+            self.auth = OAuth1(
+                self.consumer_key,
+                self.consumer_secret,
+                self.access_token_key,
+                self.access_token_secret,
+            )
+        else:
+            self.auth = None
             logger.debug(
                 _(
                     "Some or all OAuth 1.0a tokens missing, "
                     "falling back to application-only authentication"
                 )
             )
-            self.auth = None
 
-        self.tweets = None
         self.pinned_tweet_id = self._get_pinned_tweet_id()
-        self.last_post_pleroma = None
+
         # Filesystem
-        # self.base_path = os.getcwd()
         self.base_path = base_path
         self.users_path = os.path.join(self.base_path, "users")
         self.users_path = os.path.join(self.base_path, "users")
@@ -243,7 +184,7 @@ class User(object):
         # Get Twitter info on instance creation
         self._get_twitter_info()
         self._get_instance_info()
-        self.posts = None
+
         return
 
 
@@ -378,7 +319,7 @@ def main():
             first_time = False
             logger.info("======================================")
             logger.info(
-                _('Processing user:\t{}').format(user_item["pleroma_username"])
+                _("Processing user:\t{}").format(user_item["pleroma_username"])
             )
             user_path = os.path.join(users_path, user_item["twitter_username"])
 
@@ -405,7 +346,7 @@ def main():
                 tweets = {
                     "data": [],
                     "includes": {},
-                    "meta": {"result_count": len(user.tweet_ids)}
+                    "meta": {"result_count": len(user.tweet_ids)},
                 }
                 includes = ["users", "tweets", "media", "polls"]
                 for include in includes:
@@ -435,7 +376,7 @@ def main():
                 tweets = user.get_tweets(start_time=date_pleroma)
             logger.debug(f"tweets: \t {tweets}")
 
-            if 'meta' not in tweets:
+            if "meta" not in tweets:
                 error_msg = _(
                     "Unable to retrieve tweets. Is the account protected?"
                     " If so, you need to provide the following OAuth 1.0a"
@@ -447,7 +388,7 @@ def main():
 
             if tweets["meta"]["result_count"] > 0:
                 logger.info(
-                    _("tweet count: \t {}").format(len(tweets['data']))
+                    _("tweet count: \t {}").format(len(tweets["data"]))
                 )
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
@@ -460,7 +401,7 @@ def main():
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
                     user.post_pleroma(
-                        (tweet["id"], tweet["text"]),
+                        (tweet["id"], tweet["text"], tweet["created_at"]),
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )

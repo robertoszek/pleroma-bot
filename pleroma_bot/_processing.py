@@ -72,11 +72,9 @@ def process_tweets(self, tweets_to_post):
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 tweet["text"] = _replace_mentions(self, tweet)
-        try:
-            if self.nitter:
-                tweet["text"] = _replace_nitter(self, tweet)
-        except AttributeError:
-            pass
+        if self.nitter:
+            tweet["text"] = _replace_nitter(self, tweet)
+
         try:
             for item in tweet["attachments"]["media_keys"]:
                 for media_include in tweets_to_post["includes"]["media"]:
@@ -183,9 +181,9 @@ def _download_media(self, media, tweet):
                         ).format(self.file_max_size)
                     )
                     logger.error(
-                        _(
-                            "File size: {}MB"
-                        ).format(round(file_size_bytes / 2 ** 20, 2))
+                        _("File size: {}MB").format(
+                            round(file_size_bytes / 2 ** 20, 2)
+                        )
                     )
                     logger.error(_("Ignoring attachment and continuing..."))
                     os.remove(file_path)
@@ -242,12 +240,15 @@ def _expand_urls(self, tweet):
         )
         matches = re.finditer(matching_pattern, tweet["text"])
         for matchNum, match in enumerate(matches, start=1):
+            group = match.group()
             # don't be brave trying to unwound an URL when it gets
             # cut off
-            if not match.group().__contains__("…"):
+            if not group.__contains__("…"):
+                if not group.startswith(("http://", "https://")):
+                    group = f"http://{group}"
                 session = requests.Session()  # so connections are
                 # recycled
-                response = session.head(match.group(), allow_redirects=True)
+                response = session.head(group, allow_redirects=True)
                 if not response.ok:
                     response.raise_for_status()
                 expanded_url = response.url

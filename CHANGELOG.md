@@ -1,3 +1,9 @@
+## [0.8.9] - 2021-12-05
+## Added
+- ```original_date``` and ```original_date_format``` for adding the original tweet's creation date to the post body
+## Fixed
+- URL expansion when regex match doesn't include protocol (http, https)
+
 ## [0.8.8] - 2021-05-15
 ## Added
 - ```twitter_bio``` for allowing the user to choose if they want to retrieve and append the Twitter bio to their Fediverse user or not.

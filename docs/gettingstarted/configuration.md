@@ -91,6 +91,8 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | delay_post          | Yes        | 0.5                         | How long to wait (in seconds) between submitting posts to the Fedi instance (useful when trying to avoid rate limits)|
 | tweet_ids           | Yes        |                             | List of specific tweet IDs to retrieve and post |
 | twitter_bio         | Yes        | true                        | Append Twitter's bio to Pleroma/Mastodon target user |
+| original_date       | Yes        | false                       | Include the creation date of the tweet on the Fediverse post body |
+| original_date_format| Yes        | "%Y-%m-%d %H:%M"            | Date format to use when adding the creation date of the tweet to the Fediverse post |
 
 
 
@@ -130,6 +132,8 @@ users:
   rich_text: true
   visibility: "unlisted"
   sensitive: false
+  original_date: true
+  original_date_format: "%Y/%m/%d %H:%M"
   include_rts: false
   include_replies: false
   hashtags:

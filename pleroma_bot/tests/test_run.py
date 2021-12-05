@@ -400,7 +400,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 shutil.copy(gif, tweet_folder)
                 attach_number = len(os.listdir(tweet_folder))
                 sample_user_obj.post_pleroma(
-                    (test_user.pinned, ""), None, False
+                    (test_user.pinned, "", ""), None, False
                 )
 
                 history = mock.request_history
@@ -705,7 +705,11 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                 for tweet in tweets_to_post['data']:
                     if sample_user_obj.signature:
                         sample_user_obj.post_pleroma(
-                            (tweet["id"], tweet["text"]), None, False
+                            (
+                                tweet["id"],
+                                tweet["text"],
+                                tweet["created_at"],
+                            ), None, False
                         )
                         history = mock.request_history
                         assert nitter_instance in parse.unquote(
@@ -738,7 +742,11 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                 for tweet in tweets_to_post['data']:
                     if sample_user_obj.signature:
                         sample_user_obj.post_pleroma(
-                            (tweet["id"], tweet["text"]), None, False
+                            (
+                                tweet["id"],
+                                tweet["text"],
+                                tweet["created_at"]
+                            ), None, False
                         )
                         history = mock.request_history
                         assert nitter_instance in parse.unquote(
@@ -746,6 +754,103 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                         )
 
                     # Clean up
+                    tweet_folder = os.path.join(
+                        sample_user_obj.tweets_temp_path, tweet["id"]
+                    )
+                    for file in os.listdir(tweet_folder):
+                        file_path = os.path.join(tweet_folder, file)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+    return mock, sample_user
+
+
+def test_original_date(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_date = get_config_users('config_original_date.yml')
+            users_no_date = get_config_users('config_no_original_date.yml')
+
+            for user_item in users_date['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_date['config'], os.getcwd()
+                )
+                tweets_v2 = sample_user_obj._get_tweets("v2")
+                assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+                tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+                assert tweet == mock_request['sample_data']['tweet']
+                tweets = sample_user_obj._get_tweets("v1.1")
+                assert tweets == mock_request['sample_data']['tweets_v1']
+
+                tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+                for tweet in tweets_to_post['data']:
+                    if sample_user_obj.signature:
+                        sample_user_obj.post_pleroma(
+                            (
+                                tweet["id"],
+                                tweet["text"],
+                                tweet["created_at"],
+                            ), None, False
+                        )
+                        history = mock.request_history
+                        tweet_date = tweet["created_at"]
+                        date_format = sample_user_obj.original_date_format
+                        date = datetime.strftime(
+                            datetime.strptime(
+                                tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"
+                            ),
+                            date_format,
+                        )
+                        assert f"[{date}]" in parse.unquote(
+                            history[-1].text.replace("+", " ")
+                        )
+
+                        # Clean up
+                    tweet_folder = os.path.join(
+                        sample_user_obj.tweets_temp_path, tweet["id"]
+                    )
+                    for file in os.listdir(tweet_folder):
+                        file_path = os.path.join(tweet_folder, file)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+
+            for user_item in users_no_date['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_date['config'], os.getcwd()
+                )
+                tweets_v2 = sample_user_obj._get_tweets("v2")
+                assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+                tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+                assert tweet == mock_request['sample_data']['tweet']
+                tweets = sample_user_obj._get_tweets("v1.1")
+                assert tweets == mock_request['sample_data']['tweets_v1']
+
+                tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+                for tweet in tweets_to_post['data']:
+                    if sample_user_obj.signature:
+                        sample_user_obj.post_pleroma(
+                            (
+                                tweet["id"],
+                                tweet["text"],
+                                tweet["created_at"],
+                            ), None, False
+                        )
+                        history = mock.request_history
+                        tweet_date = tweet["created_at"]
+                        date_format = sample_user_obj.original_date_format
+                        date = datetime.strftime(
+                            datetime.strptime(
+                                tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"
+                            ),
+                            date_format,
+                        )
+                        assert f"[{date}]" not in parse.unquote(
+                            history[-1].text.replace("+", " ")
+                        )
+
+                        # Clean up
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
