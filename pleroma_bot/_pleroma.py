@@ -71,9 +71,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     pleroma_post_url = f"{self.pleroma_base_url}/api/v1/statuses"
     pleroma_media_url = f"{self.pleroma_base_url}/api/v1/media"
 
-    tweet_id = tweet[0]
-    tweet_text = tweet[1]
-    tweet_date = tweet[2]
+    tweet_id, tweet_text, tweet_date = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
     media_files = os.listdir(tweet_folder)
     media_ids = []
