@@ -35,9 +35,11 @@ import yaml
 import shutil
 import logging
 import argparse
+import multiprocessing as mp
 
 from requests_oauthlib import OAuth1
 
+from ._utils import process_parallel
 from .i18n import _
 from . import logger
 from .__init__ import __version__
@@ -388,14 +390,16 @@ def main():
                     "- access_token_secret"
                 )
                 logger.error(error_msg)
-
-            if tweets["meta"]["result_count"] > 0:
+            result_tweets = tweets["meta"]["result_count"]
+            if result_tweets > 0:
                 logger.info(
                     _("tweet count: \t {}").format(len(tweets["data"]))
                 )
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
-                tweets_to_post = user.process_tweets(tweets)
+                cores = mp.cpu_count()
+                threads = round(cores / 2 if cores > 4 else 4)
+                tweets_to_post = process_parallel(tweets, user, threads)
                 logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
                 tweet_counter = 0
                 for tweet in tweets_to_post["data"]:

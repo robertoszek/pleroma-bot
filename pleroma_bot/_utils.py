@@ -4,12 +4,14 @@ import time
 import json
 import string
 import random
+from multiprocessing import Queue
+
 import requests
 import threading
 import functools
 import mimetypes
 
-from queue import Queue
+# from queue import Queue
 from itertools import cycle
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
@@ -25,36 +27,11 @@ from .i18n import _
 from . import logger
 
 
-class PropagatingThread(threading.Thread):
-    """
-    Thread that surfaces exceptions that occur inside of it
-    """
-
-    def run(self):
-        self.exc = None
-        # Event to keep track if thread has started
-        self.started_evt = threading.Event()
-        try:
-            self.ret = self._target(*self._args, **self._kwargs)
-            self.started_evt.set()
-        except BaseException as e:
-            self.exc = e
-            self.started_evt.clear()
-
-    def join(self):
-        if not self.exc:
-            self.started_evt.wait()
-        super(PropagatingThread, self).join()
-        self.started_evt.clear()
-        if self.exc:
-            raise self.exc
-        return self.ret
-
-
-def spinner(message, spinner_symbols: list = None):
+def spinner(message, wait: float = 0.3, spinner_symbols: list = None,):
     """
     Decorator that launches the function wrapped and the spinner each in a
     separate thread
+    :param wait: time to wait between symbol cycles
     :param message: Message to display next to the spinner
     :param spinner_symbols:
     :return:
@@ -70,7 +47,7 @@ def spinner(message, spinner_symbols: list = None):
                 "\r{message} {symbol}".format(message=message, symbol=symbol),
                 end="",
             )
-            time.sleep(0.3)
+            time.sleep(wait)
 
     def stop():
         print("\r", end="")
@@ -100,6 +77,86 @@ def spinner(message, spinner_symbols: list = None):
         return wrapper
 
     return external
+
+
+def chunkify(lst, n):
+    return [lst[i::n] for i in range(n)]
+
+
+def process_parallel(tweets, user, threads):
+    dt = tweets["data"]
+    chunks = chunkify(dt, threads)
+    mp = Multiprocessor()
+    for idx in range(threads):
+        tweets_chunked = {
+            "data": chunks[idx],
+            "includes": tweets["includes"],
+            "meta": tweets["meta"]
+        }
+        mp.run(user.process_tweets, tweets_chunked)
+    ret = mp.wait()  # get all results
+    tweet_result = {
+        "data": [],
+        "includes": tweets["includes"],
+        "meta": tweets["meta"]
+    }
+    for idx in range(threads):
+        tweet_result["data"].extend(ret[idx]["data"])
+    return tweet_result
+
+
+class Multiprocessor:
+
+    def __init__(self):
+        self.processes = []
+        self.queue = Queue()
+
+    @staticmethod
+    def _wrapper(func, queue, args, kwargs):
+        ret = func(*args, **kwargs)
+        queue.put(ret)
+
+    def run(self, func, *args, **kwargs):
+        args2 = [func, self.queue, args, kwargs]
+        p = PropagatingThread(target=self._wrapper, args=args2)
+        self.processes.append(p)
+        p.start()
+
+    @spinner(_("Processing tweets... "), 1.2)
+    def wait(self):
+        rets = []
+        for p in self.processes:
+            ret = self.queue.get()
+            rets.append(ret)
+        for p in self.processes:
+            p.join()
+        return rets
+
+
+class PropagatingThread(threading.Thread):
+    """
+    Thread that surfaces exceptions that occur inside of it
+    """
+
+    def run(self):
+        self.exc = None
+        # Event to keep track if thread has started
+        self.started_evt = threading.Event()
+        try:
+            self.ret = self._target(*self._args, **self._kwargs)
+            self.started_evt.set()
+        except BaseException as e:
+            self.exc = e
+            self.started_evt.clear()
+
+    def join(self):
+        if not self.exc:
+            self.started_evt.wait()
+        super(PropagatingThread, self).join()
+        self.started_evt.clear()
+        if self.exc:
+            raise self.exc
+        return self.ret
 
 
 def check_pinned(self):

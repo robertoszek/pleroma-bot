@@ -6,7 +6,6 @@ import shutil
 import requests
 import mimetypes
 
-from ._utils import spinner
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -19,7 +18,6 @@ from . import logger
 from .i18n import _
 
 
-@spinner(_("Processing tweets... "))
 def process_tweets(self, tweets_to_post):
     """Transforms tweets for posting them to Pleroma
     Expands shortened URLs
@@ -268,18 +266,27 @@ def _expand_urls(self, tweet):
             group = match.group()
             # don't be brave trying to unwound an URL when it gets
             # cut off
-            if not group.__contains__("…"):
+            if (
+                    not group.__contains__("…") and not
+                    group.startswith(self.nitter_base_url)
+            ):
                 if not group.startswith(("http://", "https://")):
                     group = f"http://{group}"
                 # so connections are recycled
                 session = requests.Session()
                 response = session.head(group, allow_redirects=True)
                 if not response.ok:
+                    logger.debug(
+                        _(
+                            "Couldn't expand the {}: {}"
+                        ).format(response.url, response.status_code)
+                    )
                     response.raise_for_status()
-                expanded_url = response.url
-                tweet["text"] = re.sub(
-                    group, expanded_url, tweet["text"]
-                )
+                else:
+                    expanded_url = response.url
+                    tweet["text"] = re.sub(
+                        group, expanded_url, tweet["text"]
+                    )
     return tweet["text"]
 
 
