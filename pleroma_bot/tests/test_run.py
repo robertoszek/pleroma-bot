@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import shutil
 import hashlib
@@ -394,11 +395,11 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 tweet_folder = os.path.join(
                     sample_user_obj.tweets_temp_path, test_user.pinned
                 )
+                os.makedirs(tweet_folder, exist_ok=True)
                 shutil.copy(png, tweet_folder)
                 shutil.copy(svg, tweet_folder)
                 shutil.copy(mp4, tweet_folder)
                 shutil.copy(gif, tweet_folder)
-                attach_number = len(os.listdir(tweet_folder))
                 sample_user_obj.post_pleroma(
                     (test_user.pinned, "", ""), None, False
                 )
@@ -424,6 +425,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 id_media = mock_media['id']
                 assert id_media in history[-1].text
                 dict_history = urllib.parse.parse_qs(history[-1].text)
+                attach_number = len(os.listdir(tweet_folder))
                 assert len(dict_history['media_ids[]']) == attach_number
                 for media in dict_history['media_ids[]']:
                     assert media == id_media
@@ -521,15 +523,16 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                     '0.png': png_hash,
                     '0.gif': gif_hash
                 }
-                for file in os.listdir(tweet_folder):
-                    file_path = os.path.join(tweet_folder, file)
-                    if os.path.isfile(file_path):
-                        f = open(file_path, 'rb')
-                        file_content = f.read()
-                        file_hash = hashlib.sha256(file_content).hexdigest()
-                        f.close()
-                        assert file_hash == dict_hash[file]
-                        os.remove(file_path)
+                if os.path.isdir(tweet_folder):
+                    for file in os.listdir(tweet_folder):
+                        file_path = os.path.join(tweet_folder, file)
+                        if os.path.isfile(file_path):
+                            f = open(file_path, 'rb')
+                            file_cont = f.read()
+                            file_hash = hashlib.sha256(file_cont).hexdigest()
+                            f.close()
+                            assert file_hash == dict_hash[file]
+                            os.remove(file_path)
     return mock
 
 
@@ -561,10 +564,11 @@ def test_include_rts(sample_users, mock_request):
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
                 if retweet_found:
                     assert sample_user_obj.include_rts
     return mock
@@ -615,10 +619,11 @@ def test_include_replies(sample_users, mock_request):
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
                 if reply_found:
                     assert sample_user_obj.include_replies
     return mock
@@ -671,10 +676,11 @@ def test_hashtags(sample_users, global_mock):
                         tweet_folder = os.path.join(
                             sample_user_obj.tweets_temp_path, tweet["id"]
                         )
-                        for file in os.listdir(tweet_folder):
-                            file_path = os.path.join(tweet_folder, file)
-                            if os.path.isfile(file_path):
-                                os.remove(file_path)
+                        if os.path.isdir(tweet_folder):
+                            for file in os.listdir(tweet_folder):
+                                file_path = os.path.join(tweet_folder, file)
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
 
     return mock, sample_user
 
@@ -716,14 +722,15 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                             history[-1].text
                         )
 
-                        # Clean up
+                    # Clean up
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
 
             for user_item in users_nitter['user_dict']:
                 nitter_instance = users_nitter['config']['nitter_base_url']
@@ -757,10 +764,11 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
     return mock, sample_user
 
 
@@ -806,14 +814,15 @@ def test_original_date(sample_users, mock_request, global_mock):
                             history[-1].text.replace("+", " ")
                         )
 
-                        # Clean up
+                    # Clean up
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
 
             for user_item in users_no_date['user_dict']:
                 sample_user_obj = User(
@@ -838,7 +847,6 @@ def test_original_date(sample_users, mock_request, global_mock):
                             ), None, False
                         )
                         history = mock.request_history
-                        tweet_date = tweet["created_at"]
                         date_format = sample_user_obj.original_date_format
                         date = datetime.strftime(
                             datetime.strptime(
@@ -850,15 +858,135 @@ def test_original_date(sample_users, mock_request, global_mock):
                             history[-1].text.replace("+", " ")
                         )
 
-                        # Clean up
+                    # Clean up
                     tweet_folder = os.path.join(
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
     return mock, sample_user
+
+
+def test_keep_media_links(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_keep = get_config_users('config_keep_media_links.yml')
+            users_no_keep = get_config_users('config_no_keep_media_links.yml')
+            for user_item in users_keep['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_keep['config'], os.getcwd()
+                )
+                tweet_v2 = sample_user_obj._get_tweets(
+                    "v2", sample_user_obj.pinned_tweet_id
+                )
+                assert tweet_v2 == mock_request['sample_data']['pinned_tweet']
+                tweet_v2["data"]["text"] = sample_user_obj._expand_urls(
+                    tweet_v2["data"]
+                )
+                regex = r"\bhttps?:\/\/twitter.com\/+[^\/:]+\/.*?" \
+                        r"(photo|video)\/\d*\b"
+                matches = []
+                match = re.search(regex, tweet_v2["data"]["text"])
+                if match:
+                    matches.append(match.group())
+
+                tweets_to_post = sample_user_obj.process_tweets(
+                    {"data": [tweet_v2["data"]],
+                     "includes": tweet_v2["includes"]}
+                )
+                for m in matches:
+                    for tweet in tweets_to_post["data"]:
+                        if sample_user_obj.keep_media_links:
+                            assert m in tweet["text"]
+                        # Clean up
+                        tweet_folder = os.path.join(
+                            sample_user_obj.tweets_temp_path, tweet["id"]
+                        )
+                        if os.path.isdir(tweet_folder):
+                            for file in os.listdir(tweet_folder):
+                                file_path = os.path.join(tweet_folder, file)
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_keep = get_config_users('config_keep_media_links.yml')
+            users_no_keep = get_config_users('config_no_keep_media_links.yml')
+            for user_item in users_keep['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_keep['config'], os.getcwd()
+                )
+                tweet_v2 = sample_user_obj._get_tweets(
+                    "v2", sample_user_obj.pinned_tweet_id
+                )
+                assert tweet_v2 == mock_request['sample_data']['pinned_tweet']
+                tweet_v2["data"]["text"] = sample_user_obj._expand_urls(
+                    tweet_v2["data"]
+                )
+                regex = r"\bhttps?:\/\/twitter.com\/+[^\/:]+\/.*?" \
+                        r"(photo|video)\/\d*\b"
+                matches = []
+                match = re.search(regex, tweet_v2["data"]["text"])
+                if match:
+                    matches.append(match.group())
+
+                tweets_to_post = sample_user_obj.process_tweets(
+                    {"data": [tweet_v2["data"]],
+                     "includes": tweet_v2["includes"]}
+                )
+                for m in matches:
+                    for tweet in tweets_to_post["data"]:
+                        if sample_user_obj.keep_media_links:
+                            assert m in tweet["text"]
+                        # Clean up
+                        tweet_folder = os.path.join(
+                            sample_user_obj.tweets_temp_path, tweet["id"]
+                        )
+                        if os.path.isdir(tweet_folder):
+                            for file in os.listdir(tweet_folder):
+                                file_path = os.path.join(tweet_folder, file)
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
+            for user_item in users_no_keep['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_no_keep['config'], os.getcwd()
+                )
+                tweet_v2 = sample_user_obj._get_tweets(
+                    "v2", sample_user_obj.pinned_tweet_id
+                )
+                assert tweet_v2 == mock_request['sample_data']['pinned_tweet']
+                tweet_v2["data"]["text"] = sample_user_obj._expand_urls(
+                    tweet_v2["data"]
+                )
+                regex = r"https:\/\/twitter\.com\/.*\/status\/.*\/(" \
+                        r"photo|video)\/\d"
+                matches = []
+                match = re.search(regex, tweet_v2["data"]["text"])
+                if match:
+                    matches.append(match.group())
+
+                tweets_to_post = sample_user_obj.process_tweets(
+                    {"data": [tweet_v2["data"]],
+                     "includes": tweet_v2["includes"]}
+                )
+                for m in matches:
+                    for tweet in tweets_to_post["data"]:
+                        if not sample_user_obj.keep_media_links:
+                            assert m not in tweet["text"]
+                        # Clean up
+                        tweet_folder = os.path.join(
+                            sample_user_obj.tweets_temp_path, tweet["id"]
+                        )
+                        if os.path.isdir(tweet_folder):
+                            for file in os.listdir(tweet_folder):
+                                file_path = os.path.join(tweet_folder, file)
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
+
+    return mock, sample_user, test_user
 
 
 def test__process_polls_with_media(sample_users):

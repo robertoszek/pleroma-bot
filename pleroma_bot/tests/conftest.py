@@ -57,7 +57,33 @@ def mock_request(rootdir):
             status_code=301,
             headers={'Location': 'http://github.com'}
         )
+
         empty_resp = requests.packages.urllib3.response.HTTPResponse()
+        mock.head(
+            "https://twitter.com/BotPleroma/status/1323048312161947650"
+            "/photo/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "http://twitter.com/BotPleroma/status/1323048312161947650"
+            "/photo/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "https://twitter.com/BotPleroma/status/111242346465757545"
+            "/video/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "https://twitter.com/BotPleroma/status/"
+            "111242346465757545/video/10",
+            status_code=200,
+            raw=empty_resp,
+        )
+
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],

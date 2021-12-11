@@ -163,10 +163,11 @@ def test_post_pleroma_media_size_logger(
                 tweet_folder = os.path.join(
                     sample_user_obj.tweets_temp_path, tweet["id"]
                 )
-                for file in os.listdir(tweet_folder):
-                    file_path = os.path.join(tweet_folder, file)
-                    if os.path.isfile(file_path):
-                        os.remove(file_path)
+                if os.path.isdir(tweet_folder):
+                    for file in os.listdir(tweet_folder):
+                        file_path = os.path.join(tweet_folder, file)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
     return mock
 
 

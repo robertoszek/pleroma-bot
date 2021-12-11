@@ -77,28 +77,33 @@ def process_tweets(self, tweets_to_post):
         media = []
         tweet["text"] = _expand_urls(self, tweet)
         tweet["text"] = html.unescape(tweet["text"])
+
+        # Download media only if we plan to upload it later
+        if self.media_upload:
+            try:
+                for item in tweet["attachments"]["media_keys"]:
+                    for media_include in tweets_to_post["includes"]["media"]:
+                        media_url = _get_media_url(
+                            self, item, media_include, tweet
+                        )
+                        if media_url:
+                            media.extend(media_url)
+            except KeyError:
+                pass
+            if len(media) > 0:
+                # Create folder to store attachments related to the tweet ID
+                tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
+                os.makedirs(tweet_path, exist_ok=True)
+                _download_media(self, media, tweet)
+
+        if not self.keep_media_links:
+            tweet["text"] = _remove_media_links(self, tweet)
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 tweet["text"] = _replace_mentions(self, tweet)
         if self.nitter:
             tweet["text"] = _replace_nitter(self, tweet)
 
-        try:
-            for item in tweet["attachments"]["media_keys"]:
-                for media_include in tweets_to_post["includes"]["media"]:
-                    media_url = _get_media_url(
-                        self, item, media_include, tweet
-                    )
-                    if media_url:
-                        media.extend(media_url)
-        except KeyError:
-            pass
-        # Create folder to store attachments related to the tweet ID
-        tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
-        os.makedirs(tweet_path, exist_ok=True)
-        # Download media only if we plan to upload it later
-        if self.media_upload:
-            _download_media(self, media, tweet)
         # Process poll if exists and no media is used
         tweet["polls"] = _process_polls(self, tweet, media)
 
@@ -220,6 +225,14 @@ def _replace_nitter(self, tweet):
     return tweet["text"]
 
 
+def _remove_media_links(self, tweet):
+    regex = r"\bhttps?:\/\/twitter.com\/+[^\/:]+\/.*?(photo|video)\/\d*\b"
+    match = re.search(regex, tweet["text"])
+    if match:
+        tweet["text"] = re.sub(match.group(), '', tweet["text"])
+    return tweet["text"]
+
+
 def _replace_mentions(self, tweet):
     matches = re.findall(r"\B\@\w+", tweet["text"])
     for match in matches:
@@ -258,14 +271,14 @@ def _expand_urls(self, tweet):
             if not group.__contains__("…"):
                 if not group.startswith(("http://", "https://")):
                     group = f"http://{group}"
-                session = requests.Session()  # so connections are
-                # recycled
+                # so connections are recycled
+                session = requests.Session()
                 response = session.head(group, allow_redirects=True)
                 if not response.ok:
                     response.raise_for_status()
                 expanded_url = response.url
                 tweet["text"] = re.sub(
-                    match.group(), expanded_url, tweet["text"]
+                    group, expanded_url, tweet["text"]
                 )
     return tweet["text"]
 

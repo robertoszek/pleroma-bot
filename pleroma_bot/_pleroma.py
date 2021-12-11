@@ -73,53 +73,57 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
 
     tweet_id, tweet_text, tweet_date = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
-    media_files = os.listdir(tweet_folder)
+
     media_ids = []
     if self.media_upload:
-        for file in media_files:
-            file_path = os.path.join(tweet_folder, file)
-            media_file = open(file_path, "rb")
-            file_size = os.stat(os.path.join(tweet_folder, file)).st_size
-            size_mb = round(file_size / 1048576, 2)
+        if os.path.isdir(tweet_folder):
+            media_files = os.listdir(tweet_folder)
+            for file in media_files:
+                file_path = os.path.join(tweet_folder, file)
+                media_file = open(file_path, "rb")
+                file_size = os.stat(os.path.join(tweet_folder, file)).st_size
+                size_mb = round(file_size / 1048576, 2)
 
-            mime_type = guess_type(os.path.join(tweet_folder, file))
-            timestamp = str(datetime.now().timestamp())
-            file_name = (
-                f"pleromapyupload_"
-                f"{timestamp}"
-                f"_"
-                f"{random_string(10)}"
-                f"{mimetypes.guess_extension(mime_type)}"
-            )
-            file_description = (file_name, media_file, mime_type)
-            files = {"file": file_description}
-            response = requests.post(
-                pleroma_media_url, headers=self.header_pleroma, files=files
-            )
-            try:
-                if not response.ok:
-                    response.raise_for_status()
-            except requests.exceptions.HTTPError:
-                if response.status_code == 413:
-                    size_msg = _(
-                        "Exception occurred"
-                        "\nMedia size too large:"
-                        "\nFilename: {file}"
-                        "\nSize: {size}MB"
-                        "\nConsider increasing the attachment"
-                        "\n size limit of your instance"
-                    ).format(file=file_path, size=size_mb)
-                    logger.error(size_msg)
-                    pass
-                else:
-                    response.raise_for_status()
-            try:
-                media_ids.append(json.loads(response.text)["id"])
-            except (KeyError, JSONDecodeError):
-                logger.warning(
-                    _("Error uploading media:\t{}").format(str(response.text))
+                mime_type = guess_type(os.path.join(tweet_folder, file))
+                timestamp = str(datetime.now().timestamp())
+                file_name = (
+                    f"pleromapyupload_"
+                    f"{timestamp}"
+                    f"_"
+                    f"{random_string(10)}"
+                    f"{mimetypes.guess_extension(mime_type)}"
                 )
-                pass
+                file_description = (file_name, media_file, mime_type)
+                files = {"file": file_description}
+                response = requests.post(
+                    pleroma_media_url, headers=self.header_pleroma, files=files
+                )
+                try:
+                    if not response.ok:
+                        response.raise_for_status()
+                except requests.exceptions.HTTPError:
+                    if response.status_code == 413:
+                        size_msg = _(
+                            "Exception occurred"
+                            "\nMedia size too large:"
+                            "\nFilename: {file}"
+                            "\nSize: {size}MB"
+                            "\nConsider increasing the attachment"
+                            "\n size limit of your instance"
+                        ).format(file=file_path, size=size_mb)
+                        logger.error(size_msg)
+                        pass
+                    else:
+                        response.raise_for_status()
+                try:
+                    media_ids.append(json.loads(response.text)["id"])
+                except (KeyError, JSONDecodeError):
+                    logger.warning(
+                        _("Error uploading media:\t{}").format(
+                            str(response.text)
+                        )
+                    )
+                    pass
 
     if self.signature:
         signature = f"\n\n 🐦🔗: {self.twitter_url}/status/{tweet_id}"

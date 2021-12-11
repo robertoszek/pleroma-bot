@@ -110,6 +110,7 @@ class User(object):
             "original_date": False,
             "original_date_format": "%Y-%m-%d %H:%M",
             "bio_text": "",
+            "keep_media_links": False,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
