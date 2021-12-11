@@ -59,7 +59,6 @@ users:
 - twitter_username: User1
   pleroma_username: MyPleromaUser1
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  bio_text: ""
 ```
 
 ## Mappings 
@@ -103,7 +102,7 @@ There a few mapping *exclusive* to users:
 | twitter_username | No         |                             | Username of Twitter account to mirror                                 |
 | pleroma_username | No         |                             | Username of target Fediverse account to post content and update profile      |
 | pleroma_token    | No         |                             | Bearer token of target Fediverse account                              |
-| bio_text         | No         |                             | Text to be appended to the Twitter account bio text                   |
+| bio_text         | Yes        |                             | Text to be appended to the Twitter account bio text                   |
 | fields           | Yes        |                             | Optional metadata fields (sequence of name-value pairs) for the Fediverse profile |
 
 

@@ -109,6 +109,7 @@ class User(object):
             "access_token_secret": None,
             "original_date": False,
             "original_date_format": "%Y-%m-%d %H:%M",
+            "bio_text": "",
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -140,7 +141,7 @@ class User(object):
             self.fields = eval(self.fields)
         except KeyError:
             self.fields = []
-        self.bio_text = self.replace_vars_in_str(str(user_cfg["bio_text"]))
+        self.bio_text = self.replace_vars_in_str(str(self.bio_text))
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
