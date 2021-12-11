@@ -18,6 +18,7 @@ def _get_twitter_info(self):
 
     :return: None
     """
+    # TODO: Migrate to v2
     twitter_user_url = (
         f"{self.twitter_base_url}"
         f"/users/show.json?screen_name="
