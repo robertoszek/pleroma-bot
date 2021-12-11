@@ -1,4 +1,6 @@
 ## Unreleased
+## Added
+- Links to Twitter attachments (video, images) are no longer explicitly included on the post's body text by default. You can choose to keep adding them with `keep_media_links`. This doesn't affect the upload of attachments.
 ## Enhancements
 - `bio_text` is no longer a mandatory mapping on the config
 
