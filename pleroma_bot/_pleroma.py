@@ -179,23 +179,28 @@ def update_pleroma(self):
 
     :returns: None
     """
+    # Only update 1 user
+    t_user = self.twitter_username[0]
     # Get the biggest resolution for the profile picture (400x400)
     # instead of 'normal'
-    if self.profile_image_url:
-        profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
+    if self.profile_image_url[t_user]:
+        profile_img_big = re.sub(
+            r"normal", "400x400",
+            self.profile_image_url[t_user]
+        )
         response = requests.get(profile_img_big, stream=True)
         if not response.ok:
             response.raise_for_status()
         response.raw.decode_content = True
-        with open(self.avatar_path, "wb") as outfile:
+        with open(self.avatar_path[t_user], "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
-    if self.profile_banner_url:
-        response = requests.get(self.profile_banner_url, stream=True)
+    if self.profile_banner_url[t_user]:
+        response = requests.get(self.profile_banner_url[t_user], stream=True)
         if not response.ok:
             response.raise_for_status()
         response.raw.decode_content = True
-        with open(self.header_path, "wb") as outfile:
+        with open(self.header_path[t_user], "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
     # Set it on Pleroma
@@ -206,13 +211,13 @@ def update_pleroma(self):
     for field_item in self.fields:
         field = (field_item["name"], field_item["value"])
         fields.append(field)
-    data = {"note": self.bio_text, "display_name": self.display_name}
+    data = {"note": self.bio_text, "display_name": self.display_name[t_user]}
 
     if self.profile_image_url:
-        data.update({"avatar": self.avatar_path})
+        data.update({"avatar": self.avatar_path[t_user]})
 
     if self.profile_banner_url:
-        data.update({"header": self.header_path})
+        data.update({"header": self.header_path[t_user]})
 
     if len(fields) > 4:
         raise Exception(
@@ -227,18 +232,18 @@ def update_pleroma(self):
 
     files = {}
     timestamp = str(datetime.now().timestamp())
-    if self.profile_image_url:
-        avatar = open(self.avatar_path, "rb")
-        avatar_mime_type = guess_type(self.avatar_path)
+    if self.profile_image_url[t_user]:
+        avatar = open(self.avatar_path[t_user], "rb")
+        avatar_mime_type = guess_type(self.avatar_path[t_user])
         avatar_file_name = (
             f"pleromapyupload_{timestamp}_"
             f"{random_string(10)}"
             f"{mimetypes.guess_extension(avatar_mime_type)}"
         )
         files.update({"avatar": (avatar_file_name, avatar, avatar_mime_type)})
-    if self.profile_banner_url:
-        header = open(self.header_path, "rb")
-        header_mime_type = guess_type(self.header_path)
+    if self.profile_banner_url[t_user]:
+        header = open(self.header_path[t_user], "rb")
+        header_mime_type = guess_type(self.header_path[t_user])
         header_file_name = (
             f"pleromapyupload_{timestamp}_"
             f"{random_string(10)}"

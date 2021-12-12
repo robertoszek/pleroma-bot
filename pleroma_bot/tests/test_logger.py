@@ -31,12 +31,15 @@ def test_unpin_pleroma_logger(sample_users, mock_request, caplog):
                 )
                 empty_file = os.path.join(os.getcwd(), 'empty.txt')
                 open(empty_file, 'a').close()
-                pinned_file = os.path.join(sample_user_obj.user_path,
-                                           "pinned_id_pleroma.txt")
-                shutil.copy(empty_file, pinned_file)
-                sample_user_obj.unpin_pleroma(pinned_file)
-                os.remove(pinned_file)
-                os.remove(empty_file)
+                for t_user in sample_user_obj.twitter_username:
+                    pinned_file = os.path.join(
+                        sample_user_obj.user_path[t_user],
+                        "pinned_id_pleroma.txt"
+                    )
+                    shutil.copy(empty_file, pinned_file)
+                    sample_user_obj.unpin_pleroma(pinned_file)
+                    os.remove(pinned_file)
+                    os.remove(empty_file)
     assert 'Pinned post not found. Giving up unpinning...' in caplog.text
 
 
@@ -57,21 +60,27 @@ def test_main_exception_logger(global_mock, sample_users, caplog):
                 shutil.copy(backup_config, prev_config)
             for sample_user in sample_users:
                 sample_user_obj = sample_user['user_obj']
-                pinned_path = os.path.join(os.getcwd(),
-                                           'users',
-                                           sample_user_obj.twitter_username,
-                                           'pinned_id.txt')
-                pinned_pleroma = os.path.join(os.getcwd(),
-                                              'users',
-                                              sample_user_obj.twitter_username,
-                                              'pinned_id_pleroma.txt')
-                if os.path.isfile(pinned_path):
-                    os.remove(pinned_path)
-                if os.path.isfile(pinned_pleroma):
-                    os.remove(pinned_pleroma)
-                # Restore config
-                if os.path.isfile(backup_config):
-                    shutil.copy(backup_config, prev_config)
+                for t_user in sample_user_obj.twitter_username:
+                    idx = sample_user_obj.twitter_username.index(t_user)
+                    pinned_path = os.path.join(
+                        os.getcwd(),
+                        'users',
+                        sample_user_obj.twitter_username[idx],
+                        'pinned_id.txt'
+                    )
+                    pinned_pleroma = os.path.join(
+                        os.getcwd(),
+                        'users',
+                        sample_user_obj.twitter_username[idx],
+                        'pinned_id_pleroma.txt'
+                    )
+                    if os.path.isfile(pinned_path):
+                        os.remove(pinned_path)
+                    if os.path.isfile(pinned_pleroma):
+                        os.remove(pinned_pleroma)
+                    # Restore config
+                    if os.path.isfile(backup_config):
+                        shutil.copy(backup_config, prev_config)
         mock.reset_mock()
     assert 'Exception occurred\nTraceback' in caplog.text
 
@@ -140,34 +149,36 @@ def test_post_pleroma_media_size_logger(
             sample_user_obj = User(
                 user_item, users_file_size['config'], os.getcwd()
             )
-            tweets_v2 = sample_user_obj._get_tweets("v2")
-            assert tweets_v2 == mock_request['sample_data']['tweets_v2']
-            tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
-            assert tweet == mock_request['sample_data']['tweet']
-            tweets = sample_user_obj._get_tweets("v1.1")
-            assert tweets == mock_request['sample_data']['tweets_v1']
+            for t_user in sample_user_obj.twitter_username:
+                tweets_v2 = sample_user_obj._get_tweets("v2", t_user=t_user)
+                assert tweets_v2 == mock_request['sample_data']['tweets_v2']
+                tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)
+                assert tweet == mock_request['sample_data']['tweet']
+                tweets = sample_user_obj._get_tweets("v1.1")
+                assert tweets == mock_request['sample_data']['tweets_v1']
 
-            with caplog.at_level(logging.ERROR):
-                tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
-            if hasattr(sample_user_obj, "file_max_size"):
-                error_msg = (
-                    f'Attachment exceeded config file size '
-                    f'limit ({sample_user_obj.file_max_size})'
-                )
-                assert error_msg in caplog.text
-                assert 'File size: 1.45MB' in caplog.text
-                assert 'Ignoring attachment and continuing...' in caplog.text
+                with caplog.at_level(logging.ERROR):
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+                if hasattr(sample_user_obj, "file_max_size"):
+                    error_msg = (
+                        f'Attachment exceeded config file size '
+                        f'limit ({sample_user_obj.file_max_size})'
+                    )
+                    assert error_msg in caplog.text
+                    assert 'File size: 1.45MB' in caplog.text
+                    ignore = 'Ignoring attachment and continuing...'
+                    assert ignore in caplog.text
 
-            for tweet in tweets_to_post['data']:
-                # Clean up
-                tweet_folder = os.path.join(
-                    sample_user_obj.tweets_temp_path, tweet["id"]
-                )
-                if os.path.isdir(tweet_folder):
-                    for file in os.listdir(tweet_folder):
-                        file_path = os.path.join(tweet_folder, file)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
+                for tweet in tweets_to_post['data']:
+                    # Clean up
+                    tweet_folder = os.path.join(
+                        sample_user_obj.tweets_temp_path, tweet["id"]
+                    )
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
     return mock
 
 
@@ -176,29 +187,30 @@ def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
-            sample_user_obj.display_name = random_string(50)
-            mock.get(f"{test_user.pleroma_base_url}/api/v1/instance",
-                     json={'version': '3.2.1'},
-                     status_code=200)
-            rich_text_orig = False
-            assert len(sample_user_obj.display_name) == 50
-            if hasattr(sample_user_obj, "rich_text"):
-                if sample_user_obj.rich_text:
-                    rich_text_orig = True
-            with caplog.at_level(logging.DEBUG):
-                sample_user_obj._get_instance_info()
-            assert 'Assuming target instance is Mastodon...' in caplog.text
-            if rich_text_orig:
-                log_msg_rich_text = (
-                    "Mastodon doesn't support rich text. Disabling it..."
-                )
-                log_msg_display_name = (
-                    "Mastodon doesn't support display names longer than 30 "
-                    "characters, truncating it and trying again..."
-                )
-                assert log_msg_rich_text in caplog.text
-                assert log_msg_display_name in caplog.text
-                assert len(sample_user_obj.display_name) == 30
+            for t_user in sample_user_obj.twitter_username:
+                sample_user_obj.display_name = {t_user: random_string(50)}
+                mock.get(f"{test_user.pleroma_base_url}/api/v1/instance",
+                         json={'version': '3.2.1'},
+                         status_code=200)
+                rich_text_orig = False
+                assert len(sample_user_obj.display_name[t_user]) == 50
+                if hasattr(sample_user_obj, "rich_text"):
+                    if sample_user_obj.rich_text:
+                        rich_text_orig = True
+                with caplog.at_level(logging.DEBUG):
+                    sample_user_obj._get_instance_info()
+                assert 'Assuming target instance is Mastodon...' in caplog.text
+                if rich_text_orig:
+                    log_msg_rich_text = (
+                        "Mastodon doesn't support rich text. Disabling it..."
+                    )
+                    log_msg_display_name = (
+                        "Mastodon doesn't support display names longer "
+                        "than 30 characters, truncating it and trying again..."
+                    )
+                    assert log_msg_rich_text in caplog.text
+                    assert log_msg_display_name in caplog.text
+                    assert len(sample_user_obj.display_name[t_user]) == 30
 
 
 def test_force_date_logger(sample_users, monkeypatch, caplog):

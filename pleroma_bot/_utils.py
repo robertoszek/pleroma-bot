@@ -175,8 +175,13 @@ def check_pinned(self):
     Checks if a tweet is pinned and needs to be retrieved and posted on the
     Fediverse account
     """
-    logger.info(_("Current pinned:\t{}").format(str(self.pinned_tweet_id)))
-    pinned_file = os.path.join(self.user_path, "pinned_id.txt")
+    # Only check pinned for 1 user
+    t_user = self.twitter_username[0]
+
+    logger.info(_(
+        "Current pinned:\t{}"
+    ).format(str(self.pinned_tweet_id)))
+    pinned_file = os.path.join(self.user_path[t_user], "pinned_id.txt")
     if os.path.isfile(pinned_file):
         with open(pinned_file, "r") as file:
             previous_pinned_tweet_id = file.readline().rstrip()
@@ -211,14 +216,20 @@ def check_pinned(self):
             file.write(f"{self.pinned_tweet_id}\n")
         if pleroma_pinned_post is not None:
             with open(
-                    os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
+                    os.path.join(
+                        self.user_path[t_user],
+                        "pinned_id_pleroma.txt"
+                    ), "w"
             ) as file:
                 file.write(f"{pleroma_pinned_post}\n")
     elif (
             self.pinned_tweet_id != previous_pinned_tweet_id
             and previous_pinned_tweet_id is not None
     ):
-        pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
+        pinned_file = os.path.join(
+            self.user_path[t_user],
+            "pinned_id_pleroma.txt"
+        )
         self.unpin_pleroma(pinned_file)
 
 
@@ -259,6 +270,12 @@ def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
                 value = globals()[match.strip()]
         if isinstance(value, list):
             value = ", ".join([str(elem) for elem in value])
+        if isinstance(value, dict):
+            if isinstance(self.twitter_username, list):
+                for t_user in self.twitter_username:
+                    dict_value = value[t_user]
+                value = dict_value
+            # value = json.dumps(value)
         text = re.sub(pattern, value, text)
     return text
 
@@ -306,13 +323,14 @@ def _get_instance_info(self):
         raise ValueError(msg)
     if "Pleroma" not in instance_info["version"]:
         logger.debug(_("Assuming target instance is Mastodon..."))
-        if len(self.display_name) > 30:
-            self.display_name = self.display_name[:30]
-            log_msg = _(
-                "Mastodon doesn't support display names longer than 30 "
-                "characters, truncating it and trying again..."
-            )
-            logger.warning(log_msg)
+        for t_user in self.twitter_username:
+            if len(self.display_name[t_user]) > 30:
+                self.display_name[t_user] = self.display_name[t_user][:30]
+                log_msg = _(
+                    "Mastodon doesn't support display names longer than 30 "
+                    "characters, truncating it and trying again..."
+                )
+                logger.warning(log_msg)
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 self.rich_text = False
@@ -342,11 +360,11 @@ def force_date(self):
                 datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
             )
     elif input_date is None or input_date == "":
-        self.max_tweets = 100
+        # self.max_tweets = 100
         # Minimum date allowed
         date = "2010-11-06T00:00:00Z"
     else:
-        self.max_tweets = 100
+        # self.max_tweets = 100
         date = datetime.strftime(
             datetime.strptime(input_date, "%Y-%m-%d"),
             "%Y-%m-%dT%H:%M:%SZ",
