@@ -474,6 +474,10 @@ def test_get_tweets(sample_users, mock_request):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             for t_user in sample_user_obj.twitter_username:
+                start_time = sample_user_obj.get_date_last_pleroma_post()
+                _ = sample_user_obj._get_tweets(
+                    "v2", start_time=start_time, t_user=t_user
+                )
                 tweets_v2 = sample_user_obj._get_tweets("v2", t_user=t_user)
                 assert tweets_v2 == mock_request['sample_data']['tweets_v2']
                 tweet = sample_user_obj._get_tweets("v1.1", test_user.pinned)

@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import sys
+import urllib.parse
 from unittest.mock import patch
 
 import pytest
@@ -147,31 +148,36 @@ def test_user_invalid_max_tweets(sample_users):
 
 def test_check_pinned_exception_user(sample_users, mock_request):
     test_user = UserTemplate()
+    url_user = (
+        f"{test_user.twitter_base_url_v2}/tweets/{test_user.pinned}"
+        f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
+        f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
+        f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
+        f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+        f"attachments.poll_ids%2Cattachments.media_keys"
+        f"%2Cauthor_id%2Centities.mentions.username"
+        f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
+        f"referenced_tweets.id%2Creferenced_tweets.id."
+        f"author_id&tweet.fields=attachments%2Cauthor_id"
+        f"%2Ccontext_annotations%2Cconversation_id%2C"
+        f"created_at%2Centities%2Cgeo%2Cid%2C"
+        f"in_reply_to_user_id%2Clang%2Cpublic_metrics%2C"
+        f"possibly_sensitive%2Creferenced_tweets%2Csource%2C"
+        f"text%2Cwithheld"
+    )
     # Test exceptions
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
-            url_user = (
-                f"{test_user.twitter_base_url_v2}/tweets/{test_user.pinned}"
-                f"?max_results={sample_user_obj.max_tweets}&poll."
-                f"fields=duration_minutes%2Cend_datetime%2Cid"
-                f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
-                f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
-                f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
-                f"attachments.poll_ids%2Cattachments.media_keys"
-                f"%2Cauthor_id%2Centities.mentions.username"
-                f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
-                f"referenced_tweets.id%2Creferenced_tweets.id."
-                f"author_id&tweet.fields=attachments%2Cauthor_id"
-                f"%2Ccontext_annotations%2Cconversation_id%2C"
-                f"created_at%2Centities%2Cgeo%2Cid%2C"
-                f"in_reply_to_user_id%2Clang%2Cpublic_metrics%2C"
-                f"possibly_sensitive%2Creferenced_tweets%2Csource%2C"
-                f"text%2Cwithheld"
-            )
+            pinned = sample_user_obj.pinned_tweet_id
             mock.get(url_user,
                      json=mock_request['sample_data']['pinned_tweet'],
                      status_code=500)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
+                     f"&expansions=attachments.poll_ids"
+                     f"&poll.fields=duration_minutes%2Coptions",
+                     json=mock_request['sample_data']['poll'],
+                     status_code=200)
 
             t_users = sample_user_obj.twitter_username
             t_users_list = isinstance(t_users, list)
@@ -180,7 +186,6 @@ def test_check_pinned_exception_user(sample_users, mock_request):
                 HTTPError = requests.exceptions.HTTPError
                 with pytest.raises(HTTPError) as error_info:
                     sample_user_obj.check_pinned()
-
                 exception_value = (
                     f"500 Server Error: None for url: {url_user}"
                 )
@@ -532,6 +537,44 @@ def test__get_tweets_v2_exception(sample_users):
             sample_user_obj = sample_user['user_obj']
             for t_user in sample_user_obj.twitter_username:
                 idx = sample_user_obj.twitter_username.index(t_user)
+                date = sample_user_obj.get_date_last_pleroma_post()
+                date_encoded = urllib.parse.quote(date)
+                tweets_url = (
+                    f"{test_user.twitter_base_url_v2}/users/2244994945/tweets"
+                    f"?max_results={sample_user_obj.max_tweets}&start_time"
+                    f"={date_encoded}&poll."
+                    f"fields=duration_minutes%2Cend_datetime%2Cid"
+                    f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
+                    f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
+                    f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+                    f"attachments.poll_ids%2Cattachments.media_keys"
+                    f"%2Cauthor_id%2Centities.mentions.username"
+                    f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
+                    f"referenced_tweets.id%2Creferenced_tweets.id."
+                    f"author_id&tweet.fields=attachments%2Cauthor_id"
+                    f"%2Ccontext_annotations%2Cconversation_id%2C"
+                    f"created_at%2Centities%2Cgeo%2Cid%2C"
+                    f"in_reply_to_user_id%2Clang%2Cpublic_metrics%2C"
+                    f"possibly_sensitive%2Creferenced_tweets%2Csource%2C"
+                    f"text%2Cwithheld"
+                )
+                count = sample_user_obj.max_tweets + 100
+                start_time = sample_user_obj.get_date_last_pleroma_post()
+                sample_user_obj._get_tweets_v2(
+                    start_time=start_time, t_user=t_user, count=count
+                )
+                mock.get(tweets_url, status_code=500)
+
+                err_ex = requests.exceptions.HTTPError
+                with pytest.raises(err_ex) as error_info:
+                    sample_user_obj._get_tweets(
+                        "v2", start_time=start_time, t_user=t_user
+                    )
+
+                exception_value = f"500 Server Error: " \
+                                  f"None for url: {tweets_url}"
+                assert str(error_info.value) == exception_value
+
                 tweets_url = (
                     f"{test_user.twitter_base_url_v2}/users/by?"
                     f"usernames={sample_user_obj.twitter_username[idx]}"

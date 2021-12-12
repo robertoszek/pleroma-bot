@@ -233,11 +233,17 @@
         "width": 960
       }
     ],
-    "tweets": []
+    "tweets": [{
+        "type": "photo",
+        "media_key": "3_1323048111057604610",
+        "url": "https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
+        "height": 540,
+        "width": 960
+      }]
   },
   "meta": {
     "newest_id": "1323049466837032961",
     "oldest_id": "1323048139251658753",
-    "result_count": 4
+    "result_count": 5
   }
 }

@@ -122,15 +122,17 @@ def _get_tweets_v2(
     params = {}
     previous_token = next_token
     max_tweets = self.max_tweets
+    diff = max_tweets - count
+    if diff == 0 or diff < 0:
+        return tweets_v2
     # Tweet number must be between 10 and 100 for search
     if count:
-        diff = max_tweets - count
+
         max_results = diff if diff < 100 else 100
     else:
         max_results = max_tweets if 100 > self.max_tweets > 10 else 100
     # round up max_results to the nearest 10
     max_results = (max_results + 9) // 10 * 10
-    params.update({"max_results": max_results})
     if tweet_id:
         url = f"{self.twitter_base_url_v2}/tweets/{tweet_id}"
         params.update(
@@ -164,6 +166,8 @@ def _get_tweets_v2(
         response = json.loads(response.text)
         return response
     else:
+        params.update({"max_results": max_results})
+
         url = (
             f"{self.twitter_base_url_v2}/users/by?"
             f"usernames={t_user}"
@@ -247,8 +251,6 @@ def _get_tweets_v2(
     try:
         next_token = response.json()["meta"]["next_token"]
         count += response.json()["meta"]["result_count"]
-        if count >= self.max_tweets:
-            return tweets_v2
         if next_token and next_token != previous_token:
             self._get_tweets_v2(
                 start_time=start_time,
@@ -289,10 +291,7 @@ def get_tweets(self, start_time):
                     _ = tweets_merged["includes"][include]
                 except KeyError:
                     tweets_merged["includes"].update({include: []})
-                try:
                     _ = tweets_merged["includes"][include]
-                except KeyError:
-                    tweets_merged["includes"].update({include: []})
 
             tweets_merged["data"].extend(t_utweets[user]["data"])
             for in_user in t_utweets[user]["includes"]["users"]:
@@ -304,8 +303,6 @@ def get_tweets(self, start_time):
             for poll in t_utweets[user]["includes"]["polls"]:
                 tweets_merged["includes"]["polls"].append(poll)
             tweets_merged["meta"][user] = t_utweets[user]["meta"]
-            # tweets_merged["includes"].extend(t_utweets[user]["includes"])
-            # tweets_merged["meta"].extend(t_utweets[user]["meta"])
     except KeyError:
         pass
 

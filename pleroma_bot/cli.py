@@ -320,7 +320,10 @@ def main():
         # TODO: Merge tweets of multiple accounts and order them by date
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
-            if len(user_item["twitter_username"]) > 1:
+            t_users = user_item["twitter_username"]
+            t_user_list = isinstance(t_users, list)
+            t_users = t_users if t_user_list else [t_users]
+            if len(t_users) > 1:
                 warn_msg = _(
                     "Multiple twitter users for one Fediverse account, "
                     "skipping profile and pinned tweet."
