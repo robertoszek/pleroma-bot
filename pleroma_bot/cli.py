@@ -39,10 +39,10 @@ import multiprocessing as mp
 
 from requests_oauthlib import OAuth1
 
-from ._utils import process_parallel
 from .i18n import _
 from . import logger
 from .__init__ import __version__
+from ._utils import process_parallel
 
 
 class User(object):

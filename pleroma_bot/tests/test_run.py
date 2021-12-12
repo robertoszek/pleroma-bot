@@ -5,6 +5,7 @@ import shutil
 import hashlib
 import logging
 import urllib.parse
+import multiprocessing as mp
 from unittest.mock import patch
 from datetime import datetime, timedelta
 from urllib import parse
@@ -12,8 +13,8 @@ from test_user import UserTemplate
 from conftest import get_config_users
 
 from pleroma_bot import cli, User
-from pleroma_bot._utils import random_string
-from pleroma_bot._utils import guess_type
+from pleroma_bot._utils import random_string, previous_and_next, guess_type
+from pleroma_bot._utils import process_parallel
 
 
 def test_random_string():
@@ -868,6 +869,67 @@ def test_original_date(sample_users, mock_request, global_mock):
                             if os.path.isfile(file_path):
                                 os.remove(file_path)
     return mock, sample_user
+
+
+def test_tweet_order(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users = get_config_users('config.yml')
+
+            for user_item in users['user_dict']:
+                sample_user_obj = User(
+                    user_item, users['config'], os.getcwd()
+                )
+                tweets = sample_user_obj._get_tweets("v2")
+                assert tweets == mock_request['sample_data']['tweets_v2']
+
+                # Test start sample data order
+                tweets_to_post = sample_user_obj.process_tweets(tweets)
+                tw_z = zip(tweets["data"], tweets_to_post["data"])
+
+                for prev, (f, b), nxt in previous_and_next(tw_z):
+                    assert f["created_at"] == b["created_at"]
+                    # prev and nxt are not None (start or end of list)
+                    if all((prev, nxt)):
+                        (prevf, prevb) = prev
+                        (nxtf, nxtb) = nxt
+                        assert prevf["created_at"] > f["created_at"]
+                        assert f["created_at"] > nxtf["created_at"]
+
+                        assert prevb["created_at"] > b["created_at"]
+                        assert b["created_at"] > nxtb["created_at"]
+
+                # Test mp reverse order
+                tweets["data"].reverse()
+                cores = mp.cpu_count()
+                threads = round(cores / 2 if cores > 4 else 4)
+                tweets_to_post = process_parallel(
+                    tweets, sample_user_obj, threads
+                )
+                tw_z = zip(tweets["data"], tweets_to_post["data"])
+                for prev, (f, b), nxt in previous_and_next(tw_z):
+                    assert f["created_at"] == b["created_at"]
+                    # prev and nxt are not None (start or end of list)
+                    if all((prev, nxt)):
+                        (prevf, prevb) = prev
+                        (nxtf, nxtb) = nxt
+                        assert prevf["created_at"] < f["created_at"]
+                        assert f["created_at"] < nxtf["created_at"]
+
+                        assert prevb["created_at"] < b["created_at"]
+                        assert b["created_at"] < nxtb["created_at"]
+                for tweet in tweets_to_post["data"]:
+                    # Clean up
+                    tweet_folder = os.path.join(
+                        sample_user_obj.tweets_temp_path, tweet["id"]
+                    )
+                    if os.path.isdir(tweet_folder):
+                        for file in os.listdir(tweet_folder):
+                            file_path = os.path.join(tweet_folder, file)
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
+    return test_user, sample_user, mock
 
 
 def test_keep_media_links(sample_users, mock_request, global_mock):

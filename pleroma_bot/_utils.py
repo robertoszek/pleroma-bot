@@ -15,6 +15,7 @@ import mimetypes
 from itertools import cycle
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
+from itertools import tee, islice, chain
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -27,7 +28,7 @@ from .i18n import _
 from . import logger
 
 
-def spinner(message, wait: float = 0.3, spinner_symbols: list = None,):
+def spinner(message, wait: float = 0.3, spinner_symbols: list = None):
     """
     Decorator that launches the function wrapped and the spinner each in a
     separate thread
@@ -95,14 +96,17 @@ def process_parallel(tweets, user, threads):
         }
         mp.run(user.process_tweets, tweets_chunked)
     ret = mp.wait()  # get all results
-    tweet_result = {
+    tweets_merged = {
         "data": [],
         "includes": tweets["includes"],
         "meta": tweets["meta"]
     }
     for idx in range(threads):
-        tweet_result["data"].extend(ret[idx]["data"])
-    return tweet_result
+        tweets_merged["data"].extend(ret[idx]["data"])
+    tweets_merged["data"] = sorted(
+        tweets_merged["data"], key=lambda i: i["created_at"]
+    )
+    return tweets_merged
 
 
 class Multiprocessor:
@@ -159,6 +163,13 @@ class PropagatingThread(threading.Thread):
         return self.ret
 
 
+def previous_and_next(some_iterable):
+    prevs, items, nexts = tee(some_iterable, 3)
+    prevs = chain([None], prevs)
+    nexts = chain(islice(nexts, 1, None), [None])
+    return zip(prevs, items, nexts)
+
+
 def check_pinned(self):
     """
     Checks if a tweet is pinned and needs to be retrieved and posted on the
@@ -177,8 +188,8 @@ def check_pinned(self):
         _("Previous pinned:\t{}").format(str(previous_pinned_tweet_id))
     )
     if (
-        self.pinned_tweet_id != previous_pinned_tweet_id
-        and self.pinned_tweet_id is not None
+            self.pinned_tweet_id != previous_pinned_tweet_id
+            and self.pinned_tweet_id is not None
     ):
         pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
         tweets_to_post = {
@@ -200,12 +211,12 @@ def check_pinned(self):
             file.write(f"{self.pinned_tweet_id}\n")
         if pleroma_pinned_post is not None:
             with open(
-                os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
+                    os.path.join(self.user_path, "pinned_id_pleroma.txt"), "w"
             ) as file:
                 file.write(f"{pleroma_pinned_post}\n")
     elif (
-        self.pinned_tweet_id != previous_pinned_tweet_id
-        and previous_pinned_tweet_id is not None
+            self.pinned_tweet_id != previous_pinned_tweet_id
+            and previous_pinned_tweet_id is not None
     ):
         pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
         self.unpin_pleroma(pinned_file)
