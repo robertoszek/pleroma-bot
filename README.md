@@ -204,7 +204,7 @@ For example:
 $ pleroma-bot --forceDate WoolieWoolz
 ```
 
-If the ```--noProfile``` argument is passed, *only* new tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account.
+If the --noProfile argument is passed, the profile picture, banner, display name and bio will **not** be updated on the Fediverse account. However, it will still gather and post the tweets following your config's parameters.
 
 NOTE: An ```error.log``` file will be created at the path from which ```pleroma-bot``` is being called.
 
