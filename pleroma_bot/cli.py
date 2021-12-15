@@ -311,6 +311,9 @@ def main():
             base_path, cfg_file = os.path.split(os.path.abspath(config_path))
         else:
             config_path = os.path.join(base_path, "config.yml")
+        tweets_temp_path = os.path.join(base_path, "tweets")
+        logger.info(_("config path: {}").format(config_path))
+        logger.info(_("tweets temp folder: {}").format(tweets_temp_path))
         # TODO: Add config generator wizard if config file is not found?
         #  create a minimal config asking the user for the values
         with open(config_path, "r") as stream:
@@ -408,13 +411,18 @@ def main():
                 logger.error(error_msg)
             if user.result_count > 0:
                 logger.info(
-                    _("tweet count: \t {}").format(len(tweets["data"]))
+                    _("tweets gathered: \t {}").format(len(tweets["data"]))
                 )
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
                 cores = mp.cpu_count()
                 threads = round(cores / 2 if cores > 4 else 4)
                 tweets_to_post = process_parallel(tweets, user, threads)
+                logger.info(
+                    _("tweets to post: \t {}").format(
+                        len(tweets_to_post['data'])
+                    )
+                )
                 logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
                 tweet_counter = 0
                 for tweet in tweets_to_post["data"]:

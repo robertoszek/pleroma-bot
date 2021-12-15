@@ -166,7 +166,7 @@ def _get_tweets_v2(
         response = json.loads(response.text)
         return response
     else:
-        params.update({"max_results": max_results})
+        #params.update({"max_results": max_results})
 
         url = (
             f"{self.twitter_base_url_v2}/users/by?"

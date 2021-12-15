@@ -360,11 +360,13 @@ def force_date(self):
                 datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
             )
     elif input_date is None or input_date == "":
-        # self.max_tweets = 100
+        self.max_tweets = 3200
+        logger.warning(_("Raising max_tweets to the maximum allowed value"))
         # Minimum date allowed
         date = "2010-11-06T00:00:00Z"
     else:
-        # self.max_tweets = 100
+        self.max_tweets = 3200
+        logger.warning(_("Raising max_tweets to the maximum allowed value"))
         date = datetime.strftime(
             datetime.strptime(input_date, "%Y-%m-%d"),
             "%Y-%m-%dT%H:%M:%SZ",
