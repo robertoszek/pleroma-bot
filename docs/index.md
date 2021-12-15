@@ -5,7 +5,7 @@
 
 Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your own instance.
 
-[![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=master)](https://travis-ci.com/robertoszek/pleroma-bot)
+[![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=master)](https://app.travis-ci.com/github/robertoszek/pleroma-bot)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)
 [![codecov](https://codecov.io/gh/robertoszek/pleroma-bot/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-bot)
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)

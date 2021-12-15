@@ -1,6 +1,6 @@
 # Stork (pleroma-bot)
 
-[![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=develop)](https://travis-ci.com/robertoszek/pleroma-bot)
+[![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=develop)](https://app.travis-ci.com/github/robertoszek/pleroma-bot)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)
 [![AUR version](https://img.shields.io/aur/version/python-pleroma-bot)](https://aur.archlinux.org/packages/python-pleroma-bot)
 [![codecov](https://codecov.io/gh/robertoszek/pleroma-bot/branch/master/graph/badge.svg?token=0c4Gzv4HjC)](https://codecov.io/gh/robertoszek/pleroma-bot)
