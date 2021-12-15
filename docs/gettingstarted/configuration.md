@@ -83,7 +83,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | rich_text           | Yes        | false                       | Transform mentions to links pointing to the mentioned Twitter profile          |
 | include_rts         | Yes        | false                       | Include RTs when posting tweets in the Fediverse account              |
 | include_replies     | Yes        | false                       | Include replies when posting tweets in the Fediverse account          |
-| hashtags            | Yes        |                             | List of hashtags to filter out tweets which don't include any of them        |
+| hashtags            | Yes        |                             | List of hashtags to use to filter out tweets which don't include any of them        |
 | visibility          | Yes        | unlisted                    | Visibility of the post. Must one of the following: public, unlisted, private, direct          |
 | sensitive           | Yes        | original tweet sensitivity  | Force all posts to be sensitive (NSFW) or not                         |
 | file_max_size       | Yes        |                             | How big attachments can be before being ignored. Examples: "30MB", "1.5GB", "0.5TB"          |
@@ -92,14 +92,14 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | twitter_bio         | Yes        | true                        | Append Twitter's bio to Pleroma/Mastodon target user |
 | original_date       | Yes        | false                       | Include the creation date of the tweet on the Fediverse post body |
 | original_date_format| Yes        | "%Y-%m-%d %H:%M"            | Date format to use when adding the creation date of the tweet to the Fediverse post |
+| keep_media_links    | Yes        | false                       | Keep redundant media links on the tweet text or not (`https://twitter.com/<display_name>/status/<tweet_id>/photo/1`) |
 
 
-
-There a few mapping *exclusive* to users:
+There a few mappings *exclusive* to users:
 
 | User mapping     | Optional   | Default                     |  Description                                                          |
 |:-----------------|:----------:|:----------------------------|:----------------------------------------------------------------------|
-| twitter_username | No         |                             | Username of Twitter account to mirror                                 |
+| twitter_username | No         |                             | Username of Twitter account to mirror (can be a list)                          |
 | pleroma_username | No         |                             | Username of target Fediverse account to post content and update profile      |
 | pleroma_token    | No         |                             | Bearer token of target Fediverse account                              |
 | bio_text         | Yes        |                             | Text to be appended to the Twitter account bio text                   |
