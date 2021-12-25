@@ -1,6 +1,7 @@
 ## Unreleased
 ## Fixed
 - `max_tweets` not accepting values higher than 100
+- Not getting the best bitrate version of video attachments in some cases
 ## Added
 - Links to Twitter attachments (video, images) are no longer explicitly included on the post's body text by default. You can choose to keep adding them with `keep_media_links`. This option doesn't affect the upload of attachments.
 - `twitter_username` value can be a list, for having multiple Twitter accounts as sources for one target Fediverse account.

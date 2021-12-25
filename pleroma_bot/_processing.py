@@ -30,9 +30,6 @@ def process_tweets(self, tweets_to_post):
     """
     # TODO: Break into smaller functions
 
-    # TODO: Parallel processing/download of media, when processing large
-    #  numbers of tweets performance is far from acceptable
-
     # Remove RTs if include_rts is false
     if not self.include_rts:
         for tweet in tweets_to_post["data"][:]:
@@ -53,9 +50,7 @@ def process_tweets(self, tweets_to_post):
                         break
             except KeyError:
                 pass
-    # TODO: Check with low max_tweets, posting sequentially and reversing order
-    #  Some interactions could lead to unexpected behavior (date forcing?)
-    #  Find public account which can be used to test
+
     if self.hashtags:
         for tweet in tweets_to_post["data"][:]:
             try:
@@ -312,15 +307,12 @@ def _get_media_url(self, item, media_include, tweet):
 
 def _get_best_bitrate_video(self, item):
     bitrate = 0
+    url = ""
     for variant in item["video_info"]["variants"]:
         try:
             if variant["bitrate"] >= bitrate:
-                # TODO: Verify current bitrate selection method
-                # Why was the bitrate value not increased within the loop?
-                # Should look something like this:
-                # bitrate = variant["bitrate"]
-                # url = variant["url"]
-                return variant["url"]  # comment this after verifying
+                bitrate = variant["bitrate"]
+                url = variant["url"]
         except KeyError:
             pass
-    # return url
+    return url
