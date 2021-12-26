@@ -202,7 +202,10 @@ def update_pleroma(self):
     for field_item in self.fields:
         field = (field_item["name"], field_item["value"])
         fields.append(field)
-    data = {"note": self.bio_text, "display_name": self.display_name[t_user]}
+    data = {
+        "note": self.bio_text[t_user],
+        "display_name": self.display_name[t_user]
+    }
 
     if self.profile_image_url:
         data.update({"avatar": self.avatar_path[t_user]})
