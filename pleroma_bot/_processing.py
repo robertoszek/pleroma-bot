@@ -117,7 +117,10 @@ def _process_polls(self, tweet, media):
             }
 
             response = requests.get(
-                poll_url, headers=self.header_twitter, params=params
+                poll_url,
+                headers=self.header_twitter,
+                params=params,
+                auth=self.auth
             )
             if not response.ok:
                 response.raise_for_status()
