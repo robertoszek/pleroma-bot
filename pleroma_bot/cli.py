@@ -71,9 +71,9 @@ class User(object):
     from ._processing import process_tweets
 
     from ._processing import _expand_urls
+    from ._processing import _replace_url
     from ._processing import _get_media_url
     from ._processing import _process_polls
-    from ._processing import _replace_nitter
     from ._processing import _download_media
     from ._processing import _replace_mentions
     from ._processing import _get_best_bitrate_video
@@ -117,6 +117,8 @@ class User(object):
             "bio_text": "",
             "keep_media_links": False,
             "fields": [],
+            "invidious": False,
+            "invidious_base_url": "https://yewtu.be/",
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:

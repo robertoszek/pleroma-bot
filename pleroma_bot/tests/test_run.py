@@ -848,6 +848,62 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
     return mock, sample_user
 
 
+def test_invidious_instances(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_invidious = get_config_users(
+                'config_invidious_different_instance.yml'
+            )
+            for user_item in users_invidious['user_dict']:
+                invidious_instance = user_item['invidious_base_url']
+                sample_user_obj = User(
+                    user_item, users_invidious['config'], os.getcwd()
+                )
+                for t_user in sample_user_obj.twitter_username:
+                    tweets_v2 = sample_user_obj._get_tweets(
+                        "v2", t_user=t_user
+                    )
+                    sample_data = mock_request['sample_data']
+                    assert tweets_v2 == sample_data['tweets_v2']
+                    tweet = sample_user_obj._get_tweets(
+                        "v1.1", test_user.pinned
+                    )
+                    assert tweet == mock_request['sample_data']['tweet']
+                    tweets = sample_user_obj._get_tweets("v1.1")
+                    assert tweets == mock_request['sample_data']['tweets_v1']
+
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+                    for tweet in tweets_to_post['data']:
+                        if sample_user_obj.signature:
+                            sample_user_obj.post_pleroma(
+                                (
+                                    tweet["id"],
+                                    tweet["text"],
+                                    tweet["created_at"]
+                                ), None, False
+                            )
+                            history = mock.request_history
+                            parsed = parse.unquote(
+                                history[-1].text
+                            )
+                            assert "https://youtube.com" not in parsed
+                            if "/watch?v=dQw4w9WgXcQ" in parsed:
+                                assert invidious_instance in parsed
+
+                        # Clean up
+                        tweet_folder = os.path.join(
+                            sample_user_obj.tweets_temp_path, tweet["id"]
+                        )
+                        if os.path.isdir(tweet_folder):
+                            for file in os.listdir(tweet_folder):
+                                file_path = os.path.join(tweet_folder, file)
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
+    return mock, sample_user
+
+
 def test_original_date(sample_users, mock_request, global_mock):
     test_user = UserTemplate()
     for sample_user in sample_users:

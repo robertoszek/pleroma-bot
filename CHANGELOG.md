@@ -5,7 +5,8 @@
 - Polls not being retrieved for accounts with protected tweets
 ## Added
 - Links to Twitter attachments (video, images) are no longer explicitly included on the post's body text by default. You can choose to keep adding them with `keep_media_links`. This option doesn't affect the upload of attachments.
-- `twitter_username` value can be a list, for having multiple Twitter accounts as sources for one target Fediverse account.
+- `twitter_username` value can be a list now, for having multiple Twitter accounts as sources for one target Fediverse account.
+- Youtube links can be replaced with `invidious` and `invidious_base_url`
 ## Enhancements
 - `bio_text` is no longer a mandatory mapping on the config
 - Hugely improved performance (around 4x) when processing tweets

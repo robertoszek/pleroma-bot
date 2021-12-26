@@ -96,7 +96,19 @@ def process_tweets(self, tweets_to_post):
             if self.rich_text:
                 tweet["text"] = _replace_mentions(self, tweet)
         if self.nitter:
-            tweet["text"] = _replace_nitter(self, tweet)
+            tweet["text"] = _replace_url(
+                self,
+                tweet["text"],
+                "https://twitter.com",
+                self.nitter_base_url
+            )
+        if self.invidious:
+            tweet["text"] = _replace_url(
+                self,
+                tweet["text"],
+                "https://youtube.com",
+                self.invidious_base_url
+            )
         if self.signature:
             t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url = self.twitter_url[t_user]
@@ -225,12 +237,11 @@ def parse_size(size):
     return int(float(number) * units[unit])
 
 
-def _replace_nitter(self, tweet):
-    matching_pattern = "https://twitter.com"
-    matches = re.findall(matching_pattern, tweet["text"])
+def _replace_url(self, data, url, new_url):
+    matches = re.findall(url, data)
     for match in matches:
-        tweet["text"] = re.sub(match, self.nitter_base_url, tweet["text"])
-    return tweet["text"]
+        data = re.sub(match, new_url, data)
+    return data
 
 
 def _remove_media_links(self, tweet):
