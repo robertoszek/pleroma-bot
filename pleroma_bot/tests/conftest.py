@@ -133,9 +133,10 @@ def _sample_users(mock_request, rootdir):
                      f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
                      json=mock_request['sample_data']['pinned_tweet_2'],
                      status_code=200)
+            user_v2 = f"user_v2_{user_item['twitter_username']}"
             mock.get(f"{twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
-                     json=mock_request['sample_data']['pinned'],
+                     json=mock_request['sample_data'][user_v2],
                      status_code=200)
             mock.get(f"{twitter_base_url_v2}/users/by?"
                      f"usernames={user_item['twitter_username']}",
@@ -144,7 +145,7 @@ def _sample_users(mock_request, rootdir):
 
             mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
-                     json=mock_request['sample_data']['pinned'],
+                     json=mock_request['sample_data'][user_v2],
                      status_code=200)
 
             mock.get(f"{test_user.twitter_base_url}/users/"
@@ -267,6 +268,9 @@ def _sample_users(mock_request, rootdir):
             profile_img_big = re.sub(
                 r"normal", "400x400", profile_pic_url
             )
+            mock.get(twitter_info["profile_image_url"],
+                     content=profile_image_content,
+                     status_code=200)
             mock.get(f"{profile_img_big}",
                      content=profile_image_content,
                      status_code=200)

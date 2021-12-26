@@ -991,6 +991,10 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                             assert b["created_at"] > nxtb["created_at"]
 
                     # Test mp reverse order
+                    tweets = sample_user_obj._get_tweets(
+                        "v2", t_user=t_user
+                    )
+                    assert tweets == mock_request['sample_data']['tweets_v2']
                     tweets["data"].reverse()
                     cores = mp.cpu_count()
                     threads = round(cores / 2 if cores > 4 else 4)

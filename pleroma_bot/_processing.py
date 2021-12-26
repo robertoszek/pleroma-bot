@@ -5,7 +5,7 @@ import html
 import shutil
 import requests
 import mimetypes
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 # Try to import libmagic

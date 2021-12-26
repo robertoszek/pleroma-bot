@@ -170,6 +170,11 @@ def test_check_pinned_exception_user(sample_users, mock_request):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             pinned = sample_user_obj.pinned_tweet_id
+            HTTPError = requests.exceptions.HTTPError
+            t_users = sample_user_obj.twitter_username
+            t_users_list = isinstance(t_users, list)
+            t_users = t_users if t_users_list else [t_users]
+
             mock.get(url_user,
                      json=mock_request['sample_data']['pinned_tweet'],
                      status_code=500)
@@ -179,11 +184,7 @@ def test_check_pinned_exception_user(sample_users, mock_request):
                      json=mock_request['sample_data']['poll'],
                      status_code=200)
 
-            t_users = sample_user_obj.twitter_username
-            t_users_list = isinstance(t_users, list)
-            t_users = t_users if t_users_list else [t_users]
             for t_user in t_users:
-                HTTPError = requests.exceptions.HTTPError
                 with pytest.raises(HTTPError) as error_info:
                     sample_user_obj.check_pinned()
                 exception_value = (
@@ -595,7 +596,10 @@ def test__get_twitter_info_exception(sample_users):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
-            for t_user in sample_user_obj.twitter_username:
+            t_users = sample_user_obj.twitter_username
+            t_users_list = isinstance(t_users, list)
+            t_users = t_users if t_users_list else [t_users]
+            for t_user in t_users:
                 idx = sample_user_obj.twitter_username.index(t_user)
                 info_url = (
                     f"{sample_user_obj.twitter_base_url}"
@@ -607,6 +611,30 @@ def test__get_twitter_info_exception(sample_users):
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj._get_twitter_info()
                 exception_value = f"500 Server Error: None for url: {info_url}"
+                assert str(error_info.value) == exception_value
+
+                url_username = (
+                    f"https://api.twitter.com/2/users/by/username/"
+                    f"{t_user}?user.fields=created_at%2Cdescripti"
+                    f"on%2Centities%2Cid%2Clocation%2Cname%2Cpinn"
+                    f"ed_tweet_id%2Cprofile_image_url%2Cprotecte"
+                    f"d%2Curl%2Cusername%2Cverified%2Cwithhe"
+                    f"ld&expansions=pinned_tweet_id&tweet."
+                    f"fields=attachments%2Cauthor_id%2C"
+                    f"context_annotations%2Cconversatio"
+                    f"n_id%2Ccreated_at%2Centities%2Cgeo%2Cid%2Cin"
+                    f"_reply_to_user_id%2Clang%2Cpublic_metrics"
+                    f"%2Cpossibly_sensitive%2C"
+                    f"referenced_tweets%2Csource%2Ctext%2Cwithheld"
+                )
+                mock.get(f"{sample_user_obj.twitter_base_url_v2}/users/by/"
+                         f"username/{t_user}",
+                         status_code=500)
+                with pytest.raises(err_ex) as error_info:
+                    sample_user_obj._get_twitter_info()
+                exception_value = (
+                    f"500 Server Error: None for url: {url_username}"
+                )
                 assert str(error_info.value) == exception_value
 
 
