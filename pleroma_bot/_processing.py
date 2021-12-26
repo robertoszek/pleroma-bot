@@ -5,6 +5,7 @@ import html
 import shutil
 import requests
 import mimetypes
+from datetime import datetime, timedelta
 
 
 # Try to import libmagic
@@ -96,7 +97,18 @@ def process_tweets(self, tweets_to_post):
                 tweet["text"] = _replace_mentions(self, tweet)
         if self.nitter:
             tweet["text"] = _replace_nitter(self, tweet)
-
+        if self.signature:
+            t_user = self.twitter_ids[tweet["author_id"]]
+            twitter_url = self.twitter_url[t_user]
+            signature = f"\n\n 🐦🔗: {twitter_url}/status/{tweet['id']}"
+            tweet["text"] = f"{tweet['text']} {signature}"
+        if self.original_date:
+            tweet_date = tweet["created_at"]
+            date = datetime.strftime(
+                datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
+                self.original_date_format,
+            )
+            tweet["text"] = f"{tweet['text']} \n\n[{date}]"
         # Process poll if exists and no media is used
         tweet["polls"] = _process_polls(self, tweet, media)
 

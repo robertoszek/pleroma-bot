@@ -125,15 +125,6 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                     )
                     pass
 
-    if self.signature:
-        signature = f"\n\n 🐦🔗: {self.twitter_url}/status/{tweet_id}"
-        tweet_text = f"{tweet_text} {signature}"
-    if self.original_date:
-        date = datetime.strftime(
-            datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
-            self.original_date_format,
-        )
-        tweet_text = f"{tweet_text} \n\n[{date}]"
     # config setting override tweet attr
     if self.sensitive:
         sensitive = self.sensitive
