@@ -38,6 +38,7 @@ import argparse
 import multiprocessing as mp
 
 from requests_oauthlib import OAuth1
+from requests.structures import CaseInsensitiveDict
 
 from .i18n import _
 from . import logger
@@ -86,6 +87,7 @@ class User(object):
         self.profile_image_url = {}
         self.profile_banner_url = {}
         self.t_user_tweets = {}
+        self.twitter_ids = {}
         valid_visibility = ("public", "unlisted", "private", "direct")
         default_cfg_attributes = {
             "twitter_base_url": "https://api.twitter.com/1.1",
@@ -177,7 +179,7 @@ class User(object):
                 )
             )
 
-        self.twitter_url = {}
+        self.twitter_url = CaseInsensitiveDict()
         for t_user in t_users:
             self.twitter_url[t_user] = f"{twitter_url}/{t_user}"
         self.pinned_tweet_id = self._get_pinned_tweet_id()

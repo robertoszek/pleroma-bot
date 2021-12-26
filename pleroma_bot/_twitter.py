@@ -19,7 +19,43 @@ def _get_twitter_info(self):
     :return: None
     """
     for t_user in self.twitter_username:
-        # TODO: Migrate to v2
+        url = f"{self.twitter_base_url_v2}/users/by/username/{t_user}"
+        params = {}
+        params.update(
+            {
+                "user.fields": "created_at,description,entities,id,location,"
+                               "name,pinned_tweet_id,profile_image_url,"
+                               "protected,url,username,verified,withheld",
+                "expansions": "pinned_tweet_id",
+                "tweet.fields": "attachments,author_id,"
+                                "context_annotations,conversation_id,"
+                                "created_at,entities,"
+                                "geo,id,in_reply_to_user_id,lang,"
+                                "public_metrics,"
+                                "possibly_sensitive,referenced_tweets,"
+                                "source,text,"
+                                "withheld",
+            }
+        )
+        response = requests.get(
+            url, headers=self.header_twitter, auth=self.auth, params=params
+        )
+        if not response.ok:
+            response.raise_for_status()
+        user = json.loads(response.text)["data"]
+        self.bio_text[t_user] = (
+            f"{self.bio_text['_generic_bio_text']}{user['description']}"
+            if self.twitter_bio
+            else f"{self.bio_text['_generic_bio_text']}"
+        )
+        # Check if user has profile image
+        if "profile_image_url" in user.keys():
+            # Get the highest quality possible
+            profile_img_url = user["profile_image_url"].replace("_normal", "")
+            self.profile_image_url[t_user] = profile_img_url
+        self.display_name[t_user] = user["name"]
+        self.twitter_ids[user["id"]] = user["username"]
+        # TODO: Migrate to v2 when profile_banner is available users endpoint
         twitter_user_url = (
             f"{self.twitter_base_url}"
             f"/users/show.json?screen_name="
@@ -31,19 +67,10 @@ def _get_twitter_info(self):
         if not response.ok:
             response.raise_for_status()
         user = json.loads(response.text)
-        self.bio_text[t_user] = (
-            f"{self.bio_text['_generic_bio_text']}{user['description']}"
-            if self.twitter_bio
-            else f"{self.bio_text['_generic_bio_text']}"
-        )
-        # Check if user has profile image
-        if "profile_image_url_https" in user.keys():
-            self.profile_image_url[t_user] = user["profile_image_url_https"]
         # Check if user has banner image
         if "profile_banner_url" in user.keys():
             base_banner_url = user["profile_banner_url"]
             self.profile_banner_url[t_user] = f"{base_banner_url}/1500x500"
-        self.display_name[t_user] = user["name"]
     return
 
 

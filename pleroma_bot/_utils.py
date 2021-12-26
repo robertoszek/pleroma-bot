@@ -5,6 +5,7 @@ import json
 import string
 import random
 from multiprocessing import Queue
+from requests.structures import CaseInsensitiveDict
 
 import requests
 import threading
@@ -270,7 +271,7 @@ def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
                 value = globals()[match.strip()]
         if isinstance(value, list):
             value = ", ".join([str(elem) for elem in value])
-        if isinstance(value, dict):
+        if isinstance(value, dict) or isinstance(value, CaseInsensitiveDict):
             if isinstance(self.twitter_username, list):
                 for t_user in self.twitter_username:
                     dict_value = value[t_user]
