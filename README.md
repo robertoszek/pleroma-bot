@@ -87,108 +87,30 @@ If you plan on retrieving tweets from an account which has their tweets **protec
 * Access Token Key and Secret.  You'll also find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard). 
 Alternatively, you can obtain the Access Token and Secret by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
 
-Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot```. There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out:
+### Configuration
+
+Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot``` (or use the `--config` argument to specify a different path). 
+
+There's a config example in this repo called ```config.yml.sample``` that can help you when filling yours out.
+
+For more information you can refer to the ["Configuration" page](https://robertoszek.github.io/pleroma-bot/gettingstarted/configuration/) on the docs.
+
+Here's what a minimal config looks like:
 ```yaml
-twitter_base_url: https://api.twitter.com/1.1
-# Change this to your Fediverse instance
-pleroma_base_url: https://pleroma.robertoszek.xyz
-# (optional) Change this to your preferred nitter instance
-nitter_base_url: https://nitter.net
+# Change this to your target Fediverse instance
+pleroma_base_url: https://pleroma.instance
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200
 max_tweets: 40
 # Twitter bearer token
-twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-# List of users and their attributes
+twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 users:
-- twitter_username: KyleBosman
-  pleroma_username: KyleBosman
-  # Mastodon/Pleroma token obtained by following the README.md
+- twitter_username: User1
+  pleroma_username: MyPleromaUser1
+  # Mastodon/Pleroma bearer token
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  # (optional) keys and secrets for using OAuth 1.0a (for protected accounts)
-  consumer_key: xxxxxxxxxxxxxxxxxxxxxxxxx
-  consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  access_token_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  access_token_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  # If you want to add a link to the original status or not
-  signature: true
-  # (optional) If you want to download Twitter attachments and add them to the Pleroma posts.
-  # By default they are not
-  media_upload: true
-  # (optional) If twitter links should be changed to nitter ones. By default they are not
-  nitter: true
-  # (optional) If mentions should be transformed to links to the mentioned Twitter profile
-  rich_text: true
-  # (optional) visibility of the post. Must one of the following: public, unlisted, private, direct
-  # by default is "unlisted"
-  visibility: "unlisted"
-  # (optional) Force all posts for this account to be sensitive or not
-  # The NSFW banner for the instance will be shown for attachments as a warning if true
-  # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
-  sensitive: false
-  # (optional) Include the creation date of the tweet on the Fediverse post body
-  original_date: true
-  # (optional) Date format to use when adding the creation date of the tweet to the Fediverse post
-  original_date_format: "%Y/%m/%d %H:%"
-  # (optional) If RTs are to be also be posted in the Fediverse account. By default they are included
-  include_rts: false
-  # (optional) If replies are to be also posted in the Fediverse account. By default they are included
-  include_replies: false
-  # (optional) List of hashtags to use for filtering out tweets which don't include any of them
-  hashtags:
-    - sponsored
-  # (optional) How big attachments can be before being ignored and not being uploaded to the Fediverse post
-  # Examples: "30MB", "1.5GB", "0.5TB"
-  file_max_size: 500MB
-  # additional custom-named attributes
-  support_account: robertoszek
-  # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
-  # with the attribute value. e.g. {{ support_account }}
-  # (optional) Text to be appended to the Twitter account bio text
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
-  # Optional metadata fields and values for the Pleroma profile
-  fields:
-  - name: "\U0001F426 Birdsite"
-    value: "{{ twitter_url }}"
-  - name: "Status"
-    value: "I am completely operational, and all my circuits are functioning perfectly."
-  - name: "Source"
-    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
-# Mastodon instance example
-- twitter_username: WoolieWoolz
-  pleroma_username: 24660
-  pleroma_base_url: https://botsin.space
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  # Mastodon doesn't support rich text!
-  rich_text: false
-  signature: true
-  nitter: true
-  visibility: "unlisted"
-  media_upload: true
-  max_tweets: 50
-  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
-  fields:
-  - name: "\U0001F426 Birdsite"
-    value: "{{ twitter_url }}"
-  - name: "Status"
-    value: "I am completely operational, and all my circuits are functioning perfectly."
-  - name: "Source"
-    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
-# Minimal config example
-- twitter_username: arstechnica
-  pleroma_username: mynewsbot
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  bio_text: ""
 ```
 
-Changing the ```users``` to the desired ones. You can add as many users as needed.
-
-Also change the following to your Pleroma/Mastodon instance URL:
-```yaml
-pleroma_base_url: https://pleroma.robertoszek.xyz
-```
 ### Running
 
 If you're running the bot for the first time it will ask you for the date you wish to start retrieving tweets from (it will gather all from that date up to the present). 

@@ -1,0 +1,12 @@
+# Change this to your Fediverse instance
+pleroma_base_url: https://pleroma.instance
+# How many tweets to get in every execution
+# Twitter's API hard limit is 3,200
+max_tweets: 40
+# Twitter bearer token
+twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+users:
+- twitter_username: User1
+  pleroma_username: MyPleromaUser1
+  # Mastodon/Pleroma bearer token
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
