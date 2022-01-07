@@ -187,6 +187,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 **Tested and confirmed working against** :
-* ```Pleroma BE 2.0.50-2547-g5c2b6922-develop```
+* ```Pleroma BE 2.2.50-711-g100e34b4-develop```
 * ```Mastodon v3.2.1```
 * ```Twitter API v1.1 and v2```
