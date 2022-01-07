@@ -1,23 +1,25 @@
 import os
 import re
+import sys
 import time
 import json
 import string
 import random
 import zipfile
-from multiprocessing import Queue
-from requests.structures import CaseInsensitiveDict
-
+import tempfile
 import requests
 import threading
 import functools
 import mimetypes
 
-# from queue import Queue
+from typing import cast
+from errno import ENOENT
 from itertools import cycle
+from multiprocessing import Queue
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
 from itertools import tee, islice, chain
+from requests.structures import CaseInsensitiveDict
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -26,8 +28,17 @@ try:
 except ImportError:
     magic = None
 
+if sys.platform == "win32":
+    import msvcrt
+else:
+    try:
+        import fcntl
+    except ImportError:
+        pass
+
 from .i18n import _
 from . import logger
+from ._error import TimeoutLocker
 
 
 def spinner(message, wait: float = 0.3, spinner_symbols: list = None):
@@ -163,6 +174,128 @@ class PropagatingThread(threading.Thread):
         if self.exc:
             raise self.exc
         return self.ret
+
+
+class Locker:
+    """
+    Context manager that creates lock file
+    """
+    def __init__(self):
+        module_name = __loader__.name.split('.')[0]
+        lock_filename = f"{module_name}.lock"
+        self.tmp = tempfile.gettempdir()
+        self.mode = os.O_RDWR | os.O_CREAT | os.O_TRUNC
+        self._lock_file = os.path.join(self.tmp, lock_filename)
+        self._lock_file_fd = None
+
+    @property
+    def is_locked(self):
+        return self._lock_file_fd is not None
+
+    def acquire(self):
+        lock_id = id(self)
+        lock_filename = self._lock_file
+        start_time = time.time()
+        timeout = 10
+        poll_interval = 1.0
+        while True:
+            if not self.is_locked:
+                logger.debug(
+                    _(
+                        "Attempting to acquire lock {} on {}"
+                    ).format(lock_id, lock_filename)
+                )
+                self._acquire()
+
+            if self.is_locked:
+                logger.debug(
+                    _("Lock {} acquired on {}").format(lock_id, lock_filename)
+                )
+                break
+            elif 0 <= timeout < time.time() - start_time:
+                logger.debug(
+                    _(
+                        "Timeout on acquiring lock {} on {}"
+                    ).format(lock_id, lock_filename)
+                )
+                raise TimeoutLocker(self._lock_file)
+            else:
+                msg = _(
+                    "Lock {} not acquired on {}, waiting {} seconds ..."
+                )
+                logger.info(
+                    msg.format(lock_id, lock_filename, poll_interval)
+                )
+                time.sleep(poll_interval)
+
+    def _acquire(self):
+        if sys.platform == "win32":
+            try:
+                fd = os.open(self._lock_file, self.mode)
+            except OSError as exception:
+                if exception.errno == ENOENT:  # No such file or directory
+                    raise
+            else:
+                try:
+                    msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+                except OSError:
+                    os.close(fd)
+                else:
+                    self._lock_file_fd = fd
+        else:
+            import fcntl
+            fd = os.open(self._lock_file, self.mode)
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                os.close(fd)
+            else:
+                self._lock_file_fd = fd
+
+    def release(self):
+        if self.is_locked:
+            lock_id, lock_filename = id(self), self._lock_file
+            logger.debug(
+                _(
+                    "Attempting to release lock {} on {}"
+                ).format(lock_id, lock_filename)
+            )
+            self._release()
+            logger.debug(
+                _("Lock {} released on {}").format(lock_id, lock_filename)
+            )
+
+    def _release(self):
+        if sys.platform == "win32":
+            fd = cast(int, self._lock_file_fd)
+            self._lock_file_fd = None
+            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+            os.close(fd)
+            try:
+                os.remove(self._lock_file)
+            except OSError:
+                pass
+        else:
+            import fcntl
+            fd = cast(int, self._lock_file_fd)
+            self._lock_file_fd = None
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
+            try:
+                os.remove(self._lock_file)
+            except OSError:
+                pass
+
+    def __enter__(self):
+        self.acquire()
+        return self
+
+    def __exit__(self, _type, value, tb):
+        self._release()
+
+    def __del__(self) -> None:
+        """Called when the lock object is deleted."""
+        self.release()
 
 
 def previous_and_next(some_iterable):

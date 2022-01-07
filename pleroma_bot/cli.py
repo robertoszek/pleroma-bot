@@ -43,7 +43,7 @@ from requests.structures import CaseInsensitiveDict
 from .i18n import _
 from . import logger
 from .__init__ import __version__
-from ._utils import process_parallel
+from ._utils import process_parallel, Locker
 
 
 class User(object):
@@ -482,7 +482,11 @@ def init():
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
     if __name__ == "__main__":
-        sys.exit(main())
+        with Locker():
+            try:
+                sys.exit(main())
+            except Exception:
+                logger.error(_("Exception occurred"), exc_info=True)
 
 
 init()
