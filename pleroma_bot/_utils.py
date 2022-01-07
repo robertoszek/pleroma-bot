@@ -4,6 +4,7 @@ import time
 import json
 import string
 import random
+import zipfile
 from multiprocessing import Queue
 from requests.structures import CaseInsensitiveDict
 
@@ -373,3 +374,39 @@ def force_date(self):
             "%Y-%m-%dT%H:%M:%SZ",
         )
     return date
+
+
+def process_archive(archive_zip_path):
+    archive_zip_path = os.path.abspath(archive_zip_path)
+    par_dir = os.path.dirname(archive_zip_path)
+    archive_name = os.path.basename(archive_zip_path).split('.')[0]
+    extracted_dir = os.path.join(par_dir, archive_name)
+    with zipfile.ZipFile(archive_zip_path, "r") as zip_ref:
+        zip_ref.extractall(extracted_dir)
+    tweet_js_path = os.path.join(extracted_dir, 'data', 'tweet.js')
+    tweets_archive = get_tweets_from_archive(tweet_js_path)
+    tweets = {
+        "data": [],
+        "includes": {
+            "users": [],
+            "tweets": [],
+            "media": [],
+            "polls": []
+        },
+        "meta": {}
+    }
+    for tweet in tweets_archive:
+        tweet["tweet"]["text"] = tweet["tweet"]["full_text"]
+        tweets["data"].append(tweet["tweet"])
+    return tweets
+
+
+def get_tweets_from_archive(tweet_js_path):
+    with open(tweet_js_path, "r") as f:
+        lines = []
+        for line in f:
+            line = re.sub(r'\n', r'', line)
+            lines.append(line)
+        tweets = '\n'.join(lines[1:-1])
+    json_t = json.loads('{"tweets":[' + tweets + ']}')
+    return json_t["tweets"]
