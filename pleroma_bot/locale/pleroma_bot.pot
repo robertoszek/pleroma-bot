@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-12-04 22:45+0100\n"
+"POT-Creation-Date: 2022-01-08 15:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,19 +19,23 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: tests\n"
 
-#: _pin.py:25
+#: _error.py:13
+msgid "The file lock '{}' could not be acquired. Is another instance of pleroma-bot running?"
+msgstr ""
+
+#: _pin.py:28
 msgid "Pinning post:\t{}"
 msgstr ""
 
-#: _pin.py:56
+#: _pin.py:62
 msgid "Unpinning previous:\t{}"
 msgstr ""
 
-#: _pin.py:60
+#: _pin.py:66
 msgid "File with previous pinned post ID not found or empty. Checking last posts for pinned post..."
 msgstr ""
 
-#: _pin.py:65
+#: _pin.py:71
 msgid "Pinned post not found. Giving up unpinning..."
 msgstr ""
 
@@ -39,7 +43,7 @@ msgstr ""
 msgid "No posts were found in the target Fediverse account"
 msgstr ""
 
-#: _pleroma.py:105
+#: _pleroma.py:107
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -50,21 +54,21 @@ msgid ""
 " size limit of your instance"
 msgstr ""
 
-#: _pleroma.py:120
+#: _pleroma.py:122
 msgid "Error uploading media:\t{}"
 msgstr ""
 
-#: _pleroma.py:160
+#: _pleroma.py:155
 msgid "Post in Pleroma:\t{}"
 msgstr ""
 
-#: _pleroma.py:216
+#: _pleroma.py:219
 msgid ""
 "Total number of metadata fields cannot exceed 4.\n"
 "Provided: {}. Exiting..."
 msgstr ""
 
-#: _pleroma.py:254
+#: _pleroma.py:257
 msgid ""
 "Exception occurred\n"
 "Error code 422\n"
@@ -73,15 +77,11 @@ msgid ""
 "aren't too long."
 msgstr ""
 
-#: _pleroma.py:264
+#: _pleroma.py:267
 msgid "Updating profile:\t {}"
 msgstr ""
 
-#: _processing.py:22
-msgid "Processing tweets... "
-msgstr ""
-
-#: _processing.py:155
+#: _processing.py:188
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -90,59 +90,91 @@ msgid ""
 "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:180
+#: _processing.py:213
 msgid "Attachment exceeded config file size limit ({})"
 msgstr ""
 
-#: _processing.py:184
+#: _processing.py:217
 msgid "File size: {}MB"
 msgstr ""
 
-#: _processing.py:188
+#: _processing.py:221
 msgid "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _twitter.py:92
+#: _processing.py:302
+msgid "Couldn't expand the {}: {}"
+msgstr ""
+
+#: _twitter.py:130
 msgid "API version not supported: {}"
 msgstr ""
 
-#: _twitter.py:107
-msgid "max_tweets must be between 10 and 100. max_tweets: {}"
+#: _twitter.py:146
+msgid "max_tweets must be between 10 and 3200. max_tweets: {}"
 msgstr ""
 
-#: _twitter.py:210
+#: _twitter.py:296
 msgid "Gathering tweets... "
 msgstr ""
 
-#: _utils.py:110
+#: _utils.py:142
+msgid "Processing tweets... "
+msgstr ""
+
+#: _utils.py:205
+msgid "Attempting to acquire lock {} on {}"
+msgstr ""
+
+#: _utils.py:212
+msgid "Lock {} acquired on {}"
+msgstr ""
+
+#: _utils.py:218
+msgid "Timeout on acquiring lock {} on {}"
+msgstr ""
+
+#: _utils.py:224
+msgid "Lock {} not acquired on {}, waiting {} seconds ..."
+msgstr ""
+
+#: _utils.py:259
+msgid "Attempting to release lock {} on {}"
+msgstr ""
+
+#: _utils.py:264
+msgid "Lock {} released on {}"
+msgstr ""
+
+#: _utils.py:316
 msgid "Current pinned:\t{}"
 msgstr ""
 
-#: _utils.py:120
+#: _utils.py:327
 msgid "Previous pinned:\t{}"
 msgstr ""
 
-#: _utils.py:231
+#: _utils.py:454
 msgid "Instance response was not understood {}"
 msgstr ""
 
-#: _utils.py:236
+#: _utils.py:459
 msgid "Assuming target instance is Mastodon..."
 msgstr ""
 
-#: _utils.py:240
+#: _utils.py:464
 msgid "Mastodon doesn't support display names longer than 30 characters, truncating it and trying again..."
 msgstr ""
 
-#: _utils.py:248
+#: _utils.py:472
 msgid "Mastodon doesn't support rich text. Disabling it..."
 msgstr ""
 
-#: _utils.py:254
+#: _utils.py:479
 msgid "How far back should we retrieve tweets from the Twitter account?"
 msgstr ""
 
-#: _utils.py:257
+#: _utils.py:482
 msgid ""
 "\n"
 "Enter a date (YYYY-MM-DD):\n"
@@ -151,59 +183,71 @@ msgid ""
 "last post in the Fediverse account)] "
 msgstr ""
 
-#: cli.py:128
+#: _utils.py:498 _utils.py:503
+msgid "Raising max_tweets to the maximum allowed value"
+msgstr ""
+
+#: cli.py:145
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 
-#: cli.py:132
+#: cli.py:149
 msgid "Visibility not supported! Values allowed are: {}"
 msgstr ""
 
-#: cli.py:164
+#: cli.py:179
 msgid "Some or all OAuth 1.0a tokens missing, falling back to application-only authentication"
 msgstr ""
 
-#: cli.py:196
+#: cli.py:219
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr ""
 
-#: cli.py:209
+#: cli.py:232
 msgid "path of config file (config.yml) to use and parse. If not specified, it will try to find it in the current working directory."
 msgstr ""
 
-#: cli.py:223
+#: cli.py:246
 msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
 msgstr ""
 
-#: cli.py:236
+#: cli.py:259
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: cli.py:250
+#: cli.py:273
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: cli.py:263
+#: cli.py:286
 msgid "skips first run checks"
 msgstr ""
 
-#: cli.py:286
+#: cli.py:309
 msgid "Debug logging enabled"
 msgstr ""
 
-#: cli.py:305
-msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
+#: cli.py:319
+msgid "config path: {}"
 msgstr ""
 
 #: cli.py:320
+msgid "tweets temp folder: {}"
+msgstr ""
+
+#: cli.py:335
+msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
+msgstr ""
+
+#: cli.py:345
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: cli.py:326
-msgid "It seems like pleroma-bot is running for the first time for this user"
+#: cli.py:355
+msgid "It seems like pleroma-bot is running for the first time for this Twitter user: {}"
 msgstr ""
 
-#: cli.py:379
+#: cli.py:409
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -212,14 +256,18 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: cli.py:389
-msgid "tweet count: \t {}"
+#: cli.py:418
+msgid "tweets gathered: \t {}"
 msgstr ""
 
-#: cli.py:414
+#: cli.py:426
+msgid "tweets to post: \t {}"
+msgstr ""
+
+#: cli.py:450
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: cli.py:421
+#: cli.py:457
 msgid "Exception occurred"
 msgstr ""
