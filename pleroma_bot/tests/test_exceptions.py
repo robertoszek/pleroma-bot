@@ -1,19 +1,22 @@
-import logging
 import os
 import re
-import shutil
 import sys
-import urllib.parse
-from unittest.mock import patch
+import time
 
 import pytest
+import shutil
 import requests
+import logging
+import urllib.parse
+from unittest.mock import patch
 
 from test_user import UserTemplate
 from conftest import get_config_users
 
 from pleroma_bot import cli
 from pleroma_bot.cli import User
+from pleroma_bot._utils import Locker
+from pleroma_bot._error import TimeoutLocker
 
 
 def test_user_invalid_pleroma_base(mock_request):
@@ -757,3 +760,15 @@ def test__expand_urls(sample_users, mock_request):
                 sample_user_obj._expand_urls(tweet)
             exception_value = f"500 Server Error: None for url: {fake_url}"
             assert str(error_info.value) == exception_value
+
+
+def test_locker():
+    with pytest.raises(TimeoutLocker) as error_info:
+        with Locker():
+            with Locker():
+                time.sleep(20)
+    exception_value = (
+        "The file lock '/tmp/pleroma_bot.lock' could not be acquired. Is "
+        "another instance of pleroma-bot running?"
+    )
+    assert str(error_info.value) == exception_value

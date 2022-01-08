@@ -10,6 +10,7 @@
 ## Enhancements
 - `bio_text` is no longer a mandatory mapping on the config
 - Hugely improved performance (around 4x) when processing tweets
+- Implemented safety measures for avoiding collision with multiple instances of the bot running at the same time
 
 ## [0.8.9] - 2021-12-05
 ## Added

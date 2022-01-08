@@ -31,7 +31,7 @@ class CustomFormatter(logging.Formatter):
             logging.ERROR: red + "✖ " + format_l + reset,
             logging.CRITICAL: bold_red + format_l + reset,
         }
-    else:
+    else:  # pragma: win32 cover
         FORMATS = {
             logging.DEBUG: format_r,
             logging.INFO: "¡ " + format_r,
@@ -95,7 +95,7 @@ if __name__ == "pleroma_bot.__init__":
 # fill env locale vars in case we're running in other platforms
 default_lang, default_enc = locale.getdefaultlocale()
 
-if "LANG" not in os.environ:
+if "LANG" not in os.environ:  # pragma: win32 cover
     os.environ["LANG"] = default_lang
     os.environ["LANGUAGE"] = f"{default_lang}.{default_enc}"
 

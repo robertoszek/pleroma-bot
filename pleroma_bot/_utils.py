@@ -28,13 +28,13 @@ try:
 except ImportError:
     magic = None
 
-if sys.platform == "win32":
-    import msvcrt
+if sys.platform == "win32":  # pragma: win32 cover
+    import msvcrt  # pragma: win32 cover
 else:
     try:
         import fcntl
-    except ImportError:
-        pass
+    except ImportError:  # pragma: win32 cover
+        pass  # pragma: win32 cover
 
 from .i18n import _
 from . import logger
@@ -180,9 +180,10 @@ class Locker:
     """
     Context manager that creates lock file
     """
-    def __init__(self):
+    def __init__(self, timeout=5):
         module_name = __loader__.name.split('.')[0]
         lock_filename = f"{module_name}.lock"
+        self.timeout = timeout
         self.tmp = tempfile.gettempdir()
         self.mode = os.O_RDWR | os.O_CREAT | os.O_TRUNC
         self._lock_file = os.path.join(self.tmp, lock_filename)
@@ -196,7 +197,6 @@ class Locker:
         lock_id = id(self)
         lock_filename = self._lock_file
         start_time = time.time()
-        timeout = 10
         poll_interval = 1.0
         while True:
             if not self.is_locked:
@@ -212,7 +212,7 @@ class Locker:
                     _("Lock {} acquired on {}").format(lock_id, lock_filename)
                 )
                 break
-            elif 0 <= timeout < time.time() - start_time:
+            elif 0 <= self.timeout < time.time() - start_time:
                 logger.debug(
                     _(
                         "Timeout on acquiring lock {} on {}"
@@ -229,7 +229,7 @@ class Locker:
                 time.sleep(poll_interval)
 
     def _acquire(self):
-        if sys.platform == "win32":
+        if sys.platform == "win32":  # pragma: win32 cover
             try:
                 fd = os.open(self._lock_file, self.mode)
             except OSError as exception:
@@ -243,7 +243,6 @@ class Locker:
                 else:
                     self._lock_file_fd = fd
         else:
-            import fcntl
             fd = os.open(self._lock_file, self.mode)
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -253,7 +252,7 @@ class Locker:
                 self._lock_file_fd = fd
 
     def release(self):
-        if self.is_locked:
+        if self.is_locked:  # pragma: no cover
             lock_id, lock_filename = id(self), self._lock_file
             logger.debug(
                 _(
@@ -266,7 +265,7 @@ class Locker:
             )
 
     def _release(self):
-        if sys.platform == "win32":
+        if sys.platform == "win32":  # pragma: win32 cover
             fd = cast(int, self._lock_file_fd)
             self._lock_file_fd = None
             msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
@@ -283,7 +282,7 @@ class Locker:
             os.close(fd)
             try:
                 os.remove(self._lock_file)
-            except OSError:
+            except OSError:  # pragma: no cover
                 pass
 
     def __enter__(self):

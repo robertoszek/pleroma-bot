@@ -483,10 +483,7 @@ def init():
     logger.addHandler(f_handler)
     if __name__ == "__main__":
         with Locker():
-            try:
-                sys.exit(main())
-            except Exception:
-                logger.error(_("Exception occurred"), exc_info=True)
+            sys.exit(main())
 
 
 init()
