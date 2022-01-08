@@ -69,19 +69,27 @@ def process_tweets(self, tweets_to_post):
 
     for tweet in tweets_to_post["data"]:
         media = []
+        logger.debug(tweet["id"])
         tweet["text"] = _expand_urls(self, tweet)
         tweet["text"] = html.unescape(tweet["text"])
 
         # Download media only if we plan to upload it later
         if self.media_upload:
             try:
-                for item in tweet["attachments"]["media_keys"]:
-                    for media_include in tweets_to_post["includes"]["media"]:
-                        media_url = _get_media_url(
-                            self, item, media_include, tweet
-                        )
-                        if media_url:
-                            media.extend(media_url)
+                if self.archive:
+                    for item in tweet["extended_entities"]["media"]:
+                        if item["type"] == "photo":
+                            item["url"] = item["media_url"]
+                        media.append(item)
+                else:
+                    includes_media = tweets_to_post["includes"]["media"]
+                    for item in tweet["attachments"]["media_keys"]:
+                        for media_include in includes_media:
+                            media_url = _get_media_url(
+                                self, item, media_include, tweet
+                            )
+                            if media_url:
+                                media.extend(media_url)
             except KeyError:
                 pass
             if len(media) > 0:
@@ -110,7 +118,10 @@ def process_tweets(self, tweets_to_post):
                 self.invidious_base_url
             )
         if self.signature:
-            t_user = self.twitter_ids[tweet["author_id"]]
+            if self.archive:
+                t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
+            else:
+                t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url = self.twitter_url[t_user]
             signature = f"\n\n 🐦🔗: {twitter_url}/status/{tweet['id']}"
             tweet["text"] = f"{tweet['text']} {signature}"
@@ -267,6 +278,8 @@ def _expand_urls(self, tweet):
 
     # Replace shortened links
     try:
+        if len(tweet["entities"]["urls"]) == 0:
+            raise KeyError
         for url_entity in tweet["entities"]["urls"]:
             matching_pattern = url_entity["url"]
             matches = re.findall(matching_pattern, tweet["text"])
@@ -336,9 +349,12 @@ def _get_best_bitrate_video(self, item):
     url = ""
     for variant in item["video_info"]["variants"]:
         try:
-            if variant["bitrate"] >= bitrate:
-                bitrate = variant["bitrate"]
-                url = variant["url"]
-        except KeyError:
+            if "bitrate" in variant:
+                if int(variant["bitrate"]) >= bitrate:
+                    bitrate = int(variant["bitrate"])
+                    url = variant["url"]
+            else:
+                continue
+        except KeyError:  # pragma: no cover
             pass
     return url

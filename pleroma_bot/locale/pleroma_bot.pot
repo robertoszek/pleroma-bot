@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-01-08 15:28+0100\n"
+"POT-Creation-Date: 2022-01-09 00:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,7 +81,7 @@ msgstr ""
 msgid "Updating profile:\t {}"
 msgstr ""
 
-#: _processing.py:188
+#: _processing.py:199
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -90,19 +90,19 @@ msgid ""
 "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:213
+#: _processing.py:224
 msgid "Attachment exceeded config file size limit ({})"
 msgstr ""
 
-#: _processing.py:217
+#: _processing.py:228
 msgid "File size: {}MB"
 msgstr ""
 
-#: _processing.py:221
+#: _processing.py:232
 msgid "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:302
+#: _processing.py:315
 msgid "Couldn't expand the {}: {}"
 msgstr ""
 
@@ -170,11 +170,11 @@ msgstr ""
 msgid "Mastodon doesn't support rich text. Disabling it..."
 msgstr ""
 
-#: _utils.py:479
+#: _utils.py:478
 msgid "How far back should we retrieve tweets from the Twitter account?"
 msgstr ""
 
-#: _utils.py:482
+#: _utils.py:481
 msgid ""
 "\n"
 "Enter a date (YYYY-MM-DD):\n"
@@ -183,71 +183,75 @@ msgid ""
 "last post in the Fediverse account)] "
 msgstr ""
 
-#: _utils.py:498 _utils.py:503
+#: _utils.py:497 _utils.py:504
 msgid "Raising max_tweets to the maximum allowed value"
 msgstr ""
 
-#: cli.py:145
+#: cli.py:146
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 
-#: cli.py:149
+#: cli.py:150
 msgid "Visibility not supported! Values allowed are: {}"
 msgstr ""
 
-#: cli.py:179
+#: cli.py:180
 msgid "Some or all OAuth 1.0a tokens missing, falling back to application-only authentication"
 msgstr ""
 
-#: cli.py:219
+#: cli.py:220
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr ""
 
-#: cli.py:232
+#: cli.py:233
 msgid "path of config file (config.yml) to use and parse. If not specified, it will try to find it in the current working directory."
 msgstr ""
 
-#: cli.py:246
+#: cli.py:247
 msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
 msgstr ""
 
-#: cli.py:259
+#: cli.py:260
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: cli.py:273
+#: cli.py:274
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: cli.py:286
+#: cli.py:287
 msgid "skips first run checks"
 msgstr ""
 
-#: cli.py:309
+#: cli.py:297
+msgid "path of the Twitter archive file (zip) to use for posting tweets."
+msgstr ""
+
+#: cli.py:323
 msgid "Debug logging enabled"
 msgstr ""
 
-#: cli.py:319
+#: cli.py:333
 msgid "config path: {}"
 msgstr ""
 
-#: cli.py:320
+#: cli.py:334
 msgid "tweets temp folder: {}"
 msgstr ""
 
-#: cli.py:335
+#: cli.py:348
 msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
 msgstr ""
 
-#: cli.py:345
+#: cli.py:358
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: cli.py:355
+#: cli.py:368
 msgid "It seems like pleroma-bot is running for the first time for this Twitter user: {}"
 msgstr ""
 
-#: cli.py:409
+#: cli.py:427
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -256,18 +260,18 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: cli.py:418
+#: cli.py:436
 msgid "tweets gathered: \t {}"
 msgstr ""
 
-#: cli.py:426
+#: cli.py:444
 msgid "tweets to post: \t {}"
 msgstr ""
 
-#: cli.py:450
+#: cli.py:468
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: cli.py:457
+#: cli.py:475
 msgid "Exception occurred"
 msgstr ""

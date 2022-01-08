@@ -3,7 +3,7 @@
 
 ![Stork](/pleroma-bot/images/logo.png)
 
-Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your own instance.
+Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
 
 [![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=master)](https://app.travis-ci.com/github/robertoszek/pleroma-bot)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)
@@ -15,6 +15,7 @@ Mirror your favourite Twitter accounts in the Fediverse, so you can follow their
 [:material-file-document-multiple-outline:  Get started](/pleroma-bot/gettingstarted/installation/){: .md-button } [:material-download-outline: Download](https://github.com/robertoszek/pleroma-bot/releases/latest){: .md-button } [:material-arch: AUR (Arch)](https://aur.archlinux.org/packages/python-pleroma-bot){: .md-button }
 
 ## Features
+* [x] Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
 * [x] Retrieves **tweets** and posts them on the Fediverse account
     * [x] Can filter out RTs
     * [x] Can filter out replies

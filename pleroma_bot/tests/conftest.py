@@ -58,6 +58,24 @@ def mock_request(rootdir):
             headers={'Location': 'http://github.com'}
         )
 
+        mock.head(
+            "http://cutt.ly/xg3TuYA",
+            status_code=301,
+            headers={
+                'Location': 'https://twitter.com/BotPleroma/status'
+                            '/1474760145850806283/video/1'
+            }
+        )
+        mock.head(
+            'https://twitter.com/BotPleroma/status'
+            '/1474760145850806283/video/1',
+            status_code=200,
+            headers={
+                'Location': 'https://twitter.com/BotPleroma/status'
+                            '/1474760145850806283/video/1'
+            }
+        )
+
         empty_resp = requests.packages.urllib3.response.HTTPResponse()
         mock.head(
             "https://twitter.com/BotPleroma/status/1323048312161947650"
@@ -83,7 +101,6 @@ def mock_request(rootdir):
             status_code=200,
             raw=empty_resp,
         )
-
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
@@ -245,6 +262,11 @@ def _sample_users(mock_request, rootdir):
                      content=gif_content,
                      headers={'Content-Type': 'image/gif'},
                      status_code=200)
+            mock.get("https://twitter.com/BotPleroma/status"
+                     "/1323048312161947650/photo/1",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
             mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
                      content=png_content,
                      headers={'Content-Type': 'image/png'},
@@ -252,6 +274,11 @@ def _sample_users(mock_request, rootdir):
             mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
                      f"id=1323049214134407171",
                      json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://twitter.com/BotPleroma/status"
+                     "/1474760145850806283/video/1",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
                      status_code=200)
             mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
                      "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",

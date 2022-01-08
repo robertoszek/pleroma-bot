@@ -474,7 +474,6 @@ def _get_instance_info(self):
 
 
 def force_date(self):
-    # TODO: Is 100 the maximum for this reverse searching endpoint?
     logger.info(
         _("How far back should we retrieve tweets from the Twitter account?")
     )
@@ -497,7 +496,9 @@ def force_date(self):
         self.max_tweets = 3200
         logger.warning(_("Raising max_tweets to the maximum allowed value"))
         # Minimum date allowed
-        date = "2010-11-06T00:00:00Z"
+        tw_oldest = "2006-07-15T00:00:00Z"
+        tw_api_oldest = "2010-11-06T00:00:00Z"
+        date = tw_oldest if self.archive else tw_api_oldest
     else:
         self.max_tweets = 3200
         logger.warning(_("Raising max_tweets to the maximum allowed value"))
@@ -508,7 +509,7 @@ def force_date(self):
     return date
 
 
-def process_archive(archive_zip_path):
+def process_archive(archive_zip_path, start_time=None):
     archive_zip_path = os.path.abspath(archive_zip_path)
     par_dir = os.path.dirname(archive_zip_path)
     archive_name = os.path.basename(archive_zip_path).split('.')[0]
@@ -528,7 +529,16 @@ def process_archive(archive_zip_path):
         "meta": {}
     }
     for tweet in tweets_archive:
+        if start_time:
+            created_at = tweet["tweet"]["created_at"]
+            created_at_f = datetime.strftime(
+                datetime.strptime(created_at, "%a %b %d %H:%M:%S +0000 %Y"),
+                "%Y-%m-%dT%H:%M:%SZ",
+            )
+            if created_at_f < start_time:
+                continue
         tweet["tweet"]["text"] = tweet["tweet"]["full_text"]
+        tweet["tweet"]["possibly_sensitive"] = False
         tweets["data"].append(tweet["tweet"])
     return tweets
 

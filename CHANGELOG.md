@@ -5,6 +5,7 @@
 - Polls not being retrieved for accounts with protected tweets
 ## Added
 - `twitter_username` value can be a list now, for having multiple Twitter accounts as sources for one target Fediverse account.
+- A Twitter [archive](https://twitter.com/settings/your_twitter_data) can be provided with `--archive`([more info in the docs](https://robertoszek.github.io/pleroma-bot/gettingstarted/usage/#using-an-archive))
 - Links to Twitter attachments (video, images) are no longer explicitly included on the post's body text by default. You can choose to keep adding them with `keep_media_links`. This option does *not* affect the upload of attachments.
 - Youtube links can be replaced with `invidious` and `invidious_base_url`
 ## Enhancements

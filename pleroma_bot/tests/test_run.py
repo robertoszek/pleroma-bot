@@ -1286,6 +1286,24 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
         with patch.object(sys, 'argv', ['']):
             assert cli.main() == 0
+
+        sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+        media_dir = os.path.join(sample_data_dir, 'media')
+        archive = os.path.join(media_dir, 'twitter-archive.zip')
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
+        with patch.object(sys, 'argv', ['', '--archive', archive]):
+            assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "")
+        with patch.object(sys, 'argv', ['', '--archive', archive]):
+            assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-13")
+        with patch.object(
+                sys, 'argv', ['', '--archive', archive, '--forceDate']
+        ):
+            assert cli.main() == 0
+
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):
             with patch.object(cli, "__name__", "__main__"):

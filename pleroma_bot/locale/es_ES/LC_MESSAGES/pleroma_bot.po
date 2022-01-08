@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pleroma-bot\n"
-"POT-Creation-Date: 2022-01-08 15:29+0100\n"
-"PO-Revision-Date: 2022-01-08 15:29+0100\n"
+"POT-Creation-Date: 2022-01-09 00:13+0100\n"
+"PO-Revision-Date: 2022-01-09 00:14+0100\n"
 "Last-Translator: robertoszek <robertoszek@robertoszek.xyz>\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -104,7 +104,7 @@ msgstr ""
 msgid "Updating profile:\t {}"
 msgstr "Actualizando perfil:\t{}"
 
-#: _processing.py:188
+#: _processing.py:199
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -117,19 +117,19 @@ msgstr ""
 "{tweet} - {media_url}\n"
 "Ignorando el adjunto y continuando..."
 
-#: _processing.py:213
+#: _processing.py:224
 msgid "Attachment exceeded config file size limit ({})"
 msgstr "Contenido adjunto ha excedido el límite configurado ({})"
 
-#: _processing.py:217
+#: _processing.py:228
 msgid "File size: {}MB"
 msgstr "Tamaño de fichero: {}MB"
 
-#: _processing.py:221
+#: _processing.py:232
 msgid "Ignoring attachment and continuing..."
 msgstr "Ignorando adjunto y continuando..."
 
-#: _processing.py:302
+#: _processing.py:315
 msgid "Couldn't expand the {}: {}"
 msgstr "No se pudo expandir la URL {}: {}"
 
@@ -201,11 +201,11 @@ msgstr ""
 msgid "Mastodon doesn't support rich text. Disabling it..."
 msgstr "Mastodon no soporta texto enriquecido. Desactivándolo..."
 
-#: _utils.py:479
+#: _utils.py:478
 msgid "How far back should we retrieve tweets from the Twitter account?"
 msgstr "¿Desde cuándo deberíamos recopilar los tweets de la cuenta de Twitter?"
 
-#: _utils.py:482
+#: _utils.py:481
 msgid ""
 "\n"
 "Enter a date (YYYY-MM-DD):\n"
@@ -220,20 +220,20 @@ msgstr ""
 "comporte como de costumbre (comprobando la fecha del\n"
 "último post de la cuenta del Fediverso)] "
 
-#: _utils.py:498 _utils.py:503
+#: _utils.py:497 _utils.py:504
 msgid "Raising max_tweets to the maximum allowed value"
 msgstr "Aumentando max_tweets al valor máximo admitido"
 
-#: cli.py:145
+#: cli.py:146
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 "¡No se ha definido la URL de Pleroma en la configuración! [pleroma_base_url]"
 
-#: cli.py:149
+#: cli.py:150
 msgid "Visibility not supported! Values allowed are: {}"
 msgstr "Visibilidad introducida no soportada. Valores válidos: {}"
 
-#: cli.py:179
+#: cli.py:180
 msgid ""
 "Some or all OAuth 1.0a tokens missing, falling back to application-only "
 "authentication"
@@ -241,11 +241,11 @@ msgstr ""
 "No todos los tokens OAuth 1.0a han sido encontrados. Usando autenticación de "
 "aplicación en su lugar"
 
-#: cli.py:219
+#: cli.py:220
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr "Bot para replicar una o varias cuentas de Twitter en Pleroma/Mastodon."
 
-#: cli.py:232
+#: cli.py:233
 msgid ""
 "path of config file (config.yml) to use and parse. If not specified, it will "
 "try to find it in the current working directory."
@@ -253,7 +253,7 @@ msgstr ""
 "ruta del fichero de configuración (config.yml) a usar e interpretar. Si no "
 "se especifica, se intentará usar el del directorio de trabajo actual."
 
-#: cli.py:246
+#: cli.py:247
 msgid ""
 "path of log file (error.log) to create. If not specified, it will try to "
 "store it at your config file path"
@@ -261,7 +261,7 @@ msgstr ""
 "ruta del fichero de log (error.log) a escribir. Si no se especifica, se "
 "intentará usar la ruta en la que se encuentra el fichero de configuración"
 
-#: cli.py:259
+#: cli.py:260
 msgid ""
 "skips Fediverse profile update (no background image, profile image, bio "
 "text, etc.)"
@@ -269,7 +269,7 @@ msgstr ""
 "omite la actualización de perfil en la cuenta del Fediverso (imagen de "
 "fondo, imagen de perfil, biografía, etc.)"
 
-#: cli.py:273
+#: cli.py:274
 msgid ""
 "forces the tweet retrieval to start from a specific date. The "
 "twitter_username value (FORCEDATE) can be supplied to only force it for that "
@@ -280,23 +280,28 @@ msgstr ""
 "fecha de inicio de recopilación sólo para ese usuario específico del archivo "
 "de configuración"
 
-#: cli.py:286
+#: cli.py:287
 msgid "skips first run checks"
 msgstr "omite las validaciones de la primera ejecución"
 
-#: cli.py:309
+#: cli.py:297
+msgid "path of the Twitter archive file (zip) to use for posting tweets."
+msgstr ""
+"ruta del fichero de archivo de Twitter (zip) a usar para publicar tweets."
+
+#: cli.py:323
 msgid "Debug logging enabled"
 msgstr "Modo de depuración activado"
 
-#: cli.py:319
+#: cli.py:333
 msgid "config path: {}"
 msgstr "ruta de configuración: {}"
 
-#: cli.py:320
+#: cli.py:334
 msgid "tweets temp folder: {}"
 msgstr "carpeta temporal de tweets: {}"
 
-#: cli.py:335
+#: cli.py:348
 msgid ""
 "Multiple twitter users for one Fediverse account, skipping profile and "
 "pinned tweet."
@@ -304,11 +309,11 @@ msgstr ""
 "Varios usuarios de Twitter definidos para una cuenta de Fediverso, omitiendo "
 "la actualización de perfil y tweet fijado."
 
-#: cli.py:345
+#: cli.py:358
 msgid "Processing user:\t{}"
 msgstr "Procesando usuario:\t{}"
 
-#: cli.py:355
+#: cli.py:368
 msgid ""
 "It seems like pleroma-bot is running for the first time for this Twitter "
 "user: {}"
@@ -316,7 +321,7 @@ msgstr ""
 "Parece que pleroma-bot está ejecutándose por primera vez para este usuario: "
 "{}"
 
-#: cli.py:409
+#: cli.py:427
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to "
 "provide the following OAuth 1.0a fields in the user config:\n"
@@ -333,18 +338,18 @@ msgstr ""
 " - access_token_key \n"
 " - access_token_secret"
 
-#: cli.py:418
+#: cli.py:436
 msgid "tweets gathered: \t {}"
 msgstr "tweets recopilados: \t {}"
 
-#: cli.py:426
+#: cli.py:444
 msgid "tweets to post: \t {}"
 msgstr "tweets a publicar: \t {}"
 
-#: cli.py:450
+#: cli.py:468
 msgid "Multiple twitter users, not updating profile"
 msgstr "Varios usuarios de Twitter, omitiendo actualizado de perfil"
 
-#: cli.py:457
+#: cli.py:475
 msgid "Exception occurred"
 msgstr "Se produjo una excepción"

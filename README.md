@@ -9,7 +9,7 @@
 
 ![Stork](img/stork-smaller.svg)
 
-Mirror one or multiple Twitter accounts in Pleroma/Mastodon.
+Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
 
 [![Documentation](img/docs.png)](https://robertoszek.github.io/pleroma-bot)
 
@@ -23,7 +23,7 @@ For precisely those cases I've written this Python project that automates them, 
 ## Features 
 
 So basically, it does the following:
-
+* Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
 * Retrieves **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
   * Can filter out RTs or not
   * Can filter out replies or not
@@ -53,7 +53,7 @@ Here's a list of the available packages.
 
 ## Usage
 ```console
-$ pleroma-bot [--noProfile] [--forceDate [FORCEDATE]] [-c CONFIG]
+$ pleroma-bot [-c CONFIG] [-l LOG] [--noProfile] [--forceDate [FORCEDATE]] [-a ARCHIVE]
 ```
 
 ```console
@@ -65,6 +65,9 @@ optional arguments:
                         path of config file (config.yml) to use and parse. If
                         not specified, it will try to find it in the current
                         working directory.
+  -l LOG, --log LOG     path of log file (error.log) to create. If not
+                        specified, it will try to store it at your config file
+                        path
   -n, --noProfile       skips Fediverse profile update (no background image,
                         profile image, bio text, etc.)
   --forceDate [FORCEDATE]
@@ -73,6 +76,9 @@ optional arguments:
                         supplied to only force it for that particular user in
                         the config
   -s, --skipChecks      skips first run checks
+  -a ARCHIVE, --archive ARCHIVE
+                        path of the Twitter archive file (zip) to use for
+                        posting tweets.
   --verbose, -v
   --version             show program's version number and exit
 ```

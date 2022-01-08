@@ -43,7 +43,7 @@ from requests.structures import CaseInsensitiveDict
 from .i18n import _
 from . import logger
 from .__init__ import __version__
-from ._utils import process_parallel, Locker
+from ._utils import process_parallel, Locker, process_archive
 
 
 class User(object):
@@ -119,6 +119,7 @@ class User(object):
             "fields": [],
             "invidious": False,
             "invidious_base_url": "https://yewtu.be/",
+            "archive": None,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -286,6 +287,19 @@ def get_args(sysargs):
         help=(_("skips first run checks")),
     )
 
+    parser.add_argument(
+        "-a",
+        "--archive",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of the Twitter archive file (zip) to use for posting "
+                "tweets."
+            )
+        ),
+    )
+
     parser.add_argument("--verbose", "-v", action="count", default=0)
 
     parser.add_argument(
@@ -324,7 +338,6 @@ def main():
             config = yaml.safe_load(stream)
         user_dict = config["users"]
         users_path = os.path.join(base_path, "users")
-        # TODO: Merge tweets of multiple accounts and order them by date
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
             t_users = user_item["twitter_username"]
@@ -358,6 +371,8 @@ def main():
                     logger.info(first_time_msg)
                     first_time = True
             user = User(user_item, config, base_path)
+            if args.archive:
+                user.archive = args.archive
             if first_time and not args.skipChecks:
                 user.first_time = True
             if (
@@ -400,6 +415,9 @@ def main():
                         tweets["includes"]["media"].append(media)
                     for poll in next_tweet["includes"]["polls"]:
                         tweets["includes"]["polls"].append(poll)
+            elif args.archive:
+                tweets = process_archive(args.archive, start_time=date_pleroma)
+                user.result_count = len(tweets["data"])
             else:
                 tweets = user.get_tweets(start_time=date_pleroma)
             logger.debug(f"tweets: \t {tweets}")
