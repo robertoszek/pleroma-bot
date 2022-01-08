@@ -31,7 +31,7 @@ Mirror your favourite Twitter accounts in the Fediverse, so you can follow their
 * [x] Customize Fediverse account's **metadata fields** (e.g. point to the original Twitter account)
 
 ## Funding
-If you feel like supporting the creator or buying him a beer, you can donate through Liberapay (even though is recurring you can discontinue your donation immediately after the first payment)
+If you feel like supporting the creator or buying him a beer, you can donate through Ko-fi or Liberapay
 
-[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate)
+[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/robertoszek)
 

@@ -1,7 +1,7 @@
 # Contributing
 
 ## Funding
-[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate)
+[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/robertoszek)
 
 ## Code
 
