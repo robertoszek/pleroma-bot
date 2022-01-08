@@ -14,7 +14,7 @@ from conftest import get_config_users
 
 from pleroma_bot import cli, User
 from pleroma_bot._utils import random_string, previous_and_next, guess_type
-from pleroma_bot._utils import process_parallel
+from pleroma_bot._utils import process_parallel, process_archive
 
 
 def test_random_string():
@@ -344,6 +344,15 @@ def test_guess_type(rootdir):
     assert 'image/svg+xml' == guess_type(svg)
     assert 'video/mp4' == guess_type(mp4)
     assert 'image/gif' == guess_type(gif)
+
+
+def test_process_archive(rootdir):
+    test_files_dir = os.path.join(rootdir, 'test_files')
+    sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+    media_dir = os.path.join(sample_data_dir, 'media')
+    archive = os.path.join(media_dir, 'twitter-archive.zip')
+    tweets = process_archive(archive)
+    assert tweets is not None
 
 
 def test_get_twitter_info(mock_request, sample_users):
