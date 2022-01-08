@@ -4,9 +4,15 @@ If you haven't already, you need to [apply for a Twitter developer account](http
 
 The process involves some review of the developer account application by Twitter and it's very likely you'll be asked for some details pertaining your usecase. It usually doesn't take longer than a day or two to complete the application, the back and forth is mostly automated on their part.
 
+Additionally, Twitter introduced a new tier of access (Elevated) to their API projects and although existing projects (before Nov 2020) were promoted automatically, new users will only get Essential access instead by default, in which requests to API v1.1 are disabled. 
+
+We still use v1.1 for downloading videos and profile banners, and as of now there is no available alternative in v2, so you'll need Elevated access for the bot to function properly until further notice.
+
+You can apply for Elevated access [here](https://developer.twitter.com/en/portal/products/elevated).
+
 ## Twitter tokens
 
-Once you have a Twitter developer account, you need to access your [dashboard](https://developer.twitter.com/en/portal/dashboard) and create a new project (so your app has V2 access) and also create a new app associated to that new project.
+Once you have a Twitter developer account, you need to access your [dashboard](https://developer.twitter.com/en/portal/dashboard) and create a new project (so your app has v2 access) and also create a new app associated to that new project.
 
 Now, enter your new application "Keys and tokens" section, copy and safely store all of your tokens.
 
