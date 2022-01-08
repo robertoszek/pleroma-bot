@@ -97,7 +97,7 @@ class User(object):
             "nitter": False,
             "twitter_token": None,
             "signature": False,
-            "media_upload": False,
+            "media_upload": True,
             "sensitive": False,
             "max_tweets": 50,
             "delay_post": 0.5,
