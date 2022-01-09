@@ -328,7 +328,7 @@ def get_tweets(self, start_time):
 
             tweets_merged["data"].extend(t_utweets[user]["data"])
             for in_user in t_utweets[user]["includes"]["users"]:
-                tweets_merged["includes"]["users"].append(in_user)
+                tweets_merged["includes"]["users"].append(in_user)  # pragma
             for tweet_include in t_utweets[user]["includes"]["tweets"]:
                 tweets_merged["includes"]["tweets"].append(tweet_include)
             for media in t_utweets[user]["includes"]["media"]:

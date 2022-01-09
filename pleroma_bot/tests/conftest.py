@@ -120,6 +120,38 @@ def _sample_users(mock_request, rootdir):
         for user_item in config_users['user_dict']:
             pinned = test_user.pinned
             pinned2 = test_user.pinned_2
+
+            mock.get("https://api.twitter.com/2/tweets/1339829031147954177"
+                     "?poll.fields=duration_minutes%2Cend_datetime%2Cid"
+                     "%2Coptions%2Cvoting_status&media.fields=duration_ms"
+                     "%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl"
+                     "%2Cwidth%2Cpublic_metrics&expansions=attachments"
+                     ".poll_ids%2Cattachments.media_keys%2Cauthor_id"
+                     "%2Centities.mentions.username%2Cgeo.place_id"
+                     "%2Cin_reply_to_user_id%2Creferenced_tweets.id"
+                     "%2Creferenced_tweets.id.author_id&tweet.fields"
+                     "=attachments%2Cauthor_id%2Ccontext_annotations"
+                     "%2Cconversation_id%2Ccreated_at%2Centities%2Cgeo%2Cid"
+                     "%2Cin_reply_to_user_id%2Clang%2Cpublic_metrics"
+                     "%2Cpossibly_sensitive%2Creferenced_tweets%2Csource"
+                     "%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                     f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
+                     f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                     f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
+                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
+                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"entities.mentions.username%2Cgeo.place_id%2C"
+                     f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                     f"referenced_tweets.id.author_id&tweet.fields=attachments"
+                     f"%2Cauthor_id%2Ccontext_annotations%2Cconversation_id%2"
+                     f"Ccreated_at%2Centities%2Cgeo%2Cid%2Cin_reply_to_user_id"
+                     f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                     f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
             mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
                      f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
                      f"options%2Cvoting_status&media.fields=duration_ms%2C"

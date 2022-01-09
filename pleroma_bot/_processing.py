@@ -96,9 +96,10 @@ def process_tweets(self, tweets_to_post):
                                 if media_url:
                                     media.extend(media_url)
                     # Get RT tweet media
-                    if "referenced_tweets" in tweet.keys():
+                    if "referenced_tweets" in tweet.keys():  # pragma: no cover
                         tweet_rt = {"data": tweet}
                         tw_data = tweet_rt["data"]
+                        i = 0
                         while "referenced_tweets" in tw_data.keys():
                             for reference in tw_data["referenced_tweets"]:
                                 retweeted = reference["type"] == "retweeted"
@@ -124,6 +125,12 @@ def process_tweets(self, tweets_to_post):
                                                     media.extend(media_url)
                                 else:
                                     break
+                            i += 1
+                            if i > 3:
+                                logger.debug(
+                                    _("Giving up, reference is too deep")
+                                )
+                                break
             except KeyError:
                 pass
             if len(media) > 0:

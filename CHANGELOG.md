@@ -1,8 +1,9 @@
 ## Unreleased
 ## Fixed
 - `max_tweets` not accepting values higher than 100
-- Not getting the best bitrate version of video attachments in some cases
-- Polls not being retrieved for accounts with protected tweets
+- Video: Not getting the best bitrate version of video attachments in some cases
+- Polls: not being retrieved for accounts with protected tweets
+- RTs: not getting original tweet media attachments 
 ## Added
 - `twitter_username` value can be a list now, for having multiple Twitter accounts as sources for one target Fediverse account.
 - A Twitter [archive](https://twitter.com/settings/your_twitter_data) can be provided with `--archive`([more info in the docs](https://robertoszek.github.io/pleroma-bot/gettingstarted/usage/#using-an-archive))

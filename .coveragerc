@@ -1,4 +1,5 @@
 [report]
 exclude_lines =
+    pragma
     pragma: no cover
     pragma: win32 cover
