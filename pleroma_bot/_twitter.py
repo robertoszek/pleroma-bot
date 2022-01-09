@@ -315,6 +315,12 @@ def get_tweets(self, start_time):
             includes = ["users", "tweets", "media", "polls"]
             for include in includes:
                 try:
+                    _ = t_utweets[user]["includes"][include]
+                except KeyError:
+                    t_utweets[user]["includes"].update({include: []})
+                    _ = t_utweets[user]["includes"][include]
+            for include in includes:
+                try:
                     _ = tweets_merged["includes"][include]
                 except KeyError:
                     tweets_merged["includes"].update({include: []})
