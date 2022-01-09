@@ -82,14 +82,48 @@ def process_tweets(self, tweets_to_post):
                             item["url"] = item["media_url"]
                         media.append(item)
                 else:
-                    includes_media = tweets_to_post["includes"]["media"]
-                    for item in tweet["attachments"]["media_keys"]:
-                        for media_include in includes_media:
-                            media_url = _get_media_url(
-                                self, item, media_include, tweet
-                            )
-                            if media_url:
-                                media.extend(media_url)
+                    m_k = False
+                    att = "attachments" in tweet.keys()
+                    if att:
+                        m_k = "media_keys" in tweet["attachments"].keys()
+                    if m_k and att:
+                        includes_media = tweets_to_post["includes"]["media"]
+                        for item in tweet["attachments"]["media_keys"]:
+                            for media_include in includes_media:
+                                media_url = _get_media_url(
+                                    self, item, media_include, tweet
+                                )
+                                if media_url:
+                                    media.extend(media_url)
+                    # Get RT tweet media
+                    if "referenced_tweets" in tweet.keys():
+                        tweet_rt = {"data": tweet}
+                        tw_data = tweet_rt["data"]
+                        while "referenced_tweets" in tw_data.keys():
+                            for reference in tw_data["referenced_tweets"]:
+                                retweeted = reference["type"] == "retweeted"
+                                quoted = reference["type"] == "quoted"
+                                if retweeted or quoted:
+                                    tweet_id = reference["id"]
+                                    tweet_rt = self._get_tweets("v2", tweet_id)
+                                    tw_data = tweet_rt["data"]
+                                    att = "attachments" in tw_data.keys()
+                                    if att:
+                                        attachments = tw_data["attachments"]
+                                        in_md = tweet_rt["includes"]["media"]
+                                        md_keys = attachments["media_keys"]
+                                        for item in md_keys:
+                                            for media_include in in_md:
+                                                media_url = _get_media_url(
+                                                    self,
+                                                    item,
+                                                    media_include,
+                                                    tweet_rt
+                                                )
+                                                if media_url:
+                                                    media.extend(media_url)
+                                else:
+                                    break
             except KeyError:
                 pass
             if len(media) > 0:
