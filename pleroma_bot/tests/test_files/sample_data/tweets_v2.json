@@ -199,13 +199,6 @@
         ]
       }
     ],
-    "users": [
-      {
-        "id": "1320506197913542656",
-        "name": "test-pleroma-bot",
-        "username": "BotPleroma"
-      }
-    ],
     "media": [
       {
         "preview_image_url": "https://pbs.twimg.com/ext_tw_video_thumb/1323049175848833033/pu/img/_xRqkGnMX3DEB4UM.jpg",
