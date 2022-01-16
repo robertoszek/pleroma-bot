@@ -3,7 +3,7 @@ import sys
 import locale
 import logging
 
-__version__ = "0.9.0rc2"
+__version__ = "1.0.0"
 
 
 class StdOutFilter(logging.Filter):

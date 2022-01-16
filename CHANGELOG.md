@@ -1,4 +1,4 @@
-## Unreleased
+## [1.0.0] 16-01-2022 
 ## Fixed
 - `max_tweets` not accepting values higher than 100
 - Video: Not getting the best bitrate version of video attachments in some cases
