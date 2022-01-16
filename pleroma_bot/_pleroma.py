@@ -67,69 +67,64 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     :returns: id of post
     :rtype: str
     """
-    # TODO: transform twitter links to nitter links, if self.nitter
-    #  'true' in resolved shortened urls
+
     pleroma_post_url = f"{self.pleroma_base_url}/api/v1/statuses"
     pleroma_media_url = f"{self.pleroma_base_url}/api/v1/media"
 
-    tweet_id = tweet[0]
-    tweet_text = tweet[1]
-    tweet_date = tweet[2]
+    tweet_id, tweet_text, tweet_date = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
-    media_files = os.listdir(tweet_folder)
+
     media_ids = []
     if self.media_upload:
-        for file in media_files:
-            media_file = open(os.path.join(tweet_folder, file), "rb")
-            file_size = os.stat(os.path.join(tweet_folder, file)).st_size
-            mime_type = guess_type(os.path.join(tweet_folder, file))
-            timestamp = str(datetime.now().timestamp())
-            file_name = (
-                f"pleromapyupload_"
-                f"{timestamp}"
-                f"_"
-                f"{random_string(10)}"
-                f"{mimetypes.guess_extension(mime_type)}"
-            )
-            file_description = (file_name, media_file, mime_type)
-            files = {"file": file_description}
-            response = requests.post(
-                pleroma_media_url, headers=self.header_pleroma, files=files
-            )
-            try:
-                if not response.ok:
-                    response.raise_for_status()
-            except requests.exceptions.HTTPError:
-                if response.status_code == 413:
-                    size_msg = _(
-                        "Exception occurred"
-                        "\nMedia size too large:"
-                        "\nFilename: {file}"
-                        "\nSize: {size}MB"
-                        "\nConsider increasing the attachment"
-                        "\n size limit of your instance"
-                    ).format(file=file, size=round(file_size / 1048576, 2))
-                    logger.error(size_msg)
-                    pass
-                else:
-                    response.raise_for_status()
-            try:
-                media_ids.append(json.loads(response.text)["id"])
-            except (KeyError, JSONDecodeError):
-                logger.warning(
-                    _("Error uploading media:\t{}").format(str(response.text))
-                )
-                pass
+        if os.path.isdir(tweet_folder):
+            media_files = os.listdir(tweet_folder)
+            for file in media_files:
+                file_path = os.path.join(tweet_folder, file)
+                media_file = open(file_path, "rb")
+                file_size = os.stat(os.path.join(tweet_folder, file)).st_size
+                size_mb = round(file_size / 1048576, 2)
 
-    if self.signature:
-        signature = f"\n\n 🐦🔗: {self.twitter_url}/status/{tweet_id}"
-        tweet_text = f"{tweet_text} {signature}"
-    if self.original_date:
-        date = datetime.strftime(
-            datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
-            self.original_date_format,
-        )
-        tweet_text = f"{tweet_text} \n\n[{date}]"
+                mime_type = guess_type(os.path.join(tweet_folder, file))
+                timestamp = str(datetime.now().timestamp())
+                file_name = (
+                    f"pleromapyupload_"
+                    f"{timestamp}"
+                    f"_"
+                    f"{random_string(10)}"
+                    f"{mimetypes.guess_extension(mime_type)}"
+                )
+                file_description = (file_name, media_file, mime_type)
+                files = {"file": file_description}
+                response = requests.post(
+                    pleroma_media_url, headers=self.header_pleroma, files=files
+                )
+                try:
+                    if not response.ok:
+                        response.raise_for_status()
+                except requests.exceptions.HTTPError:
+                    if response.status_code == 413:
+                        size_msg = _(
+                            "Exception occurred"
+                            "\nMedia size too large:"
+                            "\nFilename: {file}"
+                            "\nSize: {size}MB"
+                            "\nConsider increasing the attachment"
+                            "\n size limit of your instance"
+                        ).format(file=file_path, size=size_mb)
+                        logger.error(size_msg)
+                        pass
+                    else:
+                        response.raise_for_status()
+                try:
+                    media_ids.append(json.loads(response.text)["id"])
+                except (KeyError, JSONDecodeError):
+                    logger.warning(
+                        _("Error uploading media:\t{}").format(
+                            str(response.text)
+                        )
+                    )
+                    pass
+
     # config setting override tweet attr
     if self.sensitive:
         sensitive = self.sensitive
@@ -175,23 +170,28 @@ def update_pleroma(self):
 
     :returns: None
     """
+    # Only update 1 user
+    t_user = self.twitter_username[0]
     # Get the biggest resolution for the profile picture (400x400)
     # instead of 'normal'
-    if self.profile_image_url:
-        profile_img_big = re.sub(r"normal", "400x400", self.profile_image_url)
+    if self.profile_image_url[t_user]:
+        profile_img_big = re.sub(
+            r"normal", "400x400",
+            self.profile_image_url[t_user]
+        )
         response = requests.get(profile_img_big, stream=True)
         if not response.ok:
             response.raise_for_status()
         response.raw.decode_content = True
-        with open(self.avatar_path, "wb") as outfile:
+        with open(self.avatar_path[t_user], "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
-    if self.profile_banner_url:
-        response = requests.get(self.profile_banner_url, stream=True)
+    if self.profile_banner_url[t_user]:
+        response = requests.get(self.profile_banner_url[t_user], stream=True)
         if not response.ok:
             response.raise_for_status()
         response.raw.decode_content = True
-        with open(self.header_path, "wb") as outfile:
+        with open(self.header_path[t_user], "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
     # Set it on Pleroma
@@ -202,13 +202,16 @@ def update_pleroma(self):
     for field_item in self.fields:
         field = (field_item["name"], field_item["value"])
         fields.append(field)
-    data = {"note": self.bio_text, "display_name": self.display_name}
+    data = {
+        "note": self.bio_text[t_user],
+        "display_name": self.display_name[t_user]
+    }
 
     if self.profile_image_url:
-        data.update({"avatar": self.avatar_path})
+        data.update({"avatar": self.avatar_path[t_user]})
 
     if self.profile_banner_url:
-        data.update({"header": self.header_path})
+        data.update({"header": self.header_path[t_user]})
 
     if len(fields) > 4:
         raise Exception(
@@ -223,18 +226,18 @@ def update_pleroma(self):
 
     files = {}
     timestamp = str(datetime.now().timestamp())
-    if self.profile_image_url:
-        avatar = open(self.avatar_path, "rb")
-        avatar_mime_type = guess_type(self.avatar_path)
+    if self.profile_image_url[t_user]:
+        avatar = open(self.avatar_path[t_user], "rb")
+        avatar_mime_type = guess_type(self.avatar_path[t_user])
         avatar_file_name = (
             f"pleromapyupload_{timestamp}_"
             f"{random_string(10)}"
             f"{mimetypes.guess_extension(avatar_mime_type)}"
         )
         files.update({"avatar": (avatar_file_name, avatar, avatar_mime_type)})
-    if self.profile_banner_url:
-        header = open(self.header_path, "rb")
-        header_mime_type = guess_type(self.header_path)
+    if self.profile_banner_url[t_user]:
+        header = open(self.header_path[t_user], "rb")
+        header_mime_type = guess_type(self.header_path[t_user])
         header_file_name = (
             f"pleromapyupload_{timestamp}_"
             f"{random_string(10)}"

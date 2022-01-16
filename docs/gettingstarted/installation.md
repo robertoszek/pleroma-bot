@@ -37,12 +37,12 @@ First you need to intall ```pleroma-bot``` on your system. There are multiple me
 
 Either way, here's a list of the dependencies in case you need them:
 
-| Name            | Git repo                                       | Docs
-| --------------- | ---------------------------------------------- | ----------------------------------------------------------- |
-| python-oauthlib | [GitHub](https://github.com/oauthlib/oauthlib) | [Documentation](https://oauthlib.readthedocs.io/en/latest/) |
-| python-pyaml | [GitHub](https://github.com/yaml/pyyaml) | [Documentation](https://pyyaml.org/wiki/PyYAMLDocumentation) |
-| python-requests | [GitHub](https://github.com/psf/requests) | [Documentation](https://requests.readthedocs.io/) |
-| python-requests-oauthlib | [GitHub](https://github.com/requests/requests-oauthlib) | [Documentation](https://requests-oauthlib.readthedocs.org) |
+| Name                     | Git repo                                                | Docs                                                         |
+|--------------------------|---------------------------------------------------------|--------------------------------------------------------------|
+| python-oauthlib          | [GitHub](https://github.com/oauthlib/oauthlib)          | [Documentation](https://oauthlib.readthedocs.io/en/latest/)  |
+| python-pyaml             | [GitHub](https://github.com/yaml/pyyaml)                | [Documentation](https://pyyaml.org/wiki/PyYAMLDocumentation) |
+| python-requests          | [GitHub](https://github.com/psf/requests)               | [Documentation](https://requests.readthedocs.io/)            |
+| python-requests-oauthlib | [GitHub](https://github.com/requests/requests-oauthlib) | [Documentation](https://requests-oauthlib.readthedocs.org)   |
 
 
 ## Test the installation
@@ -79,11 +79,11 @@ Once installed using your preferred method, test that the package has been corre
     ff=            `==:::""",,,,________
 
 
-    usage: cli.py [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-                  [--verbose] [--version]
+    usage: pleroma-bot [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
+                       [-a ARCHIVE] [--verbose] [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
-
+    
     optional arguments:
       -h, --help            show this help message and exit
       -c CONFIG, --config CONFIG
@@ -101,6 +101,9 @@ Once installed using your preferred method, test that the package has been corre
                             supplied to only force it for that particular user in
                             the config
       -s, --skipChecks      skips first run checks
+      -a ARCHIVE, --archive ARCHIVE
+                            path of the Twitter archive file (zip) to use for
+                            posting tweets.
       --verbose, -v
       --version             show program's version number and exit
     ```
@@ -134,11 +137,11 @@ Once installed using your preferred method, test that the package has been corre
     ff=            `==:::""",,,,________
 
 
-    usage: cli.py [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-                  [--verbose] [--version]
+    usage: pleroma-bot [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
+                       [-a ARCHIVE] [--verbose] [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
-
+    
     optional arguments:
       -h, --help            show this help message and exit
       -c CONFIG, --config CONFIG
@@ -156,6 +159,9 @@ Once installed using your preferred method, test that the package has been corre
                             supplied to only force it for that particular user in
                             the config
       -s, --skipChecks      skips first run checks
+      -a ARCHIVE, --archive ARCHIVE
+                            path of the Twitter archive file (zip) to use for
+                            posting tweets.
       --verbose, -v
       --version             show program's version number and exit
     ```
@@ -190,10 +196,10 @@ Once installed using your preferred method, test that the package has been corre
 
 
     usage: cli.py [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-              [--verbose] [--version]
+                  [-a ARCHIVE] [--verbose] [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
-
+    
     optional arguments:
       -h, --help            show this help message and exit
       -c CONFIG, --config CONFIG
@@ -211,6 +217,9 @@ Once installed using your preferred method, test that the package has been corre
                             supplied to only force it for that particular user in
                             the config
       -s, --skipChecks      skips first run checks
+      -a ARCHIVE, --archive ARCHIVE
+                            path of the Twitter archive file (zip) to use for
+                            posting tweets.
       --verbose, -v
       --version             show program's version number and exit
     ```

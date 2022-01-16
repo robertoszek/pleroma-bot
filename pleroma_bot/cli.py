@@ -2,7 +2,7 @@
 
 # MIT License
 #
-# Copyright (c) 2021 Roberto Chamorro / project contributors
+# Copyright (c) 2022 Roberto Chamorro / project contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,12 +35,15 @@ import yaml
 import shutil
 import logging
 import argparse
+import multiprocessing as mp
 
 from requests_oauthlib import OAuth1
+from requests.structures import CaseInsensitiveDict
 
 from .i18n import _
 from . import logger
 from .__init__ import __version__
+from ._utils import process_parallel, Locker, process_archive
 
 
 class User(object):
@@ -68,9 +71,9 @@ class User(object):
     from ._processing import process_tweets
 
     from ._processing import _expand_urls
+    from ._processing import _replace_url
     from ._processing import _get_media_url
     from ._processing import _process_polls
-    from ._processing import _replace_nitter
     from ._processing import _download_media
     from ._processing import _replace_mentions
     from ._processing import _get_best_bitrate_video
@@ -79,10 +82,12 @@ class User(object):
         self.posts = None
         self.tweets = None
         self.first_time = False
-        self.display_name = None
+        self.display_name = {}
         self.last_post_pleroma = None
-        self.profile_image_url = None
-        self.profile_banner_url = None
+        self.profile_image_url = {}
+        self.profile_banner_url = {}
+        self.t_user_tweets = {}
+        self.twitter_ids = {}
         valid_visibility = ("public", "unlisted", "private", "direct")
         default_cfg_attributes = {
             "twitter_base_url": "https://api.twitter.com/1.1",
@@ -92,7 +97,7 @@ class User(object):
             "nitter": False,
             "twitter_token": None,
             "signature": False,
-            "media_upload": False,
+            "media_upload": True,
             "sensitive": False,
             "max_tweets": 50,
             "delay_post": 0.5,
@@ -109,6 +114,12 @@ class User(object):
             "access_token_secret": None,
             "original_date": False,
             "original_date_format": "%Y-%m-%d %H:%M",
+            "bio_text": "",
+            "keep_media_links": False,
+            "fields": [],
+            "invidious": False,
+            "invidious_base_url": "https://yewtu.be/",
+            "archive": None,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -119,10 +130,15 @@ class User(object):
         for user_attribute in user_cfg:
             self.__setattr__(user_attribute, user_cfg[user_attribute])
 
+        t_users = self.twitter_username
+        t_users_list = isinstance(t_users, list)
+        t_users = [t_users] if not t_users_list else t_users
+        self.twitter_username = t_users
+
         twitter_url = (
             self.nitter_base_url if self.nitter else "http://twitter.com"
         )
-        self.twitter_url = f"{twitter_url}/{self.twitter_username}"
+
         if self.rich_text:
             self.content_type = "text/markdown"
         if not self.pleroma_base_url:
@@ -135,12 +151,10 @@ class User(object):
                     ", ".join(valid_visibility)
                 )
             )
-        try:
-            self.fields = self.replace_vars_in_str(str(user_cfg["fields"]))
-            self.fields = eval(self.fields)
-        except KeyError:
-            self.fields = []
-        self.bio_text = self.replace_vars_in_str(str(user_cfg["bio_text"]))
+
+        bio_text = self.replace_vars_in_str(str(self.bio_text))
+        self.bio_text = {"_generic_bio_text": bio_text}
+
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
@@ -168,19 +182,27 @@ class User(object):
                 )
             )
 
+        self.twitter_url = CaseInsensitiveDict()
+        for t_user in t_users:
+            self.twitter_url[t_user] = f"{twitter_url}/{t_user}"
         self.pinned_tweet_id = self._get_pinned_tweet_id()
-
-        # Filesystem
+        self.fields = self.replace_vars_in_str(str(self.fields))
+        self.fields = eval(self.fields)
         self.base_path = base_path
         self.users_path = os.path.join(self.base_path, "users")
-        self.users_path = os.path.join(self.base_path, "users")
-        self.user_path = os.path.join(self.users_path, self.twitter_username)
-        self.tweets_temp_path = os.path.join(self.user_path, "tweets")
-        self.avatar_path = os.path.join(self.user_path, "profile.jpg")
-        self.header_path = os.path.join(self.user_path, "banner.jpg")
+        self.tweets_temp_path = os.path.join(self.base_path, "tweets")
+        self.user_path = {}
+        self.avatar_path = {}
+        self.header_path = {}
+        for t_user in t_users:
+            self.user_path[t_user] = os.path.join(self.users_path, t_user)
+            t_path = self.user_path[t_user]
+            self.avatar_path[t_user] = os.path.join(t_path, "profile.jpg")
+            self.header_path[t_user] = os.path.join(t_path, "banner.jpg")
         os.makedirs(self.users_path, exist_ok=True)
-        os.makedirs(self.user_path, exist_ok=True)
         os.makedirs(self.tweets_temp_path, exist_ok=True)
+        for t_user in t_users:
+            os.makedirs(self.user_path[t_user], exist_ok=True)
         # Get Twitter info on instance creation
         self._get_twitter_info()
         self._get_instance_info()
@@ -265,6 +287,19 @@ def get_args(sysargs):
         help=(_("skips first run checks")),
     )
 
+    parser.add_argument(
+        "-a",
+        "--archive",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of the Twitter archive file (zip) to use for posting "
+                "tweets."
+            )
+        ),
+    )
+
     parser.add_argument("--verbose", "-v", action="count", default=0)
 
     parser.add_argument(
@@ -294,26 +329,27 @@ def main():
             base_path, cfg_file = os.path.split(os.path.abspath(config_path))
         else:
             config_path = os.path.join(base_path, "config.yml")
-
+        tweets_temp_path = os.path.join(base_path, "tweets")
+        logger.info(_("config path: {}").format(config_path))
+        logger.info(_("tweets temp folder: {}").format(tweets_temp_path))
+        # TODO: Add config generator wizard if config file is not found?
+        #  create a minimal config asking the user for the values
         with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
         users_path = os.path.join(base_path, "users")
-        # TODO: Merge tweets of multiple accounts and order them by date
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
-            if isinstance(user_item["twitter_username"], list):
+            t_users = user_item["twitter_username"]
+            t_user_list = isinstance(t_users, list)
+            t_users = t_users if t_user_list else [t_users]
+            if len(t_users) > 1:
                 warn_msg = _(
                     "Multiple twitter users for one Fediverse account, "
                     "skipping profile and pinned tweet."
                 )
                 logger.warning(warn_msg)
                 user_item["skip_pin"] = True
-                for twitter_user in user_item["twitter_username"]:
-                    new_user = dict(user_item)
-                    new_user["twitter_username"] = twitter_user
-                    user_dict.append(new_user)
-                user_dict.remove(user_item)
 
         for user_item in user_dict:
             first_time = False
@@ -321,16 +357,22 @@ def main():
             logger.info(
                 _("Processing user:\t{}").format(user_item["pleroma_username"])
             )
-            user_path = os.path.join(users_path, user_item["twitter_username"])
+            t_users = user_item["twitter_username"]
+            t_user_list = isinstance(t_users, list)
+            t_users = t_users if t_user_list else [t_users]
+            for t_user in t_users:
+                user_path = os.path.join(users_path, t_user)
 
-            if not os.path.exists(user_path):
-                first_time_msg = _(
-                    "It seems like pleroma-bot is running for the "
-                    "first time for this user"
-                )
-                logger.info(first_time_msg)
-                first_time = True
+                if not os.path.exists(user_path):
+                    first_time_msg = _(
+                        "It seems like pleroma-bot is running for the "
+                        "first time for this Twitter user: {}"
+                    ).format(t_user)
+                    logger.info(first_time_msg)
+                    first_time = True
             user = User(user_item, config, base_path)
+            if args.archive:
+                user.archive = args.archive
             if first_time and not args.skipChecks:
                 user.first_time = True
             if (
@@ -348,6 +390,7 @@ def main():
                     "includes": {},
                     "meta": {"result_count": len(user.tweet_ids)},
                 }
+                user.result_count = len(user.tweet_ids)
                 includes = ["users", "tweets", "media", "polls"]
                 for include in includes:
                     try:
@@ -372,6 +415,9 @@ def main():
                         tweets["includes"]["media"].append(media)
                     for poll in next_tweet["includes"]["polls"]:
                         tweets["includes"]["polls"].append(poll)
+            elif args.archive:
+                tweets = process_archive(args.archive, start_time=date_pleroma)
+                user.result_count = len(tweets["data"])
             else:
                 tweets = user.get_tweets(start_time=date_pleroma)
             logger.debug(f"tweets: \t {tweets}")
@@ -385,14 +431,20 @@ def main():
                     "- access_token_secret"
                 )
                 logger.error(error_msg)
-
-            if tweets["meta"]["result_count"] > 0:
+            if user.result_count > 0:
                 logger.info(
-                    _("tweet count: \t {}").format(len(tweets["data"]))
+                    _("tweets gathered: \t {}").format(len(tweets["data"]))
                 )
                 # Put oldest first to iterate them and post them in order
                 tweets["data"].reverse()
-                tweets_to_post = user.process_tweets(tweets)
+                cores = mp.cpu_count()
+                threads = round(cores / 2 if cores > 4 else 4)
+                tweets_to_post = process_parallel(tweets, user, threads)
+                logger.info(
+                    _("tweets to post: \t {}").format(
+                        len(tweets_to_post['data'])
+                    )
+                )
                 logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
                 tweet_counter = 0
                 for tweet in tweets_to_post["data"]:
@@ -448,7 +500,8 @@ def init():
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
     if __name__ == "__main__":
-        sys.exit(main())
+        with Locker():
+            sys.exit(main())
 
 
 init()

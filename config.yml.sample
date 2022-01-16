@@ -50,6 +50,7 @@ users:
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}
+  # (optional) Text to be appended to the Twitter account bio text
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
   # Optional metadata fields and values for the Pleroma profile

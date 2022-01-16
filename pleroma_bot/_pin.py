@@ -17,7 +17,10 @@ def pin_pleroma(self, id_post):
     :returns: ID of post pinned
     :rtype: str
     """
-    pinned_file = os.path.join(self.user_path, "pinned_id_pleroma.txt")
+    # Only check pinned for 1 user
+    t_user = self.twitter_username[0]
+
+    pinned_file = os.path.join(self.user_path[t_user], "pinned_id_pleroma.txt")
     self.unpin_pleroma(pinned_file)
 
     pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
@@ -37,7 +40,10 @@ def unpin_pleroma(self, pinned_file):
     :param pinned_file: path to file containing post ID
 
     """
-    pinned_file_twitter = os.path.join(self.user_path, "pinned_id.txt")
+    # Only check pinned for 1 user
+    t_user = self.twitter_username[0]
+
+    pinned_file_twitter = os.path.join(self.user_path[t_user], "pinned_id.txt")
     previous_pinned_post_id = None
     if os.path.isfile(pinned_file):
         with open(os.path.join(pinned_file), "r") as file:
@@ -111,9 +117,12 @@ def _get_pinned_tweet_id(self):
 
     :returns: ID of currently pinned tweet
     """
+    # Only get pin for 1 user
+    t_user = self.twitter_username[0]
+
     url = (
         f"{self.twitter_base_url_v2}/users/"
-        f"by/username/{self.twitter_username}"
+        f"by/username/{t_user}"
     )
     params = {
         "user.fields": "pinned_tweet_id",

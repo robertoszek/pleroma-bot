@@ -60,3 +60,15 @@ $ pleroma-bot --config /path/to/config.yml --log /path/to/error.log
 ```
 
 When these arguments are omitted, ```config.yml``` from the current directory will be used as a configuration file and an ```error.log``` file will be written to the current working directory.
+
+## Using an archive
+
+A Twitter [archive](https://twitter.com/settings/your_twitter_data) can also be provided with `--archive`:
+
+```console
+$ pleroma-bot --archive /path/to/archive.zip
+```
+
+This is particularly useful when trying to circumvent Twitter's API limitations, when you need to copy more than 3200 tweets or from an earlier date than `2010-11-06T00:00:00Z`.
+
+It can also be used as a way of transferring all of your Twitter's account data to a Fediverse instance and making the migration process easier.

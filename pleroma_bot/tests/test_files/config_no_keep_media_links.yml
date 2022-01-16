@@ -1,0 +1,49 @@
+twitter_base_url: https://api.twitter.com/1.1
+# Change this to your Fediverse instance
+pleroma_base_url: https://pleroma.robertoszek.xyz
+# How many tweets to get in every execution
+# Twitter's API hard limit is 3,200
+max_tweets: 40
+# Twitter bearer token
+twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# List of users and their attributes
+users:
+- twitter_username: KyleBosman
+  pleroma_username: KyleBosman
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  # If you want to add a link to the original status or not
+  signature: true
+  # If you want to download Twitter attachments and add them to the Pleroma posts
+  media_upload: true
+  # If twitter links should be changed to nitter.net ones
+  # If mentions should be transformed to links to the mentioned Twitter profile
+  rich_text: true
+  # visibility of the post. Must one of the following: public, unlisted, private, direct
+  visibility: "unlisted"
+  # Force all posts for this account to be sensitive or not
+  # The NSFW banner for the instance will be shown for attachments as a warning if true
+  # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
+  sensitive: false
+  support_account: robertoszek
+  # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
+  # with the attribute value. e.g. {{ support_account }}
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \nI'm a bot that mirrors {{ twitter_username }} Twitter's\
+    \ account. \nAny issues please contact @{{ support_account }} \n \n " # username will be replaced by its value
+  # Optional metadata fields and values for the Pleroma profile
+  fields:
+  - name: "\U0001F426 Birdsite"
+    value: "{{ twitter_url }}"
+  - name: "Status"
+    value: "I am completely operational, and all my circuits are functioning perfectly."
+  - name: "Source"
+    value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+- twitter_username: arstechnica
+  pleroma_username: mynewsbot
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  signature: true
+  original_date_format: "%Y/%m/%d %H:%M"
+  media_upload: false
+  pleroma_url: https://another.pleroma.instance
+  max_tweets: 50
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
+    \ account. \n Any issues please contact @robertoszek \n \n "

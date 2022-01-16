@@ -1,3 +1,19 @@
+## [1.0.0] 16-01-2022 
+## Fixed
+- `max_tweets` not accepting values higher than 100
+- Video: Not getting the best bitrate version of video attachments in some cases
+- Polls: not being retrieved for accounts with protected tweets
+- RTs: not getting original tweet media attachments 
+## Added
+- `twitter_username` value can be a list now, for having multiple Twitter accounts as sources for one target Fediverse account.
+- A Twitter [archive](https://twitter.com/settings/your_twitter_data) can be provided with `--archive`([more info in the docs](https://robertoszek.github.io/pleroma-bot/gettingstarted/usage/#using-an-archive))
+- Links to Twitter attachments (video, images) are no longer explicitly included on the post's body text by default. You can choose to keep adding them with `keep_media_links`. This option does *not* affect the upload of attachments.
+- Youtube links can be replaced with `invidious` and `invidious_base_url`
+## Enhancements
+- `bio_text` is no longer a mandatory mapping on the config
+- Hugely improved performance (around 4x) when processing tweets
+- Implemented safety measures for avoiding collision with multiple instances of the bot running at the same time
+
 ## [0.8.9] - 2021-12-05
 ## Added
 - ```original_date``` and ```original_date_format``` for adding the original tweet's creation date to the post body

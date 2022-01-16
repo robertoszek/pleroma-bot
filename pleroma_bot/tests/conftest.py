@@ -57,7 +57,50 @@ def mock_request(rootdir):
             status_code=301,
             headers={'Location': 'http://github.com'}
         )
+
+        mock.head(
+            "http://cutt.ly/xg3TuYA",
+            status_code=301,
+            headers={
+                'Location': 'https://twitter.com/BotPleroma/status'
+                            '/1474760145850806283/video/1'
+            }
+        )
+        mock.head(
+            'https://twitter.com/BotPleroma/status'
+            '/1474760145850806283/video/1',
+            status_code=200,
+            headers={
+                'Location': 'https://twitter.com/BotPleroma/status'
+                            '/1474760145850806283/video/1'
+            }
+        )
+
         empty_resp = requests.packages.urllib3.response.HTTPResponse()
+        mock.head(
+            "https://twitter.com/BotPleroma/status/1323048312161947650"
+            "/photo/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "http://twitter.com/BotPleroma/status/1323048312161947650"
+            "/photo/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "https://twitter.com/BotPleroma/status/111242346465757545"
+            "/video/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "https://twitter.com/BotPleroma/status/"
+            "111242346465757545/video/10",
+            status_code=200,
+            raw=empty_resp,
+        )
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
@@ -77,6 +120,38 @@ def _sample_users(mock_request, rootdir):
         for user_item in config_users['user_dict']:
             pinned = test_user.pinned
             pinned2 = test_user.pinned_2
+
+            mock.get("https://api.twitter.com/2/tweets/1339829031147954177"
+                     "?poll.fields=duration_minutes%2Cend_datetime%2Cid"
+                     "%2Coptions%2Cvoting_status&media.fields=duration_ms"
+                     "%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl"
+                     "%2Cwidth%2Cpublic_metrics&expansions=attachments"
+                     ".poll_ids%2Cattachments.media_keys%2Cauthor_id"
+                     "%2Centities.mentions.username%2Cgeo.place_id"
+                     "%2Cin_reply_to_user_id%2Creferenced_tweets.id"
+                     "%2Creferenced_tweets.id.author_id&tweet.fields"
+                     "=attachments%2Cauthor_id%2Ccontext_annotations"
+                     "%2Cconversation_id%2Ccreated_at%2Centities%2Cgeo%2Cid"
+                     "%2Cin_reply_to_user_id%2Clang%2Cpublic_metrics"
+                     "%2Cpossibly_sensitive%2Creferenced_tweets%2Csource"
+                     "%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                     f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
+                     f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                     f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
+                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
+                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"entities.mentions.username%2Cgeo.place_id%2C"
+                     f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                     f"referenced_tweets.id.author_id&tweet.fields=attachments"
+                     f"%2Cauthor_id%2Ccontext_annotations%2Cconversation_id%2"
+                     f"Ccreated_at%2Centities%2Cgeo%2Cid%2Cin_reply_to_user_id"
+                     f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                     f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                     json=mock_request['sample_data']['pinned_tweet'],
+                     status_code=200)
             mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
                      f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
                      f"options%2Cvoting_status&media.fields=duration_ms%2C"
@@ -107,9 +182,10 @@ def _sample_users(mock_request, rootdir):
                      f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
                      json=mock_request['sample_data']['pinned_tweet_2'],
                      status_code=200)
+            user_v2 = f"user_v2_{user_item['twitter_username']}"
             mock.get(f"{twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
-                     json=mock_request['sample_data']['pinned'],
+                     json=mock_request['sample_data'][user_v2],
                      status_code=200)
             mock.get(f"{twitter_base_url_v2}/users/by?"
                      f"usernames={user_item['twitter_username']}",
@@ -118,7 +194,7 @@ def _sample_users(mock_request, rootdir):
 
             mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
                      f"{user_item['twitter_username']}",
-                     json=mock_request['sample_data']['pinned'],
+                     json=mock_request['sample_data'][user_v2],
                      status_code=200)
 
             mock.get(f"{test_user.twitter_base_url}/users/"
@@ -218,6 +294,11 @@ def _sample_users(mock_request, rootdir):
                      content=gif_content,
                      headers={'Content-Type': 'image/gif'},
                      status_code=200)
+            mock.get("https://twitter.com/BotPleroma/status"
+                     "/1323048312161947650/photo/1",
+                     content=png_content,
+                     headers={'Content-Type': 'image/png'},
+                     status_code=200)
             mock.get("https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
                      content=png_content,
                      headers={'Content-Type': 'image/png'},
@@ -225,6 +306,11 @@ def _sample_users(mock_request, rootdir):
             mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
                      f"id=1323049214134407171",
                      json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get("https://twitter.com/BotPleroma/status"
+                     "/1474760145850806283/video/1",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
                      status_code=200)
             mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
                      "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
@@ -241,6 +327,9 @@ def _sample_users(mock_request, rootdir):
             profile_img_big = re.sub(
                 r"normal", "400x400", profile_pic_url
             )
+            mock.get(twitter_info["profile_image_url"],
+                     content=profile_image_content,
+                     status_code=200)
             mock.get(f"{profile_img_big}",
                      content=profile_image_content,
                      status_code=200)
