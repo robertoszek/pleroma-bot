@@ -603,8 +603,7 @@
 <p>So, with that preamble out of the way.
 A minimal config looks something like this:</p>
 <h3 id="minimal-configyml">minimal config.yml<a class="headerlink" href="#minimal-configyml" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nt">twitter_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://api.twitter.com/1.1</span>
-<span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span>
+<div class="highlight"><pre><span></span><code><span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span>
 <span class="nt">max_tweets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">40</span>
 <span class="nt">twitter_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
 <span class="nt">users</span><span class="p">:</span>
@@ -624,12 +623,6 @@ A minimal config looks something like this:</p>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td align="left">twitter_base_url</td>
-<td align="center">No</td>
-<td align="left"></td>
-<td align="left">Twitter API fallback URL. It should be '<a href="https://api.twitter.com/1.1">https://api.twitter.com/1.1</a>'</td>
-</tr>
 <tr>
 <td align="left">pleroma_base_url</td>
 <td align="center">No</td>
@@ -673,6 +666,12 @@ A minimal config looks something like this:</p>
 <td align="left">OAuth 1.0a Twitter Access Token Secret (only needed for protected accounts)</td>
 </tr>
 <tr>
+<td align="left">twitter_base_url</td>
+<td align="center">Yes</td>
+<td align="left"><a href="https://api.twitter.com/1.1">https://api.twitter.com/1.1</a></td>
+<td align="left">Twitter API fallback URL. It should be '<a href="https://api.twitter.com/1.1">https://api.twitter.com/1.1</a>'</td>
+</tr>
+<tr>
 <td align="left">nitter</td>
 <td align="center">Yes</td>
 <td align="left">false</td>
@@ -693,7 +692,7 @@ A minimal config looks something like this:</p>
 <tr>
 <td align="left">media_upload</td>
 <td align="center">Yes</td>
-<td align="left">false</td>
+<td align="left">true</td>
 <td align="left">Download Twitter attachments and add them to the Fediverse posts</td>
 </tr>
 <tr>
@@ -833,8 +832,7 @@ A minimal config looks something like this:</p>
 </table>
 <p>Here's also a more full-fledged config file sample, with 3 users (<code>KyleBosman</code>, <code>WoolieWoolz</code> and <code>arstechnica</code>), which puts all the concepts we've seen together:</p>
 <h3 id="configymlsample">config.yml.sample<a class="headerlink" href="#configymlsample" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nt">twitter_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://api.twitter.com/1.1</span>
-<span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.robertoszek.xyz</span>
+<div class="highlight"><pre><span></span><code><span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.robertoszek.xyz</span>
 <span class="nt">nitter_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://nitter.net</span>
 <span class="nt">max_tweets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">40</span>
 <span class="nt">twitter_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
