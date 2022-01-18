@@ -606,6 +606,16 @@ If you don't enter any value and press enter it will default to the oldest date 
 </code></pre></div>
 <p>This is particularly useful when trying to circumvent Twitter's API limitations, when you need to copy more than 3200 tweets or from an earlier date than <code>2010-11-06T00:00:00Z</code>.</p>
 <p>It can also be used as a way of transferring all of your Twitter's account data to a Fediverse instance and making the migration process easier.</p>
+<p>Using it in conjunction with the <code>forceDate</code> argument will ensure you get all the tweets of the archive from a certain date onwards:
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pleroma-bot --archive /path/to/archive.zip --forceDate
+
+<span class="go">How far back should we retrieve tweets from the Twitter account? </span>
+<span class="go">Enter a date (YYYY-MM-DD):</span>
+<span class="go">[Leave it empty to retrieve *ALL* tweets or enter &#39;continue&#39;</span>
+<span class="go">if you want the bot to execute as normal (checking date of </span>
+<span class="go">last post in the Fediverse account)]</span>
+</code></pre></div></p>
+<p>Leaving it empty and hitting enter will retrieve tweets from <code>2006-07-15T00:00:00Z</code> onwards, by default.</p>
                 
               
               
