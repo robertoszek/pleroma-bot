@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-01-09 00:13+0100\n"
+"POT-Creation-Date: 2022-02-01 23:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,7 +81,11 @@ msgstr ""
 msgid "Updating profile:\t {}"
 msgstr ""
 
-#: _processing.py:199
+#: _processing.py:131
+msgid "Giving up, reference is too deep"
+msgstr ""
+
+#: _processing.py:240
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -90,19 +94,19 @@ msgid ""
 "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:224
+#: _processing.py:265
 msgid "Attachment exceeded config file size limit ({})"
 msgstr ""
 
-#: _processing.py:228
+#: _processing.py:269
 msgid "File size: {}MB"
 msgstr ""
 
-#: _processing.py:232
+#: _processing.py:273
 msgid "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:315
+#: _processing.py:356
 msgid "Couldn't expand the {}: {}"
 msgstr ""
 
@@ -208,50 +212,58 @@ msgid "path of config file (config.yml) to use and parse. If not specified, it w
 msgstr ""
 
 #: cli.py:247
-msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
+msgid "run in daemon mode. By default it will re-run every 60min. You can control this with --pollrate"
 msgstr ""
 
 #: cli.py:260
+msgid "only applies to daemon mode. How often to run the program in the background (in minutes). By default is 60min."
+msgstr ""
+
+#: cli.py:272
+msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
+msgstr ""
+
+#: cli.py:285
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: cli.py:274
+#: cli.py:299
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: cli.py:287
+#: cli.py:312
 msgid "skips first run checks"
 msgstr ""
 
-#: cli.py:297
+#: cli.py:322
 msgid "path of the Twitter archive file (zip) to use for posting tweets."
 msgstr ""
 
-#: cli.py:323
+#: cli.py:348
 msgid "Debug logging enabled"
 msgstr ""
 
-#: cli.py:333
+#: cli.py:358
 msgid "config path: {}"
 msgstr ""
 
-#: cli.py:334
+#: cli.py:359
 msgid "tweets temp folder: {}"
 msgstr ""
 
-#: cli.py:348
+#: cli.py:373
 msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
 msgstr ""
 
-#: cli.py:358
+#: cli.py:383
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: cli.py:368
+#: cli.py:393
 msgid "It seems like pleroma-bot is running for the first time for this Twitter user: {}"
 msgstr ""
 
-#: cli.py:427
+#: cli.py:452
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -260,18 +272,18 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: cli.py:436
+#: cli.py:461
 msgid "tweets gathered: \t {}"
 msgstr ""
 
-#: cli.py:444
+#: cli.py:469
 msgid "tweets to post: \t {}"
 msgstr ""
 
-#: cli.py:468
+#: cli.py:493
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: cli.py:475
+#: cli.py:500
 msgid "Exception occurred"
 msgstr ""

@@ -23,7 +23,7 @@ setuptools.setup(
         "Documentation": "https://robertoszek.github.io/pleroma-bot",
     },
     packages=['pleroma_bot'],
-    package_data={'pleroma_bot': ['locale/*/*/*.mo']},
+    package_data={'pleroma_bot': ['locale/*/*/*.mo', 'pleroma-bot.service']},
     include_package_data=True,
     classifiers=[
         'Environment :: Console',

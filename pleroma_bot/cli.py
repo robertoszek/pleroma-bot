@@ -238,6 +238,31 @@ def get_args(sysargs):
     )
 
     parser.add_argument(
+        "-d",
+        "--daemon",
+        required=False,
+        action="store_true",
+        help=(
+            _(
+                "run in daemon mode. By default it will re-run every 60min. "
+                "You can control this with --pollrate"
+            )
+        ),
+    )
+
+    parser.add_argument(
+        "-p",
+        "--pollrate",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "only applies to daemon mode. How often to run the program in"
+                " the background (in minutes). By default is 60min."
+            )
+        ),
+    )
+    parser.add_argument(
         "-l",
         "--log",
         required=False,
@@ -499,7 +524,13 @@ def init():
     )
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
-    if __name__ == "__main__":
+    if args.daemon:  # pragma
+        poll_rate = int(args.pollrate) * 60 if args.pollrate else 3600
+        with Locker():
+            while True:
+                main()
+                time.sleep(poll_rate)
+    elif __name__ == "__main__":
         with Locker():
             sys.exit(main())
 

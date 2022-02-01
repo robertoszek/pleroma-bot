@@ -14,15 +14,30 @@ edit_uri: ""
 theme:
   features:
     - navigation.tabs
+    - navigation.indexes
+    - navigation.instant
+    - toc.integrate
+    - metadata
   favicon: images/Stork.ico
   logo: images/logo.png
   name: material
-  custom_dir: overrides
+  #custom_dir: overrides
   language: en
   palette:
-    primary: purple
-    accent: cyan
-    scheme: preference
+    - media: "(prefers-color-scheme: light)"
+      primary: purple
+      accent: cyan
+      scheme: default
+      toggle:
+        icon: fontawesome/solid/moon
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: purple
+      accent: cyan
+      toggle:
+        icon: fontawesome/regular/moon
+        name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
@@ -47,8 +62,13 @@ extra:
 # Extensions
 markdown_extensions:
   - admonition
-  - codehilite:
-      guess_lang: true
+  - pymdownx.keys
+  - pymdownx.highlight:
+      use_pygments: true
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
   - toc:
       permalink: true
   - pymdownx.arithmatex
@@ -60,18 +80,15 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
-  - pymdownx.inlinehilite
   - pymdownx.magiclink
   - pymdownx.mark
   - pymdownx.smartsymbols
-  - pymdownx.superfences
   - pymdownx.tasklist:
       custom_checkbox: true
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.tilde
   - footnotes
-  - pymdownx.highlight:
-      use_pygments: true
   - attr_list
 plugins:
   - search

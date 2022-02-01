@@ -1,1 +1,3 @@
 recursive-include pleroma_bot/locale *.mo
+include pleroma-bot.service
+exclude .travis.yml

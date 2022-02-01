@@ -16,9 +16,9 @@ You can think of "users" as a [YAML list](https://gettaurus.org/docs/YAMLTutoria
 
 This allows you to add as little as 1 user and as much as you need, there's no upper limit to the number of users you can add.
 
-The mappings outside the user sequences, are considered "global" mappings and will be applied to all users. So if you define the value for ```pleroma_base_url``` at the top, it will apply to all users in your config:
+The mappings outside the user sequences, are considered "**global**" mappings and will be applied to *all* users. So if you define the value for ```pleroma_base_url``` at the top, it will apply to all users in your config:
 
-```yaml
+```yaml hl_lines="1"
 pleroma_base_url: https://pleroma.instance
 users:
 - twitter_username: User1
@@ -31,7 +31,7 @@ In this example, ```User1``` and ```User2``` share the configured value of ```pl
 
 You can also **override** the "global" mapping within an user if you so choose:
 
-```yaml
+```yaml hl_lines="7"
 pleroma_base_url: https://pleroma.instance
 users:
 - twitter_username: User1
@@ -43,23 +43,7 @@ users:
   pleroma_username: MyPleromaUser3
 ```
 
-Here, ```User1``` and ```User3``` share the configured value of ```pleroma_base_url``` at the top **but** ```User2```'s ```pleroma_base_url``` value would be ```https://another.instance```
-
-
-So, with that preamble out of the way.
-A minimal config looks something like this:
-
-### minimal config.yml
-```yaml
-twitter_base_url: https://api.twitter.com/1.1
-pleroma_base_url: https://pleroma.instance
-max_tweets: 40
-twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-users:
-- twitter_username: User1
-  pleroma_username: MyPleromaUser1
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
+Here, ```User1``` and ```User3``` share the configured value of ```pleroma_base_url``` at the top **but** ```User2```'s ```pleroma_base_url``` value would be ```https://another.instance```.
 
 ## Mappings 
 
@@ -107,10 +91,31 @@ There a few mappings *exclusive* to users:
 | fields           | Yes        |                             | Optional metadata fields (sequence of name-value pairs) for the Fediverse profile |
 
 
+
+## Example configs
+
+So, with that preamble out of the way.
+
+A minimal config looks something like this:
+
+#### Minimal config
+
+```yaml title="config-minimal.yml.sample"
+twitter_base_url: https://api.twitter.com/1.1
+pleroma_base_url: https://pleroma.instance
+max_tweets: 40
+twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+users:
+- twitter_username: User1
+  pleroma_username: MyPleromaUser1
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+#### Complex config
+
 Here's also a more full-fledged config file sample, with 3 users (```KyleBosman```, ```WoolieWoolz``` and ```arstechnica```), which puts all the concepts we've seen together:
 
-### config.yml.sample
-```yaml
+```yaml title="config.yml.sample"
 twitter_base_url: https://api.twitter.com/1.1
 pleroma_base_url: https://pleroma.robertoszek.xyz
 nitter_base_url: https://nitter.net
@@ -183,9 +188,9 @@ users:
   bio_text: ""
 ```
 
-## Mastodon
+## :fontawesome-brands-mastodon: Mastodon
 If you use ```pleroma-bot``` with a Mastodon instance, please do take into account that you'll need to fill the ```pleroma_username``` mapping with your Mastodon account ID, *not* the username or nickname.
-```yaml
+```yaml hl_lines="3"
 # Mastodon instance example
 - twitter_username: WoolieWoolz
   pleroma_username: 24660 # <--
@@ -193,10 +198,10 @@ If you use ```pleroma-bot``` with a Mastodon instance, please do take into accou
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   [...]
 ```
-The ease of finding the ID for your Mastodon account varies between instances, sometimes is as easy as to navigate to your profile and copy it from the URL.
+The ease of finding the ID for your Mastodon account varies between instances, sometimes it's as easy as to navigate to your profile and copy it from the URL.
 
 You can try searching for it this way:
 ```shell
-curl 'https://mastodon.social/api/v2/search?q=<username>&resolve=true&limit=5' 
+curl 'https://yourmastodon.instance/api/v2/search?q=<username>&resolve=true&limit=5' 
     -H 'Authorization: Bearer xxxxx' 
 ```

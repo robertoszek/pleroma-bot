@@ -1,0 +1,10 @@
+[Unit]
+Description=Stork (pleroma-bot)
+Documentation=https://robertoszek.github.io/pleroma-bot
+After=network.target
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+# Uncomment this line if using venv
+# ExecStart=/path/to/venv/bin/pleroma-bot -d --config /etc/pleroma-bot/config.yml --log /var/log/pleroma-bot/error.log --skipChecks
+ExecStart=pleroma-bot -d --config /etc/pleroma-bot/config.yml --log /var/log/pleroma-bot/error.log --skipChecks

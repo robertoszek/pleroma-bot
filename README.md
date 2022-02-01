@@ -65,6 +65,12 @@ optional arguments:
                         path of config file (config.yml) to use and parse. If
                         not specified, it will try to find it in the current
                         working directory.
+  -d, --daemon          run in daemon mode. By default it will re-run every
+                        60min. You can control this with --pollrate
+  -p POLLRATE, --pollrate POLLRATE
+                        only applies to daemon mode. How often to run the
+                        program in the background (in minutes). By default is
+                        60min.
   -l LOG, --log LOG     path of log file (error.log) to create. If not
                         specified, it will try to store it at your config file
                         path
