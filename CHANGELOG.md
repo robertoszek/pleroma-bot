@@ -1,3 +1,11 @@
+## Unrelased
+## Fixed
+  
+
+## Added
+- `pleroma-bot` can be run as a daemon now by using the flag `--daemon`.
+- A systemd service is automatically installed with the AUR package (and can be found in the repo as `pleroma-bot.service`)
+
 ## [1.0.0] 16-01-2022 
 ## Fixed
 - `max_tweets` not accepting values higher than 100
