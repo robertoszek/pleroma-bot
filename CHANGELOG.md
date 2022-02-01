@@ -1,4 +1,4 @@
-## Unrelased
+## Unreleased
 ## Fixed
 - Locale issue on Mac if the LANG environment variables were not set
 
