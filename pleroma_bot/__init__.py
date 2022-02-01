@@ -95,6 +95,10 @@ if __name__ == "pleroma_bot.__init__":
 # fill env locale vars in case we're running in other platforms
 default_lang, default_enc = locale.getdefaultlocale()
 
+# make sure lang and enc are not empty
+default_lang = default_lang if type(default_lang) is str else "en_US"  # pragma
+default_enc = default_enc if type(default_enc) is str else "UTF-8"  # pragma
+
 if "LANG" not in os.environ:  # pragma: win32 cover
     os.environ["LANG"] = default_lang
     os.environ["LANGUAGE"] = f"{default_lang}.{default_enc}"
