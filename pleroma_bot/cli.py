@@ -530,9 +530,10 @@ def init():
             while True:
                 main()
                 time.sleep(poll_rate)
-    elif __name__ == "__main__":
+    else:
         with Locker():
             sys.exit(main())
 
 
-init()
+if __name__ == "__main__":
+    init()

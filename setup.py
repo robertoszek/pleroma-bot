@@ -32,7 +32,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     entry_points={
-        'console_scripts': ['pleroma-bot=pleroma_bot.cli:main']
+        'console_scripts': ['pleroma-bot=pleroma_bot.cli:init']
     },
     python_requires='>=3.6',
     install_requires=[
