@@ -122,7 +122,11 @@ def process_tweets(self, tweets_to_post):
                                                     tweet_rt
                                                 )
                                                 if media_url:
-                                                    media.extend(media_url)
+                                                    new_media = [
+                                                        i for i in media_url
+                                                        if i not in media
+                                                    ]
+                                                    media.extend(new_media)
                                 else:
                                     break
                             i += 1

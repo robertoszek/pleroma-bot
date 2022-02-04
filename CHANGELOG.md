@@ -1,6 +1,7 @@
 ## Unreleased
 ## Fixed
 - Locale issue on Mac if the LANG environment variables were not set
+- RTs media attachments being duplicated if the referenced tweet was nested too deep
 
 ## Added
 - `pleroma-bot` can be run as a daemon now by using the flag `--daemon`.
