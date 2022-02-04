@@ -65,7 +65,7 @@ $ pleroma-bot --skipChecks
 
 ## Run on a timer
 
-If you prefer not using the daemon mode, you can 
+If you prefer not using the daemon mode, you can instead opt to run `pleroma-bot` on a timer of your choosing. 
 
 ### Cron
 
