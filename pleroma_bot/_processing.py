@@ -82,11 +82,12 @@ def process_tweets(self, tweets_to_post):
                             item["url"] = item["media_url"]
                         media.append(item)
                 else:
-                    m_k = False
-                    att = "attachments" in tweet.keys()
-                    if att:
-                        m_k = "media_keys" in tweet["attachments"].keys()
-                    if m_k and att:
+                    media_keys = False
+                    attachments = "attachments" in tweet.keys()
+                    if attachments:
+                        tweet_attachments = tweet["attachments"]
+                        media_keys = "media_keys" in tweet_attachments.keys()
+                    if media_keys and attachments:
                         includes_media = tweets_to_post["includes"]["media"]
                         for item in tweet["attachments"]["media_keys"]:
                             for media_include in includes_media:
@@ -97,44 +98,7 @@ def process_tweets(self, tweets_to_post):
                                     media.extend(media_url)
                     # Get RT tweet media
                     if "referenced_tweets" in tweet.keys():  # pragma: no cover
-                        tweet_rt = {"data": tweet}
-                        tw_data = tweet_rt["data"]
-                        i = 0
-                        while "referenced_tweets" in tw_data.keys():
-                            for reference in tw_data["referenced_tweets"]:
-                                retweeted = reference["type"] == "retweeted"
-                                quoted = reference["type"] == "quoted"
-                                if retweeted or quoted:
-                                    tweet_id = reference["id"]
-                                    tweet_rt = self._get_tweets("v2", tweet_id)
-                                    tw_data = tweet_rt["data"]
-                                    att = "attachments" in tw_data.keys()
-                                    if att:
-                                        attachments = tw_data["attachments"]
-                                        in_md = tweet_rt["includes"]["media"]
-                                        md_keys = attachments["media_keys"]
-                                        for item in md_keys:
-                                            for media_include in in_md:
-                                                media_url = _get_media_url(
-                                                    self,
-                                                    item,
-                                                    media_include,
-                                                    tweet_rt
-                                                )
-                                                if media_url:
-                                                    new_media = [
-                                                        i for i in media_url
-                                                        if i not in media
-                                                    ]
-                                                    media.extend(new_media)
-                                else:
-                                    break
-                            i += 1
-                            if i > 3:
-                                logger.debug(
-                                    _("Giving up, reference is too deep")
-                                )
-                                break
+                        _get_rt_media_url(self, tweet, media)
             except KeyError:
                 pass
             if len(media) > 0:
@@ -181,6 +145,44 @@ def process_tweets(self, tweets_to_post):
         tweet["polls"] = _process_polls(self, tweet, media)
 
     return tweets_to_post
+
+
+def _get_rt_media_url(self, tweet, media):  # pragma: no cover
+    tweet_rt = {"data": tweet}
+    tw_data = tweet_rt["data"]
+    i = 0
+    while "referenced_tweets" in tw_data.keys():
+        for reference in tw_data["referenced_tweets"]:
+            retweeted = reference["type"] == "retweeted"
+            quoted = reference["type"] == "quoted"
+            if retweeted or quoted:
+                tweet_id = reference["id"]
+                tweet_rt = self._get_tweets("v2", tweet_id)
+                tw_data = tweet_rt["data"]
+                att = "attachments" in tw_data.keys()
+                if att:
+                    attachments = tw_data["attachments"]
+                    in_md = tweet_rt["includes"]["media"]
+                    md_keys = attachments["media_keys"]
+                    for item in md_keys:
+                        for media_include in in_md:
+                            media_url = _get_media_url(
+                                self,
+                                item,
+                                media_include,
+                                tweet_rt
+                            )
+                            if media_url:
+                                new = [i for i in media_url if i not in media]
+                                media.extend(new)
+            else:
+                break
+        i += 1
+        if i > 3:
+            logger.debug(
+                _("Giving up, reference is too deep")
+            )
+            break
 
 
 def _process_polls(self, tweet, media):
