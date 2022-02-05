@@ -304,11 +304,13 @@ def previous_and_next(some_iterable):
     return zip(prevs, items, nexts)
 
 
-def check_pinned(self):
+def check_pinned(self, posted=None):
     """
     Checks if a tweet is pinned and needs to be retrieved and posted on the
     Fediverse account
     """
+    if posted is None:
+        posted = {}
     # Only check pinned for 1 user
     t_user = self.twitter_username[0]
 
@@ -330,21 +332,24 @@ def check_pinned(self):
             self.pinned_tweet_id != previous_pinned_tweet_id
             and self.pinned_tweet_id is not None
     ):
-        pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
-        tweets_to_post = {
-            "data": [pinned_tweet["data"]],
-            "includes": pinned_tweet["includes"],
-        }
-        tweets_to_post = self.process_tweets(tweets_to_post)
-        id_post_to_pin = self.post_pleroma(
-            (
-                self.pinned_tweet_id,
-                tweets_to_post["data"][0]["text"],
-                pinned_tweet["data"]["created_at"],
-            ),
-            tweets_to_post["data"][0]["polls"],
-            tweets_to_post["data"][0]["possibly_sensitive"],
-        )
+        if self.pinned_tweet_id in posted:
+            id_post_to_pin = posted[self.pinned_tweet_id]
+        else:
+            pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
+            tweets_to_post = {
+                "data": [pinned_tweet["data"]],
+                "includes": pinned_tweet["includes"],
+            }
+            tweets_to_post = self.process_tweets(tweets_to_post)
+            id_post_to_pin = self.post_pleroma(
+                (
+                    self.pinned_tweet_id,
+                    tweets_to_post["data"][0]["text"],
+                    pinned_tweet["data"]["created_at"],
+                ),
+                tweets_to_post["data"][0]["polls"],
+                tweets_to_post["data"][0]["possibly_sensitive"],
+            )
         pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
         with open(pinned_file, "w") as file:
             file.write(f"{self.pinned_tweet_id}\n")

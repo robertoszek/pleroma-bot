@@ -456,6 +456,7 @@ def main():
                     "- access_token_secret"
                 )
                 logger.error(error_msg)
+            posted = None
             if user.result_count > 0:
                 logger.info(
                     _("tweets gathered: \t {}").format(len(tweets["data"]))
@@ -472,20 +473,21 @@ def main():
                 )
                 logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
                 tweet_counter = 0
+                posted = {}
                 for tweet in tweets_to_post["data"]:
                     tweet_counter += 1
                     logger.info(
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
-                    user.post_pleroma(
+                    post_id = user.post_pleroma(
                         (tweet["id"], tweet["text"], tweet["created_at"]),
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )
-
+                    posted[tweet["id"]] = post_id
                     time.sleep(user.delay_post)
             if not user.skip_pin:
-                user.check_pinned()
+                user.check_pinned(posted)
 
             if not args.noProfile:
                 if user.skip_pin:

@@ -2,6 +2,7 @@
 ## Fixed
 - Locale issue on Mac if the LANG environment variables were not set
 - RTs media attachments being duplicated if the referenced tweet was nested too deep
+- Pinned tweets being posted twice if they were part of the more recent batch of retrieved tweets
 
 ## Added
 - `pleroma-bot` can be run as a daemon now by using the flag `--daemon`.
