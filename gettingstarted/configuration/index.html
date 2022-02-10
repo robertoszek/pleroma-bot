@@ -9,14 +9,13 @@
         <meta name="description" content="pleroma-bot">
       
       
-      
         <meta name="author" content="robertoszek">
       
       
         <link rel="canonical" href="https://robertoszek.github.io/pleroma-bot/gettingstarted/configuration/">
       
       <link rel="icon" href="../../images/Stork.ico">
-      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.1">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.9">
     
     
       
@@ -24,14 +23,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.1118c9be.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2b4465f4.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ba0d045b.min.css">
-        
-          
-          
-          <meta name="theme-color" content="#ab47bd">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.e6a45f82.min.css">
         
       
     
@@ -41,14 +36,13 @@
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
     
-    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
-
 
     
     
@@ -57,13 +51,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="purple" data-md-color-accent="cyan">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="purple" data-md-color-accent="cyan">
   
     
-    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -80,10 +77,12 @@
       
     </div>
     
-      <!-- Application header -->
+    
+      
+
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="https://robertoszek.github.io/pleroma-bot/" title="Stork (pleroma-bot)" class="md-header__button md-logo" aria-label="Stork (pleroma-bot)">
+    <a href="../.." title="Stork (pleroma-bot)" class="md-header__button md-logo" aria-label="Stork (pleroma-bot)" data-md-component="logo">
       
   <img src="../../images/logo.png" alt="logo">
 
@@ -107,15 +106,35 @@
         </div>
       </div>
     </div>
-    <div class="md-header__options">
-      
-    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="purple" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M283.211 512c78.962 0 151.079-35.925 198.857-94.792 7.068-8.708-.639-21.43-11.562-19.35-124.203 23.654-238.262-71.576-238.262-196.954 0-72.222 38.662-138.635 101.498-174.394 9.686-5.512 7.25-20.197-3.756-22.23A258.156 258.156 0 0 0 283.211 0c-141.309 0-256 114.511-256 256 0 141.309 114.511 256 256 256z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="purple" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M279.135 512c78.756 0 150.982-35.804 198.844-94.775 28.27-34.831-2.558-85.722-46.249-77.401-82.348 15.683-158.272-47.268-158.272-130.792 0-48.424 26.06-92.292 67.434-115.836 38.745-22.05 28.999-80.788-15.022-88.919A257.936 257.936 0 0 0 279.135 0c-141.36 0-256 114.575-256 256 0 141.36 114.576 256 256 256zm0-464c12.985 0 25.689 1.201 38.016 3.478-54.76 31.163-91.693 90.042-91.693 157.554 0 113.848 103.641 199.2 215.252 177.944C402.574 433.964 344.366 464 279.135 464c-114.875 0-208-93.125-208-208s93.125-208 208-208z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
     
       <label class="md-header__button md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
-      
-<div class="md-search" data-md-component="search" role="dialog">
+      <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
@@ -147,8 +166,7 @@
     
     
       <div class="md-header__source">
-        
-<a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -159,35 +177,16 @@
 </a>
       </div>
     
-      <div class="md-header-nav__adjust md-source md-icon">
-        <div class="md-adjust__icon md-source__icon md-icon" style="cursor:pointer">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M283.211 512c78.962 0 151.079-35.925 198.857-94.792 7.068-8.708-.639-21.43-11.562-19.35-124.203 23.654-238.262-71.576-238.262-196.954 0-72.222 38.662-138.635 101.498-174.394 9.686-5.512 7.25-20.197-3.756-22.23A258.156 258.156 0 0 0 283.211 0c-141.309 0-256 114.511-256 256 0 141.309 114.511 256 256 256z"/></svg>
-</div>
-
-<script>
-    var div = document.getElementsByClassName("md-adjust__icon")[0]
-    div.onclick = function(){
-        var currentScheme = document.body.getAttribute("data-md-color-scheme")
-        if (currentScheme == "slate"){
-            newAttr = "default"
-        }else{
-            newAttr = "slate"
-        }
-        document.body.setAttribute("data-md-color-scheme", newAttr)
-        var name = document.querySelector("#__code_0 code span:nth-child(7)")
-        name.textContent = newAttr
-    }
-</script> 
-      </div>
-    </nav>
-  </header>
+  </nav>
+  
+</header>
     
     <div class="md-container" data-md-component="container">
       
       
         
           
+            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-tabs__inner md-grid">
     <ul class="md-tabs__list">
@@ -241,6 +240,7 @@
     </ul>
   </div>
 </nav>
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -267,8 +267,7 @@
   </label>
   
     <div class="md-nav__source">
-      
-<a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -311,10 +310,26 @@
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
       
-      <label class="md-nav__link" for="__nav_2">
-        Getting started
-        <span class="md-nav__icon md-icon"></span>
-      </label>
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Getting started
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <nav class="md-nav" aria-label="Getting started" data-md-level="1">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
@@ -323,6 +338,7 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+              
   
   
   
@@ -333,8 +349,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -345,8 +363,10 @@
     </li>
   
 
+            
           
             
+              
   
   
     
@@ -370,6 +390,7 @@
       </a>
       
         
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -384,23 +405,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#minimal-configyml" class="md-nav__link">
-    minimal config.yml
+  <a href="#mappings" class="md-nav__link">
+    Mappings
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#mappings" class="md-nav__link">
-    Mappings
+  <a href="#example-configs" class="md-nav__link">
+    Example configs
   </a>
   
-    <nav class="md-nav" aria-label="Mappings">
+    <nav class="md-nav" aria-label="Example configs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configymlsample" class="md-nav__link">
-    config.yml.sample
+  <a href="#minimal-config" class="md-nav__link">
+    Minimal config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-config" class="md-nav__link">
+    Complex config
   </a>
   
 </li>
@@ -412,7 +440,7 @@
       
         <li class="md-nav__item">
   <a href="#mastodon" class="md-nav__link">
-    Mastodon
+     Mastodon
   </a>
   
 </li>
@@ -424,8 +452,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -436,8 +466,10 @@
     </li>
   
 
+            
           
             
+              
   
   
   
@@ -448,6 +480,7 @@
     </li>
   
 
+            
           
         </ul>
       </nav>
@@ -468,10 +501,18 @@
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
-      <label class="md-nav__link" for="__nav_3">
-        Contribute
-        <span class="md-nav__icon md-icon"></span>
-      </label>
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Contribute
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <nav class="md-nav" aria-label="Contribute" data-md-level="1">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
@@ -480,6 +521,7 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
+              
   
   
   
@@ -490,6 +532,7 @@
     </li>
   
 
+            
           
         </ul>
       </nav>
@@ -509,6 +552,7 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -523,23 +567,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#minimal-configyml" class="md-nav__link">
-    minimal config.yml
+  <a href="#mappings" class="md-nav__link">
+    Mappings
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#mappings" class="md-nav__link">
-    Mappings
+  <a href="#example-configs" class="md-nav__link">
+    Example configs
   </a>
   
-    <nav class="md-nav" aria-label="Mappings">
+    <nav class="md-nav" aria-label="Example configs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configymlsample" class="md-nav__link">
-    config.yml.sample
+  <a href="#minimal-config" class="md-nav__link">
+    Minimal config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-config" class="md-nav__link">
+    Complex config
   </a>
   
 </li>
@@ -551,7 +602,7 @@
       
         <li class="md-nav__item">
   <a href="#mastodon" class="md-nav__link">
-    Mastodon
+     Mastodon
   </a>
   
 </li>
@@ -568,49 +619,41 @@
             <article class="md-content__inner md-typeset">
               
                 
-                
-                <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
+
+<h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
 <p>To run <code>pleroma-bot</code> you need to create a configuration file first.</p>
 <p>The configuration file is written in <a href="https://yaml.org/">YAML</a>. If you're not familiar with it, <a href="https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html">this page</a> can run you through the basics.</p>
 <p>In the config file there are 2 distinct parts, the mappings at the top and a collection of users (each of them being a sequence of mappings).</p>
-<div class="highlight"><pre><span></span><code><span class="nt">global_mapping</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">global_value</span>
-<span class="nt">users</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">user_mapping</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">user_value</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">global_mapping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global_value</span><span class="w"></span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">users</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">user_mapping</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user_value</span><span class="w"></span>
 </code></pre></div>
+
 <p>You can think of "users" as a <a href="https://gettaurus.org/docs/YAMLTutorial/#Lists-and-Dictionaries">YAML list</a>, in which each entry of the list is denoted by a hyphen/dash (<code>-</code>).</p>
 <p>This allows you to add as little as 1 user and as much as you need, there's no upper limit to the number of users you can add.</p>
-<p>The mappings outside the user sequences, are considered "global" mappings and will be applied to all users. So if you define the value for <code>pleroma_base_url</code> at the top, it will apply to all users in your config:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span>
-<span class="nt">users</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">User1</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MyPleromaUser1</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">User2</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MyPleromaUser2</span>
+<p>The mappings outside the user sequences, are considered "<strong>global</strong>" mappings and will be applied to <em>all</em> users. So if you define the value for <code>pleroma_base_url</code> at the top, it will apply to all users in your config:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="hll"><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span><span class="w"></span>
+</span><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nt">users</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User1</span><span class="w"></span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser1</span><span class="w"></span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User2</span><span class="w"></span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser2</span><span class="w"></span>
 </code></pre></div>
+
 <p>In this example, <code>User1</code> and <code>User2</code> share the configured value of <code>pleroma_base_url</code> at the top (<code>https://pleroma.instance</code>).</p>
 <p>You can also <strong>override</strong> the "global" mapping within an user if you so choose:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span>
-<span class="nt">users</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">User1</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MyPleromaUser1</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">User2</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MyPleromaUser2</span>
-  <span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://another.instance</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">User3</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MyPleromaUser3</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span><span class="w"></span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">users</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User1</span><span class="w"></span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser1</span><span class="w"></span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User2</span><span class="w"></span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser2</span><span class="w"></span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="hll"><span class="w">  </span><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://another.instance</span><span class="w"></span>
+</span><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User3</span><span class="w"></span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser3</span><span class="w"></span>
 </code></pre></div>
-<p>Here, <code>User1</code> and <code>User3</code> share the configured value of <code>pleroma_base_url</code> at the top <strong>but</strong> <code>User2</code>'s <code>pleroma_base_url</code> value would be <code>https://another.instance</code></p>
-<p>So, with that preamble out of the way.
-A minimal config looks something like this:</p>
-<h3 id="minimal-configyml">minimal config.yml<a class="headerlink" href="#minimal-configyml" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span>
-<span class="nt">max_tweets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">40</span>
-<span class="nt">twitter_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-<span class="nt">users</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">User1</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MyPleromaUser1</span>
-  <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-</code></pre></div>
+
+<p>Here, <code>User1</code> and <code>User3</code> share the configured value of <code>pleroma_base_url</code> at the top <strong>but</strong> <code>User2</code>'s <code>pleroma_base_url</code> value would be <code>https://another.instance</code>.</p>
 <h2 id="mappings">Mappings<a class="headerlink" href="#mappings" title="Permanent link">&para;</a></h2>
 <p>Every mapping that <code>pleroma-bot</code> understands is listed below with a description, which allows you to further customize how each user should behave.</p>
 <table>
@@ -666,12 +709,6 @@ A minimal config looks something like this:</p>
 <td align="left">OAuth 1.0a Twitter Access Token Secret (only needed for protected accounts)</td>
 </tr>
 <tr>
-<td align="left">twitter_base_url</td>
-<td align="center">Yes</td>
-<td align="left"><a href="https://api.twitter.com/1.1">https://api.twitter.com/1.1</a></td>
-<td align="left">Twitter API fallback URL. It should be '<a href="https://api.twitter.com/1.1">https://api.twitter.com/1.1</a>'</td>
-</tr>
-<tr>
 <td align="left">nitter</td>
 <td align="center">Yes</td>
 <td align="left">false</td>
@@ -692,7 +729,7 @@ A minimal config looks something like this:</p>
 <tr>
 <td align="left">media_upload</td>
 <td align="center">Yes</td>
-<td align="left">true</td>
+<td align="left">false</td>
 <td align="left">Download Twitter attachments and add them to the Fediverse posts</td>
 </tr>
 <tr>
@@ -830,97 +867,108 @@ A minimal config looks something like this:</p>
 </tr>
 </tbody>
 </table>
-<p>Here's also a more full-fledged config file sample, with 3 users (<code>KyleBosman</code>, <code>WoolieWoolz</code> and <code>arstechnica</code>), which puts all the concepts we've seen together:</p>
-<h3 id="configymlsample">config.yml.sample<a class="headerlink" href="#configymlsample" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://pleroma.robertoszek.xyz</span>
-<span class="nt">nitter_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://nitter.net</span>
-<span class="nt">max_tweets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">40</span>
-<span class="nt">twitter_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-<span class="c1"># List of users and their attributes</span>
-<span class="nt">users</span><span class="p">:</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">KyleBosman</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">KyleBosman</span>
-  <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-  <span class="c1"># (optional) keys and secrets for using OAuth 1.0a (for protected accounts)</span>
-  <span class="nt">consumer_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxx</span>
-  <span class="nt">consumer_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
-  <span class="nt">access_token_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
-  <span class="nt">access_token_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
-  <span class="nt">signature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">media_upload</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">nitter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">rich_text</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">visibility</span><span class="p">:</span> <span class="s">&quot;unlisted&quot;</span>
-  <span class="nt">sensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="nt">original_date</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">original_date_format</span><span class="p">:</span> <span class="s">&quot;%Y/%m/%d</span><span class="nv"> </span><span class="s">%H:%M&quot;</span>
-  <span class="nt">include_rts</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="nt">include_replies</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="nt">hashtags</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">sponsored</span>
-  <span class="nt">file_max_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">500MB</span>
-  <span class="c1"># additional custom-named mappings</span>
-  <span class="nt">support_account</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">robertoszek</span>
-  <span class="c1"># you can use any mapping from &#39;user&#39; inside a string with {{ mapping_name }} </span>
-  <span class="c1"># and it will be replaced with the mapping value. e.g. {{ support_account }}</span>
-  <span class="nt">bio_text</span><span class="p">:</span> <span class="s">&quot;</span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">BEEP</span><span class="nv"> </span><span class="s">BOOP</span><span class="nv"> </span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">\nI&#39;m</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bot</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">mirrors\</span>
-    <span class="s">\ {{</span><span class="nv"> </span><span class="s">twitter_username</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">Twitter&#39;s</span><span class="nv"> </span><span class="s">account.</span><span class="nv"> </span><span class="s">\nAny</span><span class="nv"> </span><span class="s">issues</span><span class="nv"> </span><span class="s">please</span><span class="nv"> </span><span class="s">\</span>
-    <span class="err">\</span><span class="s">contact</span><span class="nv"> </span><span class="s">@{{</span><span class="nv"> </span><span class="s">support_account</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">&quot;</span>
-  <span class="c1"># Optional metadata fields and values for the Fediverse profile</span>
-  <span class="nt">fields</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;</span><span class="se">\U0001F426</span><span class="nv"> </span><span class="s">Birdsite&quot;</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">twitter_url</span><span class="nv"> </span><span class="s">}}&quot;</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;Status&quot;</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">afraid</span><span class="nv"> </span><span class="s">I</span><span class="nv"> </span><span class="s">cannot</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">that.&quot;</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;Source&quot;</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span>
-<span class="c1"># Mastodon instance example</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">24660</span>
-  <span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span>
-  <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-  <span class="c1"># Mastodon doesn&#39;t support rich text!</span>
-  <span class="nt">rich_text</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="nt">signature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">nitter</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">visibility</span><span class="p">:</span> <span class="s">&quot;unlisted&quot;</span>
-  <span class="nt">media_upload</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">max_tweets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
-  <span class="nt">bio_text</span><span class="p">:</span> <span class="s">&quot;</span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">BEEP</span><span class="nv"> </span><span class="s">BOOP</span><span class="nv"> </span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">\nI&#39;m</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bot</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">mirrors\</span>
-    <span class="s">\ {{</span><span class="nv"> </span><span class="s">twitter_username</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">Twitter&#39;s</span><span class="nv"> </span><span class="s">account.</span><span class="nv"> </span><span class="s">\nAny</span><span class="nv"> </span><span class="s">issues</span><span class="nv"> </span><span class="s">please</span><span class="nv"> </span><span class="s">\</span>
-    <span class="err">\</span><span class="s">contact</span><span class="nv"> </span><span class="s">@{{</span><span class="nv"> </span><span class="s">support_account</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">&quot;</span>
-  <span class="nt">fields</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;</span><span class="se">\U0001F426</span><span class="nv"> </span><span class="s">Birdsite&quot;</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">twitter_url</span><span class="nv"> </span><span class="s">}}&quot;</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;Status&quot;</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">completely</span><span class="nv"> </span><span class="s">operational.&quot;</span>
-  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="s">&quot;Source&quot;</span>
-    <span class="nt">value</span><span class="p">:</span> <span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span>
-<span class="c1"># Minimal config example</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">arstechnica</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mynewsbot</span>
-  <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-  <span class="nt">bio_text</span><span class="p">:</span> <span class="s">&quot;&quot;</span>
+<h2 id="example-configs">Example configs<a class="headerlink" href="#example-configs" title="Permanent link">&para;</a></h2>
+<p>So, with that preamble out of the way.</p>
+<p>A minimal config looks something like this:</p>
+<h4 id="minimal-config">Minimal config<a class="headerlink" href="#minimal-config" title="Permanent link">&para;</a></h4>
+<div class="highlight"><span class="filename">config-minimal.yml.sample</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">twitter_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://api.twitter.com/1.1</span><span class="w"></span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://pleroma.instance</span><span class="w"></span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nt">max_tweets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span><span class="w"></span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nt">twitter_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nt">users</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">User1</span><span class="w"></span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser1</span><span class="w"></span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
 </code></pre></div>
-<h2 id="mastodon">Mastodon<a class="headerlink" href="#mastodon" title="Permanent link">&para;</a></h2>
-<p>If you use <code>pleroma-bot</code> with a Mastodon instance, please do take into account that you'll need to fill the <code>pleroma_username</code> mapping with your Mastodon account ID, <em>not</em> the username or nickname.
-<div class="highlight"><pre><span></span><code><span class="c1"># Mastodon instance example</span>
-<span class="p p-Indicator">-</span> <span class="nt">twitter_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span>
-  <span class="nt">pleroma_username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">24660</span> <span class="c1"># &lt;--</span>
-  <span class="nt">pleroma_base_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span>
-  <span class="nt">pleroma_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span>
-  <span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
-</code></pre></div>
-The ease of finding the ID for your Mastodon account varies between instances, sometimes is as easy as to navigate to your profile and copy it from the URL.</p>
-<p>You can try searching for it this way:
-<div class="highlight"><pre><span></span><code>curl <span class="s1">&#39;https://mastodon.social/api/v2/search?q=&lt;username&gt;&amp;resolve=true&amp;limit=5&#39;</span> 
-    -H <span class="s1">&#39;Authorization: Bearer xxxxx&#39;</span> 
-</code></pre></div></p>
-                
-              
-              
-                
 
+<h4 id="complex-config">Complex config<a class="headerlink" href="#complex-config" title="Permanent link">&para;</a></h4>
+<p>Here's also a more full-fledged config file sample, with 3 users (<code>KyleBosman</code>, <code>WoolieWoolz</code> and <code>arstechnica</code>), which puts all the concepts we've seen together:</p>
+<div class="highlight"><span class="filename">config.yml.sample</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">twitter_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://api.twitter.com/1.1</span><span class="w"></span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://pleroma.robertoszek.xyz</span><span class="w"></span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">nitter_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://nitter.net</span><span class="w"></span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nt">max_tweets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40</span><span class="w"></span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nt">twitter_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># List of users and their attributes</span><span class="w"></span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nt">users</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KyleBosman</span><span class="w"></span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KyleBosman</span><span class="w"></span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="c1"># (optional) keys and secrets for using OAuth 1.0a (for protected accounts)</span><span class="w"></span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="nt">consumer_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxx</span><span class="w"></span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="nt">consumer_secret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><span class="w"></span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="nt">access_token_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><span class="w"></span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="nt">access_token_secret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><span class="w"></span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="nt">signature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="nt">media_upload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">  </span><span class="nt">nitter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">  </span><span class="nt">rich_text</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">  </span><span class="nt">visibility</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;unlisted&quot;</span><span class="w"></span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">  </span><span class="nt">sensitive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">  </span><span class="nt">original_date</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">  </span><span class="nt">original_date_format</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;%Y/%m/%d</span><span class="nv"> </span><span class="s">%H:%M&quot;</span><span class="w"></span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">  </span><span class="nt">include_rts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">  </span><span class="nt">include_replies</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">  </span><span class="nt">hashtags</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sponsored</span><span class="w"></span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">  </span><span class="nt">file_max_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500MB</span><span class="w"></span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">  </span><span class="c1"># additional custom-named mappings</span><span class="w"></span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">  </span><span class="nt">support_account</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">robertoszek</span><span class="w"></span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">  </span><span class="c1"># you can use any mapping from &#39;user&#39; inside a string with {{ mapping_name }} </span><span class="w"></span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="w">  </span><span class="c1"># and it will be replaced with the mapping value. e.g. {{ support_account }}</span><span class="w"></span>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">BEEP</span><span class="nv"> </span><span class="s">BOOP</span><span class="nv"> </span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">\nI&#39;m</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bot</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">mirrors\</span>
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">    </span><span class="s">\ {{</span><span class="nv"> </span><span class="s">twitter_username</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">Twitter&#39;s</span><span class="nv"> </span><span class="s">account.</span><span class="nv"> </span><span class="s">\nAny</span><span class="nv"> </span><span class="s">issues</span><span class="nv"> </span><span class="s">please</span><span class="nv"> </span><span class="s">\</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">    </span><span class="err">\</span><span class="s">contact</span><span class="nv"> </span><span class="s">@{{</span><span class="nv"> </span><span class="s">support_account</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">&quot;</span><span class="w"></span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="w">  </span><span class="c1"># Optional metadata fields and values for the Fediverse profile</span><span class="w"></span>
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">  </span><span class="nt">fields</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F426</span><span class="nv"> </span><span class="s">Birdsite&quot;</span><span class="w"></span>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">twitter_url</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Status&quot;</span><span class="w"></span>
+<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">afraid</span><span class="nv"> </span><span class="s">I</span><span class="nv"> </span><span class="s">cannot</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">that.&quot;</span><span class="w"></span>
+<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Source&quot;</span><span class="w"></span>
+<a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span><span class="w"></span>
+<a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a><span class="c1"># Mastodon instance example</span><span class="w"></span>
+<a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span><span class="w"></span>
+<a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24660</span><span class="w"></span>
+<a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a><span class="w">  </span><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span><span class="w"></span>
+<a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a><span class="w">  </span><span class="c1"># Mastodon doesn&#39;t support rich text!</span><span class="w"></span>
+<a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a><span class="w">  </span><span class="nt">rich_text</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<a id="__codelineno-4-51" name="__codelineno-4-51" href="#__codelineno-4-51"></a><span class="w">  </span><span class="nt">signature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-52" name="__codelineno-4-52" href="#__codelineno-4-52"></a><span class="w">  </span><span class="nt">nitter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-53" name="__codelineno-4-53" href="#__codelineno-4-53"></a><span class="w">  </span><span class="nt">visibility</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;unlisted&quot;</span><span class="w"></span>
+<a id="__codelineno-4-54" name="__codelineno-4-54" href="#__codelineno-4-54"></a><span class="w">  </span><span class="nt">media_upload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-4-55" name="__codelineno-4-55" href="#__codelineno-4-55"></a><span class="w">  </span><span class="nt">max_tweets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
+<a id="__codelineno-4-56" name="__codelineno-4-56" href="#__codelineno-4-56"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">BEEP</span><span class="nv"> </span><span class="s">BOOP</span><span class="nv"> </span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">\nI&#39;m</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bot</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">mirrors\</span>
+<a id="__codelineno-4-57" name="__codelineno-4-57" href="#__codelineno-4-57"></a><span class="w">    </span><span class="s">\ {{</span><span class="nv"> </span><span class="s">twitter_username</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">Twitter&#39;s</span><span class="nv"> </span><span class="s">account.</span><span class="nv"> </span><span class="s">\nAny</span><span class="nv"> </span><span class="s">issues</span><span class="nv"> </span><span class="s">please</span><span class="nv"> </span><span class="s">\</span>
+<a id="__codelineno-4-58" name="__codelineno-4-58" href="#__codelineno-4-58"></a><span class="w">    </span><span class="err">\</span><span class="s">contact</span><span class="nv"> </span><span class="s">@{{</span><span class="nv"> </span><span class="s">support_account</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">&quot;</span><span class="w"></span>
+<a id="__codelineno-4-59" name="__codelineno-4-59" href="#__codelineno-4-59"></a><span class="w">  </span><span class="nt">fields</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-4-60" name="__codelineno-4-60" href="#__codelineno-4-60"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F426</span><span class="nv"> </span><span class="s">Birdsite&quot;</span><span class="w"></span>
+<a id="__codelineno-4-61" name="__codelineno-4-61" href="#__codelineno-4-61"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">twitter_url</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
+<a id="__codelineno-4-62" name="__codelineno-4-62" href="#__codelineno-4-62"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Status&quot;</span><span class="w"></span>
+<a id="__codelineno-4-63" name="__codelineno-4-63" href="#__codelineno-4-63"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">completely</span><span class="nv"> </span><span class="s">operational.&quot;</span><span class="w"></span>
+<a id="__codelineno-4-64" name="__codelineno-4-64" href="#__codelineno-4-64"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Source&quot;</span><span class="w"></span>
+<a id="__codelineno-4-65" name="__codelineno-4-65" href="#__codelineno-4-65"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span><span class="w"></span>
+<a id="__codelineno-4-66" name="__codelineno-4-66" href="#__codelineno-4-66"></a><span class="c1"># Minimal config example</span><span class="w"></span>
+<a id="__codelineno-4-67" name="__codelineno-4-67" href="#__codelineno-4-67"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arstechnica</span><span class="w"></span>
+<a id="__codelineno-4-68" name="__codelineno-4-68" href="#__codelineno-4-68"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mynewsbot</span><span class="w"></span>
+<a id="__codelineno-4-69" name="__codelineno-4-69" href="#__codelineno-4-69"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-4-70" name="__codelineno-4-70" href="#__codelineno-4-70"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"></span>
+</code></pre></div>
+
+<h2 id="mastodon"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"/></svg></span> Mastodon<a class="headerlink" href="#mastodon" title="Permanent link">&para;</a></h2>
+<p>If you use <code>pleroma-bot</code> with a Mastodon instance, please do take into account that you'll need to fill the <code>pleroma_username</code> mapping with your Mastodon account ID, <em>not</em> the username or nickname.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Mastodon instance example</span><span class="w"></span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span><span class="w"></span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="hll"><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24660</span><span class="w"> </span><span class="c1"># &lt;--</span><span class="w"></span>
+</span><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span><span class="w"></span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w"></span>
+</code></pre></div>
+The ease of finding the ID for your Mastodon account varies between instances, sometimes it's as easy as to navigate to your profile and copy it from the URL.</p>
+<p>You can try searching for it this way:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl <span class="s1">&#39;https://yourmastodon.instance/api/v2/search?q=&lt;username&gt;&amp;resolve=true&amp;limit=5&#39;</span> 
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    -H <span class="s1">&#39;Authorization: Bearer xxxxx&#39;</span> 
+</code></pre></div></p>
 
               
             </article>
@@ -929,8 +977,7 @@ The ease of finding the ID for your Mastodon account varies between instances, s
         
       </main>
       
-        
-<footer class="md-footer">
+        <footer class="md-footer">
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
@@ -969,55 +1016,56 @@ The ease of finding the ID for your Mastodon account varies between instances, s
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
-        
-        Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-          Material for MkDocs
-        </a>
-        
-      </div>
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
       
-  <div class="md-footer-social">
+        <div class="md-social">
+  
+    
     
       
       
-        
-        
-      
-      <a href="https://pleroma.robertoszek.xyz/robertoszek" target="_blank" rel="noopener" title="pleroma.robertoszek.xyz" class="md-footer-social__link">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/></svg>
-      </a>
+    
+    <a href="https://pleroma.robertoszek.xyz/robertoszek" target="_blank" rel="noopener" title="pleroma.robertoszek.xyz" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/></svg>
+    </a>
+  
+    
     
       
       
-        
-        
-      
-      <a href="https://github.com/robertoszek" target="_blank" rel="noopener" title="github.com" class="md-footer-social__link">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
-      </a>
+    
+    <a href="https://github.com/robertoszek" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+    </a>
+  
+    
     
       
       
-        
-        
-      
-      <a href="https://gitlab.com/robertoszek" target="_blank" rel="noopener" title="gitlab.com" class="md-footer-social__link">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
-      </a>
+    
+    <a href="https://gitlab.com/robertoszek" target="_blank" rel="noopener" title="gitlab.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
+    </a>
+  
+    
     
       
       
-        
-        
-      
-      <a href="https://twitter.com/robertoszek" target="_blank" rel="noopener" title="twitter.com" class="md-footer-social__link">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
-      </a>
     
-  </div>
-
+    <a href="https://twitter.com/robertoszek" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+</div>
+      
     </div>
   </div>
 </footer>
@@ -1026,10 +1074,10 @@ The ease of finding the ID for your Mastodon account varies between instances, s
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.53c85856.min.js", "version": null}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.indexes", "navigation.instant", "metadata"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.22074ed6.min.js"}</script>
     
     
-      <script src="../../assets/javascripts/bundle.716f8af4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.960e086b.min.js"></script>
       
     
   </body>
