@@ -9,7 +9,9 @@ Patches, pull requests, and bug reports are more than [welcome](https://github.c
 
 ## Translations
 
-We're looking for translators for other languages! You can get the PO template from [here](https://github.com/robertoszek/pleroma-bot/blob/develop/pleroma_bot/locale/pleroma_bot.pot) and create a translation with an editor such as [Poedit](https://poedit.net/).
+We're looking for translators for other languages! 
+
+You can get the PO template from [here](https://github.com/robertoszek/pleroma-bot/blob/develop/pleroma_bot/locale/pleroma_bot.pot) and create a translation with an editor such as [Poedit](https://poedit.net/).
 
 | Language       | Status                                                  | Translator                                    |
 |:--------------:|:-------------------------------------------------------:|:---------------------------------------------:|

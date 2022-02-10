@@ -2,7 +2,7 @@
 
 First you need to intall ```pleroma-bot``` on your system. There are multiple methods available:
 
-=== "Using PyPi"
+=== ":material-language-python: Using PyPi"
 
     * System-wide:
     ```console
@@ -14,43 +14,39 @@ First you need to intall ```pleroma-bot``` on your system. There are multiple me
     $ source myvenv/bin/activate
     (myenv) $ pip install pleroma-bot
     ```
-    
 
-=== "Using AUR package"
+=== ":material-arch: Using AUR package"
 
     ```console
     $ yay -S python-pleroma-bot
     ```
 
-=== "Using Git"
+=== ":material-git: Using Git"
 
     ```console
     $ git clone https://github.com/robertoszek/pleroma-bot.git
     $ cd pleroma-bot/
     ```
 
+    !!! warning "If you choose to use Git, note that you will also need to install the needed dependecies manually"
 
+    !!! info "On the other hand, if you use ```pip``` or the AUR package, all dependencies will be installed automatically with no manual intervention required"
 
-!!! warning "If you choose to use Git, note that you will also need to install the needed dependecies manually"
+    Either way, here's a list of the dependencies in case you need them:
 
-!!! info "On the other hand, if you use ```pip``` or the AUR package, all dependencies will be installed automatically with no manual intervention required"
-
-Either way, here's a list of the dependencies in case you need them:
-
-| Name                     | Git repo                                                | Docs                                                         |
-|--------------------------|---------------------------------------------------------|--------------------------------------------------------------|
-| python-oauthlib          | [GitHub](https://github.com/oauthlib/oauthlib)          | [Documentation](https://oauthlib.readthedocs.io/en/latest/)  |
-| python-pyaml             | [GitHub](https://github.com/yaml/pyyaml)                | [Documentation](https://pyyaml.org/wiki/PyYAMLDocumentation) |
-| python-requests          | [GitHub](https://github.com/psf/requests)               | [Documentation](https://requests.readthedocs.io/)            |
-| python-requests-oauthlib | [GitHub](https://github.com/requests/requests-oauthlib) | [Documentation](https://requests-oauthlib.readthedocs.org)   |
-
+    | Name                     | Git repo                                                | Docs                                                         |
+    |--------------------------|---------------------------------------------------------|--------------------------------------------------------------|
+    | python-oauthlib          | [GitHub](https://github.com/oauthlib/oauthlib)          | [Documentation](https://oauthlib.readthedocs.io/en/latest/)  |
+    | python-pyaml             | [GitHub](https://github.com/yaml/pyyaml)                | [Documentation](https://pyyaml.org/wiki/PyYAMLDocumentation) |
+    | python-requests          | [GitHub](https://github.com/psf/requests)               | [Documentation](https://requests.readthedocs.io/)            |
+    | python-requests-oauthlib | [GitHub](https://github.com/requests/requests-oauthlib) | [Documentation](https://requests-oauthlib.readthedocs.org)   |
 
 ## Test the installation
 
 Once installed using your preferred method, test that the package has been correctly installed using the appropiate command.
 
 
-=== "Using PyPi"
+=== ":material-language-python: Using PyPi"
 
     ```console
     $ pleroma-bot -h
@@ -79,8 +75,9 @@ Once installed using your preferred method, test that the package has been corre
     ff=            `==:::""",,,,________
 
 
-    usage: pleroma-bot [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-                       [-a ARCHIVE] [--verbose] [--version]
+    usage: pleroma-bot [-h] [-c CONFIG] [-d] [-p POLLRATE] [-l LOG] [-n]
+                       [--forceDate [FORCEDATE]] [-s] [-a ARCHIVE] [--verbose]
+                       [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
     
@@ -90,6 +87,12 @@ Once installed using your preferred method, test that the package has been corre
                             path of config file (config.yml) to use and parse. If
                             not specified, it will try to find it in the current
                             working directory.
+      -d, --daemon          run in daemon mode. By default it will re-run every
+                            60min. You can control this with --pollrate
+      -p POLLRATE, --pollrate POLLRATE
+                            only applies to daemon mode. How often to run the
+                            program in the background (in minutes). By default is
+                            60min.
       -l LOG, --log LOG     path of log file (error.log) to create. If not
                             specified, it will try to store it at your config file
                             path
@@ -108,7 +111,7 @@ Once installed using your preferred method, test that the package has been corre
       --version             show program's version number and exit
     ```
 
-=== "Using AUR package"
+=== ":material-arch: Using AUR package"
 
     ```console
     $ pleroma-bot -h
@@ -137,8 +140,9 @@ Once installed using your preferred method, test that the package has been corre
     ff=            `==:::""",,,,________
 
 
-    usage: pleroma-bot [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-                       [-a ARCHIVE] [--verbose] [--version]
+    usage: pleroma-bot [-h] [-c CONFIG] [-d] [-p POLLRATE] [-l LOG] [-n]
+                       [--forceDate [FORCEDATE]] [-s] [-a ARCHIVE] [--verbose]
+                       [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
     
@@ -148,6 +152,12 @@ Once installed using your preferred method, test that the package has been corre
                             path of config file (config.yml) to use and parse. If
                             not specified, it will try to find it in the current
                             working directory.
+      -d, --daemon          run in daemon mode. By default it will re-run every
+                            60min. You can control this with --pollrate
+      -p POLLRATE, --pollrate POLLRATE
+                            only applies to daemon mode. How often to run the
+                            program in the background (in minutes). By default is
+                            60min.
       -l LOG, --log LOG     path of log file (error.log) to create. If not
                             specified, it will try to store it at your config file
                             path
@@ -166,7 +176,7 @@ Once installed using your preferred method, test that the package has been corre
       --version             show program's version number and exit
     ```
 
-=== "Using Git"
+=== ":material-git: Using Git"
 
     ```console
     $ python3 -m pleroma_bot.cli -h
@@ -206,6 +216,12 @@ Once installed using your preferred method, test that the package has been corre
                             path of config file (config.yml) to use and parse. If
                             not specified, it will try to find it in the current
                             working directory.
+      -d, --daemon          run in daemon mode. By default it will re-run every
+                            60min. You can control this with --pollrate
+      -p POLLRATE, --pollrate POLLRATE
+                            only applies to daemon mode. How often to run the
+                            program in the background (in minutes). By default is
+                            60min.
       -l LOG, --log LOG     path of log file (error.log) to create. If not
                             specified, it will try to store it at your config file
                             path

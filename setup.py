@@ -23,7 +23,7 @@ setuptools.setup(
         "Documentation": "https://robertoszek.github.io/pleroma-bot",
     },
     packages=['pleroma_bot'],
-    package_data={'pleroma_bot': ['locale/*/*/*.mo']},
+    package_data={'pleroma_bot': ['locale/*/*/*.mo', 'pleroma-bot.service']},
     include_package_data=True,
     classifiers=[
         'Environment :: Console',
@@ -32,7 +32,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     entry_points={
-        'console_scripts': ['pleroma-bot=pleroma_bot.cli:main']
+        'console_scripts': ['pleroma-bot=pleroma_bot.cli:init']
     },
     python_requires='>=3.6',
     install_requires=[

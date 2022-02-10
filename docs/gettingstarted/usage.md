@@ -2,7 +2,7 @@
 
 Once you have your config ready, launch ```pleroma-bot``` like so:
 
-=== "Using PyPi"
+=== ":material-language-python: Using PyPi"
 
     ```console
     $ pleroma-bot
@@ -14,13 +14,13 @@ Once you have your config ready, launch ```pleroma-bot``` like so:
     (myenv) $ pleroma-bot
     ```
 
-=== "Using AUR package"
+=== ":material-arch: Using AUR package"
 
     ```console
     $ pleroma-bot
     ```
 
-=== "Using Git"
+=== ":material-git: Using Git"
 
     ```console
     $ python3 -m pleroma_bot.cli
@@ -30,14 +30,16 @@ Once you have your config ready, launch ```pleroma-bot``` like so:
 
 ## First run
 
-If you're running the bot for the first time it will ask you for the date you wish to start retrieving tweets from. It will gather *all* tweets from that date up to the present. 
-If you don't enter any value and press enter it will default to the oldest date that Twitter's API allows ('```2010-11-06T00:00:00Z```') for tweet retrieval.
+When running the bot for the first time it will ask you for the date you wish to start retrieving tweets from.
+
+It will gather *all* tweets from that date up to the present. 
+If you don't input any value and press ++enter++ it will default to the oldest date that Twitter's API allows ('```2010-11-06T00:00:00Z```') for tweet retrieval.
 
 To force this behaviour in the future, you can use the ```--forceDate``` argument.
 
 !!! warning "Be careful, no validation is performed with the already posted toots/posts by that Fediverse account and you can end up with duplicates posts/toots!"
 
-Additionally, you can provide the ```twitter_username``` value if you only want to force the date only for that user in your config.
+Additionally, you can provide the ```twitter_username``` value if you only want to force the date for that particular user in your config.
 
 For example:
 

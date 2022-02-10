@@ -9,7 +9,7 @@
 
 ![Stork](img/stork-smaller.svg)
 
-Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
+Mirror your favorite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
 
 [![Documentation](img/docs.png)](https://robertoszek.github.io/pleroma-bot)
 
@@ -53,7 +53,7 @@ Here's a list of the available packages.
 
 ## Usage
 ```console
-$ pleroma-bot [-c CONFIG] [-l LOG] [--noProfile] [--forceDate [FORCEDATE]] [-a ARCHIVE]
+$ pleroma-bot [-c CONFIG] [-l LOG] [--noProfile] [--daemon] [--forceDate [FORCEDATE]] [-a ARCHIVE]
 ```
 
 ```console
@@ -65,6 +65,12 @@ optional arguments:
                         path of config file (config.yml) to use and parse. If
                         not specified, it will try to find it in the current
                         working directory.
+  -d, --daemon          run in daemon mode. By default it will re-run every
+                        60min. You can control this with --pollrate
+  -p POLLRATE, --pollrate POLLRATE
+                        only applies to daemon mode. How often to run the
+                        program in the background (in minutes). By default is
+                        60min.
   -l LOG, --log LOG     path of log file (error.log) to create. If not
                         specified, it will try to store it at your config file
                         path

@@ -238,6 +238,31 @@ def get_args(sysargs):
     )
 
     parser.add_argument(
+        "-d",
+        "--daemon",
+        required=False,
+        action="store_true",
+        help=(
+            _(
+                "run in daemon mode. By default it will re-run every 60min. "
+                "You can control this with --pollrate"
+            )
+        ),
+    )
+
+    parser.add_argument(
+        "-p",
+        "--pollrate",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "only applies to daemon mode. How often to run the program in"
+                " the background (in minutes). By default is 60min."
+            )
+        ),
+    )
+    parser.add_argument(
         "-l",
         "--log",
         required=False,
@@ -431,6 +456,7 @@ def main():
                     "- access_token_secret"
                 )
                 logger.error(error_msg)
+            posted = None
             if user.result_count > 0:
                 logger.info(
                     _("tweets gathered: \t {}").format(len(tweets["data"]))
@@ -447,20 +473,21 @@ def main():
                 )
                 logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
                 tweet_counter = 0
+                posted = {}
                 for tweet in tweets_to_post["data"]:
                     tweet_counter += 1
                     logger.info(
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
-                    user.post_pleroma(
+                    post_id = user.post_pleroma(
                         (tweet["id"], tweet["text"], tweet["created_at"]),
                         tweet["polls"],
                         tweet["possibly_sensitive"],
                     )
-
+                    posted[tweet["id"]] = post_id
                     time.sleep(user.delay_post)
             if not user.skip_pin:
-                user.check_pinned()
+                user.check_pinned(posted)
 
             if not args.noProfile:
                 if user.skip_pin:
@@ -499,9 +526,16 @@ def init():
     )
     f_handler.setFormatter(f_format)
     logger.addHandler(f_handler)
-    if __name__ == "__main__":
+    if args.daemon:  # pragma
+        poll_rate = int(args.pollrate) * 60 if args.pollrate else 3600
+        with Locker():
+            while True:
+                main()
+                time.sleep(poll_rate)
+    else:
         with Locker():
             sys.exit(main())
 
 
-init()
+if __name__ == "__main__":  # pragma
+    init()
