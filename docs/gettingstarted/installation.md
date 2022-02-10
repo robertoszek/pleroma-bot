@@ -75,8 +75,9 @@ Once installed using your preferred method, test that the package has been corre
     ff=            `==:::""",,,,________
 
 
-    usage: pleroma-bot [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-                       [-a ARCHIVE] [--verbose] [--version]
+    usage: pleroma-bot [-h] [-c CONFIG] [-d] [-p POLLRATE] [-l LOG] [-n]
+                       [--forceDate [FORCEDATE]] [-s] [-a ARCHIVE] [--verbose]
+                       [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
     
@@ -139,8 +140,9 @@ Once installed using your preferred method, test that the package has been corre
     ff=            `==:::""",,,,________
 
 
-    usage: pleroma-bot [-h] [-c CONFIG] [-l LOG] [-n] [--forceDate [FORCEDATE]] [-s]
-                       [-a ARCHIVE] [--verbose] [--version]
+    usage: pleroma-bot [-h] [-c CONFIG] [-d] [-p POLLRATE] [-l LOG] [-n]
+                       [--forceDate [FORCEDATE]] [-s] [-a ARCHIVE] [--verbose]
+                       [--version]
 
     Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon.
     

@@ -9,7 +9,7 @@
 
 ![Stork](img/stork-smaller.svg)
 
-Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
+Mirror your favorite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
 
 [![Documentation](img/docs.png)](https://robertoszek.github.io/pleroma-bot)
 
@@ -53,7 +53,7 @@ Here's a list of the available packages.
 
 ## Usage
 ```console
-$ pleroma-bot [-c CONFIG] [-l LOG] [--noProfile] [--forceDate [FORCEDATE]] [-a ARCHIVE]
+$ pleroma-bot [-c CONFIG] [-l LOG] [--noProfile] [--daemon] [--forceDate [FORCEDATE]] [-a ARCHIVE]
 ```
 
 ```console

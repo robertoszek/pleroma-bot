@@ -3,7 +3,7 @@
 
 ![Stork](/pleroma-bot/images/logo.png)
 
-Mirror your favourite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
+Mirror your favorite Twitter accounts in the Fediverse, so you can follow their updates from the comfort of your favorite instance. Or migrate your own to the Fediverse using a Twitter [archive](https://twitter.com/settings/your_twitter_data).
 
 [![Build Status](https://travis-ci.com/robertoszek/pleroma-bot.svg?branch=master)](https://app.travis-ci.com/github/robertoszek/pleroma-bot)
 [![Version](https://img.shields.io/pypi/v/pleroma-bot.svg)](https://pypi.org/project/pleroma-bot/)

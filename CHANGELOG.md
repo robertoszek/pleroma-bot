@@ -1,4 +1,4 @@
-## Unreleased
+## [1.0.1] 10-02-2022
 ## Fixed
 - Locale issue on Mac if the LANG environment variables were not set
 - RTs media attachments being duplicated if the referenced tweet was nested too deep

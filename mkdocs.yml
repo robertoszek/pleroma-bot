@@ -16,7 +16,7 @@ theme:
     - navigation.tabs
     - navigation.indexes
     - navigation.instant
-    - toc.integrate
+    #- toc.integrate
     - metadata
   favicon: images/Stork.ico
   logo: images/logo.png
