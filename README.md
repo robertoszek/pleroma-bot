@@ -99,6 +99,10 @@ If you plan on retrieving tweets from an account which has their tweets **protec
 * Access Token Key and Secret.  You'll also find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard). 
 Alternatively, you can obtain the Access Token and Secret by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
 
+You'll also need Elevated access in your Twitter's API project in order for the bot to properly function.
+
+Refer to the docs [for more info about this](https://robertoszek.github.io/pleroma-bot/gettingstarted/configuration/).
+
 ### Configuration
 
 Create a ```config.yml``` file in the same path where you are calling ```pleroma-bot``` (or use the `--config` argument to specify a different path). 
