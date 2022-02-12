@@ -38,7 +38,7 @@ users:
   # (optional) Include the creation date of the tweet on the Fediverse post body
   original_date: true
   # (optional) Date format to use when adding the creation date of the tweet to the Fediverse post
-  original_date_format: "%Y/%m/%d %H:%M
+  original_date_format: "%Y/%m/%d %H:%M"
   # (optional) If RTs are to be also be posted in the Fediverse account. By default they are included
   include_rts: false
   # (optional) If replies are to be also posted in the Fediverse account. By default they are included
