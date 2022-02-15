@@ -100,7 +100,6 @@ A minimal config looks something like this:
 #### Minimal config
 
 ```yaml title="config-minimal.yml.sample"
-twitter_base_url: https://api.twitter.com/1.1
 pleroma_base_url: https://pleroma.instance
 max_tweets: 40
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
