@@ -25,7 +25,7 @@ def pin_pleroma(self, id_post):
 
     pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
     response = requests.post(pin_url, headers=self.header_pleroma)
-    logger.info(_("Pinning post:\t{}").format(str(response.text)))
+    logger.info(_("Pinning post:\t{}").format(response))
     try:
         pin_id = json.loads(response.text)["id"]
     except KeyError:
@@ -59,7 +59,7 @@ def unpin_pleroma(self, pinned_file):
         response = requests.post(unpin_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
-        logger.info(_("Unpinning previous:\t{}").format(response.text))
+        logger.info(_("Unpinning previous:\t{}").format(response))
     else:
         logger.info(
             _(
