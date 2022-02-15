@@ -187,7 +187,7 @@ def update_pleroma(self):
     t_user = self.twitter_username[0]
     # Get the biggest resolution for the profile picture (400x400)
     # instead of 'normal'
-    if self.profile_image_url[t_user]:
+    if t_user in self.profile_image_url:
         profile_img_big = re.sub(
             r"normal", "400x400",
             self.profile_image_url[t_user]
@@ -199,7 +199,7 @@ def update_pleroma(self):
         with open(self.avatar_path[t_user], "wb") as outfile:
             shutil.copyfileobj(response.raw, outfile)
 
-    if self.profile_banner_url[t_user]:
+    if t_user in self.profile_banner_url:
         response = requests.get(self.profile_banner_url[t_user], stream=True)
         if not response.ok:
             response.raise_for_status()
@@ -220,10 +220,10 @@ def update_pleroma(self):
         "display_name": self.display_name[t_user]
     }
 
-    if self.profile_image_url:
+    if t_user in self.profile_image_url:
         data.update({"avatar": self.avatar_path[t_user]})
 
-    if self.profile_banner_url:
+    if t_user in self.profile_banner_url:
         data.update({"header": self.header_path[t_user]})
 
     if len(fields) > 4:
@@ -239,7 +239,7 @@ def update_pleroma(self):
 
     files = {}
     timestamp = str(datetime.now().timestamp())
-    if self.profile_image_url[t_user]:
+    if t_user in self.profile_image_url:
         avatar = open(self.avatar_path[t_user], "rb")
         avatar_mime_type = guess_type(self.avatar_path[t_user])
         avatar_file_name = (
@@ -248,7 +248,7 @@ def update_pleroma(self):
             f"{mimetypes.guess_extension(avatar_mime_type)}"
         )
         files.update({"avatar": (avatar_file_name, avatar, avatar_mime_type)})
-    if self.profile_banner_url[t_user]:
+    if t_user in self.profile_banner_url:
         header = open(self.header_path[t_user], "rb")
         header_mime_type = guess_type(self.header_path[t_user])
         header_file_name = (
