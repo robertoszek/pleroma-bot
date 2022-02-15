@@ -85,7 +85,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                 size_mb = round(file_size / 1048576, 2)
 
                 mime_type = guess_type(os.path.join(tweet_folder, file))
-                timestamp = str(datetime.now().timestamp())
+                timestamp = int(float(datetime.now().timestamp()))
                 file_name = (
                     f"pleromapyupload_"
                     f"{timestamp}"
@@ -112,6 +112,19 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                             "\n size limit of your instance"
                         ).format(file=file_path, size=size_mb)
                         logger.error(size_msg)
+                        pass
+                    elif response.status_code == 422:
+                        error = ""
+                        response_msg = json.loads(response.text)
+                        if "error" in response_msg:
+                            error = response_msg["error"]
+                        validation_msg = _(
+                            "Exception occurred"
+                            "\nUnprocessable Entity"
+                            "\n{error}"
+                            "\nFile: {file}"
+                        ).format(error=error, file=file_path)
+                        logger.error(validation_msg)
                         pass
                     else:
                         response.raise_for_status()

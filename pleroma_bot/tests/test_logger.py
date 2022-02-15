@@ -133,6 +133,18 @@ def test_post_pleroma_media_logger(rootdir, sample_users, caplog):
                 )
                 assert str(error_info.value) == exception_value
 
+                error_json = {
+                    "error": "Validation failed: File content type is "
+                             "invalid, File is invalid "
+                }
+                mock.post(media_url, status_code=422, json=error_json)
+                with caplog.at_level(logging.ERROR):
+                    sample_user_obj.post_pleroma(
+                        (test_user.pinned, "", ""), None, False
+                    )
+
+                assert error_json["error"] in caplog.text
+
                 for media_file in os.listdir(tweet_folder):
                     os.remove(os.path.join(tweet_folder, media_file))
                 os.rmdir(tweet_folder)
