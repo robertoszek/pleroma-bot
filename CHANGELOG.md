@@ -1,3 +1,11 @@
+## Unreleased
+## Fixed
+- Logger for systems not using UTF-8 encoding
+- Exception when Twitter account does not have a profile image or banner
+
+## Added
+- Info message when media upload returns 422 (Unprocessable Entity) due to Paperclip/file identifying the wrong mimetype
+
 ## [1.0.1] 10-02-2022
 ## Fixed
 - Locale issue on Mac if the LANG environment variables were not set
