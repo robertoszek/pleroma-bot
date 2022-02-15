@@ -2,6 +2,7 @@
 ## Fixed
 - Logger for systems not using UTF-8 encoding
 - Exception when Twitter account does not have a profile image or banner
+- Media attachments being posted in the wrong order in some systems
 
 ## Added
 - Info message when media upload returns 422 (Unprocessable Entity) due to Paperclip/file identifying the wrong mimetype

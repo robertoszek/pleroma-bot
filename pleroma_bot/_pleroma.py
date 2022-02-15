@@ -77,7 +77,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     media_ids = []
     if self.media_upload:
         if os.path.isdir(tweet_folder):
-            media_files = os.listdir(tweet_folder)
+            media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
                 file_path = os.path.join(tweet_folder, file)
                 media_file = open(file_path, "rb")
