@@ -101,7 +101,7 @@ Alternatively, you can obtain the Access Token and Secret by running [this](http
 
 You'll also need Elevated access in your Twitter's API project in order for the bot to properly function.
 
-Refer to the docs [for more info about this](https://robertoszek.github.io/pleroma-bot/gettingstarted/configuration/).
+Refer to the docs [for more info about this](https://robertoszek.github.io/pleroma-bot/gettingstarted/beforerunning/#before-running).
 
 ### Configuration
 
