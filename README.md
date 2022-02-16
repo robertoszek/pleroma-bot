@@ -13,6 +13,12 @@ Mirror your favorite Twitter accounts in the Fediverse, so you can follow their 
 
 [![Documentation](img/docs.png)](https://robertoszek.github.io/pleroma-bot)
 
+You can find this project at: 
+
+|                          GitHub                           |                          Gitlab                           |                                Gitea                                 |
+|:---------------------------------------------------------:|:---------------------------------------------------------:|:--------------------------------------------------------------------:|
+| [pleroma-bot](https://github.com/robertoszek/pleroma-bot) | [pleroma-bot](https://gitlab.com/robertoszek/pleroma-bot) | [pleroma-bot](https://gitea.robertoszek.xyz/robertoszek/pleroma-bot) |
+
 ## Introduction
 
 After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
