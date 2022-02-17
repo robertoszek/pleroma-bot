@@ -2,37 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/contribute/contributing/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/gettingstarted/automateit/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/gettingstarted/beforerunning/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/gettingstarted/configuration/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/gettingstarted/installation/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://robertoszek.github.io/pleroma-bot/gettingstarted/usage/</loc>
-         <lastmod>2022-02-12</lastmod>
+         <lastmod>2022-02-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
