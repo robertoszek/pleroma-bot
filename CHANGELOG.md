@@ -1,8 +1,8 @@
 ## Unreleased
 ## Fixed
-- Logger for systems not using UTF-8 encoding
-- Exception when Twitter account does not have a profile image or banner
-- Media attachments being posted in the wrong order in some systems
+- Logger standard output for systems not using UTF-8 encoding
+- Profile update: Regression when Twitter account does not have a profile image or banner
+- Media attachments being added to the Fediverse post in the wrong order in some cases
 
 ## Added
 - RTs text no longer gets truncated

@@ -23,7 +23,7 @@ class CustomFormatter(logging.Formatter):
         "(%(filename)s:%(lineno)d) "
     )
 
-    if sys.platform != "win32" and sys.stdout.encoding == 'utf-8':
+    if sys.platform != "win32" and sys.stdout.encoding.casefold() == 'utf-8':
         FORMATS = {
             logging.DEBUG: grey + format_r + reset,
             logging.INFO: grey + "ℹ " + format_r + reset,
