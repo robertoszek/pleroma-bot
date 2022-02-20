@@ -70,6 +70,9 @@ def process_tweets(self, tweets_to_post):
     for tweet in tweets_to_post["data"]:
         media = []
         logger.debug(tweet["id"])
+        # Get full text from RT or quoted tweet
+        if "referenced_tweets" in tweet.keys():  # pragma: no cover
+            tweet["text"] = _get_rt_text(self, tweet)
         tweet["text"] = _expand_urls(self, tweet)
         tweet["text"] = html.unescape(tweet["text"])
 
@@ -145,6 +148,31 @@ def process_tweets(self, tweets_to_post):
         tweet["polls"] = _process_polls(self, tweet, media)
 
     return tweets_to_post
+
+
+def _get_rt_text(self, tweet):  # pragma: no cover
+    text = tweet["text"]
+
+    for reference in tweet["referenced_tweets"]:
+        retweeted = reference["type"] == "retweeted"
+        quoted = reference["type"] == "quoted"
+        if retweeted or quoted:
+            tweet_ref_id = reference["id"]
+            tweet_ref = self._get_tweets("v2", tweet_ref_id)
+
+            match = re.search(r"RT.*?\:", tweet["text"])
+            prefix = match.group() if match else ""
+            if retweeted:
+                text = f"{prefix} {tweet_ref['data']['text']}"
+            elif quoted:
+                author = tweet_ref["data"]["author_id"]
+                users = tweet_ref["includes"]["users"]
+                username = [u["username"] for u in users if author == u["id"]]
+                prefix = f"RT @{username[0]}:"
+                text = f"{tweet['text']}\n{prefix} {tweet_ref['data']['text']}"
+        else:
+            break
+    return text
 
 
 def _get_rt_media_url(self, tweet, media):  # pragma: no cover

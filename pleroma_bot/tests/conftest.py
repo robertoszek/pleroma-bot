@@ -101,6 +101,18 @@ def mock_request(rootdir):
             status_code=200,
             raw=empty_resp,
         )
+        mock.head(
+            "https://twitter.com/BotPleroma/status/"
+            "1323049214134407171/video/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "https://youtube.com/watch?v=dQw4w9WgXcQ",
+            status_code=200,
+            raw=empty_resp,
+        )
+
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
@@ -312,6 +324,12 @@ def _sample_users(mock_request, rootdir):
                      content=mp4_content,
                      headers={'Content-Type': 'video/mp4'},
                      status_code=200)
+            mock.get("https://twitter.com/BotPleroma/status"
+                     "1323049214134407171/video/1",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
             mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
                      "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
                      content=mp4_content,

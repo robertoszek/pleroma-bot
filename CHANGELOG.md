@@ -5,6 +5,7 @@
 - Media attachments being posted in the wrong order in some systems
 
 ## Added
+- RTs text no longer gets truncated
 - Info message when media upload returns 422 (Unprocessable Entity) due to Paperclip/file identifying the wrong mimetype
 
 ## [1.0.1] 10-02-2022

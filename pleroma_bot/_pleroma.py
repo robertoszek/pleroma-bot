@@ -133,7 +133,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                 except (KeyError, JSONDecodeError):
                     logger.warning(
                         _("Error uploading media:\t{}").format(
-                            str(response.text)
+                            response.status_code
                         )
                     )
                     pass
