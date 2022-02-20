@@ -45,14 +45,14 @@ theme:
 # Extras
 extra:
   social:
+    - icon: octicons/git-merge-16
+      link: https://gitea.robertoszek.xyz/robertoszek/pleroma-bot
     - icon: fontawesome/regular/comment-dots
       link: https://pleroma.robertoszek.xyz/robertoszek
     - icon: fontawesome/brands/github-alt
       link: https://github.com/robertoszek
     - icon: fontawesome/brands/gitlab
       link: https://gitlab.com/robertoszek
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/robertoszek
 
 # Google Analytics
 #google_analytics:
