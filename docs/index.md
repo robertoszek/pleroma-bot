@@ -28,7 +28,7 @@ Supports:
 
 ## Features
 * [x] Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
-* [x] Retrieves **tweets** and posts them on the Fediverse account
+* [x] Retrieves latest **tweets** and posts them on the Fediverse account
     * [x] Can filter out RTs
     * [x] Can filter out replies
 * [x] Media retrieval and upload of multiple **attachments**

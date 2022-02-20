@@ -1,4 +1,4 @@
-## [1.0.2]
+## [1.0.2] Unreleased
 ## Added
 - Support for [Misskey](https://misskey-hub.net/) instances! 🎉
 

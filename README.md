@@ -29,14 +29,14 @@ Supports:
 
 After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
 
-For precisely those cases I've written this Python project that automates them, asking such info to [Twitter's API](https://developer.twitter.com/en/docs/twitter-api/v1) and updating the relevant fields on the [Pleroma API](https://api.pleroma.social/)/[Mastodon API](https://docs.joinmastodon.org/client/intro/) side.
+For precisely those cases I've written this Python project that automates them, asking such info to [Twitter's API](https://developer.twitter.com/en/docs/twitter-api/v1) and updating the relevant fields on the [Pleroma API](https://api.pleroma.social/)/[Mastodon API](https://docs.joinmastodon.org/client/intro/)/[Misskey API](https://misskey-hub.net/en/docs/api) side.
 
 
 ## Features 
 
 So basically, it does the following:
 * Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
-* Retrieves **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
+* Retrieves latest **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
   * Can filter out RTs or not
   * Can filter out replies or not
 * Media retrieval and upload of multiple **attachments**. This includes:
