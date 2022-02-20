@@ -341,7 +341,7 @@ def check_pinned(self, posted=None):
                 "includes": pinned_tweet["includes"],
             }
             tweets_to_post = self.process_tweets(tweets_to_post)
-            if self.instance == "Misskey":  # pragma
+            if self.instance == "misskey":  # pragma
                 id_post_to_pin = self.post_misskey(
                     (
                         self.pinned_tweet_id,
@@ -361,7 +361,7 @@ def check_pinned(self, posted=None):
                     tweets_to_post["data"][0]["polls"],
                     tweets_to_post["data"][0]["possibly_sensitive"],
                 )
-        if self.instance == "Misskey":  # pragma
+        if self.instance == "misskey":  # pragma
             pleroma_pinned_post = self.pin_misskey(id_post_to_pin)
         else:
             pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
@@ -463,32 +463,29 @@ def random_string(length: int) -> str:
 
 
 def _get_instance_info(self):
-    instance_url = f"{self.pleroma_base_url}/api/v1/instance"
-    response = requests.get(instance_url)
-    if not response.ok:
-        try:  # pragma
-            instance_url = f"{self.pleroma_base_url}/api/meta"
-            response = requests.post(instance_url)
-            instance_info = response.json()
-            if response.ok:
-                logger.info("Instance appears to be Misskey ฅ^•ﻌ•^ฅ")
-                self.instance = "Misskey"
-            else:
-                response.raise_for_status()
-        except JSONDecodeError:
-            msg = _("Instance response was not understood {}").format(
-                response.text
-            )
-            response.raise_for_status()
     try:
-        instance_info = json.loads(response.text)
+        nodeinfo_url = f"{self.pleroma_base_url}/.well-known/nodeinfo"
+        response = requests.get(nodeinfo_url)
+        if not response.ok:
+            response.raise_for_status()
+        nodeinfo = response.json()
+        for lnk in nodeinfo["links"]:
+            if lnk["rel"] == "http://nodeinfo.diaspora.software/ns/schema/2.0":
+                nodeinfo_json_url = lnk["href"]
+                response = requests.get(nodeinfo_json_url)
+                if not response.ok:
+                    response.raise_for_status()  # pragma
+                nodeinfo_json = response.json()
+                self.instance = nodeinfo_json["software"]["name"]
+        if self.instance == "misskey":  # pragma
+            logger.info("Instance appears to be Misskey ฅ^•ﻌ•^ฅ")
     except JSONDecodeError:
         msg = _("Instance response was not understood {}").format(
             response.text
         )
         raise ValueError(msg)
-    if "Pleroma" not in instance_info["version"]:
-        logger.debug(_("Assuming target instance is Mastodon..."))
+    if self.instance == "mastodon":
+        logger.debug(_("Target instance is Mastodon..."))
         for t_user in self.twitter_username:
             if len(self.display_name[t_user]) > 30:
                 self.display_name[t_user] = self.display_name[t_user][:30]
@@ -498,7 +495,7 @@ def _get_instance_info(self):
                 )
                 logger.warning(log_msg)
         if hasattr(self, "rich_text"):
-            if self.rich_text and self.instance != "Misskey":
+            if self.rich_text:
                 self.rich_text = False
                 logger.warning(
                     _("Mastodon doesn't support rich text. Disabling it...")
@@ -519,7 +516,7 @@ def force_date(self):
     input_date = input()
     if input_date == "continue":
         if self.posts != "none_found":
-            if self.instance == "Misskey":  # pragma
+            if self.instance == "misskey":  # pragma
                 date = self.get_date_last_misskey_post()
             else:
                 date = self.get_date_last_pleroma_post()

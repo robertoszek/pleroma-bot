@@ -709,10 +709,10 @@ def test__get_instance_info_exception(sample_users):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             info_url = (
-                f"{sample_user_obj.pleroma_base_url}/api/v1/instance"
+                f"{sample_user_obj.pleroma_base_url}/.well-known/nodeinfo"
             )
             fb_url = (
-                f"{sample_user_obj.pleroma_base_url}/api/meta"
+                f"{sample_user_obj.pleroma_base_url}/nodeinfo/2.0"
             )
             down_msg = "Instance under maintenance"
             mock.get(info_url, status_code=500)
@@ -720,13 +720,10 @@ def test__get_instance_info_exception(sample_users):
             with pytest.raises(Exception) as error_info:
                 sample_user_obj._get_instance_info()
 
-            exception_value = f"500 Server Error: None for url: {fb_url}"
-            exception_value_fb = (
-                f"Instance response was not understood {down_msg}"
-            )
+            exception_value = f"500 Server Error: None for url: {info_url}"
+
             assert(
-                exception_value in str(error_info.value) or
-                exception_value_fb in str(error_info.value)
+                exception_value in str(error_info.value)
             )
 
             mock.get(info_url, text=down_msg, status_code=200)

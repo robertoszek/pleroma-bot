@@ -207,11 +207,11 @@ class User(object):
         # Get Twitter info on instance creation
         self._get_twitter_info()
         self._get_instance_info()
-        df_visibility = "unlisted" if self.instance != "Misskey" else "home"
+        df_visibility = "unlisted" if self.instance != "misskey" else "home"
         if not hasattr(self, "visibility"):
             self.__setattr__("visibility", df_visibility)
         if self.visibility not in valid_visibility:
-            if self.instance != "Misskey":
+            if self.instance != "misskey":
                 raise KeyError(
                     _(
                         "Visibility not supported! Values allowed are: {}"
@@ -428,7 +428,7 @@ def main():
             ) and not args.skipChecks:
                 date_pleroma = user.force_date()
             else:
-                if user.instance == "Misskey":  # pragma
+                if user.instance == "misskey":  # pragma
                     date_pleroma = user.get_date_last_misskey_post()
                 else:
                     date_pleroma = user.get_date_last_pleroma_post()
@@ -503,7 +503,7 @@ def main():
                     logger.info(
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
-                    if user.instance == "Misskey":  # pragma
+                    if user.instance == "misskey":  # pragma
                         post_id = user.post_misskey(
                             (tweet["id"], tweet["text"], tweet["created_at"]),
                             tweet["polls"],
@@ -526,7 +526,7 @@ def main():
                         _("Multiple twitter users, not updating profile")
                     )
                 else:
-                    if user.instance == "Misskey":  # pragma
+                    if user.instance == "misskey":  # pragma
                         user.update_misskey()
                     else:
                         user.update_pleroma()

@@ -42,6 +42,12 @@ def mock_request(rootdir):
         mock.get(f"{pleroma_base_url}/api/v1/instance",
                  json={'version': '2.7.2 (compatible; Pleroma 2.2.1)'},
                  status_code=200)
+        mock.get(f"{pleroma_base_url}/.well-known/nodeinfo",
+                 json=sample_data["nodeinfo"],
+                 status_code=200)
+        mock.get(f"{pleroma_base_url}/nodeinfo/2.0",
+                 json=sample_data["2_0"],
+                 status_code=200)
         mock.get(
             "https://cutt.ly/xg3TuY0",
             status_code=301,

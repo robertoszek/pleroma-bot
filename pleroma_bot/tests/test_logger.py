@@ -196,13 +196,14 @@ def test_post_pleroma_media_size_logger(
 
 def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
     test_user = UserTemplate()
+    nodeinfo = {"software": {"name": "mastodon"}}
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             for t_user in sample_user_obj.twitter_username:
                 sample_user_obj.display_name = {t_user: random_string(50)}
-                mock.get(f"{test_user.pleroma_base_url}/api/v1/instance",
-                         json={'version': '3.2.1'},
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=nodeinfo,
                          status_code=200)
                 rich_text_orig = False
                 assert len(sample_user_obj.display_name[t_user]) == 50
@@ -211,7 +212,7 @@ def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
                         rich_text_orig = True
                 with caplog.at_level(logging.DEBUG):
                     sample_user_obj._get_instance_info()
-                assert 'Assuming target instance is Mastodon...' in caplog.text
+                assert 'Target instance is Mastodon...' in caplog.text
                 if rich_text_orig:
                     log_msg_rich_text = (
                         "Mastodon doesn't support rich text. Disabling it..."
