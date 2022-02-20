@@ -36,34 +36,58 @@ Alternatively, you can obtain the Access Token and Secret by running [this](http
 
 You also need to obtain the bearer tokens for the Fediverse account(s) you plan to use for mirroring.
 
-*While* being logged in as the Fediverse account, [follow the instructions on this site](https://tinysubversions.com/notes/mastodon-bot/) and enter:
+=== "Mastodon"
 
-* Your server/instance URL (**without** *the protocol at the beginning, e.g. https://*)
-* The name of your app (doesn't really matter which one you choose, it's just a meaningful name so it's easy *for you* to identify)
-* Scopes: ```read write```
+    If you're using Mastodon, you can obtain a token by using the Web interface and navigating to `Settings -> Development`:
+    ![Mastodon Token](/pleroma-bot/images/mastodon_web.png)
+    * Scopes: ```read write```
+
+    Save (and safely store) the value of the token generated for that Fediverse account, you'll need it in the next section.
+
+=== "Misskey"
+
+    If you're using [Misskey :octicons-link-external-24:](https://misskey-hub.net/en/docs/api#getting-an-access-token) you can obtain a token using the Web interface and navigating to `Settings -> API`:
+    ![Misskey Token](/pleroma-bot/images/misskey_web.png)
+    
+    * Scopes:
+        * View your account information
+        * Edit your account information
+        * Access your Drive files and folders
+        * Edit or delete your Drive files and folders
+        * Compose or delete notes
+    
+    Save (and safely store) the value of the token generated for that Fediverse account, you'll need it in the next section. 
+
+=== "Pleroma"
+
+    If you cannot get the token by using the Web interface (like in Pleroma instances), the alternative is to [follow the instructions on this site](https://tinysubversions.com/notes/mastodon-bot/) *while* being logged in as the Fediverse account, and enter:
+
+    * Your server/instance URL (**without** *the protocol at the beginning, e.g. https://*)
+    * The name of your app (doesn't really matter which one you choose, it's just a meaningful name so it's easy *for you* to identify)
+    * Scopes: ```read write```
 
 
-When you're done with the last step (as in, running the cURL command):
+    When you're done with the last step (as in, running the cURL command):
 
-```bash
-$ curl -F grant_type=authorization_code \
-       -F redirect_uri=urn:ietf:wg:oauth:2.0:oob \ 
-       -F client_id=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-       -F client_secret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-       -F code=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-       -X POST https://yourinstance.fedi/oauth/token
-```
-You'll get a response similar to this:
-```json
-{
-    "access_token":"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "created_at":99999999,
-    "expires_in":99999,
-    "me":"https://yourinstance.fedi/users/yourfediuser",
-    "refresh_token":"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
-    "scope":"read write",
-    "token_type":"Bearer"
-}
-```
+    ```bash
+    $ curl -F grant_type=authorization_code \
+           -F redirect_uri=urn:ietf:wg:oauth:2.0:oob \ 
+           -F client_id=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
+           -F client_secret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
+           -F code=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
+           -X POST https://yourinstance.fedi/oauth/token
+    ```
+    You'll get a response similar to this:
+    ```json
+    {
+        "access_token":"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "created_at":99999999,
+        "expires_in":99999,
+        "me":"https://yourinstance.fedi/users/yourfediuser",
+        "refresh_token":"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "scope":"read write",
+        "token_type":"Bearer"
+    }
+    ```
 
-Save the value of ```access_token```. *That* is the bearer token generated for that Fediverse account, you'll need it in the next section.
+    Save the value of ```access_token```. *That* is the bearer token generated for that Fediverse account, you'll need it in the next section.

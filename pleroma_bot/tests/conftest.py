@@ -271,6 +271,10 @@ def _sample_users(mock_request, rootdir):
                       f"/api/v1/statuses/{test_user.pleroma_pinned}/unpin",
                       json=mock_request['sample_data']['pleroma_pin'],
                       status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/meta",
+                      json={},
+                      status_code=500)
 
             test_files_dir = os.path.join(rootdir, 'test_files')
             sample_data_dir = os.path.join(test_files_dir, 'sample_data')

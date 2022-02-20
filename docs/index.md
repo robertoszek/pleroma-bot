@@ -16,10 +16,15 @@ Mirror your favorite Twitter accounts in the Fediverse, so you can follow their 
 
 You can find this project at: 
 
-|          :fontawesome-brands-github-alt: GitHub           |            :fontawesome-brands-gitlab: Gitlab             |                    :material-tea: Gitea                     |
+|          :fontawesome-brands-github-alt: GitHub           |            :fontawesome-brands-gitlab: Gitlab             |                         :material-tea: Gitea                         |
 |:---------------------------------------------------------:|:---------------------------------------------------------:|:--------------------------------------------------------------------:|
 | [pleroma-bot](https://github.com/robertoszek/pleroma-bot) | [pleroma-bot](https://gitlab.com/robertoszek/pleroma-bot) | [pleroma-bot](https://gitea.robertoszek.xyz/robertoszek/pleroma-bot) |
 
+Supports:
+
+|                                  Mastodon                                  |                                Pleroma                                 |                                 Misskey                                 |
+|:--------------------------------------------------------------------------:|:----------------------------------------------------------------------:|:-----------------------------------------------------------------------:|
+| [![Mastodon](/pleroma-bot/images/mastodon.png)](https://joinmastodon.org/) | [![Pleroma](/pleroma-bot/images/pleroma.png)](https://pleroma.social/) | [![Misskey](/pleroma-bot/images/misskey.png)](https://misskey-hub.net/) |
 
 ## Features
 * [x] Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
@@ -41,7 +46,7 @@ You can find this project at:
 ## Funding
 If you feel like supporting the creator or buying him a beer, you can donate through Ko-fi, Liberapay or Buy Me A Coffee:
 
-[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/robertoszek) [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;" >](https://www.buymeacoffee.com/robertoszek) <!---  [<img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" style="height: 30px !important;" >](https://www.patreon.com/bePatron?u=19859432) --->
+[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/robertoszek) [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;" >](https://www.buymeacoffee.com/robertoszek) [<img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" style="height: 30px !important;" >](https://www.patreon.com/bePatron?u=19859432)
 
 
 | Type                              | Address                                                                                               |

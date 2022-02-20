@@ -341,16 +341,30 @@ def check_pinned(self, posted=None):
                 "includes": pinned_tweet["includes"],
             }
             tweets_to_post = self.process_tweets(tweets_to_post)
-            id_post_to_pin = self.post_pleroma(
-                (
-                    self.pinned_tweet_id,
-                    tweets_to_post["data"][0]["text"],
-                    pinned_tweet["data"]["created_at"],
-                ),
-                tweets_to_post["data"][0]["polls"],
-                tweets_to_post["data"][0]["possibly_sensitive"],
-            )
-        pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
+            if self.instance == "Misskey":  # pragma
+                id_post_to_pin = self.post_misskey(
+                    (
+                        self.pinned_tweet_id,
+                        tweets_to_post["data"][0]["text"],
+                        pinned_tweet["data"]["created_at"],
+                    ),
+                    tweets_to_post["data"][0]["polls"],
+                    tweets_to_post["data"][0]["possibly_sensitive"],
+                )
+            else:
+                id_post_to_pin = self.post_pleroma(
+                    (
+                        self.pinned_tweet_id,
+                        tweets_to_post["data"][0]["text"],
+                        pinned_tweet["data"]["created_at"],
+                    ),
+                    tweets_to_post["data"][0]["polls"],
+                    tweets_to_post["data"][0]["possibly_sensitive"],
+                )
+        if self.instance == "Misskey":  # pragma
+            pleroma_pinned_post = self.pin_misskey(id_post_to_pin)
+        else:
+            pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
         with open(pinned_file, "w") as file:
             file.write(f"{self.pinned_tweet_id}\n")
         if pleroma_pinned_post is not None:
@@ -452,7 +466,20 @@ def _get_instance_info(self):
     instance_url = f"{self.pleroma_base_url}/api/v1/instance"
     response = requests.get(instance_url)
     if not response.ok:
-        response.raise_for_status()
+        try:  # pragma
+            instance_url = f"{self.pleroma_base_url}/api/meta"
+            response = requests.post(instance_url)
+            instance_info = response.json()
+            if response.ok:
+                logger.info("Instance appears to be Misskey ฅ^•ﻌ•^ฅ")
+                self.instance = "Misskey"
+            else:
+                response.raise_for_status()
+        except JSONDecodeError:
+            msg = _("Instance response was not understood {}").format(
+                response.text
+            )
+            response.raise_for_status()
     try:
         instance_info = json.loads(response.text)
     except JSONDecodeError:
@@ -471,7 +498,7 @@ def _get_instance_info(self):
                 )
                 logger.warning(log_msg)
         if hasattr(self, "rich_text"):
-            if self.rich_text:
+            if self.rich_text and self.instance != "Misskey":
                 self.rich_text = False
                 logger.warning(
                     _("Mastodon doesn't support rich text. Disabling it...")
@@ -492,7 +519,10 @@ def force_date(self):
     input_date = input()
     if input_date == "continue":
         if self.posts != "none_found":
-            date = self.get_date_last_pleroma_post()
+            if self.instance == "Misskey":  # pragma
+                date = self.get_date_last_misskey_post()
+            else:
+                date = self.get_date_last_pleroma_post()
         else:
             date = datetime.strftime(
                 datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"

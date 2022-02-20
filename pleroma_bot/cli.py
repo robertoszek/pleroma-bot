@@ -53,6 +53,8 @@ class User(object):
     from ._twitter import _get_twitter_info
 
     from ._pin import pin_pleroma
+    from ._pin import pin_misskey
+    from ._pin import unpin_misskey
     from ._pin import unpin_pleroma
     from ._pin import get_pinned_tweet
     from ._pin import _get_pinned_tweet_id
@@ -60,6 +62,10 @@ class User(object):
     from ._pleroma import post_pleroma
     from ._pleroma import update_pleroma
     from ._pleroma import get_date_last_pleroma_post
+
+    from ._misskey import post_misskey
+    from ._misskey import update_misskey
+    from ._misskey import get_date_last_misskey_post
 
     from ._utils import force_date
     from ._utils import guess_type
@@ -88,7 +94,9 @@ class User(object):
         self.profile_banner_url = {}
         self.t_user_tweets = {}
         self.twitter_ids = {}
+        self.instance = ""
         valid_visibility = ("public", "unlisted", "private", "direct")
+        valid_visibility_mk = ("public", "home", "followers", "specified")
         default_cfg_attributes = {
             "twitter_base_url": "https://api.twitter.com/1.1",
             "twitter_base_url_v2": "https://api.twitter.com/2",
@@ -101,7 +109,6 @@ class User(object):
             "sensitive": False,
             "max_tweets": 50,
             "delay_post": 0.5,
-            "visibility": "unlisted",
             "hashtags": [],
             "tweet_ids": [],
             "rich_text": False,
@@ -144,12 +151,6 @@ class User(object):
         if not self.pleroma_base_url:
             raise KeyError(
                 _("No Pleroma URL defined in config! [pleroma_base_url]")
-            )
-        if self.visibility not in valid_visibility:
-            raise KeyError(
-                _("Visibility not supported! Values allowed are: {}").format(
-                    ", ".join(valid_visibility)
-                )
             )
 
         bio_text = self.replace_vars_in_str(str(self.bio_text))
@@ -206,7 +207,27 @@ class User(object):
         # Get Twitter info on instance creation
         self._get_twitter_info()
         self._get_instance_info()
-
+        df_visibility = "unlisted" if self.instance != "Misskey" else "home"
+        if not hasattr(self, "visibility"):
+            self.__setattr__("visibility", df_visibility)
+        if self.visibility not in valid_visibility:
+            if self.instance != "Misskey":
+                raise KeyError(
+                    _(
+                        "Visibility not supported! Values allowed are: {}"
+                    ).format(
+                        ", ".join(valid_visibility)
+                    )
+                )
+            else:  # pragma
+                if self.visibility not in valid_visibility_mk:
+                    raise KeyError(
+                        _(
+                            "Visibility not supported! Values allowed are: {}"
+                        ).format(
+                            ", ".join(valid_visibility_mk)
+                        )
+                    )
         return
 
 
@@ -407,7 +428,10 @@ def main():
             ) and not args.skipChecks:
                 date_pleroma = user.force_date()
             else:
-                date_pleroma = user.get_date_last_pleroma_post()
+                if user.instance == "Misskey":  # pragma
+                    date_pleroma = user.get_date_last_misskey_post()
+                else:
+                    date_pleroma = user.get_date_last_pleroma_post()
 
             if user.tweet_ids:
                 tweets = {
@@ -479,11 +503,18 @@ def main():
                     logger.info(
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
-                    post_id = user.post_pleroma(
-                        (tweet["id"], tweet["text"], tweet["created_at"]),
-                        tweet["polls"],
-                        tweet["possibly_sensitive"],
-                    )
+                    if user.instance == "Misskey":  # pragma
+                        post_id = user.post_misskey(
+                            (tweet["id"], tweet["text"], tweet["created_at"]),
+                            tweet["polls"],
+                            tweet["possibly_sensitive"],
+                        )
+                    else:
+                        post_id = user.post_pleroma(
+                            (tweet["id"], tweet["text"], tweet["created_at"]),
+                            tweet["polls"],
+                            tweet["possibly_sensitive"],
+                        )
                     posted[tweet["id"]] = post_id
                     time.sleep(user.delay_post)
             if not user.skip_pin:
@@ -495,7 +526,10 @@ def main():
                         _("Multiple twitter users, not updating profile")
                     )
                 else:
-                    user.update_pleroma()
+                    if user.instance == "Misskey":  # pragma
+                        user.update_misskey()
+                    else:
+                        user.update_pleroma()
             # Clean-up
             shutil.rmtree(user.tweets_temp_path)
     except Exception:

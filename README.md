@@ -19,6 +19,12 @@ You can find this project at:
 |:---------------------------------------------------------:|:---------------------------------------------------------:|:--------------------------------------------------------------------:|
 | [pleroma-bot](https://github.com/robertoszek/pleroma-bot) | [pleroma-bot](https://gitlab.com/robertoszek/pleroma-bot) | [pleroma-bot](https://gitea.robertoszek.xyz/robertoszek/pleroma-bot) |
 
+Supports:
+
+|                          Mastodon                           |                         Pleroma                         |                         Misskey                          |
+|:-----------------------------------------------------------:|:-------------------------------------------------------:|:--------------------------------------------------------:|
+| [![Mastodon](/img/mastodon.png)](https://joinmastodon.org/) | [![Pleroma](/img/pleroma.png)](https://pleroma.social/) | [![Misskey](/img/misskey.png)](https://misskey-hub.net/) |
+
 ## Introduction
 
 After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
