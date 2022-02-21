@@ -99,22 +99,47 @@ A minimal config looks something like this:
 
 #### Minimal config
 
-```yaml title="config-minimal.yml.sample"
-pleroma_base_url: https://pleroma.instance
-max_tweets: 40
-twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-users:
-- twitter_username: User1
-  pleroma_username: MyPleromaUser1
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
+=== "Pleroma"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://pleroma.instance
+    max_tweets: 40
+    twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    users:
+    - twitter_username: User1
+      pleroma_username: MyPleromaUser1
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
+=== "Mastodon"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://mastodon.instance
+    max_tweets: 40
+    twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    users:
+    - twitter_username: User1
+      pleroma_username: 24660 # Account ID
+      # Mastodon Bearer token
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
+    ```
+=== "Misskey"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://misskey.instance
+    max_tweets: 40
+    twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    users:
+    - twitter_username: User1
+      pleroma_username: MyMisskeyUser1
+      # Misskey bearer token
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
 
 #### Complex config
 
 Here's also a more full-fledged config file sample, with 3 users (```KyleBosman```, ```WoolieWoolz``` and ```arstechnica```), which puts all the concepts we've seen together:
 
 ```yaml title="config.yml.sample"
-twitter_base_url: https://api.twitter.com/1.1
 pleroma_base_url: https://pleroma.robertoszek.xyz
 nitter_base_url: https://nitter.net
 max_tweets: 40

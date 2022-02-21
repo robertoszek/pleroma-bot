@@ -1,6 +1,6 @@
 ## [1.0.2] Unreleased
 ## Added
-- Support for [Misskey](https://misskey-hub.net/) instances! 🎉
+- Support for [Misskey](https://misskey-hub.net/en/home.html) instances! 🎉
 
 ## Fixed
 - Logger standard output for systems not using UTF-8 encoding
