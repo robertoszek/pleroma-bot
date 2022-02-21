@@ -478,7 +478,7 @@ def _get_instance_info(self):
                 nodeinfo_json = response.json()
                 self.instance = nodeinfo_json["software"]["name"]
         if self.instance == "misskey":  # pragma
-            logger.info("Instance appears to be Misskey ฅ^•ﻌ•^ฅ")
+            logger.info(_("Instance appears to be Misskey ฅ^•ﻌ•^ฅ"))
     except JSONDecodeError:
         msg = _("Instance response was not understood {}").format(
             response.text

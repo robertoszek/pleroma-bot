@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-02-01 23:41+0100\n"
+"POT-Creation-Date: 2022-02-21 18:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.0.1\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: tests\n"
@@ -23,27 +23,15 @@ msgstr ""
 msgid "The file lock '{}' could not be acquired. Is another instance of pleroma-bot running?"
 msgstr ""
 
-#: _pin.py:28
-msgid "Pinning post:\t{}"
+#: _misskey.py:79
+msgid "Post in Misskey:\t{}"
 msgstr ""
 
-#: _pin.py:62
-msgid "Unpinning previous:\t{}"
-msgstr ""
-
-#: _pin.py:66
-msgid "File with previous pinned post ID not found or empty. Checking last posts for pinned post..."
-msgstr ""
-
-#: _pin.py:71
-msgid "Pinned post not found. Giving up unpinning..."
-msgstr ""
-
-#: _pleroma.py:43
+#: _misskey.py:115 _pleroma.py:43
 msgid "No posts were found in the target Fediverse account"
 msgstr ""
 
-#: _pleroma.py:107
+#: _misskey.py:166 _pleroma.py:107
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -54,21 +42,22 @@ msgid ""
 " size limit of your instance"
 msgstr ""
 
-#: _pleroma.py:122
-msgid "Error uploading media:\t{}"
+#: _misskey.py:181 _pleroma.py:122
+#, python-brace-format
+msgid ""
+"Exception occurred\n"
+"Unprocessable Entity\n"
+"{error}\n"
+"File: {file}"
 msgstr ""
 
-#: _pleroma.py:155
-msgid "Post in Pleroma:\t{}"
-msgstr ""
-
-#: _pleroma.py:219
+#: _misskey.py:260 _pleroma.py:232
 msgid ""
 "Total number of metadata fields cannot exceed 4.\n"
 "Provided: {}. Exiting..."
 msgstr ""
 
-#: _pleroma.py:257
+#: _misskey.py:287 _pleroma.py:270
 msgid ""
 "Exception occurred\n"
 "Error code 422\n"
@@ -77,15 +66,39 @@ msgid ""
 "aren't too long."
 msgstr ""
 
-#: _pleroma.py:267
+#: _misskey.py:297 _pleroma.py:280
 msgid "Updating profile:\t {}"
 msgstr ""
 
-#: _processing.py:131
+#: _pin.py:34 _pin.py:131
+msgid "Pinning post:\t{}"
+msgstr ""
+
+#: _pin.py:72 _pin.py:165
+msgid "Unpinning previous:\t{}"
+msgstr ""
+
+#: _pin.py:76 _pin.py:169
+msgid "File with previous pinned post ID not found or empty. Checking last posts for pinned post..."
+msgstr ""
+
+#: _pin.py:81 _pin.py:174
+msgid "Pinned post not found. Giving up unpinning..."
+msgstr ""
+
+#: _pleroma.py:135
+msgid "Error uploading media:\t{}"
+msgstr ""
+
+#: _pleroma.py:168
+msgid "Post in Pleroma:\t{}"
+msgstr ""
+
+#: _processing.py:216
 msgid "Giving up, reference is too deep"
 msgstr ""
 
-#: _processing.py:240
+#: _processing.py:279
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -94,19 +107,19 @@ msgid ""
 "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:265
+#: _processing.py:304
 msgid "Attachment exceeded config file size limit ({})"
 msgstr ""
 
-#: _processing.py:269
+#: _processing.py:308
 msgid "File size: {}MB"
 msgstr ""
 
-#: _processing.py:273
+#: _processing.py:312
 msgid "Ignoring attachment and continuing..."
 msgstr ""
 
-#: _processing.py:356
+#: _processing.py:400
 msgid "Couldn't expand the {}: {}"
 msgstr ""
 
@@ -150,35 +163,39 @@ msgstr ""
 msgid "Lock {} released on {}"
 msgstr ""
 
-#: _utils.py:316
+#: _utils.py:318
 msgid "Current pinned:\t{}"
 msgstr ""
 
-#: _utils.py:327
+#: _utils.py:329
 msgid "Previous pinned:\t{}"
 msgstr ""
 
-#: _utils.py:454
+#: _utils.py:481
+msgid "Instance appears to be Misskey ฅ^•ﻌ•^ฅ"
+msgstr ""
+
+#: _utils.py:483
 msgid "Instance response was not understood {}"
 msgstr ""
 
-#: _utils.py:459
-msgid "Assuming target instance is Mastodon..."
+#: _utils.py:488
+msgid "Target instance is Mastodon..."
 msgstr ""
 
-#: _utils.py:464
+#: _utils.py:493
 msgid "Mastodon doesn't support display names longer than 30 characters, truncating it and trying again..."
 msgstr ""
 
-#: _utils.py:472
+#: _utils.py:501
 msgid "Mastodon doesn't support rich text. Disabling it..."
 msgstr ""
 
-#: _utils.py:478
+#: _utils.py:507
 msgid "How far back should we retrieve tweets from the Twitter account?"
 msgstr ""
 
-#: _utils.py:481
+#: _utils.py:510
 msgid ""
 "\n"
 "Enter a date (YYYY-MM-DD):\n"
@@ -187,83 +204,83 @@ msgid ""
 "last post in the Fediverse account)] "
 msgstr ""
 
-#: _utils.py:497 _utils.py:504
+#: _utils.py:529 _utils.py:536
 msgid "Raising max_tweets to the maximum allowed value"
 msgstr ""
 
-#: cli.py:146
+#: cli.py:153
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 
-#: cli.py:150
-msgid "Visibility not supported! Values allowed are: {}"
-msgstr ""
-
-#: cli.py:180
+#: cli.py:181
 msgid "Some or all OAuth 1.0a tokens missing, falling back to application-only authentication"
 msgstr ""
 
-#: cli.py:220
+#: cli.py:217 cli.py:226
+msgid "Visibility not supported! Values allowed are: {}"
+msgstr ""
+
+#: cli.py:241
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr ""
 
-#: cli.py:233
+#: cli.py:254
 msgid "path of config file (config.yml) to use and parse. If not specified, it will try to find it in the current working directory."
 msgstr ""
 
-#: cli.py:247
+#: cli.py:268
 msgid "run in daemon mode. By default it will re-run every 60min. You can control this with --pollrate"
 msgstr ""
 
-#: cli.py:260
+#: cli.py:281
 msgid "only applies to daemon mode. How often to run the program in the background (in minutes). By default is 60min."
 msgstr ""
 
-#: cli.py:272
+#: cli.py:293
 msgid "path of log file (error.log) to create. If not specified, it will try to store it at your config file path"
 msgstr ""
 
-#: cli.py:285
+#: cli.py:306
 msgid "skips Fediverse profile update (no background image, profile image, bio text, etc.)"
 msgstr ""
 
-#: cli.py:299
+#: cli.py:320
 msgid "forces the tweet retrieval to start from a specific date. The twitter_username value (FORCEDATE) can be supplied to only force it for that particular user in the config"
 msgstr ""
 
-#: cli.py:312
+#: cli.py:333
 msgid "skips first run checks"
 msgstr ""
 
-#: cli.py:322
+#: cli.py:343
 msgid "path of the Twitter archive file (zip) to use for posting tweets."
 msgstr ""
 
-#: cli.py:348
+#: cli.py:369
 msgid "Debug logging enabled"
 msgstr ""
 
-#: cli.py:358
+#: cli.py:379
 msgid "config path: {}"
 msgstr ""
 
-#: cli.py:359
+#: cli.py:380
 msgid "tweets temp folder: {}"
 msgstr ""
 
-#: cli.py:373
+#: cli.py:394
 msgid "Multiple twitter users for one Fediverse account, skipping profile and pinned tweet."
 msgstr ""
 
-#: cli.py:383
+#: cli.py:404
 msgid "Processing user:\t{}"
 msgstr ""
 
-#: cli.py:393
+#: cli.py:414
 msgid "It seems like pleroma-bot is running for the first time for this Twitter user: {}"
 msgstr ""
 
-#: cli.py:452
+#: cli.py:476
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to provide the following OAuth 1.0a fields in the user config:\n"
 " - consumer_key \n"
@@ -272,18 +289,18 @@ msgid ""
 " - access_token_secret"
 msgstr ""
 
-#: cli.py:461
+#: cli.py:486
 msgid "tweets gathered: \t {}"
 msgstr ""
 
-#: cli.py:469
+#: cli.py:494
 msgid "tweets to post: \t {}"
 msgstr ""
 
-#: cli.py:493
+#: cli.py:526
 msgid "Multiple twitter users, not updating profile"
 msgstr ""
 
-#: cli.py:500
+#: cli.py:536
 msgid "Exception occurred"
 msgstr ""
