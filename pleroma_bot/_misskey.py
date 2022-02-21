@@ -93,15 +93,9 @@ def get_date_last_misskey_post(self):  # pragma
         i_url, json.dumps(data), headers=self.header_pleroma
     )
     i_id = response.json()["id"]
-    data = {
-        "userId": i_id
-    }
-    user_stats_url = f"{self.pleroma_base_url}/api/users/stats"
-    response = requests.post(
-        user_stats_url, json.dumps(data), headers=self.header_pleroma
-    )
-    user_stats = response.json()
-    if user_stats["notesCount"] > 0:
+    notes_count = response.json()["notesCount"]
+
+    if notes_count > 0:
         data = {
             "userId": i_id,
             "includeReplies": True,
