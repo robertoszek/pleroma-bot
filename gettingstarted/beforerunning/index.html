@@ -591,7 +591,31 @@
 <p>Alternatively, you can obtain the Access Token and Secret by running <a href="https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0">this</a> locally, while being logged in with a Twitter account which follows or is the owner of the protected account.</p>
 <h2 id="fediverse-tokens">Fediverse tokens<a class="headerlink" href="#fediverse-tokens" title="Permanent link">&para;</a></h2>
 <p>You also need to obtain the bearer tokens for the Fediverse account(s) you plan to use for mirroring.</p>
-<p><em>While</em> being logged in as the Fediverse account, <a href="https://tinysubversions.com/notes/mastodon-bot/">follow the instructions on this site</a> and enter:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Mastodon</label><label for="__tabbed_1_2">Misskey</label><label for="__tabbed_1_3">Pleroma</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>If you're using Mastodon, you can obtain a token by using the Web interface and navigating to <code>Settings -&gt; Development</code>:
+<img alt="Mastodon Token" src="/pleroma-bot/images/mastodon_web.png" />
+* Scopes: <code>read write</code></p>
+<p>Save (and safely store) the value of the token generated for that Fediverse account, you'll need it in the next section.</p>
+</div>
+<div class="tabbed-block">
+<p>If you're using <a href="https://misskey-hub.net/en/docs/api#getting-an-access-token">Misskey <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 2.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V4.06l-6.22 6.22a.75.75 0 1 1-1.06-1.06L19.94 3h-3.69a.75.75 0 0 1-.75-.75z"/><path d="M2.5 4.25c0-.966.784-1.75 1.75-1.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.25.25 0 0 0-.25.25v15.5c0 .138.112.25.25.25h15.5a.25.25 0 0 0 .25-.25v-8.5a.75.75 0 0 1 1.5 0v8.5a1.75 1.75 0 0 1-1.75 1.75H4.25a1.75 1.75 0 0 1-1.75-1.75V4.25z"/></svg></span></a> you can obtain a token using the Web interface and navigating to <code>Settings -&gt; API</code>:
+<img alt="Misskey Token" src="/pleroma-bot/images/misskey_web.png" /></p>
+<ul>
+<li>Scopes:<ul>
+<li>View your account information</li>
+<li>Edit your account information</li>
+<li>Access your Drive files and folders</li>
+<li>Edit or delete your Drive files and folders</li>
+<li>Compose or delete notes</li>
+</ul>
+</li>
+</ul>
+<p>Save (and safely store) the value of the token generated for that Fediverse account, you'll need it in the next section. </p>
+</div>
+<div class="tabbed-block">
+<p>If you cannot get the token by using the Web interface (like in Pleroma instances), the alternative is to <a href="https://tinysubversions.com/notes/mastodon-bot/">follow the instructions on this site</a> <em>while</em> being logged in as the Fediverse account, and enter:</p>
 <ul>
 <li>Your server/instance URL (<strong>without</strong> <em>the protocol at the beginning, e.g. https://</em>)</li>
 <li>The name of your app (doesn't really matter which one you choose, it's just a meaningful name so it's easy <em>for you</em> to identify)</li>
@@ -617,6 +641,9 @@ You'll get a response similar to this:
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span><span class="w"></span>
 </code></pre></div></p>
 <p>Save the value of <code>access_token</code>. <em>That</em> is the bearer token generated for that Fediverse account, you'll need it in the next section.</p>
+</div>
+</div>
+</div>
 
               
             </article>
