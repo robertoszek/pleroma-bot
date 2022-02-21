@@ -472,7 +472,7 @@ def _get_instance_info(self):
         for lnk in nodeinfo["links"]:
             if lnk["rel"] == "http://nodeinfo.diaspora.software/ns/schema/2.0":
                 nodeinfo_json_url = lnk["href"]
-                response = requests.get(nodeinfo_json_url)
+                response = requests.get(nodeinfo_json_url, headers={})
                 if not response.ok:
                     response.raise_for_status()  # pragma
                 nodeinfo_json = response.json()
