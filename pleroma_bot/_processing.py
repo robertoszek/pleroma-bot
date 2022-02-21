@@ -280,9 +280,9 @@ def _download_media(self, media, tweet):
                         "\nMedia not found (404)"
                         "\n{tweet} - {media_url}"
                         "\nIgnoring attachment and continuing..."
-                    ).format(tweet=tweet, media_url=media_url)
+                    ).format(tweet=tweet["id"], media_url=media_url)
                     logger.warning(att_not_found)
-                    return
+                    continue
                 else:
                     response.raise_for_status()
             response.raw.decode_content = True

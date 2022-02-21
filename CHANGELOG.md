@@ -1,4 +1,8 @@
-## [1.0.2] Unreleased
+## Unreleased
+## Fixed
+- Tweet media getting dropped if one of the attachments returned 404 Not Found
+
+## [1.0.2] 21-02-2022
 ## Added
 - Support for [Misskey](https://misskey-hub.net/en/home.html) instances! 🎉
 

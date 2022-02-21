@@ -755,7 +755,7 @@ def test__download_media_exception(sample_users, caplog):
             exception_value = f"500 Server Error: None for url: {media_url}"
             assert str(error_info.value) == exception_value
             mock.get(media_url, status_code=404)
-            tweet = None
+            tweet = {"id": "12345"}
             with caplog.at_level(logging.WARNING):
                 sample_user_obj._download_media(media, tweet)
             warn_msg1 = "Media not found (404)"
