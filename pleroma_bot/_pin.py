@@ -8,6 +8,109 @@ from . import logger
 from .i18n import _
 
 
+def pin_misskey(self, id_post):  # pragma
+    """Tries to unpin previous pinned post if a file containing the ID
+       of the previous post exists, then proceeds to pin the post
+       with ID 'id_post'
+
+       :param id_post: ID of post to pin
+       :returns: ID of post pinned
+       :rtype: str
+       """
+    # Only check pinned for 1 user
+    t_user = self.twitter_username[0]
+
+    pinned_file = os.path.join(self.user_path[t_user], "pinned_id_pleroma.txt")
+    self.unpin_misskey(pinned_file)
+
+    pin_url = f"{self.pleroma_base_url}/api/i/pin"
+    data = {
+        "i": self.pleroma_token,
+        "noteId": id_post
+    }
+    response = requests.post(
+        pin_url, json.dumps(data), headers=self.header_pleroma
+    )
+    logger.info(_("Pinning post:\t{}").format(response))
+    try:
+        pin_id = json.loads(response.text)["id"]
+    except KeyError:
+        pin_id = None
+        pass
+    return pin_id
+
+
+def unpin_misskey(self, pinned_file):  # pragma
+    """
+    Unpins post with the ID stored in the file passed as parameter
+    :param pinned_file: path to file containing post ID
+
+    """
+    # Only check pinned for 1 user
+    t_user = self.twitter_username[0]
+
+    pinned_file_twitter = os.path.join(self.user_path[t_user], "pinned_id.txt")
+    previous_pinned_post_id = None
+    if os.path.isfile(pinned_file):
+        with open(os.path.join(pinned_file), "r") as file:
+            previous_pinned_post_id = file.readline().rstrip()
+            if previous_pinned_post_id == "":
+                previous_pinned_post_id = None
+
+    if previous_pinned_post_id:
+        unpin_url = f"{self.pleroma_base_url}/api/i/unpin"
+        data = {
+            "noteId": previous_pinned_post_id,
+            "i": self.pleroma_token
+        }
+        headers = {"Content-Type": "text/plain;charset=UTF-8"}
+        response = requests.post(
+            unpin_url, json.dumps(data), headers=headers
+        )
+        if not response.ok:
+            response.raise_for_status()
+        logger.info(_("Unpinning previous:\t{}").format(response))
+    else:
+        logger.info(
+            _(
+                "File with previous pinned post ID not found or empty. "
+                "Checking last posts for pinned post..."
+            )
+        )
+        _find_pinned_misskey(self, pinned_file)
+        logger.warning(_("Pinned post not found. Giving up unpinning..."))
+    # Clear pinned ids
+    with open(pinned_file, "w") as file:
+        file.write("\n")
+    with open(pinned_file_twitter, "w") as file:
+        file.write("\n")
+
+
+def _find_pinned_misskey(self, pinned_file):  # pragma
+    i_url = f"{self.pleroma_base_url}/api/i"
+    data = {"i": self.pleroma_token}
+    response = requests.post(
+        i_url, json.dumps(data), headers=self.header_pleroma
+    )
+    i_id = response.json()["id"]
+    data = {
+        "userId": i_id,
+        "includeReplies": True,
+        # "sinceId": ,
+        "limit": 100,
+        "includeMyRenotes": True,
+    }
+    users_url = f"{self.pleroma_base_url}/api/users/show"
+    response = requests.post(
+        users_url, json.dumps(data), headers=self.header_pleroma
+    )
+    users_show = response.json()
+    for post_id in users_show["pinnedNoteIds"]:
+        with open(pinned_file, "w") as file:
+            file.write(f'{post_id}\n')
+        return self.unpin_misskey(pinned_file)
+
+
 def pin_pleroma(self, id_post):
     """Tries to unpin previous pinned post if a file containing the ID
     of the previous post exists, then proceeds to pin the post
@@ -25,7 +128,7 @@ def pin_pleroma(self, id_post):
 
     pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
     response = requests.post(pin_url, headers=self.header_pleroma)
-    logger.info(_("Pinning post:\t{}").format(str(response.text)))
+    logger.info(_("Pinning post:\t{}").format(response))
     try:
         pin_id = json.loads(response.text)["id"]
     except KeyError:
@@ -59,7 +162,7 @@ def unpin_pleroma(self, pinned_file):
         response = requests.post(unpin_url, headers=self.header_pleroma)
         if not response.ok:
             response.raise_for_status()
-        logger.info(_("Unpinning previous:\t{}").format(response.text))
+        logger.info(_("Unpinning previous:\t{}").format(response))
     else:
         logger.info(
             _(

@@ -62,10 +62,10 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | nitter               |   Yes    | false                      | If Twitter links should be changed to nitter ones                                                                     |
 | nitter_base_url      |   Yes    | https://nitter.net         | Change this to your preferred nitter instance                                                                         |
 | signature            |   Yes    | false                      | Add a link to the original status                                                                                     |
-| media_upload         |   Yes    | false                      | Download Twitter attachments and add them to the Fediverse posts                                                      |
+| media_upload         |   Yes    | true                       | Download Twitter attachments and add them to the Fediverse posts                                                      |
 | rich_text            |   Yes    | false                      | Transform mentions to links pointing to the mentioned Twitter profile                                                 |
-| include_rts          |   Yes    | false                      | Include RTs when posting tweets in the Fediverse account                                                              |
-| include_replies      |   Yes    | false                      | Include replies when posting tweets in the Fediverse account                                                          |
+| include_rts          |   Yes    | true                       | Include RTs when posting tweets in the Fediverse account                                                              |
+| include_replies      |   Yes    | true                       | Include replies when posting tweets in the Fediverse account                                                          |
 | hashtags             |   Yes    |                            | List of hashtags to use to filter out tweets which don't include any of them                                          |
 | visibility           |   Yes    | unlisted                   | Visibility of the post. Must one of the following: public, unlisted, private, direct                                  |
 | sensitive            |   Yes    | original tweet sensitivity | Force all posts to be sensitive (NSFW) or not                                                                         |
@@ -99,23 +99,47 @@ A minimal config looks something like this:
 
 #### Minimal config
 
-```yaml title="config-minimal.yml.sample"
-twitter_base_url: https://api.twitter.com/1.1
-pleroma_base_url: https://pleroma.instance
-max_tweets: 40
-twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-users:
-- twitter_username: User1
-  pleroma_username: MyPleromaUser1
-  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
+=== "Pleroma"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://pleroma.instance
+    max_tweets: 40
+    twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    users:
+    - twitter_username: User1
+      pleroma_username: MyPleromaUser1
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
+=== "Mastodon"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://mastodon.instance
+    max_tweets: 40
+    twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    users:
+    - twitter_username: User1
+      pleroma_username: 24660 # Account ID
+      # Mastodon Bearer token
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
+    ```
+=== "Misskey"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://misskey.instance
+    max_tweets: 40
+    twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    users:
+    - twitter_username: User1
+      pleroma_username: MyMisskeyUser1
+      # Misskey bearer token
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
 
 #### Complex config
 
 Here's also a more full-fledged config file sample, with 3 users (```KyleBosman```, ```WoolieWoolz``` and ```arstechnica```), which puts all the concepts we've seen together:
 
 ```yaml title="config.yml.sample"
-twitter_base_url: https://api.twitter.com/1.1
 pleroma_base_url: https://pleroma.robertoszek.xyz
 nitter_base_url: https://nitter.net
 max_tweets: 40
@@ -204,3 +228,5 @@ You can try searching for it this way:
 curl 'https://yourmastodon.instance/api/v2/search?q=<username>&resolve=true&limit=5' 
     -H 'Authorization: Bearer xxxxx' 
 ```
+
+If you are an admin or a moderator of the instance (or can get one to do it for you) you can also go to `Preferences -> Moderation -> Accounts` and find your account. After opening the account details, the URL will reveal the ID of the user.

@@ -84,31 +84,31 @@ In our example, we'll add some lines at the end of the crontab, which will:
 * Update profile info **(everyday at 6:15 AM)**
 
 
-=== "Using PyPi"
+=== ":material-language-python:Using PyPi"
     !!! info "Feel free to omit "```1> /dev/null```" Its main use here is to drop any output from the standard output, in case you have configured cron to send you emails if any commands generate output"
 
-    * System-wide:
+    === "System-wide"
 
-    ```bash
-    # Post tweets every 10 min
-    */10 * * * * pleroma-bot --noProfile --skipChecks -c /path/to/config.yml -l /path/to/error.log 1> /dev/null
+        ```bash
+        # Post tweets every 10 min
+        */10 * * * * pleroma-bot --noProfile --skipChecks -c /path/to/config.yml -l /path/to/error.log 1> /dev/null
 
-    # Update pleroma profile with Twitter info every day at 6:15 AM
-    15 6 * * * pleroma-bot --skipChecks -c /path/to/config.yml 1> /dev/null
-    ```
+        # Update pleroma profile with Twitter info every day at 6:15 AM
+        15 6 * * * pleroma-bot --skipChecks -c /path/to/config.yml 1> /dev/null
+        ```
 
-    * Or if you're using a [virtual environment :octicons-file-code-24:](https://docs.python.org/3/tutorial/venv.html):
+    === "Virtual environment [:octicons-file-code-24:](https://docs.python.org/3/tutorial/venv.html)"
 
-    ```bash
-    # Post tweets every 10 min
-    */10 * * * * cd /path/to/your/venv/ && . bin/activate && pleroma-bot --noProfile --skipChecks -c /path/to/config.yml -l /path/to/error.log
+        ```bash
+        # Post tweets every 10 min
+        */10 * * * * cd /path/to/your/venv/ && . bin/activate && pleroma-bot --noProfile --skipChecks -c /path/to/config.yml -l /path/to/error.log
 
-    # Update pleroma profile with Twitter info every day at 6:15 AM
-    15 6 * * * cd /path/to/your/venv/ && . bin/activate && pleroma-bot --skipChecks -c /path/to/config.yml -l /path/to/error.log
-    ```
+        # Update pleroma profile with Twitter info every day at 6:15 AM
+        15 6 * * * cd /path/to/your/venv/ && . bin/activate && pleroma-bot --skipChecks -c /path/to/config.yml -l /path/to/error.log
+        ```
     
 
-=== "Using AUR package"
+=== ":material-arch: Using AUR package"
     !!! info "You can freely omit ```1> /dev/null```. Its main use here is to drop any output from the standard output, in case you have configured cron to send you emails if any commands generate output"
 
     ```bash
@@ -119,7 +119,7 @@ In our example, we'll add some lines at the end of the crontab, which will:
     15 6 * * * pleroma-bot --skipChecks -c /path/to/config.yml -l /path/to/error.log
     ```
 
-=== "Using Git"
+=== ":material-git: Using Git"
     !!! info "You can freely omit ```1> /dev/null```. Its main use here is to drop any output from the standard output, in case you have configured cron to send you emails if any commands generate output"
 
     ```bash
@@ -132,7 +132,7 @@ In our example, we'll add some lines at the end of the crontab, which will:
 
 ### Systemd timers
 
-You can achieve the same results with [Systemd timers](https://www.freedesktop.org/software/systemd/man/systemd.timer.html). The choice of which one to use (cron or systemd timers) it's really up to you, basically which one fits more your needs.
+You can achieve the same results with [Systemd timers](https://www.freedesktop.org/software/systemd/man/systemd.timer.html). The choice of which one to use (cron or systemd timers) it's really up to you, basically whichever one fits more your needs.
 
 Create a service file with the following content:
 

@@ -3,7 +3,7 @@ import sys
 import locale
 import logging
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 
 class StdOutFilter(logging.Filter):
@@ -23,7 +23,7 @@ class CustomFormatter(logging.Formatter):
         "(%(filename)s:%(lineno)d) "
     )
 
-    if sys.platform != "win32":
+    if sys.platform != "win32" and sys.stdout.encoding.casefold() == 'utf-8':
         FORMATS = {
             logging.DEBUG: grey + format_r + reset,
             logging.INFO: grey + "ℹ " + format_r + reset,

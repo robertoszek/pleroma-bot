@@ -1,3 +1,16 @@
+## [1.0.2] Unreleased
+## Added
+- Support for [Misskey](https://misskey-hub.net/en/home.html) instances! 🎉
+
+## Fixed
+- Logger standard output for systems not using UTF-8 encoding
+- Profile update: Regression when Twitter account does not have a profile image or banner
+- Media attachments being added to the Fediverse post in the wrong order in some cases
+
+## Enhancements
+- RTs text no longer gets truncated
+- Info message when media upload returns 422 (Unprocessable Entity) due to Paperclip/file identifying the wrong mimetype
+
 ## [1.0.1] 10-02-2022
 ## Fixed
 - Locale issue on Mac if the LANG environment variables were not set

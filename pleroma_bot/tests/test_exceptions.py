@@ -709,16 +709,31 @@ def test__get_instance_info_exception(sample_users):
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             info_url = (
-                f"{sample_user_obj.pleroma_base_url}/api/v1/instance"
+                f"{sample_user_obj.pleroma_base_url}/.well-known/nodeinfo"
             )
-            mock.get(info_url, status_code=500)
-            with pytest.raises(requests.exceptions.HTTPError) as error_info:
-                sample_user_obj._get_instance_info()
-            exception_value = f"500 Server Error: None for url: {info_url}"
-            assert str(error_info.value) == exception_value
-
+            fb_url = (
+                f"{sample_user_obj.pleroma_base_url}/nodeinfo/2.0"
+            )
             down_msg = "Instance under maintenance"
+            mock.get(info_url, status_code=500)
+            mock.get(fb_url, {}, status_code=500)
+            with pytest.raises(Exception) as error_info:
+                sample_user_obj._get_instance_info()
+
+            exception_value = f"500 Server Error: None for url: {info_url}"
+
+            assert(
+                exception_value in str(error_info.value)
+            )
+
             mock.get(info_url, text=down_msg, status_code=200)
+            with pytest.raises(ValueError) as error_info:
+                sample_user_obj._get_instance_info()
+            exception_value = (
+                f"Instance response was not understood {down_msg}"
+            )
+            assert str(error_info.value) == exception_value
+            mock.post(fb_url, text=down_msg, status_code=200)
             with pytest.raises(ValueError) as error_info:
                 sample_user_obj._get_instance_info()
             exception_value = (

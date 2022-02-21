@@ -70,6 +70,9 @@ def process_tweets(self, tweets_to_post):
     for tweet in tweets_to_post["data"]:
         media = []
         logger.debug(tweet["id"])
+        # Get full text from RT or quoted tweet
+        if "referenced_tweets" in tweet.keys():  # pragma: no cover
+            tweet["text"] = _get_rt_text(self, tweet)
         tweet["text"] = _expand_urls(self, tweet)
         tweet["text"] = html.unescape(tweet["text"])
 
@@ -109,6 +112,7 @@ def process_tweets(self, tweets_to_post):
 
         if not self.keep_media_links:
             tweet["text"] = _remove_media_links(self, tweet)
+            tweet["text"] = _remove_status_links(self, tweet)
         if hasattr(self, "rich_text"):
             if self.rich_text:
                 tweet["text"] = _replace_mentions(self, tweet)
@@ -147,6 +151,31 @@ def process_tweets(self, tweets_to_post):
     return tweets_to_post
 
 
+def _get_rt_text(self, tweet):  # pragma: no cover
+    text = tweet["text"]
+
+    for reference in tweet["referenced_tweets"]:
+        retweeted = reference["type"] == "retweeted"
+        quoted = reference["type"] == "quoted"
+        if retweeted or quoted:
+            tweet_ref_id = reference["id"]
+            tweet_ref = self._get_tweets("v2", tweet_ref_id)
+
+            match = re.search(r"RT.*?\:", tweet["text"])
+            prefix = match.group() if match else ""
+            if retweeted:
+                text = f"{prefix} {tweet_ref['data']['text']}"
+            elif quoted:
+                author = tweet_ref["data"]["author_id"]
+                users = tweet_ref["includes"]["users"]
+                username = [u["username"] for u in users if author == u["id"]]
+                prefix = f"RT @{username[0]}:"
+                text = f"{tweet['text']}\n{prefix} {tweet_ref['data']['text']}"
+        else:
+            break
+    return text
+
+
 def _get_rt_media_url(self, tweet, media):  # pragma: no cover
     tweet_rt = {"data": tweet}
     tw_data = tweet_rt["data"]
@@ -170,10 +199,14 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
                                 self,
                                 item,
                                 media_include,
-                                tweet_rt
+                                tw_data
                             )
                             if media_url:
-                                new = [i for i in media_url if i not in media]
+                                new = [
+                                    i for i in media_url if i["url"] not in [
+                                        j["url"] for j in media
+                                    ]
+                                ]
                                 media.extend(new)
             else:
                 break
@@ -302,11 +335,15 @@ def _replace_url(self, data, url, new_url):
     return data
 
 
+def _remove_status_links(self, tweet):
+    regex = r"\bhttps?:\/\/twitter.com\/+[^\/:]+\/.*?status\/\d*\b"
+    tweet["text"] = re.sub(regex, '', tweet["text"], 0, re.MULTILINE)
+    return tweet["text"]
+
+
 def _remove_media_links(self, tweet):
     regex = r"\bhttps?:\/\/twitter.com\/+[^\/:]+\/.*?(photo|video)\/\d*\b"
-    match = re.search(regex, tweet["text"])
-    if match:
-        tweet["text"] = re.sub(match.group(), '', tweet["text"])
+    tweet["text"] = re.sub(regex, '', tweet["text"], 0, re.MULTILINE)
     return tweet["text"]
 
 
@@ -323,28 +360,29 @@ def _expand_urls(self, tweet):
     # TODO: transform twitter links to nitter links, if self.nitter
     #  'true' in resolved shortened urls
 
+    # URI regex
+    matching_pattern = (
+        r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
+        r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
+        r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
+        r';:\'".,<>?«»“”‘’]))'
+    )
+    matches = re.finditer(matching_pattern, tweet["text"])
+    urls = {}
     # Replace shortened links
-    try:
-        if len(tweet["entities"]["urls"]) == 0:
-            raise KeyError
-        for url_entity in tweet["entities"]["urls"]:
-            matching_pattern = url_entity["url"]
-            matches = re.findall(matching_pattern, tweet["text"])
-            for match in matches:
-                tweet["text"] = re.sub(
-                    match, url_entity["expanded_url"], tweet["text"]
-                )
-    except KeyError:
-        # URI regex
-        matching_pattern = (
-            r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
-            r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
-            r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
-            r';:\'".,<>?«»“”‘’]))'
-        )
-        matches = re.finditer(matching_pattern, tweet["text"])
-        for matchNum, match in enumerate(matches, start=1):
-            group = match.group()
+    for matchNum, match in enumerate(matches, start=1):
+        group = match.group()
+        try:
+            if len(tweet["entities"]["urls"]) > 0:
+                entities_urls = tweet["entities"]["urls"]
+                urls = {
+                    u["url"]: u["expanded_url"] for u in entities_urls
+                }
+            if group in urls.keys():
+                tweet["text"] = re.sub(group, urls[group], tweet["text"])
+            else:
+                raise KeyError
+        except KeyError:
             # don't be brave trying to unwound an URL when it gets
             # cut off
             if (

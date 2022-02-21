@@ -42,6 +42,12 @@ def mock_request(rootdir):
         mock.get(f"{pleroma_base_url}/api/v1/instance",
                  json={'version': '2.7.2 (compatible; Pleroma 2.2.1)'},
                  status_code=200)
+        mock.get(f"{pleroma_base_url}/.well-known/nodeinfo",
+                 json=sample_data["nodeinfo"],
+                 status_code=200)
+        mock.get(f"{pleroma_base_url}/nodeinfo/2.0",
+                 json=sample_data["2_0"],
+                 status_code=200)
         mock.get(
             "https://cutt.ly/xg3TuY0",
             status_code=301,
@@ -101,6 +107,18 @@ def mock_request(rootdir):
             status_code=200,
             raw=empty_resp,
         )
+        mock.head(
+            "https://twitter.com/BotPleroma/status/"
+            "1323049214134407171/video/1",
+            status_code=200,
+            raw=empty_resp,
+        )
+        mock.head(
+            "https://youtube.com/watch?v=dQw4w9WgXcQ",
+            status_code=200,
+            raw=empty_resp,
+        )
+
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
@@ -259,6 +277,10 @@ def _sample_users(mock_request, rootdir):
                       f"/api/v1/statuses/{test_user.pleroma_pinned}/unpin",
                       json=mock_request['sample_data']['pleroma_pin'],
                       status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/meta",
+                      json={},
+                      status_code=500)
 
             test_files_dir = os.path.join(rootdir, 'test_files')
             sample_data_dir = os.path.join(test_files_dir, 'sample_data')
@@ -312,6 +334,12 @@ def _sample_users(mock_request, rootdir):
                      content=mp4_content,
                      headers={'Content-Type': 'video/mp4'},
                      status_code=200)
+            mock.get("https://twitter.com/BotPleroma/status"
+                     "1323049214134407171/video/1",
+                     content=mp4_content,
+                     headers={'Content-Type': 'video/mp4'},
+                     status_code=200)
+
             mock.get("https://video.twimg.com/ext_tw_video/1323049175848833033"
                      "/pu/vid/1280x720/de6uahiosn3VXMZO.mp4?tag=10",
                      content=mp4_content,

@@ -4,9 +4,11 @@ If you haven't already, you need to [apply for a Twitter developer account](http
 
 The process involves some review of the developer account application by Twitter and it's very likely you'll be asked for some details pertaining your usecase. It usually doesn't take longer than a day or two to complete the application, the back and forth is mostly automated on their part.
 
-Additionally, Twitter introduced a new tier of access (Elevated) to their API projects and although existing projects (before Nov 2020) were promoted automatically, new users will only get Essential access instead by default, in which requests to API v1.1 are disabled. 
+Additionally, Twitter introduced a new tier of access (*Elevated*) to their API projects and although existing projects (before Nov 2020) were promoted automatically, new users will only get Essential access instead by default, in which requests to API v1.1 are disabled. 
 
-We still use v1.1 for downloading videos and profile banners, and as of now there is no available alternative in v2, so you'll need Elevated access for the bot to function properly until further notice.
+We still use v1.1 for downloading videos and profile banners, and as of now there is no available alternative in v2.
+
+So, you'll **need** [_***Elevated access***_](https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api#v2-access-level) for the bot to function properly until further notice.
 
 You can apply for Elevated access [here](https://developer.twitter.com/en/portal/products/elevated).
 
@@ -34,34 +36,58 @@ Alternatively, you can obtain the Access Token and Secret by running [this](http
 
 You also need to obtain the bearer tokens for the Fediverse account(s) you plan to use for mirroring.
 
-*While* being logged in as the Fediverse account, [follow the instructions on this site](https://tinysubversions.com/notes/mastodon-bot/) and enter:
+=== "Mastodon"
 
-* Your server/instance URL (**without** *the protocol at the beginning, e.g. https://*)
-* The name of your app (doesn't really matter which one you choose, it's just a meaningful name so it's easy *for you* to identify)
-* Scopes: ```read write```
+    If you're using Mastodon, you can obtain a token by using the Web interface and navigating to `Settings -> Development`:
+    ![Mastodon Token](/pleroma-bot/images/mastodon_web.png)
+    * Scopes: ```read write```
+
+    Save (and safely store) the value of the token generated for that Fediverse account, you'll need it in the next section.
+
+=== "Misskey"
+
+    If you're using [Misskey :octicons-link-external-24:](https://misskey-hub.net/en/docs/api#getting-an-access-token) you can obtain a token using the Web interface and navigating to `Settings -> API`:
+    ![Misskey Token](/pleroma-bot/images/misskey_web.png)
+    
+    * Scopes:
+        * View your account information
+        * Edit your account information
+        * Access your Drive files and folders
+        * Edit or delete your Drive files and folders
+        * Compose or delete notes
+    
+    Save (and safely store) the value of the token generated for that Fediverse account, you'll need it in the next section. 
+
+=== "Pleroma"
+
+    If you cannot get the token by using the Web interface (like in Pleroma instances), the alternative is to [follow the instructions on this site](https://tinysubversions.com/notes/mastodon-bot/) *while* being logged in as the Fediverse account, and enter:
+
+    * Your server/instance URL (**without** *the protocol at the beginning, e.g. https://*)
+    * The name of your app (doesn't really matter which one you choose, it's just a meaningful name so it's easy *for you* to identify)
+    * Scopes: ```read write```
 
 
-When you're done with the last step (as in, running the cURL command):
+    When you're done with the last step (as in, running the cURL command):
 
-```bash
-$ curl -F grant_type=authorization_code \
-       -F redirect_uri=urn:ietf:wg:oauth:2.0:oob \ 
-       -F client_id=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-       -F client_secret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-       -F code=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-       -X POST https://yourinstance.fedi/oauth/token
-```
-You'll get a response similar to this:
-```json
-{
-    "access_token":"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "created_at":99999999,
-    "expires_in":99999,
-    "me":"https://yourinstance.fedi/users/yourfediuser",
-    "refresh_token":"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
-    "scope":"read write",
-    "token_type":"Bearer"
-}
-```
+    ```bash
+    $ curl -F grant_type=authorization_code \
+           -F redirect_uri=urn:ietf:wg:oauth:2.0:oob \ 
+           -F client_id=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
+           -F client_secret=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
+           -F code=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
+           -X POST https://yourinstance.fedi/oauth/token
+    ```
+    You'll get a response similar to this:
+    ```json
+    {
+        "access_token":"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "created_at":99999999,
+        "expires_in":99999,
+        "me":"https://yourinstance.fedi/users/yourfediuser",
+        "refresh_token":"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "scope":"read write",
+        "token_type":"Bearer"
+    }
+    ```
 
-Save the value of ```access_token```. *That* is the bearer token generated for that Fediverse account, you'll need it in the next section.
+    Save the value of ```access_token```. *That* is the bearer token generated for that Fediverse account, you'll need it in the next section.
