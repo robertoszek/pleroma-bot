@@ -392,20 +392,28 @@ def _expand_urls(self, tweet):
                 if not group.startswith(("http://", "https://")):
                     group = f"http://{group}"
                 # so connections are recycled
-                session = requests.Session()
-                response = session.head(group, allow_redirects=True)
-                if not response.ok:
+                try:
+                    session = requests.Session()
+                    response = session.head(group, allow_redirects=True)
+                    if not response.ok:
+                        logger.debug(
+                            _(
+                                "Couldn't expand the url {}: {}"
+                            ).format(group, response.status_code)
+                        )
+                        response.raise_for_status()
+                    else:
+                        expanded_url = response.url
+                        tweet["text"] = re.sub(
+                            group, expanded_url, tweet["text"]
+                        )
+                except requests.exceptions.RetryError:  # pragma
                     logger.debug(
                         _(
-                            "Couldn't expand the {}: {}"
-                        ).format(response.url, response.status_code)
+                            "Couldn't expand the url: {}"
+                        ).format(group)
                     )
-                    response.raise_for_status()
-                else:
-                    expanded_url = response.url
-                    tweet["text"] = re.sub(
-                        group, expanded_url, tweet["text"]
-                    )
+                    pass
     return tweet["text"]
 
 
