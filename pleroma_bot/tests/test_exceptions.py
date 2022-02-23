@@ -393,7 +393,7 @@ def test_post_pleroma_exception(sample_users, mock_request):
                 err_ex = requests.exceptions.HTTPError
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj.post_pleroma(
-                        (test_user.pinned, "", ""), None, False
+                        (test_user.pinned, "Test", ""), None, False
                     )
                 exception_value = f"500 Server Error: None for url: {post_url}"
                 assert str(error_info.value) == exception_value

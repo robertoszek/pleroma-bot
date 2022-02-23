@@ -67,7 +67,7 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     :returns: id of post
     :rtype: str
     """
-
+    post_id = None
     pleroma_post_url = f"{self.pleroma_base_url}/api/v1/statuses"
     pleroma_media_url = f"{self.pleroma_base_url}/api/v1/media"
 
@@ -160,13 +160,16 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
     if hasattr(self, "rich_text"):
         if self.rich_text:
             data.update({"content_type": self.content_type})
-    response = requests.post(
-        pleroma_post_url, data, headers=self.header_pleroma
-    )
-    if not response.ok:
-        response.raise_for_status()
-    logger.info(_("Post in Pleroma:\t{}").format(str(response)))
-    post_id = json.loads(response.text)["id"]
+
+    empty = (tweet_text == '' and len(media_ids) == 0 and poll is None)
+    if not empty:
+        response = requests.post(
+            pleroma_post_url, data, headers=self.header_pleroma
+        )
+        if not response.ok:
+            response.raise_for_status()
+        logger.info(_("Post in Pleroma:\t{}").format(str(response)))
+        post_id = json.loads(response.text)["id"]
     return post_id
 
 
