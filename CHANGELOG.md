@@ -1,6 +1,9 @@
 ## Unreleased
 ## Fixed
 - Tweet media getting dropped if one of the attachments returned 404 Not Found
+- Regresion: `visibility`'s value not being honored when defined as a global mapping in the config
+- Handle exception when the tweet is empty (no attachments, polls or body)
+- Handle exception when expanded URL is unreachable
 
 ## [1.0.2] 21-02-2022
 ## Added

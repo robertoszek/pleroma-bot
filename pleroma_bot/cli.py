@@ -127,6 +127,7 @@ class User(object):
             "invidious": False,
             "invidious_base_url": "https://yewtu.be/",
             "archive": None,
+            "visibility": None,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -208,7 +209,7 @@ class User(object):
         self._get_twitter_info()
         self._get_instance_info()
         df_visibility = "unlisted" if self.instance != "misskey" else "home"
-        if not hasattr(self, "visibility"):
+        if not hasattr(self, "visibility") or self.visibility is None:
             self.__setattr__("visibility", df_visibility)
         if self.visibility not in valid_visibility:
             if self.instance != "misskey":
