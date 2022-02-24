@@ -1,9 +1,10 @@
 ## Unreleased
 ## Fixed
-- Tweet media getting dropped if one of the attachments returned 404 Not Found
-- Regresion: `visibility`'s value not being honored when defined as a global mapping in the config
-- Handle exception when the tweet is empty (no attachments, polls or body)
-- Handle exception when expanded URL is unreachable
+- Bug: Tweet media getting dropped if one of the attachments returned 404 Not Found
+- Regression: `visibility`'s value not being honored when defined as a global mapping in the config
+- Bug: Handle exception when the tweet is empty (no attachments, polls or body) due to dropping malformed attachments
+- Bug: Handle exception when expanded URL is unreachable or returns any code other than 200
+- Regression: Not asking for date when passing a specific Twitter username with `--forceDate`
 
 ## [1.0.2] 21-02-2022
 ## Added

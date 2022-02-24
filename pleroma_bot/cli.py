@@ -423,7 +423,7 @@ def main():
             if first_time and not args.skipChecks:
                 user.first_time = True
             if (
-                (args.forceDate and args.forceDate == user.twitter_username)
+                (args.forceDate and args.forceDate in user.twitter_username)
                 or args.forceDate == "all"
                 or user.first_time
             ) and not args.skipChecks:
