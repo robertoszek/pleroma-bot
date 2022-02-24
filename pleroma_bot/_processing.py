@@ -401,7 +401,6 @@ def _expand_urls(self, tweet):
                                 "Couldn't expand the url {}: {}"
                             ).format(group, response.status_code)
                         )
-                        response.raise_for_status()
                     else:
                         expanded_url = response.url
                         tweet["text"] = re.sub(

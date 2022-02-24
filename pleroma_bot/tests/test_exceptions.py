@@ -764,17 +764,17 @@ def test__download_media_exception(sample_users, caplog):
             assert warn_msg2 in caplog.text
 
 
-def test__expand_urls(sample_users, mock_request):
+def test__expand_urls(sample_users, mock_request, caplog):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             fake_url = "https://cutt.ly/xg3TuY0"
             mock.head(fake_url, status_code=500)
             tweet = mock_request['sample_data']['pinned_tweet_3']['data']
-            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+            with caplog.at_level(logging.DEBUG):
                 sample_user_obj._expand_urls(tweet)
-            exception_value = f"500 Server Error: None for url: {fake_url}"
-            assert str(error_info.value) == exception_value
+            exception_value = f"Couldn't expand the url {fake_url}"
+            assert exception_value in caplog.text
 
 
 def test_locker():
