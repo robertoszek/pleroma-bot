@@ -66,6 +66,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | rich_text            |   Yes    | false                      | Transform mentions to links pointing to the mentioned Twitter profile                                                 |
 | include_rts          |   Yes    | true                       | Include RTs when posting tweets in the Fediverse account                                                              |
 | include_replies      |   Yes    | true                       | Include replies when posting tweets in the Fediverse account                                                          |
+| include_quotes       |   Yes    | true                       | Include quoted tweets when posting tweets in the Fediverse account                                                    |
 | hashtags             |   Yes    |                            | List of hashtags to use to filter out tweets which don't include any of them                                          |
 | visibility           |   Yes    | unlisted                   | Visibility of the post. Must one of the following: public, unlisted, private, direct                                  |
 | sensitive            |   Yes    | original tweet sensitivity | Force all posts to be sensitive (NSFW) or not                                                                         |
