@@ -6,6 +6,12 @@
 - Bug: Handle exception when expanded URL is unreachable or returns any code other than 200
 - Regression: Not asking for date when passing a specific Twitter username with `--forceDate`
 
+## Enhancements
+- Take into account target instance's character limits when posting and truncate if necessary 
+
+## Added
+- `include_quotes` config mapping, for including or excluding quoted tweets
+
 ## [1.0.2] 21-02-2022
 ## Added
 - Support for [Misskey](https://misskey-hub.net/en/home.html) instances! 🎉
