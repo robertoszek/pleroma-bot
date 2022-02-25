@@ -133,6 +133,8 @@ class User(object):
             "invidious_base_url": "https://yewtu.be/",
             "archive": None,
             "visibility": None,
+            "max_post_length": 5000,
+            "include_quotes": True,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -151,7 +153,7 @@ class User(object):
         twitter_url = (
             self.nitter_base_url if self.nitter else "http://twitter.com"
         )
-
+        self.twitter_url_home = twitter_url
         if self.rich_text:
             self.content_type = "text/markdown"
         if not self.pleroma_base_url:
