@@ -144,10 +144,16 @@ def process_tweets(self, tweets_to_post):
             if self.archive:
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
             else:
-                t_user = self.twitter_ids[tweet["author_id"]]
-            twitter_url = self.twitter_url[t_user]
-            signature = f"\n\n 🐦🔗: {twitter_url}/status/{tweet['id']}"
-            tweet["text"] = f"{tweet['text']} {signature}"
+                t_user = "i/web"
+                if tweet["author_id"] in self.twitter_ids:
+                    t_user = self.twitter_ids[tweet["author_id"]]
+            twitter_url_user = f"{self.twitter_url_home}/{t_user}"
+            signature = f"\n\n 🐦🔗: {twitter_url_user}/status/{tweet['id']}"
+            total_length = len(tweet["text"]) + len(signature)
+            if total_length > self.max_post_length:  # pragma
+                body_max_length = self.max_post_length - len(signature) - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            tweet["text"] = f"{tweet['text']}{signature}"
         if self.original_date:
             tweet_date = tweet["created_at"]
             date = datetime.strftime(
@@ -157,6 +163,15 @@ def process_tweets(self, tweets_to_post):
             tweet["text"] = f"{tweet['text']} \n\n[{date}]"
         # Process poll if exists and no media is used
         tweet["polls"] = _process_polls(self, tweet, media)
+
+        # Truncate text if needed
+        if len(tweet["text"]) > self.max_post_length:  # pragma
+            logger.info(
+                _(
+                    "Post text longer than allowed ({}), truncating..."
+                ).format(self.max_post_length)
+            )
+            tweet["text"] = f"{tweet['text'][:self.max_post_length-1]}…"
 
     return tweets_to_post
 
