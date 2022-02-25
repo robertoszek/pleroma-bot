@@ -41,6 +41,16 @@ def process_tweets(self, tweets_to_post):
                         break
             except KeyError:
                 pass
+    # Remove quote tweets if include_quotes is false
+    if not self.include_quotes:
+        for tweet in tweets_to_post["data"][:]:
+            try:
+                for reference in tweet["referenced_tweets"]:
+                    if reference["type"] == "quoted":
+                        tweets_to_post["data"].remove(tweet)
+                        break
+            except KeyError:
+                pass
     # Remove replies if include_replies is false
     if not self.include_replies:
         for tweet in tweets_to_post["data"][:]:
