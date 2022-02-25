@@ -18,7 +18,7 @@ from .i18n import _
 from ._utils import random_string, guess_type
 
 
-def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:  # pragma
+def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:
     """Post the given text to the Misskey instance associated with the
     User object
 
@@ -48,7 +48,8 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:  # pragma
             for file in media_files:
                 file_path = os.path.join(tweet_folder, file)
                 media_id = _upload_media_misskey(self, file_path, sensitive)
-                media_ids.append(media_id)
+                if media_id is not None:
+                    media_ids.append(media_id)
 
     data = {
         "visibility": self.visibility,
@@ -81,7 +82,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:  # pragma
     return post_id
 
 
-def get_date_last_misskey_post(self):  # pragma
+def get_date_last_misskey_post(self):
     """Gathers last post from the user in Pleroma and returns the date
     of creation.
 
@@ -123,9 +124,9 @@ def get_date_last_misskey_post(self):  # pragma
     return date_misskey
 
 
-def _upload_media_misskey(self, file_path, sensitive=False):  # pragma
+def _upload_media_misskey(self, file_path, sensitive=False):
     misskey_media_url = f"{self.pleroma_base_url}/api/drive/files/create"
-
+    media_id = None
     media_file = open(file_path, "rb")
     file_size = os.stat(file_path).st_size
     size_mb = round(file_size / 1048576, 2)
@@ -160,6 +161,17 @@ def _upload_media_misskey(self, file_path, sensitive=False):  # pragma
     try:
         if not response.ok:
             response.raise_for_status()
+        media_id = json.loads(response.text)["id"]
+        if sensitive:
+            update_url = f"{self.pleroma_base_url}/api/drive/files/update"
+            data = {
+                "fileId": media_id,
+                "i": self.pleroma_token,
+                "isSensitive": sensitive
+            }
+            response = requests.post(update_url, data=json.dumps(data))
+            if not response.ok:
+                response.raise_for_status()
     except requests.exceptions.HTTPError:
         if response.status_code == 413:
             size_msg = _(
@@ -187,21 +199,10 @@ def _upload_media_misskey(self, file_path, sensitive=False):  # pragma
             pass
         else:
             response.raise_for_status()
-    media_id = json.loads(response.text)["id"]
-    if sensitive:
-        update_url = f"{self.pleroma_base_url}/api/drive/files/update"
-        data = {
-            "fileId": media_id,
-            "i": self.pleroma_token,
-            "isSensitive": sensitive
-        }
-        response = requests.post(update_url, data=json.dumps(data))
-        if not response.ok:
-            response.raise_for_status()
     return media_id
 
 
-def update_misskey(self):  # pragma
+def update_misskey(self):
     """Update the Misskey user info with the one retrieved from Twitter
     when the User object was instantiated.
     This includes:

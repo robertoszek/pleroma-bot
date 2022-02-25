@@ -8,7 +8,7 @@ from . import logger
 from .i18n import _
 
 
-def pin_misskey(self, id_post):  # pragma
+def pin_misskey(self, id_post):
     """Tries to unpin previous pinned post if a file containing the ID
        of the previous post exists, then proceeds to pin the post
        with ID 'id_post'
@@ -40,7 +40,7 @@ def pin_misskey(self, id_post):  # pragma
     return pin_id
 
 
-def unpin_misskey(self, pinned_file):  # pragma
+def unpin_misskey(self, pinned_file):
     """
     Unpins post with the ID stored in the file passed as parameter
     :param pinned_file: path to file containing post ID
@@ -86,7 +86,7 @@ def unpin_misskey(self, pinned_file):  # pragma
         file.write("\n")
 
 
-def _find_pinned_misskey(self, pinned_file):  # pragma
+def _find_pinned_misskey(self, pinned_file):
     i_url = f"{self.pleroma_base_url}/api/i"
     data = {"i": self.pleroma_token}
     response = requests.post(

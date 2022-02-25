@@ -118,7 +118,11 @@ def mock_request(rootdir):
             status_code=200,
             raw=empty_resp,
         )
-
+        mock.head(
+            "https://twitter.com/BotPleroma/status/1323049214134407171",
+            status_code=200,
+            raw=empty_resp,
+        )
         mock.head("http://github.com", raw=empty_resp, status_code=200)
         mock.get(f"{twitter_base_url}/statuses/show.json",
                  json=sample_data['tweet'],
@@ -281,7 +285,42 @@ def _sample_users(mock_request, rootdir):
                       f"/api/meta",
                       json={},
                       status_code=500)
-
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i",
+                      json=mock_request['sample_data']['misskey_i'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/users/notes",
+                      json=mock_request['sample_data']['misskey_notes'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/drive/files/create",
+                      json={"id": 12345},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/drive/files/update",
+                      json={"id": 12345},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i/update",
+                      json={"id": 12345},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/notes/create",
+                      json={"createdNote": {"id": 12345}},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/users/show",
+                      json={"pinnedNoteIds": [12345]},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i/pin",
+                      json={"id": test_user.pleroma_pinned},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i/unpin",
+                      json={"id": 12345},
+                      status_code=200)
             test_files_dir = os.path.join(rootdir, 'test_files')
             sample_data_dir = os.path.join(test_files_dir, 'sample_data')
             media_dir = os.path.join(sample_data_dir, 'media')

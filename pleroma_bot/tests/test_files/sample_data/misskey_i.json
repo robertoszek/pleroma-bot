@@ -1,0 +1,125 @@
+{
+   "id":"8wyqybkvor",
+   "name":"robertoszek",
+   "username":"robertoszek",
+   "host":"None",
+   "avatarUrl":"https://s3.arkjp.net/misskey/thumbnail-a8090686-8440-4ae1-9356-4b494043778f.jpg",
+   "avatarBlurhash":"ycLyD?qG}[ml?Hiw$j9tO?a{r=xaa0xu4oxu%LNbI:sosn}tn4WDj[ODS#RjoJXSIosmofjtof-BaKt7W;NGxGsARjtRM|xGf+Rjs:",
+   "avatarColor":"None",
+   "isAdmin":false,
+   "isModerator":false,
+   "isBot":false,
+   "isCat":true,
+   "showTimelineReplies":false,
+   "emojis":[
+
+   ],
+   "onlineStatus":"active",
+   "url":"None",
+   "uri":"None",
+   "createdAt":"2022-02-20T11:24:28.831Z",
+   "updatedAt":"2022-02-20T22:03:06.115Z",
+   "lastFetchedAt":"None",
+   "bannerUrl":"https://s3.arkjp.net/misskey/webpublic-3b69cdac-8376-49e4-bd26-591d15aa5b98.jpg",
+   "bannerBlurhash":"yBNTOLMJ00yXt,^++b8wMdOrB9NGvMm,DOH?yDoz$*xGSg?^tRs:%Mv~MxpI-;.8Sgn%wJ%2S2~qnOIoWBxuwdIUoznix]S#nOaebG",
+   "bannerColor":"None",
+   "isLocked":false,
+   "isSilenced":false,
+   "isSuspended":false,
+   "description":"Nerd.\n\n$[twitch 🐧]",
+   "location":"None",
+   "birthday":"None",
+   "lang":"None",
+   "fields":[
+
+   ],
+   "followersCount":0,
+   "followingCount":0,
+   "notesCount":68,
+   "pinnedNoteIds":[
+      "8wzdrldi4i"
+   ],
+   "pinnedNotes":[
+      {
+         "id":"8wzdrldi4i",
+         "createdAt":"2022-02-20T22:03:06.102Z",
+         "userId":"8wyqybkvor",
+         "user":{
+            "id":"8wyqybkvor",
+            "name":"robertoszek",
+            "username":"robertoszek",
+            "host":"None",
+            "avatarUrl":"https://s3.arkjp.net/misskey/thumbnail-a8090686-8440-4ae1-9356-4b494043778f.jpg",
+            "avatarBlurhash":"ycLyD?qG}[ml?Hiw$j9tO?a{r=xaa0xu4oxu%LNbI:sosn}tn4WDj[ODS#RjoJXSIosmofjtof-BaKt7W;NGxGsARjtRM|xGf+Rjs:",
+            "avatarColor":"None",
+            "isCat":true,
+            "emojis":[
+
+            ],
+            "onlineStatus":"active"
+         },
+         "text":"Hi there, Misskey.",
+         "cw":"None",
+         "visibility":"home",
+         "renoteCount":0,
+         "repliesCount":0,
+         "reactions":{
+
+         },
+         "emojis":[
+
+         ],
+         "fileIds":[
+
+         ],
+         "files":[
+
+         ],
+         "replyId":"None",
+         "renoteId":"None"
+      }
+   ],
+   "pinnedPageId":"None",
+   "pinnedPage":"None",
+   "publicReactions":false,
+   "ffVisibility":"public",
+   "twoFactorEnabled":false,
+   "usePasswordLessLogin":false,
+   "securityKeys":false,
+   "avatarId":"8wyzj0dwdb",
+   "bannerId":"8wyqzsxrz6",
+   "injectFeaturedNote":true,
+   "receiveAnnouncementEmail":true,
+   "alwaysMarkNsfw":false,
+   "carefulBot":false,
+   "autoAcceptFollowed":true,
+   "noCrawle":false,
+   "isExplorable":true,
+   "isDeleted":false,
+   "hideOnlineStatus":false,
+   "hasUnreadSpecifiedNotes":false,
+   "hasUnreadMentions":false,
+   "hasUnreadAnnouncement":false,
+   "hasUnreadAntenna":false,
+   "hasUnreadChannel":false,
+   "hasUnreadMessagingMessage":false,
+   "hasUnreadNotification":false,
+   "hasPendingReceivedFollowRequest":false,
+   "integrations":{
+
+   },
+   "mutedWords":[
+
+   ],
+   "mutedInstances":[
+
+   ],
+   "mutingNotificationTypes":[
+
+   ],
+   "emailNotificationTypes":[
+      "follow",
+      "receiveFollowRequest",
+      "groupInvited"
+   ]
+}
