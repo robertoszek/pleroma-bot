@@ -67,11 +67,16 @@ class User(object):
     from ._misskey import update_misskey
     from ._misskey import get_date_last_misskey_post
 
+    from ._utils import pin
+    from ._utils import post
+    from ._utils import unpin
     from ._utils import force_date
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
+    from ._utils import update_profile
     from ._utils import _get_instance_info
+    from ._utils import get_date_last_post
     from ._utils import replace_vars_in_str
 
     from ._processing import process_tweets
@@ -427,12 +432,9 @@ def main():
                 or args.forceDate == "all"
                 or user.first_time
             ) and not args.skipChecks:
-                date_pleroma = user.force_date()
+                date_fedi = user.force_date()
             else:
-                if user.instance == "misskey":  # pragma
-                    date_pleroma = user.get_date_last_misskey_post()
-                else:
-                    date_pleroma = user.get_date_last_pleroma_post()
+                date_fedi = user.get_date_last_post()
 
             if user.tweet_ids:
                 tweets = {
@@ -466,10 +468,10 @@ def main():
                     for poll in next_tweet["includes"]["polls"]:
                         tweets["includes"]["polls"].append(poll)
             elif args.archive:
-                tweets = process_archive(args.archive, start_time=date_pleroma)
+                tweets = process_archive(args.archive, start_time=date_fedi)
                 user.result_count = len(tweets["data"])
             else:
-                tweets = user.get_tweets(start_time=date_pleroma)
+                tweets = user.get_tweets(start_time=date_fedi)
             logger.debug(f"tweets: \t {tweets}")
 
             if "meta" not in tweets:
@@ -504,18 +506,11 @@ def main():
                     logger.info(
                         f"({tweet_counter}/{len(tweets_to_post['data'])})"
                     )
-                    if user.instance == "misskey":  # pragma
-                        post_id = user.post_misskey(
-                            (tweet["id"], tweet["text"], tweet["created_at"]),
-                            tweet["polls"],
-                            tweet["possibly_sensitive"],
-                        )
-                    else:
-                        post_id = user.post_pleroma(
-                            (tweet["id"], tweet["text"], tweet["created_at"]),
-                            tweet["polls"],
-                            tweet["possibly_sensitive"],
-                        )
+                    post_id = user.post(
+                        (tweet["id"], tweet["text"], tweet["created_at"]),
+                        tweet["polls"],
+                        tweet["possibly_sensitive"],
+                    )
                     posted[tweet["id"]] = post_id
                     time.sleep(user.delay_post)
             if not user.skip_pin:
@@ -527,10 +522,7 @@ def main():
                         _("Multiple twitter users, not updating profile")
                     )
                 else:
-                    if user.instance == "misskey":  # pragma
-                        user.update_misskey()
-                    else:
-                        user.update_pleroma()
+                    user.update_profile()
             # Clean-up
             shutil.rmtree(user.tweets_temp_path)
     except Exception:

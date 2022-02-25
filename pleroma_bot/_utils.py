@@ -341,40 +341,26 @@ def check_pinned(self, posted=None):
                 "includes": pinned_tweet["includes"],
             }
             tweets_to_post = self.process_tweets(tweets_to_post)
-            if self.instance == "misskey":  # pragma
-                id_post_to_pin = self.post_misskey(
-                    (
-                        self.pinned_tweet_id,
-                        tweets_to_post["data"][0]["text"],
-                        pinned_tweet["data"]["created_at"],
-                    ),
-                    tweets_to_post["data"][0]["polls"],
-                    tweets_to_post["data"][0]["possibly_sensitive"],
-                )
-            else:
-                id_post_to_pin = self.post_pleroma(
-                    (
-                        self.pinned_tweet_id,
-                        tweets_to_post["data"][0]["text"],
-                        pinned_tweet["data"]["created_at"],
-                    ),
-                    tweets_to_post["data"][0]["polls"],
-                    tweets_to_post["data"][0]["possibly_sensitive"],
-                )
-        if self.instance == "misskey":  # pragma
-            pleroma_pinned_post = self.pin_misskey(id_post_to_pin)
-        else:
-            pleroma_pinned_post = self.pin_pleroma(id_post_to_pin)
+            id_post_to_pin = self.post(
+                (
+                    self.pinned_tweet_id,
+                    tweets_to_post["data"][0]["text"],
+                    pinned_tweet["data"]["created_at"],
+                ),
+                tweets_to_post["data"][0]["polls"],
+                tweets_to_post["data"][0]["possibly_sensitive"],
+            )
+        pinned_post = self.pin(id_post_to_pin)
         with open(pinned_file, "w") as file:
             file.write(f"{self.pinned_tweet_id}\n")
-        if pleroma_pinned_post is not None:
+        if pinned_post is not None:
             with open(
                     os.path.join(
                         self.user_path[t_user],
                         "pinned_id_pleroma.txt"
                     ), "w"
             ) as file:
-                file.write(f"{pleroma_pinned_post}\n")
+                file.write(f"{pinned_post}\n")
     elif (
             self.pinned_tweet_id != previous_pinned_tweet_id
             and previous_pinned_tweet_id is not None
@@ -383,7 +369,7 @@ def check_pinned(self, posted=None):
             self.user_path[t_user],
             "pinned_id_pleroma.txt"
         )
-        self.unpin_pleroma(pinned_file)
+        self.unpin(pinned_file)
 
 
 def replace_vars_in_str(self, text: str, var_name: str = None) -> str:
@@ -464,6 +450,7 @@ def random_string(length: int) -> str:
 
 def _get_instance_info(self):
     try:
+        nodeinfo_json = None
         nodeinfo_url = f"{self.pleroma_base_url}/.well-known/nodeinfo"
         response = requests.get(nodeinfo_url)
         if not response.ok:
@@ -477,15 +464,19 @@ def _get_instance_info(self):
                     response.raise_for_status()  # pragma
                 nodeinfo_json = response.json()
                 self.instance = nodeinfo_json["software"]["name"]
-        if self.instance == "misskey":  # pragma
+        if self.instance == "misskey":
             logger.info(_("Instance appears to be Misskey ฅ^•ﻌ•^ฅ"))
-    except JSONDecodeError:
+            if "metadata" in nodeinfo_json:
+                metadata = nodeinfo_json["metadata"]
+                self.max_post_length = metadata["maxNoteTextLength"]
+    except (JSONDecodeError, requests.exceptions.HTTPError):
         msg = _("Instance response was not understood {}").format(
             response.text
         )
         raise ValueError(msg)
     if self.instance == "mastodon":
         logger.debug(_("Target instance is Mastodon..."))
+        self.max_post_length = 500
         for t_user in self.twitter_username:
             if len(self.display_name[t_user]) > 30:
                 self.display_name[t_user] = self.display_name[t_user][:30]
@@ -516,10 +507,7 @@ def force_date(self):
     input_date = input()
     if input_date == "continue":
         if self.posts != "none_found":
-            if self.instance == "misskey":  # pragma
-                date = self.get_date_last_misskey_post()
-            else:
-                date = self.get_date_last_pleroma_post()
+            date = self.get_date_last_post()
         else:
             date = datetime.strftime(
                 datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
@@ -590,3 +578,49 @@ def get_tweets_from_archive(tweet_js_path):
         tweets = '\n'.join(lines[1:-1])
     json_t = json.loads('{"tweets":[' + tweets + ']}')
     return json_t["tweets"]
+
+
+def post(self, tweet: tuple, poll: dict, sensitive) -> str:
+    post_id = None
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        post_id = self.post_pleroma(tweet, poll, sensitive)
+    elif self.instance == "misskey":
+        post_id = self.post_misskey(tweet, poll, sensitive)
+    return post_id
+
+
+def pin(self, id_post):
+    instance = self.instance
+    pin_id = None
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        pin_id = self.pin_pleroma(id_post)
+    elif instance == "misskey":
+        pin_id = self.pin_misskey(id_post)
+    return pin_id
+
+
+def unpin(self, pinned_file):
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        self.unpin_pleroma(pinned_file)
+    elif instance == "misskey":
+        self.unpin_misskey(pinned_file)
+
+
+def get_date_last_post(self):
+    instance = self.instance
+    date = None
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        date = self.get_date_last_pleroma_post()
+    elif instance == "misskey":
+        date = self.get_date_last_misskey_post()
+    return date
+
+
+def update_profile(self):
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        self.update_pleroma()
+    elif instance == "misskey":
+        self.update_misskey()
