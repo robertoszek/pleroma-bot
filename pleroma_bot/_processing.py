@@ -407,7 +407,7 @@ def _expand_urls(self, tweet):
                 tweet["text"] = re.sub(group, urls[group], tweet["text"])
             else:
                 raise KeyError
-        except KeyError:
+        except (KeyError, TypeError):
             # don't be brave trying to unwound an URL when it gets
             # cut off
             if (
@@ -426,16 +426,20 @@ def _expand_urls(self, tweet):
                                 "Couldn't expand the url {}: {}"
                             ).format(group, response.status_code)
                         )
-                    else:
+                    if response:
                         expanded_url = response.url
                         tweet["text"] = re.sub(
                             group, expanded_url, tweet["text"]
                         )
-                except requests.exceptions.RetryError:  # pragma
+                except requests.exceptions.RequestException as e:  # pragma
                     logger.debug(
                         _(
                             "Couldn't expand the url: {}"
                         ).format(group)
+                    )
+                    expanded_url = e.request.url
+                    tweet["text"] = re.sub(
+                        group, expanded_url, tweet["text"]
                     )
                     pass
     return tweet["text"]
