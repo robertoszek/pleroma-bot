@@ -77,8 +77,12 @@ def unpin_misskey(self, pinned_file):
                 "Checking last posts for pinned post..."
             )
         )
-        _find_pinned_misskey(self, pinned_file)
-        logger.warning(_("Pinned post not found. Giving up unpinning..."))
+        pinned = _find_pinned_misskey(self, pinned_file)
+        if pinned:
+            unpinned = ' '.join(map(str, pinned))
+            logger.info(_("Unpinned: {}").format(unpinned))
+        else:  # pragma
+            logger.warning(_("Pinned post not found. Giving up unpinning..."))
     # Clear pinned ids
     with open(pinned_file, "w") as file:
         file.write("\n")
@@ -108,7 +112,8 @@ def _find_pinned_misskey(self, pinned_file):
     for post_id in users_show["pinnedNoteIds"]:
         with open(pinned_file, "w") as file:
             file.write(f'{post_id}\n')
-        return self.unpin_misskey(pinned_file)
+        self.unpin_misskey(pinned_file)
+    return users_show["pinnedNoteIds"]
 
 
 def pin_pleroma(self, id_post):
@@ -170,8 +175,12 @@ def unpin_pleroma(self, pinned_file):
                 "Checking last posts for pinned post..."
             )
         )
-        _find_pinned(self, pinned_file)
-        logger.warning(_("Pinned post not found. Giving up unpinning..."))
+        pinned = _find_pinned(self, pinned_file)
+        if pinned:
+            unpinned = ' '.join(map(str, pinned))
+            logger.info(_("Unpinned: {}").format(unpinned))
+        else:
+            logger.warning(_("Pinned post not found. Giving up unpinning..."))
     # Clear pinned ids
     with open(pinned_file, "w") as file:
         file.write("\n")
@@ -182,13 +191,15 @@ def unpin_pleroma(self, pinned_file):
 def _find_pinned(self, pinned_file):
     page = 0
     headers_page_url = None
+    pinned = []
     while page < 10:
         if self.posts:
             for post in self.posts:
                 if post["pinned"]:
+                    pinned.append(post["id"])
                     with open(pinned_file, "w") as file:
                         file.write(f'{post["id"]}\n')
-                    return self.unpin_pleroma(pinned_file)
+                    self.unpin_pleroma(pinned_file)
         page += 1
         pleroma_posts_url = (
             f"{self.pleroma_base_url}/api/v1/accounts/"
@@ -213,6 +224,7 @@ def _find_pinned(self, pinned_file):
                     headers_page_url = link["url"]
         except KeyError:
             break
+    return pinned
 
 
 def _get_pinned_tweet_id(self):
