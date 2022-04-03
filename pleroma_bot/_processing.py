@@ -172,7 +172,7 @@ def process_tweets(self, tweets_to_post):
                 tweet["text"] = f"{tweet['text'][:body_max_length]}…"
             else:
                 signature = ''
-            tweet["text"] = f"{tweet['text']}{signature}{orig_date}]"
+            tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
         # Process poll if exists and no media is used
         tweet["polls"] = _process_polls(self, tweet, media)
 
