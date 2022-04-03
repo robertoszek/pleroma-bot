@@ -1,7 +1,8 @@
 import os
 import shutil
 import logging
-
+import sys
+from unittest.mock import patch
 import pytest
 import requests
 
@@ -54,6 +55,15 @@ def test_main_exception_logger(global_mock, sample_users, caplog):
             if os.path.isfile(prev_config):
                 os.remove(prev_config)
             assert cli.main() == 1
+
+            if os.path.isfile(backup_config):
+                shutil.copy(backup_config, prev_config)
+            with patch.object(
+                sys, 'argv', ['', '--forceDate', 'not a date']
+            ):
+                cli.main()
+            exception_value = 'Invalid forceDate format, use "YYYY-mm-dd"'
+            assert exception_value in caplog.text
 
             # Clean-up
             if os.path.isfile(backup_config):

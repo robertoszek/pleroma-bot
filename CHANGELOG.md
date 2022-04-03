@@ -5,9 +5,12 @@
 - Bug: Handle exception when the tweet is empty (no attachments, polls or body) due to dropping malformed attachments
 - Bug: Handle exception when expanded URL is unreachable or returns any code other than 200
 - Regression: Not asking for date when passing a specific Twitter username with `--forceDate`
+- Bug: Trying to find previously pinned post on empty Fediverse account resulted in an unhandled exception
+- Bug: Truncating when exceeding post max length resulted in signature links being broken if original date was enabled
 
 ## Enhancements
-- Take into account target instance's character limits when posting and truncate if necessary 
+- Take into account target instance's character limits when posting and truncate if necessary
+- Continue processing the rest of the users of the config, even if another one fails (errors will be logged accordingly and pleroma-bot will exit with non-zero exit code)
 
 ## Added
 - `include_quotes` config mapping, for including or excluding quoted tweets

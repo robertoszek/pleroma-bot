@@ -75,6 +75,8 @@ class User(object):
     from ._utils import check_pinned
     from ._utils import random_string
     from ._utils import update_profile
+    from ._utils import transform_date
+    from ._utils import check_date_format
     from ._utils import _get_instance_info
     from ._utils import get_date_last_post
     from ._utils import replace_vars_in_str
@@ -365,6 +367,7 @@ def get_args(sysargs):
 
 
 def main():
+    exit_code = 0
     # Convert legacy flag to proper flag format
     mangle_args = "noProfile"
     arguments = [
@@ -406,132 +409,155 @@ def main():
                 user_item["skip_pin"] = True
 
         for user_item in user_dict:
-            first_time = False
-            logger.info("======================================")
-            logger.info(
-                _("Processing user:\t{}").format(user_item["pleroma_username"])
-            )
-            t_users = user_item["twitter_username"]
-            t_user_list = isinstance(t_users, list)
-            t_users = t_users if t_user_list else [t_users]
-            for t_user in t_users:
-                user_path = os.path.join(users_path, t_user)
+            try:
+                first_time = False
+                logger.info("======================================")
+                logger.info(
+                    _(
+                        "Processing user:\t{}"
+                    ).format(user_item["pleroma_username"])
+                )
+                t_users = user_item["twitter_username"]
+                t_user_list = isinstance(t_users, list)
+                t_users = t_users if t_user_list else [t_users]
+                for t_user in t_users:
+                    user_path = os.path.join(users_path, t_user)
 
-                if not os.path.exists(user_path):
-                    first_time_msg = _(
-                        "It seems like pleroma-bot is running for the "
-                        "first time for this Twitter user: {}"
-                    ).format(t_user)
-                    logger.info(first_time_msg)
-                    first_time = True
-            user = User(user_item, config, base_path)
-            if args.archive:
-                user.archive = args.archive
-            if first_time and not args.skipChecks:
-                user.first_time = True
-            if (
-                (args.forceDate and args.forceDate in user.twitter_username)
-                or args.forceDate == "all"
-                or user.first_time
-            ) and not args.skipChecks:
-                date_fedi = user.force_date()
-            else:
-                date_fedi = user.get_date_last_post()
+                    if not os.path.exists(user_path):
+                        first_time_msg = _(
+                            "It seems like pleroma-bot is running for the "
+                            "first time for this Twitter user: {}"
+                        ).format(t_user)
+                        logger.info(first_time_msg)
+                        first_time = True
+                user = User(user_item, config, base_path)
+                if args.archive:
+                    user.archive = args.archive
+                if first_time and not args.skipChecks and not args.forceDate:
+                    user.first_time = True
+                if (
+                    (args.forceDate
+                     and args.forceDate in user.twitter_username)
+                    or args.forceDate == "all"
+                    or user.first_time
+                ) and not args.skipChecks:
+                    date_fedi = user.force_date()
+                elif args.forceDate and user.check_date_format(args.forceDate):
+                    date_fedi = user.transform_date(args.forceDate)
+                else:
+                    if args.forceDate:
+                        if not user.check_date_format(args.forceDate):
+                            raise Exception(
+                                _('Invalid forceDate format, use "YYYY-mm-dd"')
+                            )
+                    date_fedi = user.get_date_last_post()
 
-            if user.tweet_ids:
-                tweets = {
-                    "data": [],
-                    "includes": {},
-                    "meta": {"result_count": len(user.tweet_ids)},
-                }
-                user.result_count = len(user.tweet_ids)
-                includes = ["users", "tweets", "media", "polls"]
-                for include in includes:
-                    try:
-                        _include = tweets["includes"][include]
-                    except KeyError:
-                        tweets["includes"].update({include: []})
-                for tweet_id in user.tweet_ids:
-                    next_tweet = user._get_tweets("v2", tweet_id=tweet_id)
+                if user.tweet_ids:
+                    tweets = {
+                        "data": [],
+                        "includes": {},
+                        "meta": {"result_count": len(user.tweet_ids)},
+                    }
+                    user.result_count = len(user.tweet_ids)
                     includes = ["users", "tweets", "media", "polls"]
                     for include in includes:
                         try:
-                            _include = next_tweet["includes"][include]
-                            _include = _include
+                            _include = tweets["includes"][include]
                         except KeyError:
-                            next_tweet["includes"].update({include: []})
-                    tweets["data"].append(next_tweet["data"])
-                    for user_tweet in next_tweet["includes"]["users"]:
-                        tweets["includes"]["users"].append(user_tweet)
-                    for tweet_include in next_tweet["includes"]["tweets"]:
-                        tweets["includes"]["tweets"].append(tweet_include)
-                    for media in next_tweet["includes"]["media"]:
-                        tweets["includes"]["media"].append(media)
-                    for poll in next_tweet["includes"]["polls"]:
-                        tweets["includes"]["polls"].append(poll)
-            elif args.archive:
-                tweets = process_archive(args.archive, start_time=date_fedi)
-                user.result_count = len(tweets["data"])
-            else:
-                tweets = user.get_tweets(start_time=date_fedi)
-            logger.debug(f"tweets: \t {tweets}")
-
-            if "meta" not in tweets:
-                error_msg = _(
-                    "Unable to retrieve tweets. Is the account protected?"
-                    " If so, you need to provide the following OAuth 1.0a"
-                    " fields in the user config:\n - consumer_key \n "
-                    "- consumer_secret \n - access_token_key \n "
-                    "- access_token_secret"
-                )
-                logger.error(error_msg)
-            posted = None
-            if user.result_count > 0:
-                logger.info(
-                    _("tweets gathered: \t {}").format(len(tweets["data"]))
-                )
-                # Put oldest first to iterate them and post them in order
-                tweets["data"].reverse()
-                cores = mp.cpu_count()
-                threads = round(cores / 2 if cores > 4 else 4)
-                tweets_to_post = process_parallel(tweets, user, threads)
-                logger.info(
-                    _("tweets to post: \t {}").format(
-                        len(tweets_to_post['data'])
+                            tweets["includes"].update({include: []})
+                    for tweet_id in user.tweet_ids:
+                        next_tweet = user._get_tweets("v2", tweet_id=tweet_id)
+                        includes = ["users", "tweets", "media", "polls"]
+                        for include in includes:
+                            try:
+                                _include = next_tweet["includes"][include]
+                                _include = _include
+                            except KeyError:
+                                next_tweet["includes"].update({include: []})
+                        tweets["data"].append(next_tweet["data"])
+                        for user_tweet in next_tweet["includes"]["users"]:
+                            tweets["includes"]["users"].append(user_tweet)
+                        for tweet_include in next_tweet["includes"]["tweets"]:
+                            tweets["includes"]["tweets"].append(tweet_include)
+                        for media in next_tweet["includes"]["media"]:
+                            tweets["includes"]["media"].append(media)
+                        for poll in next_tweet["includes"]["polls"]:
+                            tweets["includes"]["polls"].append(poll)
+                elif args.archive:
+                    tweets = process_archive(
+                        args.archive, start_time=date_fedi
                     )
-                )
-                logger.debug(f"tweets_processed: \t {tweets_to_post['data']}")
-                tweet_counter = 0
-                posted = {}
-                for tweet in tweets_to_post["data"]:
-                    tweet_counter += 1
-                    logger.info(
-                        f"({tweet_counter}/{len(tweets_to_post['data'])})"
-                    )
-                    post_id = user.post(
-                        (tweet["id"], tweet["text"], tweet["created_at"]),
-                        tweet["polls"],
-                        tweet["possibly_sensitive"],
-                    )
-                    posted[tweet["id"]] = post_id
-                    time.sleep(user.delay_post)
-            if not user.skip_pin:
-                user.check_pinned(posted)
-
-            if not args.noProfile:
-                if user.skip_pin:
-                    logger.warning(
-                        _("Multiple twitter users, not updating profile")
-                    )
+                    user.result_count = len(tweets["data"])
                 else:
-                    user.update_profile()
-            # Clean-up
-            shutil.rmtree(user.tweets_temp_path)
+                    tweets = user.get_tweets(start_time=date_fedi)
+                logger.debug(f"tweets: \t {tweets}")
+
+                if "meta" not in tweets:
+                    error_msg = _(
+                        "Unable to retrieve tweets. Is the account protected?"
+                        " If so, you need to provide the following OAuth 1.0a"
+                        " fields in the user config:\n - consumer_key \n "
+                        "- consumer_secret \n - access_token_key \n "
+                        "- access_token_secret"
+                    )
+                    logger.error(error_msg)
+                posted = None
+                if user.result_count > 0:
+                    logger.info(
+                        _("tweets gathered: \t {}").format(len(tweets["data"]))
+                    )
+                    # Put oldest first to iterate them and post them in order
+                    tweets["data"].reverse()
+                    cores = mp.cpu_count()
+                    threads = round(cores / 2 if cores > 4 else 4)
+                    tweets_to_post = process_parallel(tweets, user, threads)
+                    logger.info(
+                        _("tweets to post: \t {}").format(
+                            len(tweets_to_post['data'])
+                        )
+                    )
+                    logger.debug(
+                        f"tweets_processed: \t {tweets_to_post['data']}"
+                    )
+                    tweet_counter = 0
+                    posted = {}
+                    for tweet in tweets_to_post["data"]:
+                        tweet_counter += 1
+                        logger.info(
+                            f"({tweet_counter}/{len(tweets_to_post['data'])})"
+                        )
+                        post_id = user.post(
+                            (tweet["id"], tweet["text"], tweet["created_at"]),
+                            tweet["polls"],
+                            tweet["possibly_sensitive"],
+                        )
+                        posted[tweet["id"]] = post_id
+                        time.sleep(user.delay_post)
+                if not user.skip_pin:
+                    user.check_pinned(posted)
+
+                if not args.noProfile:
+                    if user.skip_pin:
+                        logger.warning(
+                            _("Multiple twitter users, not updating profile")
+                        )
+                    else:
+                        user.update_profile()
+                # Clean-up
+                shutil.rmtree(user.tweets_temp_path)
+            except Exception:
+                logger.error(
+                    _(
+                        "Exception occurred for user, skipping..."
+                    ), exc_info=True
+                )
+                exit_code = 1
+                continue
     except Exception:
         logger.error(_("Exception occurred"), exc_info=True)
         return 1
 
-    return 0
+    return exit_code
 
 
 def init():

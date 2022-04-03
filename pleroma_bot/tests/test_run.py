@@ -1523,6 +1523,11 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         ):
             assert cli.main() == 0
 
+        with patch.object(
+                sys, 'argv', ['', '--forceDate', '2021-12-13']
+        ):
+            assert cli.main() == 0
+
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):
             with patch.object(cli, "__name__", "__main__"):

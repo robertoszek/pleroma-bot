@@ -140,6 +140,7 @@ def process_tweets(self, tweets_to_post):
                 "https://youtube.com",
                 self.invidious_base_url
             )
+
         if self.signature:
             if self.archive:
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
@@ -160,7 +161,18 @@ def process_tweets(self, tweets_to_post):
                 datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
                 self.original_date_format,
             )
-            tweet["text"] = f"{tweet['text']} \n\n[{date}]"
+            orig_date = f"\n\n[{date}]"
+            total_length = len(tweet["text"]) + len(orig_date)
+            if total_length > self.max_post_length:  # pragma
+                if self.signature:
+                    tweet["text"] = tweet["text"].replace(signature, '')
+                l_date = len(orig_date)
+                l_sig = len(signature)
+                body_max_length = self.max_post_length - l_date - l_sig - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            else:
+                signature = ''
+            tweet["text"] = f"{tweet['text']}{signature}{orig_date}]"
         # Process poll if exists and no media is used
         tweet["polls"] = _process_polls(self, tweet, media)
 
@@ -171,7 +183,7 @@ def process_tweets(self, tweets_to_post):
                     "Post text longer than allowed ({}), truncating..."
                 ).format(self.max_post_length)
             )
-            tweet["text"] = f"{tweet['text'][:self.max_post_length-1]}…"
+            tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
 
     return tweets_to_post
 

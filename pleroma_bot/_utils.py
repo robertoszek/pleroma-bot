@@ -529,6 +529,24 @@ def force_date(self):
     return date
 
 
+def check_date_format(self, input_date):
+    match = False
+    try:
+        datetime.strptime(input_date, "%Y-%m-%d")
+        match = True
+    except ValueError:
+        pass
+    return match
+
+
+def transform_date(self, input_date):
+    date = datetime.strftime(
+        datetime.strptime(input_date, "%Y-%m-%d"),
+        "%Y-%m-%dT%H:%M:%SZ",
+    )
+    return date
+
+
 def process_archive(archive_zip_path, start_time=None):
     archive_zip_path = os.path.abspath(archive_zip_path)
     par_dir = os.path.dirname(archive_zip_path)
