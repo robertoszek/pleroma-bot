@@ -1,9 +1,54 @@
-import json
+import time
 import requests
 
+from datetime import datetime
 
+from . import logger
 from pleroma_bot.i18n import _
 from pleroma_bot._utils import spinner
+
+
+def twitter_api_request(method, url,
+                        params=None, data=None, headers=None, cookies=None,
+                        files=None, auth=None, timeout=None, proxies=None,
+                        hooks=None, allow_redirects=True, stream=None,
+                        verify=None, cert=None, json=None):
+    response = requests.request(
+        method=method.upper(),
+        url=url,
+        headers=headers,
+        files=files,
+        data=data or {},
+        json=json,
+        params=params or {},
+        auth=auth,
+        cookies=cookies,
+        hooks=hooks,
+    )
+    if response.status_code == 429:
+        remaining = int(response.headers.get('x-rate-limit-remaining'))
+        if remaining == 0:
+            limit = int(response.headers.get('x-rate-limit-limit'))
+            reset_header = int(response.headers.get('x-rate-limit-reset'))
+            reset_time = datetime.utcfromtimestamp(reset_header)
+            logger.info(_(
+                "Rate limit exceeded. 0 out of {} requests remaining until {}"
+                " UTC"
+            ).format(limit, reset_time))
+
+            delay = (reset_time - datetime.utcnow()).total_seconds() + 2
+            logger.info(_("Sleeping for {}s...").format(round(delay)))
+            time.sleep(delay)
+
+            response = twitter_api_request(method, url,
+                                           params=params, data=data,
+                                           headers=headers, cookies=cookies,
+                                           files=files, auth=auth, hooks=hooks,
+                                           timeout=timeout, proxies=proxies,
+                                           allow_redirects=allow_redirects,
+                                           stream=stream, verify=verify,
+                                           cert=cert, json=json)
+    return response
 
 
 def _get_twitter_info(self):
@@ -37,12 +82,16 @@ def _get_twitter_info(self):
                                 "withheld",
             }
         )
-        response = requests.get(
-            url, headers=self.header_twitter, auth=self.auth, params=params
+        response = twitter_api_request(
+            'GET',
+            url,
+            headers=self.header_twitter,
+            auth=self.auth,
+            params=params
         )
         if not response.ok:
             response.raise_for_status()
-        user = json.loads(response.text)["data"]
+        user = response.json()["data"]
         self.bio_text[t_user] = (
             f"{self.bio_text['_generic_bio_text']}{user['description']}"
             if self.twitter_bio
@@ -61,12 +110,15 @@ def _get_twitter_info(self):
             f"/users/show.json?screen_name="
             f"{t_user}"
         )
-        response = requests.get(
-            twitter_user_url, headers=self.header_twitter, auth=self.auth
+        response = twitter_api_request(
+            'GET',
+            twitter_user_url,
+            headers=self.header_twitter,
+            auth=self.auth
         )
         if not response.ok:
             response.raise_for_status()
-        user = json.loads(response.text)
+        user = response.json()
         # Check if user has banner image
         if "profile_banner_url" in user.keys():
             base_banner_url = user["profile_banner_url"]
@@ -96,12 +148,15 @@ def _get_tweets(
                 f"{self.twitter_base_url}/statuses/"
                 f"show.json?id={str(tweet_id)}"
             )
-            response = requests.get(
-                twitter_status_url, headers=self.header_twitter, auth=self.auth
+            response = twitter_api_request(
+                'GET',
+                twitter_status_url,
+                headers=self.header_twitter,
+                auth=self.auth
             )
             if not response.ok:
                 response.raise_for_status()
-            tweet = json.loads(response.text)
+            tweet = response.json()
             return tweet
         else:
             for t_user in self.twitter_username:
@@ -111,14 +166,15 @@ def _get_tweets(
                     f"{t_user}"
                     f"&count={str(self.max_tweets)}&include_rts=true"
                 )
-                response = requests.get(
+                response = twitter_api_request(
+                    'GET',
                     twitter_status_url,
                     headers=self.header_twitter,
                     auth=self.auth
                 )
                 if not response.ok:
                     response.raise_for_status()
-                tweets = json.loads(response.text)
+                tweets = response.json()
 
             return tweets
     elif version == "v2":
@@ -131,14 +187,14 @@ def _get_tweets(
 
 
 def _get_tweets_v2(
-    self,
-    start_time,
-    tweet_id=None,
-    next_token=None,
-    previous_token=None,
-    count=0,
-    tweets_v2=None,
-    t_user=None
+        self,
+        start_time,
+        tweet_id=None,
+        next_token=None,
+        previous_token=None,
+        count=0,
+        tweets_v2=None,
+        t_user=None
 ):
     if not (3200 >= self.max_tweets > 10):
         global _
@@ -184,13 +240,17 @@ def _get_tweets_v2(
                                 "withheld",
             }
         )
-        response = requests.get(
-            url, headers=self.header_twitter, auth=self.auth, params=params
+        response = twitter_api_request(
+            'GET',
+            url,
+            headers=self.header_twitter,
+            auth=self.auth,
+            params=params
         )
 
         if not response.ok:
             response.raise_for_status()
-        response = json.loads(response.text)
+        response = response.json()
         return response
     else:
         params.update({"max_results": max_results})
@@ -199,12 +259,12 @@ def _get_tweets_v2(
             f"{self.twitter_base_url_v2}/users/by?"
             f"usernames={t_user}"
         )
-        response = requests.get(
-            url, headers=self.header_twitter, auth=self.auth
+        response = twitter_api_request(
+            'GET', url, headers=self.header_twitter, auth=self.auth
         )
         if not response.ok:
             response.raise_for_status()
-        response = json.loads(response.text)
+        response = response.json()
         twitter_user_id = response["data"][0]["id"]
 
         url = f"{self.twitter_base_url_v2}/users/{twitter_user_id}/tweets"
@@ -220,28 +280,28 @@ def _get_tweets_v2(
     params.update(
         {
             "poll.fields": "duration_minutes,end_datetime,id,options,"
-            "voting_status",
+                           "voting_status",
             "media.fields": "duration_ms,height,media_key,"
-            "preview_image_url,type,url,width,"
-            "public_metrics",
+                            "preview_image_url,type,url,width,"
+                            "public_metrics",
             "expansions": "attachments.poll_ids,"
-            "attachments.media_keys,author_id,"
-            "entities.mentions.username,geo.place_id,"
-            "in_reply_to_user_id,referenced_tweets.id,"
-            "referenced_tweets.id.author_id",
+                          "attachments.media_keys,author_id,"
+                          "entities.mentions.username,geo.place_id,"
+                          "in_reply_to_user_id,referenced_tweets.id,"
+                          "referenced_tweets.id.author_id",
             "tweet.fields": "attachments,author_id,"
-            "context_annotations,conversation_id,"
-            "created_at,entities,"
-            "geo,id,in_reply_to_user_id,lang,"
-            "public_metrics,"
-            "possibly_sensitive,referenced_tweets,"
-            "source,text,"
-            "withheld",
+                            "context_annotations,conversation_id,"
+                            "created_at,entities,"
+                            "geo,id,in_reply_to_user_id,lang,"
+                            "public_metrics,"
+                            "possibly_sensitive,referenced_tweets,"
+                            "source,text,"
+                            "withheld",
         }
     )
 
-    response = requests.get(
-        url, headers=self.header_twitter, params=params, auth=self.auth
+    response = twitter_api_request(
+        'GET', url, headers=self.header_twitter, params=params, auth=self.auth
     )
     if not response.ok:
         response.raise_for_status()
@@ -273,7 +333,7 @@ def _get_tweets_v2(
             tweets_v2["includes"]["polls"].append(poll)
         tweets_v2["meta"] = next_tweets["meta"]
     else:
-        tweets_v2 = json.loads(response.text)
+        tweets_v2 = response.json()
 
     try:
         next_token = response.json()["meta"]["next_token"]

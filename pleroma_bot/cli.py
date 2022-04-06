@@ -330,7 +330,9 @@ def get_args(sysargs):
                 "forces the tweet retrieval to start from a "
                 "specific date. The twitter_username value "
                 "(FORCEDATE) can be supplied to only force it for "
-                "that particular user in the config"
+                "that particular user in the config. "
+                "Instead of the twitter_username a date (YYYY-MM-DD) "
+                "can also be supplied to force that date for *all* users"
             )
         ),
     )

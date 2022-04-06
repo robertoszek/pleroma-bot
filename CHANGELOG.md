@@ -11,6 +11,7 @@
 ## Enhancements
 - Take into account target instance's character limits when posting and truncate if necessary
 - Continue processing the rest of the users of the config, even if another one fails (errors will be logged accordingly and pleroma-bot will exit with non-zero exit code)
+- Recover from hitting rate limits for Twitter's API
 
 ## Added
 - `include_quotes` config mapping, for including or excluding quoted tweets

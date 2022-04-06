@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import sys
@@ -803,7 +804,7 @@ def test__get_tweets_v2_exception(sample_users):
                 assert str(error_info.value) == exception_value
 
 
-def test__get_twitter_info_exception(sample_users):
+def test__get_twitter_info_exception(sample_users, caplog, mock_request):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -811,6 +812,28 @@ def test__get_twitter_info_exception(sample_users):
             t_users_list = isinstance(t_users, list)
             t_users = t_users if t_users_list else [t_users]
             for t_user in t_users:
+                # Rate limits
+                reset_time = int(datetime.datetime.now().timestamp()) + 2
+                headers = {
+                    'x-rate-limit-limit': '900',
+                    'x-rate-limit-reset': str(reset_time),
+                    'x-rate-limit-remaining': '0'
+                }
+                json_mock = mock_request['sample_data'][f"user_v2_{t_user}"]
+                mock.register_uri(
+                    'GET',
+                    f"{sample_user_obj.twitter_base_url_v2}/users/by/"
+                    f"username/{t_user}",
+                    [
+                        {'status_code': 429, 'headers': headers},  # 1st req
+                        {'status_code': 200, 'json': json_mock}    # 2nd req
+                    ]
+                )
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_twitter_info()
+                log_msg = "Rate limit exceeded"
+                assert log_msg in caplog.text
+
                 idx = sample_user_obj.twitter_username.index(t_user)
                 info_url = (
                     f"{sample_user_obj.twitter_base_url}"

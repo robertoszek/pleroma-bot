@@ -17,6 +17,7 @@ except ImportError:
 
 from . import logger
 from .i18n import _
+from pleroma_bot._twitter import twitter_api_request
 
 
 def process_tweets(self, tweets_to_post):
@@ -140,7 +141,7 @@ def process_tweets(self, tweets_to_post):
                 "https://youtube.com",
                 self.invidious_base_url
             )
-
+        signature = ''
         if self.signature:
             if self.archive:
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
@@ -268,7 +269,8 @@ def _process_polls(self, tweet, media):
                 "poll.fields": "duration_minutes," "options",
             }
 
-            response = requests.get(
+            response = twitter_api_request(
+                'GET',
                 poll_url,
                 headers=self.header_twitter,
                 params=params,
@@ -420,8 +422,7 @@ def _expand_urls(self, tweet):
             else:
                 raise KeyError
         except (KeyError, TypeError):
-            # don't be brave trying to unwound an URL when it gets
-            # cut off
+            # don't be brave trying to unwound an URL when it gets cut off
             if (
                     not group.__contains__("…") and not
                     group.startswith(self.nitter_base_url)
