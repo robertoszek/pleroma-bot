@@ -447,17 +447,24 @@ def _expand_urls(self, tweet):
                         tweet["text"] = re.sub(
                             group, expanded_url, tweet["text"]
                         )
-                except requests.exceptions.RequestException as e:  # pragma
+                except Exception as ex:  # pragma
                     logger.debug(
                         _(
                             "Couldn't expand the url: {}"
                         ).format(group)
                     )
-                    expanded_url = e.request.url
-                    tweet["text"] = re.sub(
-                        group, expanded_url, tweet["text"]
-                    )
-                    pass
+                    if isinstance(ex, requests.exceptions.RequestException):
+                        expanded_url = ex.request.url
+                        tweet["text"] = re.sub(
+                            group, expanded_url, tweet["text"]
+                        )
+                        pass
+                    elif isinstance(ex, UnicodeError):
+                        expanded_url = ex.object.decode('latin1')
+                        tweet["text"] = re.sub(
+                            group, expanded_url, tweet["text"]
+                        )
+                        pass
     return tweet["text"]
 
 
