@@ -431,7 +431,11 @@ def _expand_urls(self, tweet):
                 # so connections are recycled
                 try:
                     session = requests.Session()
-                    response = session.head(group, allow_redirects=True)
+                    response = session.head(
+                        group,
+                        allow_redirects=True,
+                        timeout=(7, 10)
+                    )
                     if not response.ok:
                         logger.debug(
                             _(
