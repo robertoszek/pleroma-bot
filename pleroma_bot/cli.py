@@ -397,8 +397,15 @@ def main():
         with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
+
+        if "random_user_order" not in config:
+            random_user_order = False
+        else:
+            random_user_order = config["random_user_order"]
         # Sort the users randomly, so everyone gets a fair chance to be first
-        shuffle(user_dict)
+        if random_user_order:
+            shuffle(user_dict)
+
         users_path = os.path.join(base_path, "users")
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False

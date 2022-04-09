@@ -90,7 +90,11 @@ There a few mappings *exclusive* to users:
 | bio_text         |   Yes    |         | Text to be appended to the Twitter account bio text                               |
 | fields           |   Yes    |         | Optional metadata fields (sequence of name-value pairs) for the Fediverse profile |
 
+And mappings that can only be used *globally*:
 
+| Global mapping    | Optional | Default | Description                                            |
+|:------------------|:--------:|:--------|:-------------------------------------------------------|
+| random_user_order |   Yes    | false   | Randomize the order of processing users on your config |
 
 ## Example configs
 
