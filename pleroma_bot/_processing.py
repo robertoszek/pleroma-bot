@@ -408,6 +408,8 @@ def _expand_urls(self, tweet):
     )
     matches = re.finditer(matching_pattern, tweet["text"])
     urls = {}
+    # Prepare a session to recycle connections across requests
+    session = requests.Session()
     # Replace shortened links
     for matchNum, match in enumerate(matches, start=1):
         group = match.group()
@@ -429,9 +431,7 @@ def _expand_urls(self, tweet):
             ):
                 if not group.startswith(("http://", "https://")):
                     group = f"http://{group}"
-                # so connections are recycled
                 try:
-                    session = requests.Session()
                     response = session.head(
                         group,
                         allow_redirects=True,

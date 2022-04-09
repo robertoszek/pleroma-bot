@@ -37,6 +37,7 @@ import logging
 import argparse
 import multiprocessing as mp
 
+from random import shuffle
 from requests_oauthlib import OAuth1
 from requests.structures import CaseInsensitiveDict
 
@@ -396,6 +397,8 @@ def main():
         with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
+        # Sort the users randomly, so everyone gets a fair chance to be first
+        shuffle(user_dict)
         users_path = os.path.join(base_path, "users")
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
