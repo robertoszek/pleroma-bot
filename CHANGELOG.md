@@ -9,12 +9,15 @@
 - Bug: Truncating when exceeding post max length resulted in signature links being broken if original date was enabled
 
 ## Enhancements
-- Take into account target instance's character limits when posting and truncate if necessary
-- Continue processing the rest of the users of the config, even if another one fails (errors will be logged accordingly and pleroma-bot will exit with non-zero exit code)
-- Recover from hitting rate limits for Twitter's API
+- Target instance's character limits when posting are taken into account and posts text are truncated if necessary
+- The rest of the users of the config are processed, even if another one fails (errors will be logged accordingly and pleroma-bot will exit with non-zero exit code)
+- Recover from hitting rate limits for Twitter's API (HTTP 429 Too Many Requests)
+- Twitter bio links are now expanded by default if the Fedi instance bio's maximum length is not exceeded
 
 ## Added
 - `include_quotes` config mapping, for including or excluding quoted tweets
+- `random_user_order` global config mapping, for randomizing the order in which users are processed
+- `{{ website }}` can be used on the metadata fields config and will be replaced with the website listed on the Twitter's account profile
 
 ## [1.0.2] 21-02-2022
 ## Added
