@@ -28,6 +28,8 @@ try:
 except ImportError:
     magic = None
 
+THREAD_TIMEOUT = 60
+
 if sys.platform == "win32":  # pragma: win32 cover
     import msvcrt  # pragma: win32 cover
 else:
@@ -169,7 +171,7 @@ class PropagatingThread(threading.Thread):
     def join(self):
         if not self.exc:
             self.started_evt.wait()
-        super(PropagatingThread, self).join()
+        super(PropagatingThread, self).join(THREAD_TIMEOUT)
         self.started_evt.clear()
         if self.exc:
             raise self.exc
