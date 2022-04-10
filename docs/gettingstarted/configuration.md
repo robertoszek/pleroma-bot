@@ -187,6 +187,8 @@ users:
     value: "I am afraid I cannot do that."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-bot"
+  - name: "WWW"
+    value: "{{ website }}" # Website defined in Twitter profile
 # Mastodon instance example
 - twitter_username: WoolieWoolz
   pleroma_username: 24660

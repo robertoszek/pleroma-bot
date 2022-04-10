@@ -40,6 +40,8 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
+  - name: "WWW"
+    value: "{{ website }}"
 - twitter_username:
     - arstechnica
     - HackerNews

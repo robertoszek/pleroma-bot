@@ -97,6 +97,8 @@ def _get_twitter_info(self):
             if self.twitter_bio
             else f"{self.bio_text['_generic_bio_text']}"
         )
+        if "entities" in user and "url" in user["entities"]:
+            self.website = user['entities']['url']['urls'][0]['expanded_url']
         # Check if user has profile image
         if "profile_image_url" in user.keys():
             # Get the highest quality possible

@@ -138,6 +138,7 @@ class User(object):
             "visibility": None,
             "max_post_length": 5000,
             "include_quotes": True,
+            "website": None,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -198,8 +199,6 @@ class User(object):
         for t_user in t_users:
             self.twitter_url[t_user] = f"{twitter_url}/{t_user}"
         self.pinned_tweet_id = self._get_pinned_tweet_id()
-        self.fields = self.replace_vars_in_str(str(self.fields))
-        self.fields = eval(self.fields)
         self.base_path = base_path
         self.users_path = os.path.join(self.base_path, "users")
         self.tweets_temp_path = os.path.join(self.base_path, "tweets")
@@ -218,6 +217,10 @@ class User(object):
         # Get Twitter info on instance creation
         self._get_twitter_info()
         self._get_instance_info()
+        self.website = self.website if self.website else ""
+        logger.debug(f"Twitter website: {self.website}")
+        self.fields = self.replace_vars_in_str(str(self.fields))
+        self.fields = eval(self.fields)
         df_visibility = "unlisted" if self.instance != "misskey" else "home"
         if not hasattr(self, "visibility") or self.visibility is None:
             self.__setattr__("visibility", df_visibility)
