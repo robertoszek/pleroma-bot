@@ -63,6 +63,8 @@ def _get_twitter_info(self):
 
     :return: None
     """
+    from pleroma_bot._processing import _expand_urls
+
     for t_user in self.twitter_username:
         url = f"{self.twitter_base_url_v2}/users/by/username/{t_user}"
         params = {}
@@ -92,11 +94,22 @@ def _get_twitter_info(self):
         if not response.ok:
             response.raise_for_status()
         user = response.json()["data"]
+        bio_text = user["description"]
+        # Expand bio urls if possible
+        if self.twitter_bio:
+            user_entities = user["entities"] if "entities" in user else None
+            bio_short = user["description"]
+            bio = {'text': user['description'], 'entities': user_entities}
+            bio_long = _expand_urls(self, bio)
+            max_len = self.max_post_length
+            len_bio = len(f"{self.bio_text['_generic_bio_text']}{bio_long}")
+            bio_text = bio_long if len_bio < max_len else bio_short
         self.bio_text[t_user] = (
-            f"{self.bio_text['_generic_bio_text']}{user['description']}"
+            f"{self.bio_text['_generic_bio_text']}{bio_text}"
             if self.twitter_bio
             else f"{self.bio_text['_generic_bio_text']}"
         )
+        # Get website
         if "entities" in user and "url" in user["entities"]:
             self.website = user['entities']['url']['urls'][0]['expanded_url']
         # Check if user has profile image

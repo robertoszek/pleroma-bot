@@ -81,6 +81,7 @@ class User(object):
     from ._utils import _get_instance_info
     from ._utils import get_date_last_post
     from ._utils import replace_vars_in_str
+    from ._utils import mastodon_enforce_limits
 
     from ._processing import process_tweets
 
@@ -214,9 +215,12 @@ class User(object):
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         for t_user in t_users:
             os.makedirs(self.user_path[t_user], exist_ok=True)
+        # Get Fedi instance info
+        self._get_instance_info()
         # Get Twitter info on instance creation
         self._get_twitter_info()
-        self._get_instance_info()
+        if self.instance == "mastodon":  # pragma
+            self.mastodon_enforce_limits()
         self.website = self.website if self.website else ""
         logger.debug(f"Twitter website: {self.website}")
         self.fields = self.replace_vars_in_str(str(self.fields))

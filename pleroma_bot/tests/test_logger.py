@@ -288,6 +288,7 @@ def test_get_instance_info_mastodon(global_mock, sample_users, caplog):
                         rich_text_orig = True
                 with caplog.at_level(logging.DEBUG):
                     sample_user_obj._get_instance_info()
+                    sample_user_obj.mastodon_enforce_limits()
                 assert 'Target instance is Mastodon...' in caplog.text
                 if rich_text_orig:
                     log_msg_rich_text = (

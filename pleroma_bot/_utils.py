@@ -477,20 +477,23 @@ def _get_instance_info(self):
     if self.instance == "mastodon":
         logger.debug(_("Target instance is Mastodon..."))
         self.max_post_length = 500
-        for t_user in self.twitter_username:
-            if len(self.display_name[t_user]) > 30:
-                self.display_name[t_user] = self.display_name[t_user][:30]
-                log_msg = _(
-                    "Mastodon doesn't support display names longer than 30 "
-                    "characters, truncating it and trying again..."
-                )
-                logger.warning(log_msg)
-        if hasattr(self, "rich_text"):
-            if self.rich_text:
-                self.rich_text = False
-                logger.warning(
-                    _("Mastodon doesn't support rich text. Disabling it...")
-                )
+
+
+def mastodon_enforce_limits(self):
+    for t_user in self.twitter_username:
+        if len(self.display_name[t_user]) > 30:
+            self.display_name[t_user] = self.display_name[t_user][:30]
+            log_msg = _(
+                "Mastodon doesn't support display names longer than 30 "
+                "characters, truncating it and trying again..."
+            )
+            logger.warning(log_msg)
+    if hasattr(self, "rich_text"):
+        if self.rich_text:
+            self.rich_text = False
+            logger.warning(
+                _("Mastodon doesn't support rich text. Disabling it...")
+            )
 
 
 def force_date(self):
