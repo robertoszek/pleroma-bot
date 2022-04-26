@@ -4,7 +4,7 @@ If you haven't already, you need to [apply for a Twitter developer account](http
 
 The process involves some review of the developer account application by Twitter and it's very likely you'll be asked for some details pertaining your usecase. It usually doesn't take longer than a day or two to complete the application, the back and forth is mostly automated on their part.
 
-Additionally, Twitter introduced a new tier of access (*Elevated*) to their API projects and although existing projects (before Nov 2020) were promoted automatically, new users will only get Essential access instead by default, in which requests to API v1.1 are disabled. 
+Additionally, Twitter introduced a new tier of access (*Elevated*) to their API projects and although existing projects (before Nov 2021) were promoted automatically, new users will only get Essential access instead by default, in which requests to API v1.1 are disabled. 
 
 We still use v1.1 for downloading videos and profile banners, and as of now there is no available alternative in v2.
 
