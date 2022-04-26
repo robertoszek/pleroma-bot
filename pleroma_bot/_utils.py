@@ -469,6 +469,7 @@ def _get_instance_info(self):
             if "metadata" in nodeinfo_json:
                 metadata = nodeinfo_json["metadata"]
                 self.max_post_length = metadata["maxNoteTextLength"]
+                self.max_attachments = 16
     except (JSONDecodeError, requests.exceptions.HTTPError):
         msg = _("Instance response was not understood {}").format(
             response.text
@@ -477,6 +478,7 @@ def _get_instance_info(self):
     if self.instance == "mastodon":
         logger.debug(_("Target instance is Mastodon..."))
         self.max_post_length = 500
+        self.max_attachments = 4
 
 
 def mastodon_enforce_limits(self):

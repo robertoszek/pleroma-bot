@@ -104,6 +104,7 @@ class User(object):
         self.t_user_tweets = {}
         self.twitter_ids = {}
         self.instance = ""
+        self.max_attachments = 16
         valid_visibility = ("public", "unlisted", "private", "direct")
         valid_visibility_mk = ("public", "home", "followers", "specified")
         default_cfg_attributes = {

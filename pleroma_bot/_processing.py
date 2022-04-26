@@ -218,7 +218,8 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
     tweet_rt = {"data": tweet}
     tw_data = tweet_rt["data"]
     i = 0
-    while "referenced_tweets" in tw_data.keys():
+    max_at = self.max_attachments
+    while "referenced_tweets" in tw_data.keys() and len(media) < max_at:
         for reference in tw_data["referenced_tweets"]:
             retweeted = reference["type"] == "retweeted"
             quoted = reference["type"] == "quoted"
