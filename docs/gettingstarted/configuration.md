@@ -60,7 +60,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | access_token_key     |   Yes    |                            | OAuth 1.0a Twitter Access Token Key (only needed for protected accounts)                                              |
 | access_token_secret  |   Yes    |                            | OAuth 1.0a Twitter Access Token Secret (only needed for protected accounts)                                           |
 | nitter               |   Yes    | false                      | If Twitter links should be changed to nitter ones                                                                     |
-| nitter_base_url      |   Yes    | https://nitter.net         | Change this to your preferred nitter instance                                                                         |
+| nitter_base_url      |   Yes    | https://nitter.net         | Change this to your [preferred nitter instance](https://github.com/zedeus/nitter/wiki/Instances)                      |
 | signature            |   Yes    | false                      | Add a link to the original status                                                                                     |
 | media_upload         |   Yes    | true                       | Download Twitter attachments and add them to the Fediverse posts                                                      |
 | rich_text            |   Yes    | false                      | Transform mentions to links pointing to the mentioned Twitter profile                                                 |
@@ -78,7 +78,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | original_date_format |   Yes    | "%Y-%m-%d %H:%M"           | Date format to use when adding the creation date of the tweet to the Fediverse post                                   |
 | keep_media_links     |   Yes    | false                      | Keep redundant media links on the tweet text or not (`https://twitter.com/<display_name>/status/<tweet_id>/photo/1`)  |
 | invidious            |   Yes    | false                      | If Youtube links should be replaced with invidious ones                                                               |
-| invidious_base_url   |   Yes    | https://yewtu.be           | Change this to your preferred invidious instance                                                                      |
+| invidious_base_url   |   Yes    | https://yewtu.be           | Change this to your [preferred invidious instance](https://docs.invidious.io/instances/)                              |
 
 There a few mappings *exclusive* to users:
 
