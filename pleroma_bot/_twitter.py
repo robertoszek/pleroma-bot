@@ -239,7 +239,7 @@ def _get_tweets_v2(
                                "voting_status",
                 "media.fields": "duration_ms,height,media_key,"
                                 "preview_image_url,type,url,width,"
-                                "public_metrics",
+                                "public_metrics,alt_text",
                 "expansions": "attachments.poll_ids,"
                               "attachments.media_keys,author_id,"
                               "entities.mentions.username,geo.place_id,"
@@ -298,7 +298,7 @@ def _get_tweets_v2(
                            "voting_status",
             "media.fields": "duration_ms,height,media_key,"
                             "preview_image_url,type,url,width,"
-                            "public_metrics",
+                            "public_metrics,alt_text",
             "expansions": "attachments.poll_ids,"
                           "attachments.media_keys,author_id,"
                           "entities.mentions.username,geo.place_id,"

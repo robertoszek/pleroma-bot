@@ -157,7 +157,7 @@ def test_check_pinned_exception_user(sample_users, mock_request):
         f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
         f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
         f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
-        f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+        f"%2Curl%2Cwidth%2Cpublic_metrics%2Calt_text&expansions="
         f"attachments.poll_ids%2Cattachments.media_keys"
         f"%2Cauthor_id%2Centities.mentions.username"
         f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
@@ -759,7 +759,7 @@ def test__get_tweets_v2_exception(sample_users):
                     f"fields=duration_minutes%2Cend_datetime%2Cid"
                     f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
                     f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
-                    f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+                    f"%2Curl%2Cwidth%2Cpublic_metrics%2Calt_text&expansions="
                     f"attachments.poll_ids%2Cattachments.media_keys"
                     f"%2Cauthor_id%2Centities.mentions.username"
                     f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
@@ -980,7 +980,7 @@ def test__download_media_exception(sample_users, caplog):
             sample_user_obj = sample_user['user_obj']
             media_url = "https://mymock.media/img.jpg"
             mock.get(media_url, status_code=500)
-            media = [{'url': media_url, 'type': 'image'}]
+            media = [{'url': media_url, 'type': 'image', 'media_key': '3_123'}]
             tweet = None
             with pytest.raises(requests.exceptions.HTTPError) as error_info:
                 sample_user_obj._download_media(media, tweet)

@@ -52,10 +52,17 @@ def get_date_last_pleroma_post(self):
     return date_pleroma
 
 
-def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
+def post_pleroma(
+        self,
+        tweet: tuple,
+        poll: dict,
+        sensitive: bool,
+        media: list = None
+) -> str:
     """Post the given text to the Pleroma instance associated with the
     User object
 
+    :param media: List containing media metadata
     :param tweet: Tuple containing tweet_id, tweet_text. The ID will be used to
     link to the Twitter status if 'signature' is True and to find related media
     tweet_text is the literal text to use when creating the post.
@@ -79,11 +86,16 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
         if os.path.isdir(tweet_folder):
             media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
+                # for file in media_files:
                 file_path = os.path.join(tweet_folder, file)
                 media_file = open(file_path, "rb")
                 file_size = os.stat(os.path.join(tweet_folder, file)).st_size
                 size_mb = round(file_size / 1048576, 2)
-
+                alt_text = None
+                if media:
+                    key = file.split("-")[1].split(".")[0]
+                    item = media[key][0]
+                    alt_text = item["alt_text"] if "alt_text" in item else None
                 mime_type = guess_type(os.path.join(tweet_folder, file))
                 timestamp = int(float(datetime.now().timestamp()))
                 file_name = (
@@ -95,8 +107,18 @@ def post_pleroma(self, tweet: tuple, poll: dict, sensitive: bool) -> str:
                 )
                 file_description = (file_name, media_file, mime_type)
                 files = {"file": file_description}
+                data = {}
+                if alt_text:  # pragma
+                    data.update(
+                        {
+                            "description": alt_text
+                        }
+                    )
                 response = requests.post(
-                    pleroma_media_url, headers=self.header_pleroma, files=files
+                    pleroma_media_url,
+                    data,
+                    headers=self.header_pleroma,
+                    files=files
                 )
                 try:
                     if not response.ok:

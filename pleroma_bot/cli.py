@@ -550,6 +550,7 @@ def main():
                             (tweet["id"], tweet["text"], tweet["created_at"]),
                             tweet["polls"],
                             tweet["possibly_sensitive"],
+                            tweets_to_post["media_processed"]
                         )
                         posted[tweet["id"]] = post_id
                         time.sleep(user.delay_post)

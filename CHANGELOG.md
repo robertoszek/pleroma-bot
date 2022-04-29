@@ -13,7 +13,8 @@
 - The rest of the users of the config are processed, even if another one fails (errors will be logged accordingly and pleroma-bot will exit with non-zero exit code)
 - Recover from hitting rate limits for Twitter's API (HTTP 429 Too Many Requests)
 - Twitter bio links are now expanded by default if the Fedi instance bio's maximum length is not exceeded
-- Maximum number of attachments allowed per post are now taken into account depending on the instance type (Mastodon, Pleroma or Misskey) 
+- Maximum number of attachments allowed per post are now taken into account depending on the instance type (Mastodon, Pleroma or Misskey)
+- Alt text/Image descriptions are now mirrored on the Fediverse post image description/comment
 
 ## Added
 - `include_quotes` config mapping, for including or excluding quoted tweets

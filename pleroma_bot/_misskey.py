@@ -18,10 +18,11 @@ from .i18n import _
 from ._utils import random_string, guess_type
 
 
-def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:
+def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
     """Post the given text to the Misskey instance associated with the
     User object
 
+    :param media: List containing media
     :param tweet: Tuple containing tweet_id, tweet_text. The ID will be used to
     link to the Twitter status if 'signature' is True and to find related media
     tweet_text is the literal text to use when creating the post.
@@ -47,7 +48,9 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:
             media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
                 file_path = os.path.join(tweet_folder, file)
-                media_id = _upload_media_misskey(self, file_path, sensitive)
+                media_id = _upload_media_misskey(
+                    self, file_path, sensitive, media
+                )
                 if media_id is not None:
                     media_ids.append(media_id)
 
@@ -57,8 +60,9 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive) -> str:
         "i": self.pleroma_token,
         # cw: '',
     }
+
     if len(media_ids) != 0:
-        data.update({"mediaIds": media_ids})
+        data.update({"fileIds": media_ids})
 
     if poll:
         data.update(
@@ -124,13 +128,18 @@ def get_date_last_misskey_post(self):
     return date_misskey
 
 
-def _upload_media_misskey(self, file_path, sensitive=False):
+def _upload_media_misskey(self, file_path, sensitive=False, media=None):
     misskey_media_url = f"{self.pleroma_base_url}/api/drive/files/create"
     media_id = None
     media_file = open(file_path, "rb")
     file_size = os.stat(file_path).st_size
     size_mb = round(file_size / 1048576, 2)
-
+    file = os.path.splitext(os.path.split(file_path)[1])[0]
+    alt_text = None
+    if media:
+        key = file.split("-")[1].split(".")[0]
+        m_item = media[key][0]
+        alt_text = m_item["alt_text"] if "alt_text" in m_item else None
     mime_type = guess_type(os.path.join(file_path))
     timestamp = int(float(datetime.now().timestamp()))
     file_name = (
@@ -144,6 +153,7 @@ def _upload_media_misskey(self, file_path, sensitive=False):
     files = {"file": file_description}
 
     data = {"i": self.pleroma_token}
+
     enc_mixin = requests.models.RequestEncodingMixin
     body, content_type = enc_mixin._encode_files(
         files, data
@@ -168,6 +178,16 @@ def _upload_media_misskey(self, file_path, sensitive=False):
                 "fileId": media_id,
                 "i": self.pleroma_token,
                 "isSensitive": sensitive
+            }
+            response = requests.post(update_url, data=json.dumps(data))
+            if not response.ok:
+                response.raise_for_status()
+        if alt_text:  # pragma
+            update_url = f"{self.pleroma_base_url}/api/drive/files/update"
+            data = {
+                "fileId": media_id,
+                "i": self.pleroma_token,
+                "comment": alt_text
             }
             response = requests.post(update_url, data=json.dumps(data))
             if not response.ok:

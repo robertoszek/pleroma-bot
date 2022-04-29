@@ -223,6 +223,7 @@
       },
       {
         "type": "photo",
+        "alt_text": "Hey hey",
         "media_key": "3_1323048111057604610",
         "url": "https://pbs.twimg.com/media/ElxpP0hXEAI9X-H.jpg",
         "height": 540,

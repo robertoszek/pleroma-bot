@@ -77,7 +77,7 @@ def process_tweets(self, tweets_to_post):
             except KeyError:
                 tweets_to_post["data"].remove(tweet)
                 pass
-
+    all_media = []
     for tweet in tweets_to_post["data"]:
         media = []
         logger.debug(tweet["id"])
@@ -120,6 +120,7 @@ def process_tweets(self, tweets_to_post):
                 tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
                 os.makedirs(tweet_path, exist_ok=True)
                 _download_media(self, media, tweet)
+                all_media.extend(media)
 
         if not self.keep_media_links:
             tweet["text"] = _remove_media_links(self, tweet)
@@ -185,7 +186,7 @@ def process_tweets(self, tweets_to_post):
                 ).format(self.max_post_length)
             )
             tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
-
+    tweets_to_post["media_processed"] = all_media
     return tweets_to_post
 
 
@@ -309,6 +310,7 @@ def _download_media(self, media, tweet):
             media_url = _get_best_bitrate_video(self, item)
 
         if media_url:
+            key = item["media_key"] if not self.archive else item["id"]
             response = requests.get(media_url, stream=True)
             try:
                 if not response.ok:
@@ -326,7 +328,7 @@ def _download_media(self, media, tweet):
                 else:
                     response.raise_for_status()
             response.raw.decode_content = True
-            filename = str(idx) + mimetypes.guess_extension(
+            filename = str(idx) + "-" + key + mimetypes.guess_extension(
                 response.headers["Content-Type"]
             )
             file_path = os.path.join(
@@ -483,6 +485,7 @@ def _get_media_url(self, item, media_include, tweet):
             tweet_video = self._get_tweets("v1.1", tweet["id"])
             xmd = tweet_video["extended_entities"]["media"]
             for extended_media in xmd:
+                extended_media["media_key"] = item
                 media_urls.append(extended_media)
             return media_urls
         else:

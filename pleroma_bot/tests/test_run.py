@@ -754,9 +754,9 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
                     dict_hash = {
-                        '0.mp4': mp4_hash,
-                        '0.png': png_hash,
-                        '0.gif': gif_hash
+                        '0-7_1323049175848833033.mp4': mp4_hash,
+                        '0-3_1323048111057604610.png': png_hash,
+                        '0-16_1323048298190721024.gif': gif_hash
                     }
                     if os.path.isdir(tweet_folder):
                         for file in os.listdir(tweet_folder):
@@ -1012,7 +1012,13 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                     assert tweets == mock_request['sample_data']['tweets_v1']
 
                     tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
-
+                    media = tweets_to_post["media_processed"]
+                    media = {
+                        key: [
+                            l_item for l_item in media if
+                            l_item['media_key'] == key
+                        ] for key in set([i['media_key'] for i in media])
+                    }
                     for tweet in tweets_to_post['data']:
                         if sample_user_obj.signature:
                             sample_user_obj.post_pleroma(
@@ -1020,7 +1026,10 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"]
-                                ), None, False
+                                ),
+                                None,
+                                False,
+                                media
                             )
                             history = mock.request_history
                             assert nitter_instance in parse.unquote(

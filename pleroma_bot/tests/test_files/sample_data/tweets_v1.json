@@ -627,6 +627,7 @@
           "display_url": "pic.twitter.com/paDoCjOmxr",
           "expanded_url": "https://twitter.com/BotPleroma/status/1323048139251658753/photo/1",
           "type": "photo",
+          "alt_text": "Hey hey",
           "sizes": {
             "thumb": {
               "w": 150,

@@ -112,10 +112,12 @@ def process_parallel(tweets, user, threads):
     tweets_merged = {
         "data": [],
         "includes": tweets["includes"],
-        "meta": tweets["meta"]
+        "meta": tweets["meta"],
+        "media_processed": []
     }
     for idx in range(threads):
         tweets_merged["data"].extend(ret[idx]["data"])
+        tweets_merged["media_processed"].extend(ret[idx]["media_processed"])
     tweets_merged["data"] = sorted(
         tweets_merged["data"], key=lambda i: i["created_at"]
     )
@@ -180,6 +182,7 @@ class Locker:
     """
     Context manager that creates lock file
     """
+
     def __init__(self, timeout=5):
         module_name = __loader__.name.split('.')[0]
         lock_filename = f"{module_name}.lock"
@@ -603,13 +606,20 @@ def get_tweets_from_archive(tweet_js_path):
     return json_t["tweets"]
 
 
-def post(self, tweet: tuple, poll: dict, sensitive) -> str:
+def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
     post_id = None
     instance = self.instance
+    if media:
+        media_id = 'id' if self.archive else 'media_key'
+        media = {
+            key: [
+                l_item for l_item in media if l_item[media_id] == key
+            ] for key in set([i[media_id] for i in media])
+        }
     if instance == "mastodon" or instance == "pleroma" or instance is None:
-        post_id = self.post_pleroma(tweet, poll, sensitive)
+        post_id = self.post_pleroma(tweet, poll, sensitive, media)
     elif self.instance == "misskey":
-        post_id = self.post_misskey(tweet, poll, sensitive)
+        post_id = self.post_misskey(tweet, poll, sensitive, media)
     return post_id
 
 
