@@ -124,7 +124,8 @@ def mock_request(rootdir):
             raw=empty_resp,
         )
         mock.head("http://github.com", raw=empty_resp, status_code=200)
-        mock.get(f"{twitter_base_url}/statuses/show.json",
+        mock.get(f"{twitter_base_url}/statuses/show.json&include_entities=true"
+                 f"&tweet_mode=extended",
                  json=sample_data['tweet'],
                  status_code=200)
         mock_return['mock'] = mock
@@ -365,8 +366,19 @@ def _sample_users(mock_request, rootdir):
                      headers={'Content-Type': 'image/png'},
                      status_code=200)
             mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
-                     f"id=1323049214134407171",
+                     f"id=1323049214134407171&include_entities=true"
+                     f"&tweet_mode=extended",
                      json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049466837032961&include_entities=true"
+                     f"&tweet_mode=extended",
+                     json=mock_request['sample_data']['tweet'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323048312161947650&include_entities=true"
+                     f"&tweet_mode=extended",
+                     json=mock_request['sample_data']['tweet'],
                      status_code=200)
             mock.get("https://twitter.com/BotPleroma/status"
                      "/1474760145850806283/video/1",

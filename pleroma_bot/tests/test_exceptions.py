@@ -716,7 +716,8 @@ def test__get_tweets_exception(sample_users, mock_request):
                 tweet_id_url = (
                     f"{sample_user_obj.twitter_base_url}"
                     f"/statuses/show.json?id="
-                    f"{str(sample_user_obj.pinned_tweet_id)}"
+                    f"{str(sample_user_obj.pinned_tweet_id)}&include_entities"
+                    f"=true&tweet_mode=extended"
                 )
 
                 mock.get(tweet_id_url, status_code=500)

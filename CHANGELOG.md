@@ -7,6 +7,7 @@
 - Regression: Not asking for date when passing a specific Twitter username with `--forceDate`
 - Bug: Trying to find previously pinned post on empty Fediverse account resulted in an unhandled exception
 - Bug: Truncating when exceeding post max length resulted in signature links being broken if original date was enabled
+- Bug: Videos not being mirrored in some cases with extended tweets 
 
 ## Enhancements
 - Target instance's character limits when posting are taken into account and posts text are truncated if necessary

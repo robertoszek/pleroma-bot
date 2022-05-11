@@ -161,7 +161,8 @@ def _get_tweets(
         if tweet_id:
             twitter_status_url = (
                 f"{self.twitter_base_url}/statuses/"
-                f"show.json?id={str(tweet_id)}"
+                f"show.json?id={str(tweet_id)}&include_entities=true"
+                f"&tweet_mode=extended"
             )
             response = twitter_api_request(
                 'GET',
