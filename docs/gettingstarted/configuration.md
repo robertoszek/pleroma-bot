@@ -59,6 +59,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | consumer_secret      |   Yes    |                            | OAuth 1.0a Twitter Consumer Secret (only needed for protected accounts)                                               |
 | access_token_key     |   Yes    |                            | OAuth 1.0a Twitter Access Token Key (only needed for protected accounts)                                              |
 | access_token_secret  |   Yes    |                            | OAuth 1.0a Twitter Access Token Secret (only needed for protected accounts)                                           |
+| no_profile           |   Yes    | false                      | If set to true, the profile picture, banner, display name and bio will not be updated on the Fediverse account        |
 | nitter               |   Yes    | false                      | If Twitter links should be changed to nitter ones                                                                     |
 | nitter_base_url      |   Yes    | https://nitter.net         | Change this to your [preferred nitter instance](https://github.com/zedeus/nitter/wiki/Instances)                      |
 | signature            |   Yes    | false                      | Add a link to the original status                                                                                     |

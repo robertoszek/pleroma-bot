@@ -21,6 +21,7 @@
 - `include_quotes` config mapping, for including or excluding quoted tweets
 - `random_user_order` global config mapping, for randomizing the order in which users are processed
 - `{{ website }}` can be used on the metadata fields config and will be replaced with the website listed on the Twitter's account profile
+- `no_profile` config mapping, for skipping profile update (picture, banner, display name and bio) on a per-user basis
 
 ## [1.0.2] 21-02-2022
 ## Added

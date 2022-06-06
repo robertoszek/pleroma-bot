@@ -141,6 +141,7 @@ class User(object):
             "max_post_length": 5000,
             "include_quotes": True,
             "website": None,
+            "no_profile": False
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -557,7 +558,7 @@ def main():
                 if not user.skip_pin:
                     user.check_pinned(posted)
 
-                if not args.noProfile:
+                if not (user.no_profile or args.noProfile):
                     if user.skip_pin:
                         logger.warning(
                             _("Multiple twitter users, not updating profile")
