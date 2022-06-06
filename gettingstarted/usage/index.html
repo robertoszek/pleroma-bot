@@ -639,17 +639,24 @@ If you don't input any value and press <span class="keys"><kbd class="key-enter"
 </code></pre></div>
 
 <h2 id="only-gather-tweets">Only gather tweets<a class="headerlink" href="#only-gather-tweets" title="Permanent link">&para;</a></h2>
-<p>If the <code>--noProfile</code> argument is passed, <em>only</em> tweets will be posted. The profile picture, banner, display name and bio will <strong>not</strong> be updated on the Fediverse account and be skipped for all users in the config. </p>
-<p>This is useful if for whatever reason (data caps, server bandwidth) you prefer not downloading the profile image, banner, etc. every run.</p>
+<p>If the <code>--noProfile</code> argument is passed, <em>only</em> tweets will be posted. The profile picture, banner, display name and bio will <strong>not</strong> be updated on the Fediverse account and will be skipped for all users in the config.</p>
+<p>Alternatively, you can also choose to use the <code>no_profile</code> <a href="/pleroma-bot/gettingstarted/configuration/#mappings">mapping on your config</a>, setting it to <code>true</code> on the users you wish to do so:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyTwitterUser</span><span class="w"></span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MyPleromaUser</span><span class="w"></span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fedi.instance</span><span class="w"></span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="hll"><span class="w">  </span><span class="nt">no_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># &lt;--</span><span class="w"></span>
+</span></code></pre></div>
+This is useful if for whatever reason (data caps, server bandwidth) you prefer not downloading the profile image, banner, etc. every run.</p>
 <h2 id="custom-path-for-log-and-config">Custom path for log and config<a class="headerlink" href="#custom-path-for-log-and-config" title="Permanent link">&para;</a></h2>
 <p>Arguments <code>--config</code> and <code>--log</code> can be used to specify a specific path for the configuration file and where the log file should be written to.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="gp">$ </span>pleroma-bot --config /path/to/config.yml --log /path/to/error.log
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="gp">$ </span>pleroma-bot --config /path/to/config.yml --log /path/to/error.log
 </code></pre></div>
 
 <p>When these arguments are omitted, <code>config.yml</code> from the current directory will be used as a configuration file and an <code>error.log</code> file will be written to the current working directory.</p>
 <h2 id="using-an-archive">Using an archive<a class="headerlink" href="#using-an-archive" title="Permanent link">&para;</a></h2>
 <p>A Twitter <a href="https://twitter.com/settings/your_twitter_data">archive</a> can also be provided with <code>--archive</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="gp">$ </span>pleroma-bot --archive /path/to/archive.zip
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="gp">$ </span>pleroma-bot --archive /path/to/archive.zip
 </code></pre></div>
 
 <p>This is particularly useful when trying to circumvent Twitter's API limitations, when you need to copy more than 3200 tweets or from an earlier date than <code>2010-11-06T00:00:00Z</code>.</p>

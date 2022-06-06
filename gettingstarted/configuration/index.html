@@ -709,6 +709,12 @@
 <td align="left">OAuth 1.0a Twitter Access Token Secret (only needed for protected accounts)</td>
 </tr>
 <tr>
+<td align="left">no_profile</td>
+<td align="center">Yes</td>
+<td align="left">false</td>
+<td align="left">If set to true, the profile picture, banner, display name and bio will not be updated on the Fediverse account</td>
+</tr>
+<tr>
 <td align="left">nitter</td>
 <td align="center">Yes</td>
 <td align="left">false</td>
@@ -718,7 +724,7 @@
 <td align="left">nitter_base_url</td>
 <td align="center">Yes</td>
 <td align="left"><a href="https://nitter.net">https://nitter.net</a></td>
-<td align="left">Change this to your preferred nitter instance</td>
+<td align="left">Change this to your <a href="https://github.com/zedeus/nitter/wiki/Instances">preferred nitter instance</a></td>
 </tr>
 <tr>
 <td align="left">signature</td>
@@ -749,6 +755,12 @@
 <td align="center">Yes</td>
 <td align="left">true</td>
 <td align="left">Include replies when posting tweets in the Fediverse account</td>
+</tr>
+<tr>
+<td align="left">include_quotes</td>
+<td align="center">Yes</td>
+<td align="left">true</td>
+<td align="left">Include quoted tweets when posting tweets in the Fediverse account</td>
 </tr>
 <tr>
 <td align="left">hashtags</td>
@@ -820,7 +832,7 @@
 <td align="left">invidious_base_url</td>
 <td align="center">Yes</td>
 <td align="left"><a href="https://yewtu.be">https://yewtu.be</a></td>
-<td align="left">Change this to your preferred invidious instance</td>
+<td align="left">Change this to your <a href="https://docs.invidious.io/instances/">preferred invidious instance</a></td>
 </tr>
 </tbody>
 </table>
@@ -864,6 +876,25 @@
 <td align="center">Yes</td>
 <td align="left"></td>
 <td align="left">Optional metadata fields (sequence of name-value pairs) for the Fediverse profile</td>
+</tr>
+</tbody>
+</table>
+<p>And mappings that can only be used <em>globally</em>:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Global mapping</th>
+<th align="center">Optional</th>
+<th align="left">Default</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">random_user_order</td>
+<td align="center">Yes</td>
+<td align="left">false</td>
+<td align="left">Randomize the order of processing users on your config</td>
 </tr>
 </tbody>
 </table>
@@ -954,33 +985,35 @@
 <a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">afraid</span><span class="nv"> </span><span class="s">I</span><span class="nv"> </span><span class="s">cannot</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">that.&quot;</span><span class="w"></span>
 <a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Source&quot;</span><span class="w"></span>
 <a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span><span class="w"></span>
-<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a><span class="c1"># Mastodon instance example</span><span class="w"></span>
-<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span><span class="w"></span>
-<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24660</span><span class="w"></span>
-<a id="__codelineno-6-46" name="__codelineno-6-46" href="#__codelineno-6-46"></a><span class="w">  </span><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span><span class="w"></span>
-<a id="__codelineno-6-47" name="__codelineno-6-47" href="#__codelineno-6-47"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
-<a id="__codelineno-6-48" name="__codelineno-6-48" href="#__codelineno-6-48"></a><span class="w">  </span><span class="c1"># Mastodon doesn&#39;t support rich text!</span><span class="w"></span>
-<a id="__codelineno-6-49" name="__codelineno-6-49" href="#__codelineno-6-49"></a><span class="w">  </span><span class="nt">rich_text</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<a id="__codelineno-6-50" name="__codelineno-6-50" href="#__codelineno-6-50"></a><span class="w">  </span><span class="nt">signature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<a id="__codelineno-6-51" name="__codelineno-6-51" href="#__codelineno-6-51"></a><span class="w">  </span><span class="nt">nitter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<a id="__codelineno-6-52" name="__codelineno-6-52" href="#__codelineno-6-52"></a><span class="w">  </span><span class="nt">visibility</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;unlisted&quot;</span><span class="w"></span>
-<a id="__codelineno-6-53" name="__codelineno-6-53" href="#__codelineno-6-53"></a><span class="w">  </span><span class="nt">media_upload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<a id="__codelineno-6-54" name="__codelineno-6-54" href="#__codelineno-6-54"></a><span class="w">  </span><span class="nt">max_tweets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
-<a id="__codelineno-6-55" name="__codelineno-6-55" href="#__codelineno-6-55"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">BEEP</span><span class="nv"> </span><span class="s">BOOP</span><span class="nv"> </span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">\nI&#39;m</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bot</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">mirrors\</span>
-<a id="__codelineno-6-56" name="__codelineno-6-56" href="#__codelineno-6-56"></a><span class="w">    </span><span class="s">\ {{</span><span class="nv"> </span><span class="s">twitter_username</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">Twitter&#39;s</span><span class="nv"> </span><span class="s">account.</span><span class="nv"> </span><span class="s">\nAny</span><span class="nv"> </span><span class="s">issues</span><span class="nv"> </span><span class="s">please</span><span class="nv"> </span><span class="s">\</span>
-<a id="__codelineno-6-57" name="__codelineno-6-57" href="#__codelineno-6-57"></a><span class="w">    </span><span class="err">\</span><span class="s">contact</span><span class="nv"> </span><span class="s">@{{</span><span class="nv"> </span><span class="s">support_account</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">&quot;</span><span class="w"></span>
-<a id="__codelineno-6-58" name="__codelineno-6-58" href="#__codelineno-6-58"></a><span class="w">  </span><span class="nt">fields</span><span class="p">:</span><span class="w"></span>
-<a id="__codelineno-6-59" name="__codelineno-6-59" href="#__codelineno-6-59"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F426</span><span class="nv"> </span><span class="s">Birdsite&quot;</span><span class="w"></span>
-<a id="__codelineno-6-60" name="__codelineno-6-60" href="#__codelineno-6-60"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">twitter_url</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
-<a id="__codelineno-6-61" name="__codelineno-6-61" href="#__codelineno-6-61"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Status&quot;</span><span class="w"></span>
-<a id="__codelineno-6-62" name="__codelineno-6-62" href="#__codelineno-6-62"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">completely</span><span class="nv"> </span><span class="s">operational.&quot;</span><span class="w"></span>
-<a id="__codelineno-6-63" name="__codelineno-6-63" href="#__codelineno-6-63"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Source&quot;</span><span class="w"></span>
-<a id="__codelineno-6-64" name="__codelineno-6-64" href="#__codelineno-6-64"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span><span class="w"></span>
-<a id="__codelineno-6-65" name="__codelineno-6-65" href="#__codelineno-6-65"></a><span class="c1"># Minimal config example</span><span class="w"></span>
-<a id="__codelineno-6-66" name="__codelineno-6-66" href="#__codelineno-6-66"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arstechnica</span><span class="w"></span>
-<a id="__codelineno-6-67" name="__codelineno-6-67" href="#__codelineno-6-67"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mynewsbot</span><span class="w"></span>
-<a id="__codelineno-6-68" name="__codelineno-6-68" href="#__codelineno-6-68"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
-<a id="__codelineno-6-69" name="__codelineno-6-69" href="#__codelineno-6-69"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"></span>
+<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;WWW&quot;</span><span class="w"></span>
+<a id="__codelineno-6-44" name="__codelineno-6-44" href="#__codelineno-6-44"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">website</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"> </span><span class="c1"># Website defined in Twitter profile</span><span class="w"></span>
+<a id="__codelineno-6-45" name="__codelineno-6-45" href="#__codelineno-6-45"></a><span class="c1"># Mastodon instance example</span><span class="w"></span>
+<a id="__codelineno-6-46" name="__codelineno-6-46" href="#__codelineno-6-46"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WoolieWoolz</span><span class="w"></span>
+<a id="__codelineno-6-47" name="__codelineno-6-47" href="#__codelineno-6-47"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24660</span><span class="w"></span>
+<a id="__codelineno-6-48" name="__codelineno-6-48" href="#__codelineno-6-48"></a><span class="w">  </span><span class="nt">pleroma_base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://botsin.space</span><span class="w"></span>
+<a id="__codelineno-6-49" name="__codelineno-6-49" href="#__codelineno-6-49"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-6-50" name="__codelineno-6-50" href="#__codelineno-6-50"></a><span class="w">  </span><span class="c1"># Mastodon doesn&#39;t support rich text!</span><span class="w"></span>
+<a id="__codelineno-6-51" name="__codelineno-6-51" href="#__codelineno-6-51"></a><span class="w">  </span><span class="nt">rich_text</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<a id="__codelineno-6-52" name="__codelineno-6-52" href="#__codelineno-6-52"></a><span class="w">  </span><span class="nt">signature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-6-53" name="__codelineno-6-53" href="#__codelineno-6-53"></a><span class="w">  </span><span class="nt">nitter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-6-54" name="__codelineno-6-54" href="#__codelineno-6-54"></a><span class="w">  </span><span class="nt">visibility</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;unlisted&quot;</span><span class="w"></span>
+<a id="__codelineno-6-55" name="__codelineno-6-55" href="#__codelineno-6-55"></a><span class="w">  </span><span class="nt">media_upload</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<a id="__codelineno-6-56" name="__codelineno-6-56" href="#__codelineno-6-56"></a><span class="w">  </span><span class="nt">max_tweets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
+<a id="__codelineno-6-57" name="__codelineno-6-57" href="#__codelineno-6-57"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">BEEP</span><span class="nv"> </span><span class="s">BOOP</span><span class="nv"> </span><span class="se">\U0001F916</span><span class="nv"> </span><span class="s">\nI&#39;m</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bot</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">mirrors\</span>
+<a id="__codelineno-6-58" name="__codelineno-6-58" href="#__codelineno-6-58"></a><span class="w">    </span><span class="s">\ {{</span><span class="nv"> </span><span class="s">twitter_username</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">Twitter&#39;s</span><span class="nv"> </span><span class="s">account.</span><span class="nv"> </span><span class="s">\nAny</span><span class="nv"> </span><span class="s">issues</span><span class="nv"> </span><span class="s">please</span><span class="nv"> </span><span class="s">\</span>
+<a id="__codelineno-6-59" name="__codelineno-6-59" href="#__codelineno-6-59"></a><span class="w">    </span><span class="err">\</span><span class="s">contact</span><span class="nv"> </span><span class="s">@{{</span><span class="nv"> </span><span class="s">support_account</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">\n</span><span class="nv"> </span><span class="s">&quot;</span><span class="w"></span>
+<a id="__codelineno-6-60" name="__codelineno-6-60" href="#__codelineno-6-60"></a><span class="w">  </span><span class="nt">fields</span><span class="p">:</span><span class="w"></span>
+<a id="__codelineno-6-61" name="__codelineno-6-61" href="#__codelineno-6-61"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\U0001F426</span><span class="nv"> </span><span class="s">Birdsite&quot;</span><span class="w"></span>
+<a id="__codelineno-6-62" name="__codelineno-6-62" href="#__codelineno-6-62"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">twitter_url</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
+<a id="__codelineno-6-63" name="__codelineno-6-63" href="#__codelineno-6-63"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Status&quot;</span><span class="w"></span>
+<a id="__codelineno-6-64" name="__codelineno-6-64" href="#__codelineno-6-64"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;I</span><span class="nv"> </span><span class="s">am</span><span class="nv"> </span><span class="s">completely</span><span class="nv"> </span><span class="s">operational.&quot;</span><span class="w"></span>
+<a id="__codelineno-6-65" name="__codelineno-6-65" href="#__codelineno-6-65"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Source&quot;</span><span class="w"></span>
+<a id="__codelineno-6-66" name="__codelineno-6-66" href="#__codelineno-6-66"></a><span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://gitea.robertoszek.xyz/robertoszek/pleroma-bot&quot;</span><span class="w"></span>
+<a id="__codelineno-6-67" name="__codelineno-6-67" href="#__codelineno-6-67"></a><span class="c1"># Minimal config example</span><span class="w"></span>
+<a id="__codelineno-6-68" name="__codelineno-6-68" href="#__codelineno-6-68"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">twitter_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arstechnica</span><span class="w"></span>
+<a id="__codelineno-6-69" name="__codelineno-6-69" href="#__codelineno-6-69"></a><span class="w">  </span><span class="nt">pleroma_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mynewsbot</span><span class="w"></span>
+<a id="__codelineno-6-70" name="__codelineno-6-70" href="#__codelineno-6-70"></a><span class="w">  </span><span class="nt">pleroma_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span><span class="w"></span>
+<a id="__codelineno-6-71" name="__codelineno-6-71" href="#__codelineno-6-71"></a><span class="w">  </span><span class="nt">bio_text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"></span>
 </code></pre></div>
 
 <h2 id="mastodon"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M433 179.11c0-97.2-63.71-125.7-63.71-125.7-62.52-28.7-228.56-28.4-290.48 0 0 0-63.72 28.5-63.72 125.7 0 115.7-6.6 259.4 105.63 289.1 40.51 10.7 75.32 13 103.33 11.4 50.81-2.8 79.32-18.1 79.32-18.1l-1.7-36.9s-36.31 11.4-77.12 10.1c-40.41-1.4-83-4.4-89.63-54a102.54 102.54 0 0 1-.9-13.9c85.63 20.9 158.65 9.1 178.75 6.7 56.12-6.7 105-41.3 111.23-72.9 9.8-49.8 9-121.5 9-121.5zm-75.12 125.2h-46.63v-114.2c0-49.7-64-51.6-64 6.9v62.5h-46.33V197c0-58.5-64-56.6-64-6.9v114.2H90.19c0-122.1-5.2-147.9 18.41-175 25.9-28.9 79.82-30.8 103.83 6.1l11.6 19.5 11.6-19.5c24.11-37.1 78.12-34.8 103.83-6.1 23.71 27.3 18.4 53 18.4 175z"/></svg></span> Mastodon<a class="headerlink" href="#mastodon" title="Permanent link">&para;</a></h2>
