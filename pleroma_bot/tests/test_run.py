@@ -1575,6 +1575,9 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         # Clean-up
         if os.path.isfile(backup_config):
             shutil.copy(backup_config, prev_config)
+        archive_dir = os.path.join(media_dir, 'twitter-archive')
+        if os.path.isdir(archive_dir):
+            shutil.rmtree(archive_dir)
         for sample_user in sample_users:
             sample_user_obj = sample_user['user_obj']
             for t_user in sample_user_obj.twitter_username:
