@@ -215,6 +215,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 **Tested and confirmed working against** :
-* ```Pleroma BE 2.2.50-711-g100e34b4-develop```
+* ```Pleroma BE 2.4.2```
 * ```Mastodon v3.2.1```
+* ```Misskey 12.110.1```
 * ```Twitter API v1.1 and v2```

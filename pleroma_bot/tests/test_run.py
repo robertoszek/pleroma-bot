@@ -292,6 +292,188 @@ def test_check_pinned_tweet(sample_users, mock_request):
                 os.remove(pinned_pleroma)
 
 
+def test_check_pinned_tweet_misskey(sample_users, mock_request):
+    """
+    Needs to test the following Previous - Current pin statuses:
+        Pinned -> Pinned (same pin)
+        Pinned -> Pinned (diff pin)
+        Pinned -> None
+        None   -> None
+        None   -> Pinned
+    """
+    test_user = UserTemplate()
+    # Pinned -> Pinned
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            sample_user_obj.instance = "misskey"
+            for t_user in sample_user_obj.twitter_username:
+                idx = sample_user_obj.twitter_username.index(t_user)
+                pinned = sample_user_obj.pinned_tweet_id
+                assert pinned == test_user.pinned
+                mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                         f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
+                         f"%2Coptions%2Cvoting_status&media.fields=duration_"
+                         f"ms%2Cheight%2Cmedia_key%2Cpreview_image_url%2C"
+                         f"type%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+                         f"attachments.poll_ids%2Cattachments.media_keys%2C"
+                         f"author_id%2Centities.mentions.username%2C"
+                         f"geo.place_id%2Cin_reply_to_user_id%2C"
+                         f"referenced_tweets.id%2Creferenced_tweets.id."
+                         f"author_id&tweet.fields=attachments%2Cauthor_id"
+                         f"%2Ccontext_annotations%2Cconversation_id%2C"
+                         f"created_at%2Centities%2Cgeo%2Cid%2C"
+                         f"in_reply_to_user_id%2Clang%2Cpublic_metrics%"
+                         f"2Cpossibly_sensitive%2Creferenced_tweets%2C"
+                         f"source%2Ctext%2Cwithheld",
+                         json=mock_request['sample_data']['pinned_tweet'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
+                         f"&expansions=attachments.poll_ids"
+                         f"&poll.fields=duration_minutes%2Coptions",
+                         json=mock_request['sample_data']['poll'],
+                         status_code=200)
+                pinned_file = os.path.join(
+                    os.getcwd(),
+                    'users',
+                    sample_user_obj.twitter_username[idx],
+                    'pinned_id.txt'
+                )
+                with open(pinned_file, "w") as f:
+                    f.write(test_user.pinned + "\n")
+                sample_user_obj.check_pinned()
+                pinned_path = os.path.join(
+                    os.getcwd(),
+                    'users',
+                    sample_user_obj.twitter_username[idx],
+                    'pinned_id.txt'
+                )
+                pinned_pleroma = os.path.join(
+                    os.getcwd(),
+                    'users',
+                    sample_user_obj.twitter_username[idx],
+                    'pinned_id_pleroma.txt'
+                )
+                with open(pinned_path, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == test_user.pinned
+
+                # Pinned -> Pinned (different ID)
+                pinned_url = (
+                    f"{test_user.twitter_base_url_v2}/users/by/username/"
+                    f"{sample_user_obj.twitter_username[idx]}"
+                )
+                mock.get(pinned_url,
+                         json=mock_request['sample_data']['pinned_2'],
+                         status_code=200)
+                new_pin_id = sample_user_obj._get_pinned_tweet_id()
+                sample_user_obj.pinned_tweet_id = new_pin_id
+                pinned = sample_user_obj.pinned_tweet_id
+                mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                         f"?poll.fields=duration_minutes%2C"
+                         f"end_datetime%2Cid%2Coptions%2C"
+                         f"voting_status&media.fields=duration_ms%2C"
+                         f"height%2Cmedia_key%2C"
+                         f"preview_image_url%2Ctype%2Curl%2C"
+                         f"width%2Cpublic_metrics&"
+                         f"expansions=attachments.poll_ids"
+                         f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                         f"entities.mentions.username%2Cgeo.place_id%2C"
+                         f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                         f"referenced_tweets.id.author_"
+                         f"id&tweet.fields=attachments"
+                         f"%2Cauthor_id%2Ccontext_"
+                         f"annotations%2Cconversation_id%2"
+                         f"Ccreated_at%2Centities%2Cgeo%2C"
+                         f"id%2Cin_reply_to_user_id"
+                         f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                         f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                         json=mock_request['sample_data']['pinned_tweet_2'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
+                         f"&expansions=attachments.poll_ids"
+                         f"&poll.fields=duration_minutes%2Coptions",
+                         json=mock_request['sample_data']['poll_2'],
+                         status_code=200)
+                sample_user_obj.check_pinned()
+                with open(pinned_path, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == test_user.pinned_2
+                id_pleroma = test_user.pleroma_pinned
+                with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == id_pleroma
+
+                # Pinned -> None
+                mock.get(f"{test_user.twitter_base_url_v2}/users/by/username/"
+                         f"{sample_user_obj.twitter_username[idx]}",
+                         json=mock_request['sample_data']['no_pinned'],
+                         status_code=200)
+                new_pin_id = sample_user_obj._get_pinned_tweet_id()
+                sample_user_obj.pinned_tweet_id = new_pin_id
+                sample_user_obj.check_pinned()
+                with open(pinned_path, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == ''
+                with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == ''
+                history = mock.request_history
+                unpin_url = (
+                    f"{sample_user_obj.pleroma_base_url}"
+                    f"/api/i/unpin"
+                )
+                assert unpin_url == history[-1].url
+
+                # None -> None
+                sample_user_obj.check_pinned()
+                with open(pinned_path, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == ''
+                with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == ''
+
+                # None -> Pinned
+                pinned_url = (
+                    f"{test_user.twitter_base_url_v2}/users/by/username/"
+                    f"{sample_user_obj.twitter_username[idx]}"
+                )
+                mock.get(pinned_url,
+                         json=mock_request['sample_data']['pinned'],
+                         status_code=200)
+                new_pin_id = sample_user_obj._get_pinned_tweet_id()
+                sample_user_obj.pinned_tweet_id = new_pin_id
+                pinned = sample_user_obj.pinned_tweet_id
+                mock.get(f"{test_user.twitter_base_url_v2}/tweets/{pinned}"
+                         f"?poll.fields=duration_minutes%2Cend_"
+                         f"datetime%2Cid%2C"
+                         f"options%2Cvoting_status&media.fields=duration_ms%2C"
+                         f"height%2Cmedia_key%2Cpreview"
+                         f"_image_url%2Ctype%2Curl%2C"
+                         f"width%2Cpublic_metrics&expans"
+                         f"ions=attachments.poll_ids"
+                         f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                         f"entities.mentions.username%2Cgeo.place_id%2C"
+                         f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
+                         f"referenced_tweets.id.author_id"
+                         f"&tweet.fields=attachments"
+                         f"%2Cauthor_id%2Ccontext_annotat"
+                         f"ions%2Cconversation_id%2"
+                         f"Ccreated_at%2Centities%2Cgeo%2"
+                         f"Cid%2Cin_reply_to_user_id"
+                         f"%2Clang%2Cpublic_metrics%2Cpossibly_sensitive%2C"
+                         f"referenced_tweets%2Csource%2Ctext%2Cwithheld",
+                         json=mock_request['sample_data']['pinned_tweet'],
+                         status_code=200)
+                mock.get(f"{test_user.twitter_base_url_v2}/tweets?ids={pinned}"
+                         f"&expansions=attachments.poll_ids"
+                         f"&poll.fields=duration_minutes%2Coptions",
+                         json=mock_request['sample_data']['poll'],
+                         status_code=200)
+                sample_user_obj.check_pinned()
+                with open(pinned_path, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == test_user.pinned
+                id_pleroma = test_user.pleroma_pinned
+                with open(pinned_pleroma, 'r', encoding='utf8') as f:
+                    assert f.readline().rstrip() == id_pleroma
+                os.remove(pinned_path)
+                os.remove(pinned_pleroma)
+
+
 def test_get_date_last_pleroma_post(sample_users):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -572,9 +754,9 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                         sample_user_obj.tweets_temp_path, tweet["id"]
                     )
                     dict_hash = {
-                        '0.mp4': mp4_hash,
-                        '0.png': png_hash,
-                        '0.gif': gif_hash
+                        '0-7_1323049175848833033.mp4': mp4_hash,
+                        '0-3_1323048111057604610.png': png_hash,
+                        '0-16_1323048298190721024.gif': gif_hash
                     }
                     if os.path.isdir(tweet_folder):
                         for file in os.listdir(tweet_folder):
@@ -830,7 +1012,13 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                     assert tweets == mock_request['sample_data']['tweets_v1']
 
                     tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
-
+                    media = tweets_to_post["media_processed"]
+                    media = {
+                        key: [
+                            l_item for l_item in media if
+                            l_item['media_key'] == key
+                        ] for key in set([i['media_key'] for i in media])
+                    }
                     for tweet in tweets_to_post['data']:
                         if sample_user_obj.signature:
                             sample_user_obj.post_pleroma(
@@ -838,7 +1026,10 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"]
-                                ), None, False
+                                ),
+                                None,
+                                False,
+                                media
                             )
                             history = mock.request_history
                             assert nitter_instance in parse.unquote(
@@ -1222,7 +1413,7 @@ def test__process_polls_with_media(sample_users):
             assert polls is None
 
 
-def test_force_date(sample_users, monkeypatch):
+def test_force_date_pleroma(sample_users, monkeypatch):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -1248,6 +1439,43 @@ def test_force_date(sample_users, monkeypatch):
             monkeypatch.setattr('builtins.input', lambda: "continue")
             date = sample_user_obj.force_date()
             assert date == sample_user_obj.get_date_last_pleroma_post()
+
+    return mock
+
+
+def test_force_date_misskey(sample_users, monkeypatch):
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            sample_user_obj.instance = "misskey"
+            monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+            date = sample_user_obj.force_date()
+            assert date == '2020-12-30T00:00:00Z'
+            monkeypatch.setattr('builtins.input', lambda: None)
+            date = sample_user_obj.force_date()
+            assert date == '2010-11-06T00:00:00Z'
+            mock.get(f"{sample_user_obj.pleroma_base_url}"
+                     f"/api/i",
+                     json={"id": 12345, "notesCount": 0},
+                     status_code=200)
+            sample_user_obj.posts = 'none_found'
+            monkeypatch.setattr('builtins.input', lambda: "continue")
+            date = sample_user_obj.force_date()
+            ts = datetime.strftime(
+                datetime.now() - timedelta(days=2), "%Y-%m-%dT%H:%M:%SZ"
+            )
+            assert date == ts
+            sample_user_obj.posts = None
+            mock.post(f"{sample_user_obj.pleroma_base_url}"
+                      f"/api/i",
+                      json={"id": 12345, "notesCount": 0},
+                      status_code=200)
+            monkeypatch.setattr('builtins.input', lambda: "continue")
+            date = sample_user_obj.force_date()
+            assert date == sample_user_obj.get_date_last_misskey_post()
+            sample_user_obj.first_time = True
+            date = sample_user_obj.force_date()
+            assert date == sample_user_obj.get_date_last_misskey_post()
 
     return mock
 
@@ -1304,6 +1532,11 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         ):
             assert cli.main() == 0
 
+        with patch.object(
+                sys, 'argv', ['', '--forceDate', '2021-12-13']
+        ):
+            assert cli.main() == 0
+
         # Test main() is called correctly when name equals __main__
         with patch.object(cli, "main", return_value=42):
             with patch.object(cli, "__name__", "__main__"):
@@ -1326,10 +1559,25 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
                 with patch.object(cli.sys, 'exit') as mock_exit:
                     cli.init()
                     assert mock_exit.call_args[0][0] == 42
+        test_user = UserTemplate()
+        nodeinfo = {
+            "software": {"name": "misskey"},
+            "metadata": {"maxNoteTextLength": 5000}
+        }
+        config_path = os.path.join(test_files_dir, 'config_mk.yml')
+        g_mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                   json=nodeinfo,
+                   status_code=200)
+        monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
+        with patch.object(sys, 'argv', ['', '--config', config_path]):
+            assert cli.main() == 0
 
         # Clean-up
         if os.path.isfile(backup_config):
             shutil.copy(backup_config, prev_config)
+        archive_dir = os.path.join(media_dir, 'twitter-archive')
+        if os.path.isdir(archive_dir):
+            shutil.rmtree(archive_dir)
         for sample_user in sample_users:
             sample_user_obj = sample_user['user_obj']
             for t_user in sample_user_obj.twitter_username:

@@ -8,6 +8,17 @@
   "description":"",
   "url":null,
   "entities":{
+    "url": {
+      "url": [
+        {
+          "start": 0,
+          "end": 23,
+          "url": "https://t.co/jzehl27oZp",
+          "expanded_url": "http://mywebsite.com",
+          "display_url": "mywebsite.com"
+        }
+      ]
+    },
     "description":{
       "urls":[
 

@@ -17,6 +17,7 @@ except ImportError:
 
 from . import logger
 from .i18n import _
+from pleroma_bot._twitter import twitter_api_request
 
 
 def process_tweets(self, tweets_to_post):
@@ -37,6 +38,16 @@ def process_tweets(self, tweets_to_post):
             try:
                 for reference in tweet["referenced_tweets"]:
                     if reference["type"] == "retweeted":
+                        tweets_to_post["data"].remove(tweet)
+                        break
+            except KeyError:
+                pass
+    # Remove quote tweets if include_quotes is false
+    if not self.include_quotes:
+        for tweet in tweets_to_post["data"][:]:
+            try:
+                for reference in tweet["referenced_tweets"]:
+                    if reference["type"] == "quoted":
                         tweets_to_post["data"].remove(tweet)
                         break
             except KeyError:
@@ -66,7 +77,7 @@ def process_tweets(self, tweets_to_post):
             except KeyError:
                 tweets_to_post["data"].remove(tweet)
                 pass
-
+    all_media = []
     for tweet in tweets_to_post["data"]:
         media = []
         logger.debug(tweet["id"])
@@ -109,6 +120,7 @@ def process_tweets(self, tweets_to_post):
                 tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
                 os.makedirs(tweet_path, exist_ok=True)
                 _download_media(self, media, tweet)
+                all_media.extend(media)
 
         if not self.keep_media_links:
             tweet["text"] = _remove_media_links(self, tweet)
@@ -130,24 +142,51 @@ def process_tweets(self, tweets_to_post):
                 "https://youtube.com",
                 self.invidious_base_url
             )
+        signature = ''
         if self.signature:
             if self.archive:
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
             else:
-                t_user = self.twitter_ids[tweet["author_id"]]
-            twitter_url = self.twitter_url[t_user]
-            signature = f"\n\n 🐦🔗: {twitter_url}/status/{tweet['id']}"
-            tweet["text"] = f"{tweet['text']} {signature}"
+                t_user = "i/web"
+                if tweet["author_id"] in self.twitter_ids:
+                    t_user = self.twitter_ids[tweet["author_id"]]
+            twitter_url_user = f"{self.twitter_url_home}/{t_user}"
+            signature = f"\n\n 🐦🔗: {twitter_url_user}/status/{tweet['id']}"
+            total_length = len(tweet["text"]) + len(signature)
+            if total_length > self.max_post_length:  # pragma
+                body_max_length = self.max_post_length - len(signature) - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            tweet["text"] = f"{tweet['text']}{signature}"
         if self.original_date:
             tweet_date = tweet["created_at"]
             date = datetime.strftime(
                 datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
                 self.original_date_format,
             )
-            tweet["text"] = f"{tweet['text']} \n\n[{date}]"
+            orig_date = f"\n\n[{date}]"
+            total_length = len(tweet["text"]) + len(orig_date)
+            if total_length > self.max_post_length:  # pragma
+                if self.signature:
+                    tweet["text"] = tweet["text"].replace(signature, '')
+                l_date = len(orig_date)
+                l_sig = len(signature)
+                body_max_length = self.max_post_length - l_date - l_sig - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            else:
+                signature = ''
+            tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
         # Process poll if exists and no media is used
         tweet["polls"] = _process_polls(self, tweet, media)
 
+        # Truncate text if needed
+        if len(tweet["text"]) > self.max_post_length:  # pragma
+            logger.info(
+                _(
+                    "Post text longer than allowed ({}), truncating..."
+                ).format(self.max_post_length)
+            )
+            tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
+    tweets_to_post["media_processed"] = all_media
     return tweets_to_post
 
 
@@ -180,7 +219,8 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
     tweet_rt = {"data": tweet}
     tw_data = tweet_rt["data"]
     i = 0
-    while "referenced_tweets" in tw_data.keys():
+    max_at = self.max_attachments
+    while "referenced_tweets" in tw_data.keys() and len(media) < max_at:
         for reference in tw_data["referenced_tweets"]:
             retweeted = reference["type"] == "retweeted"
             quoted = reference["type"] == "quoted"
@@ -231,7 +271,8 @@ def _process_polls(self, tweet, media):
                 "poll.fields": "duration_minutes," "options",
             }
 
-            response = requests.get(
+            response = twitter_api_request(
+                'GET',
                 poll_url,
                 headers=self.header_twitter,
                 params=params,
@@ -269,6 +310,7 @@ def _download_media(self, media, tweet):
             media_url = _get_best_bitrate_video(self, item)
 
         if media_url:
+            key = item["media_key"] if not self.archive else item["id"]
             response = requests.get(media_url, stream=True)
             try:
                 if not response.ok:
@@ -280,13 +322,13 @@ def _download_media(self, media, tweet):
                         "\nMedia not found (404)"
                         "\n{tweet} - {media_url}"
                         "\nIgnoring attachment and continuing..."
-                    ).format(tweet=tweet, media_url=media_url)
+                    ).format(tweet=tweet["id"], media_url=media_url)
                     logger.warning(att_not_found)
-                    return
+                    continue
                 else:
                     response.raise_for_status()
             response.raw.decode_content = True
-            filename = str(idx) + mimetypes.guess_extension(
+            filename = str(idx) + "-" + key + mimetypes.guess_extension(
                 response.headers["Content-Type"]
             )
             file_path = os.path.join(
@@ -369,6 +411,8 @@ def _expand_urls(self, tweet):
     )
     matches = re.finditer(matching_pattern, tweet["text"])
     urls = {}
+    # Prepare a session to recycle connections across requests
+    session = requests.Session()
     # Replace shortened links
     for matchNum, match in enumerate(matches, start=1):
         group = match.group()
@@ -382,30 +426,49 @@ def _expand_urls(self, tweet):
                 tweet["text"] = re.sub(group, urls[group], tweet["text"])
             else:
                 raise KeyError
-        except KeyError:
-            # don't be brave trying to unwound an URL when it gets
-            # cut off
+        except (KeyError, TypeError):
+            # don't be brave trying to unwound an URL when it gets cut off
             if (
                     not group.__contains__("…") and not
                     group.startswith(self.nitter_base_url)
             ):
                 if not group.startswith(("http://", "https://")):
                     group = f"http://{group}"
-                # so connections are recycled
-                session = requests.Session()
-                response = session.head(group, allow_redirects=True)
-                if not response.ok:
+                try:
+                    response = session.head(
+                        group,
+                        allow_redirects=True,
+                        timeout=(7, 10)
+                    )
+                    if not response.ok:
+                        logger.debug(
+                            _(
+                                "Couldn't expand the url {}: {}"
+                            ).format(group, response.status_code)
+                        )
+                    if response:
+                        expanded_url = response.url
+                        tweet["text"] = re.sub(
+                            group, expanded_url, tweet["text"]
+                        )
+                except Exception as ex:  # pragma
                     logger.debug(
                         _(
-                            "Couldn't expand the {}: {}"
-                        ).format(response.url, response.status_code)
+                            "Couldn't expand the url: {}"
+                        ).format(group)
                     )
-                    response.raise_for_status()
-                else:
-                    expanded_url = response.url
-                    tweet["text"] = re.sub(
-                        group, expanded_url, tweet["text"]
-                    )
+                    if isinstance(ex, requests.exceptions.RequestException):
+                        expanded_url = ex.request.url
+                        tweet["text"] = re.sub(
+                            group, expanded_url, tweet["text"]
+                        )
+                        pass
+                    elif isinstance(ex, UnicodeError):
+                        expanded_url = ex.object.decode('latin1')
+                        tweet["text"] = re.sub(
+                            group, expanded_url, tweet["text"]
+                        )
+                        pass
     return tweet["text"]
 
 
@@ -422,6 +485,7 @@ def _get_media_url(self, item, media_include, tweet):
             tweet_video = self._get_tweets("v1.1", tweet["id"])
             xmd = tweet_video["extended_entities"]["media"]
             for extended_media in xmd:
+                extended_media["media_key"] = item
                 media_urls.append(extended_media)
             return media_urls
         else:

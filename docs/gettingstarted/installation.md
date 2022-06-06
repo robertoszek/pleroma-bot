@@ -1,6 +1,6 @@
 ## Installation method
 
-First you need to intall ```pleroma-bot``` on your system. There are multiple methods available:
+First you need to install ```pleroma-bot``` on your system. There are multiple methods available:
 
 === ":material-language-python: Using PyPi"
 

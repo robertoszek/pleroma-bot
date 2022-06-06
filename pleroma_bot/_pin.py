@@ -6,9 +6,10 @@ import requests
 
 from . import logger
 from .i18n import _
+from pleroma_bot._twitter import twitter_api_request
 
 
-def pin_misskey(self, id_post):  # pragma
+def pin_misskey(self, id_post):
     """Tries to unpin previous pinned post if a file containing the ID
        of the previous post exists, then proceeds to pin the post
        with ID 'id_post'
@@ -19,8 +20,8 @@ def pin_misskey(self, id_post):  # pragma
        """
     # Only check pinned for 1 user
     t_user = self.twitter_username[0]
-
-    pinned_file = os.path.join(self.user_path[t_user], "pinned_id_pleroma.txt")
+    filename = f"pinned_id_{self.instance}.txt"
+    pinned_file = os.path.join(self.user_path[t_user], filename)
     self.unpin_misskey(pinned_file)
 
     pin_url = f"{self.pleroma_base_url}/api/i/pin"
@@ -40,7 +41,7 @@ def pin_misskey(self, id_post):  # pragma
     return pin_id
 
 
-def unpin_misskey(self, pinned_file):  # pragma
+def unpin_misskey(self, pinned_file):
     """
     Unpins post with the ID stored in the file passed as parameter
     :param pinned_file: path to file containing post ID
@@ -77,8 +78,12 @@ def unpin_misskey(self, pinned_file):  # pragma
                 "Checking last posts for pinned post..."
             )
         )
-        _find_pinned_misskey(self, pinned_file)
-        logger.warning(_("Pinned post not found. Giving up unpinning..."))
+        pinned = _find_pinned_misskey(self, pinned_file)
+        if pinned:
+            unpinned = ' '.join(map(str, pinned))
+            logger.info(_("Unpinned: {}").format(unpinned))
+        else:  # pragma
+            logger.warning(_("Pinned post not found. Giving up unpinning..."))
     # Clear pinned ids
     with open(pinned_file, "w") as file:
         file.write("\n")
@@ -86,7 +91,7 @@ def unpin_misskey(self, pinned_file):  # pragma
         file.write("\n")
 
 
-def _find_pinned_misskey(self, pinned_file):  # pragma
+def _find_pinned_misskey(self, pinned_file):
     i_url = f"{self.pleroma_base_url}/api/i"
     data = {"i": self.pleroma_token}
     response = requests.post(
@@ -108,7 +113,8 @@ def _find_pinned_misskey(self, pinned_file):  # pragma
     for post_id in users_show["pinnedNoteIds"]:
         with open(pinned_file, "w") as file:
             file.write(f'{post_id}\n')
-        return self.unpin_misskey(pinned_file)
+        self.unpin_misskey(pinned_file)
+    return users_show["pinnedNoteIds"]
 
 
 def pin_pleroma(self, id_post):
@@ -122,8 +128,8 @@ def pin_pleroma(self, id_post):
     """
     # Only check pinned for 1 user
     t_user = self.twitter_username[0]
-
-    pinned_file = os.path.join(self.user_path[t_user], "pinned_id_pleroma.txt")
+    filename = f"pinned_id_{self.instance}.txt"
+    pinned_file = os.path.join(self.user_path[t_user], filename)
     self.unpin_pleroma(pinned_file)
 
     pin_url = f"{self.pleroma_base_url}/api/v1/statuses/{id_post}/pin"
@@ -170,8 +176,12 @@ def unpin_pleroma(self, pinned_file):
                 "Checking last posts for pinned post..."
             )
         )
-        _find_pinned(self, pinned_file)
-        logger.warning(_("Pinned post not found. Giving up unpinning..."))
+        pinned = _find_pinned(self, pinned_file)
+        if pinned:
+            unpinned = ' '.join(map(str, pinned))
+            logger.info(_("Unpinned: {}").format(unpinned))
+        else:
+            logger.warning(_("Pinned post not found. Giving up unpinning..."))
     # Clear pinned ids
     with open(pinned_file, "w") as file:
         file.write("\n")
@@ -182,37 +192,41 @@ def unpin_pleroma(self, pinned_file):
 def _find_pinned(self, pinned_file):
     page = 0
     headers_page_url = None
-    while page < 10:
-        if self.posts:
-            for post in self.posts:
-                if post["pinned"]:
-                    with open(pinned_file, "w") as file:
-                        file.write(f'{post["id"]}\n')
-                    return self.unpin_pleroma(pinned_file)
-        page += 1
-        pleroma_posts_url = (
-            f"{self.pleroma_base_url}/api/v1/accounts/"
-            f"{self.pleroma_username}/statuses"
-        )
-
-        if headers_page_url:
-            statuses_url = headers_page_url
-        else:
-            statuses_url = pleroma_posts_url
-        response = requests.get(statuses_url, headers=self.header_pleroma)
-        if not response.ok:
-            response.raise_for_status()
-        posts = json.loads(response.text)
-        self.posts = posts
-        try:
-            links = requests.utils.parse_header_links(
-                response.headers["link"].rstrip(">").replace(">,<", ",<")
+    pinned = []
+    if self.posts != "none_found":
+        while page < 10:
+            if self.posts:
+                for post in self.posts:
+                    if post["pinned"]:
+                        pinned.append(post["id"])
+                        with open(pinned_file, "w") as file:
+                            file.write(f'{post["id"]}\n')
+                        self.unpin_pleroma(pinned_file)
+            page += 1
+            pleroma_posts_url = (
+                f"{self.pleroma_base_url}/api/v1/accounts/"
+                f"{self.pleroma_username}/statuses"
             )
-            for link in links:
-                if link["rel"] == "next":
-                    headers_page_url = link["url"]
-        except KeyError:
-            break
+
+            if headers_page_url:
+                statuses_url = headers_page_url
+            else:
+                statuses_url = pleroma_posts_url
+            response = requests.get(statuses_url, headers=self.header_pleroma)
+            if not response.ok:
+                response.raise_for_status()
+            posts = json.loads(response.text)
+            self.posts = posts
+            try:
+                links = requests.utils.parse_header_links(
+                    response.headers["link"].rstrip(">").replace(">,<", ",<")
+                )
+                for link in links:
+                    if link["rel"] == "next":
+                        headers_page_url = link["url"]
+            except KeyError:
+                break
+    return pinned
 
 
 def _get_pinned_tweet_id(self):
@@ -232,8 +246,8 @@ def _get_pinned_tweet_id(self):
         "expansions": "pinned_tweet_id",
         "tweet.fields": "entities",
     }
-    response = requests.get(
-        url, headers=self.header_twitter, params=params, auth=self.auth
+    response = twitter_api_request(
+        'GET', url, headers=self.header_twitter, params=params, auth=self.auth
     )
     if not response.ok:
         response.raise_for_status()

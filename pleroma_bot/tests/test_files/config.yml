@@ -6,6 +6,8 @@ pleroma_base_url: https://pleroma.robertoszek.xyz
 max_tweets: 40
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# Random order
+random_user_order: true
 # List of users and their attributes
 users:
 - twitter_username: KyleBosman
@@ -44,6 +46,7 @@ users:
   signature: true
   media_upload: false
   pleroma_url: https://another.pleroma.instance
+  sensitive: true
   max_tweets: 50
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
     \ account. \n Any issues please contact @robertoszek \n \n "

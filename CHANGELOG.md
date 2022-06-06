@@ -1,4 +1,29 @@
-## [1.0.2] Unreleased
+## [1.1.0] 06-06-2022
+## Fixed
+- Bug: Tweet media getting dropped if one of the attachments returned 404 Not Found
+- Regression: `visibility`'s value not being honored when defined as a global mapping in the config
+- Bug: Handle exception when the tweet is empty (no attachments, polls or body) due to dropping malformed attachments
+- Bug: Handle exception when expanded URL is unreachable or returns any code other than 200
+- Regression: Not asking for date when passing a specific Twitter username with `--forceDate`
+- Bug: Trying to find previously pinned post on empty Fediverse account resulted in an unhandled exception
+- Bug: Truncating when exceeding post max length resulted in signature links being broken if original date was enabled
+- Bug: Videos not being mirrored in some cases with extended tweets 
+
+## Enhancements
+- Target instance's character limits when posting are taken into account and posts text are truncated if necessary
+- The rest of the users of the config are processed, even if another one fails (errors will be logged accordingly and pleroma-bot will exit with non-zero exit code)
+- Recover from hitting rate limits for Twitter's API (HTTP 429 Too Many Requests)
+- Twitter bio links are now expanded by default if the Fedi instance bio's maximum length is not exceeded
+- Maximum number of attachments allowed per post are now taken into account depending on the instance type (Mastodon, Pleroma or Misskey)
+- Alt text/Image descriptions are now mirrored on the Fediverse post image description/comment
+
+## Added
+- `include_quotes` config mapping, for including or excluding quoted tweets
+- `random_user_order` global config mapping, for randomizing the order in which users are processed
+- `{{ website }}` can be used on the metadata fields config and will be replaced with the website listed on the Twitter's account profile
+- `no_profile` config mapping, for skipping profile update (picture, banner, display name and bio) on a per-user basis
+
+## [1.0.2] 21-02-2022
 ## Added
 - Support for [Misskey](https://misskey-hub.net/en/home.html) instances! 🎉
 

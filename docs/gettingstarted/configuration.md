@@ -59,13 +59,15 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | consumer_secret      |   Yes    |                            | OAuth 1.0a Twitter Consumer Secret (only needed for protected accounts)                                               |
 | access_token_key     |   Yes    |                            | OAuth 1.0a Twitter Access Token Key (only needed for protected accounts)                                              |
 | access_token_secret  |   Yes    |                            | OAuth 1.0a Twitter Access Token Secret (only needed for protected accounts)                                           |
+| no_profile           |   Yes    | false                      | If set to true, the profile picture, banner, display name and bio will not be updated on the Fediverse account        |
 | nitter               |   Yes    | false                      | If Twitter links should be changed to nitter ones                                                                     |
-| nitter_base_url      |   Yes    | https://nitter.net         | Change this to your preferred nitter instance                                                                         |
+| nitter_base_url      |   Yes    | https://nitter.net         | Change this to your [preferred nitter instance](https://github.com/zedeus/nitter/wiki/Instances)                      |
 | signature            |   Yes    | false                      | Add a link to the original status                                                                                     |
 | media_upload         |   Yes    | true                       | Download Twitter attachments and add them to the Fediverse posts                                                      |
 | rich_text            |   Yes    | false                      | Transform mentions to links pointing to the mentioned Twitter profile                                                 |
 | include_rts          |   Yes    | true                       | Include RTs when posting tweets in the Fediverse account                                                              |
 | include_replies      |   Yes    | true                       | Include replies when posting tweets in the Fediverse account                                                          |
+| include_quotes       |   Yes    | true                       | Include quoted tweets when posting tweets in the Fediverse account                                                    |
 | hashtags             |   Yes    |                            | List of hashtags to use to filter out tweets which don't include any of them                                          |
 | visibility           |   Yes    | unlisted                   | Visibility of the post. Must one of the following: public, unlisted, private, direct                                  |
 | sensitive            |   Yes    | original tweet sensitivity | Force all posts to be sensitive (NSFW) or not                                                                         |
@@ -77,7 +79,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | original_date_format |   Yes    | "%Y-%m-%d %H:%M"           | Date format to use when adding the creation date of the tweet to the Fediverse post                                   |
 | keep_media_links     |   Yes    | false                      | Keep redundant media links on the tweet text or not (`https://twitter.com/<display_name>/status/<tweet_id>/photo/1`)  |
 | invidious            |   Yes    | false                      | If Youtube links should be replaced with invidious ones                                                               |
-| invidious_base_url   |   Yes    | https://yewtu.be           | Change this to your preferred invidious instance                                                                      |
+| invidious_base_url   |   Yes    | https://yewtu.be           | Change this to your [preferred invidious instance](https://docs.invidious.io/instances/)                              |
 
 There a few mappings *exclusive* to users:
 
@@ -89,7 +91,11 @@ There a few mappings *exclusive* to users:
 | bio_text         |   Yes    |         | Text to be appended to the Twitter account bio text                               |
 | fields           |   Yes    |         | Optional metadata fields (sequence of name-value pairs) for the Fediverse profile |
 
+And mappings that can only be used *globally*:
 
+| Global mapping    | Optional | Default | Description                                            |
+|:------------------|:--------:|:--------|:-------------------------------------------------------|
+| random_user_order |   Yes    | false   | Randomize the order of processing users on your config |
 
 ## Example configs
 
@@ -182,6 +188,8 @@ users:
     value: "I am afraid I cannot do that."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-bot"
+  - name: "WWW"
+    value: "{{ website }}" # Website defined in Twitter profile
 # Mastodon instance example
 - twitter_username: WoolieWoolz
   pleroma_username: 24660

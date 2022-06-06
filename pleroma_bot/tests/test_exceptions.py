@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import sys
@@ -156,7 +157,7 @@ def test_check_pinned_exception_user(sample_users, mock_request):
         f"?poll.fields=duration_minutes%2Cend_datetime%2Cid"
         f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
         f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
-        f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+        f"%2Curl%2Cwidth%2Cpublic_metrics%2Calt_text&expansions="
         f"attachments.poll_ids%2Cattachments.media_keys"
         f"%2Cauthor_id%2Centities.mentions.username"
         f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
@@ -261,6 +262,25 @@ def test_pin_pleroma_exception(sample_users, mock_request):
                 os.remove(pin_p)
 
 
+def test_pin_misskey_exception(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            mock.post(f"{test_user.pleroma_base_url}"
+                      f"/api/i/pin",
+                      json={},
+                      status_code=500)
+            pin_id = sample_user_obj.pin_misskey(test_user.pleroma_pinned_new)
+            assert pin_id is None
+            for t_user in sample_user_obj.twitter_username:
+                pin_p = os.path.join(
+                    sample_user_obj.user_path[t_user],
+                    "pinned_id_pleroma.txt"
+                )
+                os.remove(pin_p)
+
+
 def test_unpin_pleroma_exception(sample_users, mock_request):
     with pytest.raises(requests.exceptions.HTTPError) as error_info:
         test_user = UserTemplate()
@@ -284,6 +304,36 @@ def test_unpin_pleroma_exception(sample_users, mock_request):
                         file.write(test_user.pleroma_pinned)
                     file.close()
                     sample_user_obj.unpin_pleroma(pinned_file)
+
+    exception_value = (
+        f"500 Server Error: None for url: {url_unpin}"
+    )
+    assert str(error_info.value) == exception_value
+    os.remove(pinned_file)
+
+
+def test_unpin_misskey_exception(sample_users, mock_request):
+    with pytest.raises(requests.exceptions.HTTPError) as error_info:
+        test_user = UserTemplate()
+        url_unpin = (
+            f"{test_user.pleroma_base_url}"
+            f"/api/i/unpin"
+        )
+        for sample_user in sample_users:
+            with sample_user['mock'] as mock:
+                sample_user_obj = sample_user['user_obj']
+                for t_user in sample_user_obj.twitter_username:
+                    mock.post(url_unpin,
+                              json={},
+                              status_code=500)
+                    pinned_file = os.path.join(
+                        sample_user_obj.user_path[t_user],
+                        "pinned_id_pleroma.txt"
+                    )
+                    with open(pinned_file, 'w') as file:
+                        file.write(test_user.pleroma_pinned)
+                    file.close()
+                    sample_user_obj.unpin_misskey(pinned_file)
 
     exception_value = (
         f"500 Server Error: None for url: {url_unpin}"
@@ -393,7 +443,28 @@ def test_post_pleroma_exception(sample_users, mock_request):
                 err_ex = requests.exceptions.HTTPError
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj.post_pleroma(
-                        (test_user.pinned, "", ""), None, False
+                        (test_user.pinned, "Test", ""), None, False
+                    )
+                exception_value = f"500 Server Error: None for url: {post_url}"
+                assert str(error_info.value) == exception_value
+                os.rmdir(tweet_folder)
+
+
+def test_post_misskey_exception(sample_users, mock_request):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            for t_user in sample_user_obj.twitter_username:
+                tweets_folder = sample_user_obj.tweets_temp_path
+                tweet_folder = os.path.join(tweets_folder, test_user.pinned)
+                os.makedirs(tweet_folder, exist_ok=True)
+                post_url = f"{test_user.pleroma_base_url}/api/notes/create"
+                mock.post(post_url, status_code=500)
+                err_ex = requests.exceptions.HTTPError
+                with pytest.raises(err_ex) as error_info:
+                    sample_user_obj.post_misskey(
+                        (test_user.pinned, "Test", ""), None, False
                     )
                 exception_value = f"500 Server Error: None for url: {post_url}"
                 assert str(error_info.value) == exception_value
@@ -497,6 +568,144 @@ def test_update_pleroma_exception(rootdir, mock_request, sample_users, caplog):
                 assert str(error_info.value) == exception_value
 
 
+def test_update_misskey_exception(rootdir, mock_request, sample_users, caplog):
+    test_user = UserTemplate()
+    twitter_info = mock_request['sample_data']['twitter_info']
+    banner_url = f"{twitter_info['profile_banner_url']}/1500x500"
+    profile_small_url = twitter_info['profile_image_url_https']
+    profile_url = re.sub(r"normal", "400x400", profile_small_url)
+
+    test_files_dir = os.path.join(rootdir, 'test_files')
+    sample_data_dir = os.path.join(test_files_dir, 'sample_data')
+    media_dir = os.path.join(sample_data_dir, 'media')
+    banner = os.path.join(media_dir, 'banner.jpg')
+
+    profile_banner = open(banner, 'rb')
+    profile_banner_content = profile_banner.read()
+    profile_banner.close()
+
+    profile_pic = os.path.join(media_dir, 'default_profile_normal.png')
+    profile_image = open(profile_pic, 'rb')
+    profile_image_content = profile_image.read()
+    profile_image.close()
+
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            sample_user_obj.instance = "misskey"
+            for t_user in sample_user_obj.twitter_username:
+                mock.get(profile_url,
+                         content=profile_image_content,
+                         status_code=500)
+                err_ex = requests.exceptions.HTTPError
+                with pytest.raises(err_ex) as error_info:
+                    sample_user_obj.update_misskey()
+                exception_value = f"500 Server Error: None " \
+                                  f"for url: {profile_url}"
+                assert str(error_info.value) == exception_value
+                mock.get(profile_url,
+                         content=profile_image_content,
+                         status_code=200)
+                mock.get(banner_url,
+                         content=profile_banner_content,
+                         status_code=500)
+                with pytest.raises(err_ex) as error_info:
+                    sample_user_obj.update_misskey()
+                exception_value = f"500 Server Error: " \
+                                  f"None for url: {banner_url}"
+                assert str(error_info.value) == exception_value
+                cred_url = (
+                    f"{test_user.pleroma_base_url}/api/i/update"
+                )
+                mock.post(cred_url,
+                          status_code=500)
+                mock.get(profile_url,
+                         content=profile_image_content,
+                         status_code=200)
+                mock.get(banner_url,
+                         content=profile_banner_content,
+                         status_code=200)
+                with pytest.raises(err_ex) as error_info:
+                    sample_user_obj.update_misskey()
+                exception_value = f"500 Server Error: None for url: {cred_url}"
+                assert str(error_info.value) == exception_value
+                mock.post(cred_url,
+                          status_code=422)
+                mock.get(profile_url,
+                         content=profile_image_content,
+                         status_code=200)
+                mock.get(banner_url,
+                         content=profile_banner_content,
+                         status_code=200)
+                with caplog.at_level(logging.ERROR):
+                    sample_user_obj.update_misskey()
+                    exception_value = (
+                        "Exception occurred"
+                        "\nError code 422"
+                        "\n(Unprocessable Entity)"
+                        "\nPlease check that the bio text or "
+                        "the metadata fields text"
+                        "\naren't too long."
+                    )
+                    assert exception_value in caplog.text
+                mock_fields = [
+                    {'name': 'Field1', 'value': 'Value1'},
+                    {'name': 'Field2', 'value': 'Value2'},
+                    {'name': 'Field3', 'value': 'Value3'},
+                    {'name': 'Field4', 'value': 'Value4'},
+                    {'name': 'Field5', 'value': 'Value5'}
+                ]
+                sample_user_obj.fields = mock_fields
+                with pytest.raises(Exception) as error_info:
+                    sample_user_obj.update_misskey()
+                exception_value = (
+                    f"Total number of metadata fields cannot "
+                    f"exceed 4.\nProvided: {len(mock_fields)}. Exiting..."
+                )
+                assert str(error_info.value) == exception_value
+
+
+def test_post_misskey_update_exception(rootdir, caplog, global_mock):
+    test_user = UserTemplate()
+    config_users = get_config_users('config_mk.yml')
+    for user_item in config_users['user_dict']:
+        test_files_dir = os.path.join(rootdir, 'test_files')
+        sample_data_dir = os.path.join(
+            test_files_dir, 'sample_data'
+        )
+        media_dir = os.path.join(sample_data_dir, 'media')
+        png = os.path.join(media_dir, 'image.png')
+        svg = os.path.join(media_dir, 'image.svg')
+        mp4 = os.path.join(media_dir, 'video.mp4')
+        gif = os.path.join(media_dir, "animated_gif.gif")
+
+        media_update_url = (
+            f"{test_user.pleroma_base_url}/api/drive/files/update"
+        )
+        with global_mock as mock:
+            user_obj = User(user_item, config_users['config'], os.getcwd())
+            user_obj.instance = "misskey"
+
+            tweet_folder = os.path.join(
+                user_obj.tweets_temp_path, test_user.pinned
+            )
+            os.makedirs(tweet_folder, exist_ok=True)
+            shutil.copy(png, tweet_folder)
+            shutil.copy(svg, tweet_folder)
+            shutil.copy(mp4, tweet_folder)
+            shutil.copy(gif, tweet_folder)
+
+            err_ex = requests.exceptions.HTTPError
+            mock.post(mock.post(media_update_url, status_code=500))
+            if user_obj.sensitive and user_obj.media_upload:
+                with pytest.raises(err_ex) as error_info:
+                    user_obj.post((test_user.pinned, "", ""), None, False)
+                exception_value = (
+                    f"500 Server Error: None for url: {media_update_url}"
+                )
+                assert str(error_info.value) == exception_value
+
+
 def test__get_tweets_exception(sample_users, mock_request):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
@@ -507,7 +716,8 @@ def test__get_tweets_exception(sample_users, mock_request):
                 tweet_id_url = (
                     f"{sample_user_obj.twitter_base_url}"
                     f"/statuses/show.json?id="
-                    f"{str(sample_user_obj.pinned_tweet_id)}"
+                    f"{str(sample_user_obj.pinned_tweet_id)}&include_entities"
+                    f"=true&tweet_mode=extended"
                 )
 
                 mock.get(tweet_id_url, status_code=500)
@@ -550,7 +760,7 @@ def test__get_tweets_v2_exception(sample_users):
                     f"fields=duration_minutes%2Cend_datetime%2Cid"
                     f"%2Coptions%2Cvoting_status&media.fields=duration_ms"
                     f"%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype"
-                    f"%2Curl%2Cwidth%2Cpublic_metrics&expansions="
+                    f"%2Curl%2Cwidth%2Cpublic_metrics%2Calt_text&expansions="
                     f"attachments.poll_ids%2Cattachments.media_keys"
                     f"%2Cauthor_id%2Centities.mentions.username"
                     f"%2Cgeo.place_id%2Cin_reply_to_user_id%2C"
@@ -595,7 +805,7 @@ def test__get_tweets_v2_exception(sample_users):
                 assert str(error_info.value) == exception_value
 
 
-def test__get_twitter_info_exception(sample_users):
+def test__get_twitter_info_exception(sample_users, caplog, mock_request):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
@@ -603,6 +813,28 @@ def test__get_twitter_info_exception(sample_users):
             t_users_list = isinstance(t_users, list)
             t_users = t_users if t_users_list else [t_users]
             for t_user in t_users:
+                # Rate limits
+                reset_time = int(datetime.datetime.now().timestamp()) + 2
+                headers = {
+                    'x-rate-limit-limit': '900',
+                    'x-rate-limit-reset': str(reset_time),
+                    'x-rate-limit-remaining': '0'
+                }
+                json_mock = mock_request['sample_data'][f"user_v2_{t_user}"]
+                mock.register_uri(
+                    'GET',
+                    f"{sample_user_obj.twitter_base_url_v2}/users/by/"
+                    f"username/{t_user}",
+                    [
+                        {'status_code': 429, 'headers': headers},  # 1st req
+                        {'status_code': 200, 'json': json_mock}    # 2nd req
+                    ]
+                )
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_twitter_info()
+                log_msg = "Rate limit exceeded"
+                assert log_msg in caplog.text
+
                 idx = sample_user_obj.twitter_username.index(t_user)
                 info_url = (
                     f"{sample_user_obj.twitter_base_url}"
@@ -719,8 +951,9 @@ def test__get_instance_info_exception(sample_users):
             mock.get(fb_url, {}, status_code=500)
             with pytest.raises(Exception) as error_info:
                 sample_user_obj._get_instance_info()
-
-            exception_value = f"500 Server Error: None for url: {info_url}"
+            exception_value = (
+                "Instance response was not understood"
+            )
 
             assert(
                 exception_value in str(error_info.value)
@@ -748,14 +981,14 @@ def test__download_media_exception(sample_users, caplog):
             sample_user_obj = sample_user['user_obj']
             media_url = "https://mymock.media/img.jpg"
             mock.get(media_url, status_code=500)
-            media = [{'url': media_url, 'type': 'image'}]
+            media = [{'url': media_url, 'type': 'image', 'media_key': '3_123'}]
             tweet = None
             with pytest.raises(requests.exceptions.HTTPError) as error_info:
                 sample_user_obj._download_media(media, tweet)
             exception_value = f"500 Server Error: None for url: {media_url}"
             assert str(error_info.value) == exception_value
             mock.get(media_url, status_code=404)
-            tweet = None
+            tweet = {"id": "12345"}
             with caplog.at_level(logging.WARNING):
                 sample_user_obj._download_media(media, tweet)
             warn_msg1 = "Media not found (404)"
@@ -764,17 +997,17 @@ def test__download_media_exception(sample_users, caplog):
             assert warn_msg2 in caplog.text
 
 
-def test__expand_urls(sample_users, mock_request):
+def test__expand_urls(sample_users, mock_request, caplog):
     for sample_user in sample_users:
         with sample_user['mock'] as mock:
             sample_user_obj = sample_user['user_obj']
             fake_url = "https://cutt.ly/xg3TuY0"
             mock.head(fake_url, status_code=500)
             tweet = mock_request['sample_data']['pinned_tweet_3']['data']
-            with pytest.raises(requests.exceptions.HTTPError) as error_info:
+            with caplog.at_level(logging.DEBUG):
                 sample_user_obj._expand_urls(tweet)
-            exception_value = f"500 Server Error: None for url: {fake_url}"
-            assert str(error_info.value) == exception_value
+            exception_value = f"Couldn't expand the url {fake_url}"
+            assert exception_value in caplog.text
 
 
 def test_locker():

@@ -6,8 +6,6 @@ pleroma_base_url: https://pleroma.robertoszek.xyz
 max_tweets: 40
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-# Random order
-random_user_order: true
 # List of users and their attributes
 users:
 - twitter_username: KyleBosman
@@ -26,7 +24,7 @@ users:
   # Force all posts for this account to be sensitive or not
   # The NSFW banner for the instance will be shown for attachments as a warning if true
   # If not defined, the original tweet sensitivity will be used on a tweet by tweet basis
-  sensitive: false
+  sensitive: true
   support_account: robertoszek
   # you can use any attribute from 'user' inside a string with {{ attr_name }} and it will be replaced
   # with the attribute value. e.g. {{ support_account }}
@@ -40,20 +38,28 @@ users:
     value: "I am completely operational, and all my circuits are functioning perfectly."
   - name: "Source"
     value: "https://gitea.robertoszek.xyz/robertoszek/pleroma-twitter-info-grabber"
-  - name: "WWW"
-    value: "{{ website }}"
-- twitter_username:
-    - arstechnica
-    - HackerNews
+- twitter_username: arstechnica
   pleroma_username: mynewsbot
   pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   signature: true
+  media_upload: true
+  pleroma_url: https://another.pleroma.instance
+  sensitive: true
+  include_quotes: false
+  max_tweets: 50
+  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
+    \ account. \n Any issues please contact @robertoszek \n \n "
+- twitter_username: HackerNews
+  pleroma_username: hackernews
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  signature: true
   media_upload: false
+  twitter_bio: false
+  consumer_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+  consumer_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  access_token_secret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   pleroma_url: https://another.pleroma.instance
   max_tweets: 50
-  list:
-    - "My first value"
-    - 2
-    - "ThirdValue"
   bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot that mirrors {{ twitter_username }} Twitter's\
-    \ account. \n This is a list {{ list }} Any issues please contact @robertoszek \n \n "
+    \ account. \n Any issues please contact @robertoszek \n \n "

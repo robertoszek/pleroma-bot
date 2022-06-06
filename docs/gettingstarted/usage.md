@@ -49,8 +49,16 @@ $ pleroma-bot --forceDate WoolieWoolz
 
 ## Only gather tweets
 
-If the ```--noProfile``` argument is passed, *only* tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account and be skipped for all users in the config. 
+If the ```--noProfile``` argument is passed, *only* tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account and will be skipped for all users in the config.
 
+Alternatively, you can also choose to use the `no_profile` [mapping on your config](/pleroma-bot/gettingstarted/configuration/#mappings), setting it to `true` on the users you wish to do so:
+```yaml hl_lines="5"
+- twitter_username: MyTwitterUser
+  pleroma_username: MyPleromaUser
+  pleroma_base_url: https://fedi.instance
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  no_profile: true  # <--
+```
 This is useful if for whatever reason (data caps, server bandwidth) you prefer not downloading the profile image, banner, etc. every run.
 
 ## Custom path for log and config

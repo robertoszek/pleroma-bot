@@ -118,9 +118,14 @@ def mock_request(rootdir):
             status_code=200,
             raw=empty_resp,
         )
-
+        mock.head(
+            "https://twitter.com/BotPleroma/status/1323049214134407171",
+            status_code=200,
+            raw=empty_resp,
+        )
         mock.head("http://github.com", raw=empty_resp, status_code=200)
-        mock.get(f"{twitter_base_url}/statuses/show.json",
+        mock.get(f"{twitter_base_url}/statuses/show.json&include_entities=true"
+                 f"&tweet_mode=extended",
                  json=sample_data['tweet'],
                  status_code=200)
         mock_return['mock'] = mock
@@ -143,8 +148,8 @@ def _sample_users(mock_request, rootdir):
                      "?poll.fields=duration_minutes%2Cend_datetime%2Cid"
                      "%2Coptions%2Cvoting_status&media.fields=duration_ms"
                      "%2Cheight%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl"
-                     "%2Cwidth%2Cpublic_metrics&expansions=attachments"
-                     ".poll_ids%2Cattachments.media_keys%2Cauthor_id"
+                     "%2Cwidth%2Cpublic_metrics%2Calt_text&expansions=attach"
+                     "ments.poll_ids%2Cattachments.media_keys%2Cauthor_id"
                      "%2Centities.mentions.username%2Cgeo.place_id"
                      "%2Cin_reply_to_user_id%2Creferenced_tweets.id"
                      "%2Creferenced_tweets.id.author_id&tweet.fields"
@@ -159,8 +164,8 @@ def _sample_users(mock_request, rootdir):
                      f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
                      f"options%2Cvoting_status&media.fields=duration_ms%2C"
                      f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
-                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
-                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"width%2Cpublic_metrics%2Calt_text&expansions=attachmen"
+                     f"ts.poll_ids%2Cattachments.media_keys%2Cauthor_id%2C"
                      f"entities.mentions.username%2Cgeo.place_id%2C"
                      f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
                      f"referenced_tweets.id.author_id&tweet.fields=attachments"
@@ -174,8 +179,8 @@ def _sample_users(mock_request, rootdir):
                      f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
                      f"options%2Cvoting_status&media.fields=duration_ms%2C"
                      f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
-                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
-                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"width%2Cpublic_metrics%2Calt_text&expansions=attachme"
+                     f"nts.poll_ids%2Cattachments.media_keys%2Cauthor_id%2C"
                      f"entities.mentions.username%2Cgeo.place_id%2C"
                      f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
                      f"referenced_tweets.id.author_id&tweet.fields=attachments"
@@ -189,8 +194,8 @@ def _sample_users(mock_request, rootdir):
                      f"?poll.fields=duration_minutes%2Cend_datetime%2Cid%2C"
                      f"options%2Cvoting_status&media.fields=duration_ms%2C"
                      f"height%2Cmedia_key%2Cpreview_image_url%2Ctype%2Curl%2C"
-                     f"width%2Cpublic_metrics&expansions=attachments.poll_ids"
-                     f"%2Cattachments.media_keys%2Cauthor_id%2C"
+                     f"width%2Cpublic_metrics%2Calt_text&expansions=attachm"
+                     f"ents.poll_ids%2Cattachments.media_keys%2Cauthor_id%2C"
                      f"entities.mentions.username%2Cgeo.place_id%2C"
                      f"in_reply_to_user_id%2Creferenced_tweets.id%2C"
                      f"referenced_tweets.id.author_id&tweet.fields=attachments"
@@ -281,7 +286,42 @@ def _sample_users(mock_request, rootdir):
                       f"/api/meta",
                       json={},
                       status_code=500)
-
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i",
+                      json=mock_request['sample_data']['misskey_i'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/users/notes",
+                      json=mock_request['sample_data']['misskey_notes'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/drive/files/create",
+                      json={"id": 12345},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/drive/files/update",
+                      json={"id": 12345},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i/update",
+                      json={"id": 12345},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/notes/create",
+                      json={"createdNote": {"id": 12345}},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/users/show",
+                      json={"pinnedNoteIds": [12345]},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i/pin",
+                      json={"id": test_user.pleroma_pinned},
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/i/unpin",
+                      json={"id": 12345},
+                      status_code=200)
             test_files_dir = os.path.join(rootdir, 'test_files')
             sample_data_dir = os.path.join(test_files_dir, 'sample_data')
             media_dir = os.path.join(sample_data_dir, 'media')
@@ -326,8 +366,19 @@ def _sample_users(mock_request, rootdir):
                      headers={'Content-Type': 'image/png'},
                      status_code=200)
             mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
-                     f"id=1323049214134407171",
+                     f"id=1323049214134407171&include_entities=true"
+                     f"&tweet_mode=extended",
                      json=mock_request['sample_data']['tweet_video'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323049466837032961&include_entities=true"
+                     f"&tweet_mode=extended",
+                     json=mock_request['sample_data']['tweet'],
+                     status_code=200)
+            mock.get(f"{test_user.twitter_base_url}/statuses/show.json?"
+                     f"id=1323048312161947650&include_entities=true"
+                     f"&tweet_mode=extended",
+                     json=mock_request['sample_data']['tweet'],
                      status_code=200)
             mock.get("https://twitter.com/BotPleroma/status"
                      "/1474760145850806283/video/1",
