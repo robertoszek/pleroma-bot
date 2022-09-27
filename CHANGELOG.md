@@ -1,3 +1,7 @@
+## Unreleased
+## Fixed
+- Bug: Handle exception when media attachments are geoblocked (403 Unauthorized)
+
 ## [1.1.0] 06-06-2022
 ## Fixed
 - Bug: Tweet media getting dropped if one of the attachments returned 404 Not Found

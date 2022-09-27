@@ -955,7 +955,7 @@ def test__get_instance_info_exception(sample_users):
                 "Instance response was not understood"
             )
 
-            assert(
+            assert (
                 exception_value in str(error_info.value)
             )
 
@@ -994,6 +994,13 @@ def test__download_media_exception(sample_users, caplog):
             warn_msg1 = "Media not found (404)"
             warn_msg2 = "Ignoring attachment and continuing..."
             assert warn_msg1 in caplog.text
+            assert warn_msg2 in caplog.text
+
+            mock.get(media_url, status_code=403)
+            with caplog.at_level(logging.WARNING):
+                sample_user_obj._download_media(media, tweet)
+            warn_msg = "Media possibly geoblocked? (403)"
+            assert warn_msg in caplog.text
             assert warn_msg2 in caplog.text
 
 

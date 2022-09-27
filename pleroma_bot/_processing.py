@@ -325,6 +325,13 @@ def _download_media(self, media, tweet):
                     ).format(tweet=tweet["id"], media_url=media_url)
                     logger.warning(att_not_found)
                     continue
+                elif response.status_code == 403:
+                    geoblocked = _(
+                        "Media possibly geoblocked? (403) Skipping... "
+                        "{tweet} - {media_url} "
+                    ).format(tweet=tweet["id"], media_url=media_url)
+                    logger.warning(geoblocked)
+                    continue
                 else:
                     response.raise_for_status()
             response.raw.decode_content = True
