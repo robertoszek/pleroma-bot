@@ -28,7 +28,8 @@ def test_user_invalid_pleroma_base(mock_request):
         config_users = get_config_users('config_nopleroma.yml')
         for user_item in config_users['user_dict']:
             with pytest.raises(KeyError) as error_info:
-                User(user_item, config_users['config'], os.getcwd())
+                post_ids = {}
+                User(user_item, config_users['config'], os.getcwd(), post_ids)
             exception_value = (
                 "'No Pleroma URL defined in config! [pleroma_base_url]'"
             )
@@ -45,7 +46,10 @@ def test_user_missing_twitter_base(sample_users):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_notwitter.yml')
             for user_item in config_users['user_dict']:
-                user_obj = User(user_item, config_users['config'], os.getcwd())
+                posts_ids = {}
+                user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
                 assert user_obj.twitter_base_url_v2 is not None
                 assert user_obj.twitter_base_url is not None
                 assert user_obj.twitter_base_url == test_user.twitter_base_url
@@ -68,10 +72,12 @@ def test_user_nitter_global(sample_users):
                 t_users_list = isinstance(t_users, list)
                 t_users = t_users if t_users_list else [t_users]
                 for t_user in t_users:
+                    posts_ids = {}
                     user_obj = User(
                         user_item,
                         config_users['config'],
-                        os.getcwd()
+                        os.getcwd(),
+                        posts_ids
                     )
                     idx = user_obj.twitter_username.index(t_user)
                     nitter_url = f"https://nitter.net/" \
@@ -88,7 +94,8 @@ def test_user_nitter_global(sample_users):
                     user_obj = User(
                         user_item,
                         config_users['config'],
-                        os.getcwd()
+                        os.getcwd(),
+                        {}
                     )
                     twitter_url = f"http://twitter.com/" \
                                   f"{user_obj.twitter_username[idx]}"
@@ -106,8 +113,12 @@ def test_user_invalid_visibility(sample_users):
             with sample_user['mock'] as mock:
                 config_users = get_config_users('config_visibility.yml')
                 for user_item in config_users['user_dict']:
+                    posts_ids = {}
                     user_obj = User(
-                        user_item, config_users['config'], os.getcwd()
+                        user_item,
+                        config_users['config'],
+                        os.getcwd(),
+                        posts_ids
                     )
                     user_obj['mock'] = mock
     str_error = (
@@ -128,8 +139,12 @@ def test_user_invalid_max_tweets(sample_users):
             with sample_user['mock'] as mock:
                 config_users = get_config_users('config_max_tweets_global.yml')
                 for user_item in config_users['user_dict']:
+                    posts_ids = {}
                     user_obj = User(
-                        user_item, config_users['config'], os.getcwd()
+                        user_item,
+                        config_users['config'],
+                        os.getcwd(),
+                        posts_ids
                     )
                     start_time = user_obj.get_date_last_pleroma_post()
                     user_obj.get_tweets(start_time=start_time)
@@ -141,7 +156,7 @@ def test_user_invalid_max_tweets(sample_users):
                 config_users = get_config_users('config_max_tweets_user.yml')
                 for user_item in config_users['user_dict']:
                     user_obj = User(
-                        user_item, config_users['config'], os.getcwd()
+                        user_item, config_users['config'], os.getcwd(), {}
                     )
                     start_time = user_obj.get_date_last_pleroma_post()
                     user_obj.get_tweets(start_time=start_time)
@@ -443,7 +458,7 @@ def test_post_pleroma_exception(sample_users, mock_request):
                 err_ex = requests.exceptions.HTTPError
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj.post_pleroma(
-                        (test_user.pinned, "Test", ""), None, False
+                        (test_user.pinned, "Test", "", None), None, False
                     )
                 exception_value = f"500 Server Error: None for url: {post_url}"
                 assert str(error_info.value) == exception_value
@@ -464,7 +479,7 @@ def test_post_misskey_exception(sample_users, mock_request):
                 err_ex = requests.exceptions.HTTPError
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj.post_misskey(
-                        (test_user.pinned, "Test", ""), None, False
+                        (test_user.pinned, "Test", "", None), None, False
                     )
                 exception_value = f"500 Server Error: None for url: {post_url}"
                 assert str(error_info.value) == exception_value
@@ -683,7 +698,10 @@ def test_post_misskey_update_exception(rootdir, caplog, global_mock):
             f"{test_user.pleroma_base_url}/api/drive/files/update"
         )
         with global_mock as mock:
-            user_obj = User(user_item, config_users['config'], os.getcwd())
+            posts_ids = {}
+            user_obj = User(
+                user_item, config_users['config'], os.getcwd(), posts_ids
+            )
             user_obj.instance = "misskey"
 
             tweet_folder = os.path.join(
@@ -699,7 +717,9 @@ def test_post_misskey_update_exception(rootdir, caplog, global_mock):
             mock.post(mock.post(media_update_url, status_code=500))
             if user_obj.sensitive and user_obj.media_upload:
                 with pytest.raises(err_ex) as error_info:
-                    user_obj.post((test_user.pinned, "", ""), None, False)
+                    user_obj.post(
+                        (test_user.pinned, "", "", None), None, False
+                    )
                 exception_value = (
                     f"500 Server Error: None for url: {media_update_url}"
                 )

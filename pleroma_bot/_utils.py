@@ -350,6 +350,7 @@ def check_pinned(self, posted=None):
                     self.pinned_tweet_id,
                     tweets_to_post["data"][0]["text"],
                     pinned_tweet["data"]["created_at"],
+                    tweets_to_post["data"][0]["reply_id"]
                 ),
                 tweets_to_post["data"][0]["polls"],
                 tweets_to_post["data"][0]["possibly_sensitive"],

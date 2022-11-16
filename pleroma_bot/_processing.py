@@ -79,6 +79,14 @@ def process_tweets(self, tweets_to_post):
                 pass
     all_media = []
     for tweet in tweets_to_post["data"]:
+        self.posts_ids[self.pleroma_base_url].update({tweet["id"]: ''})
+        # get reply ids
+        if "in_reply_to_user_id" in tweet.keys():
+            for reference in tweet["referenced_tweets"]:
+                if reference["type"] == "replied_to":
+                    tweet["reply_id"] = reference["id"]
+        else:
+            tweet["reply_id"] = None
         media = []
         logger.debug(tweet["id"])
         # Get full text from RT or quoted tweet

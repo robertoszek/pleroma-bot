@@ -629,7 +629,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 shutil.copy(mp4, tweet_folder)
                 shutil.copy(gif, tweet_folder)
                 sample_user_obj.post_pleroma(
-                    (test_user.pinned, "", ""), None, False
+                    (test_user.pinned, "", "", None), None, False
                 )
 
                 history = mock.request_history
@@ -781,8 +781,9 @@ def test_include_rts(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_norts.yml')
             for user_item in config_users['user_dict']:
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, config_users['config'], os.getcwd()
+                    user_item, config_users['config'], os.getcwd(), posts_ids
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -825,8 +826,9 @@ def test_include_replies(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_noreplies.yml')
             for user_item in config_users['user_dict']:
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, config_users['config'], os.getcwd()
+                    user_item, config_users['config'], os.getcwd(), posts_ids
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -887,8 +889,9 @@ def test_delay_post(sample_users, global_mock):
 
             for user_item in users['user_dict']:
                 delay_post = users['config']['delay_post']
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), posts_ids
                 )
                 assert delay_post == sample_user_obj.delay_post
 
@@ -902,7 +905,7 @@ def test_hashtags(sample_users, global_mock):
 
             for user_item in users['user_dict']:
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     if sample_user_obj.hashtags:
@@ -955,7 +958,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
             for user_item in users_nitter_net['user_dict']:
                 nitter_instance = users_nitter_net['config']['nitter_base_url']
                 sample_user_obj = User(
-                    user_item, users_nitter_net['config'], os.getcwd()
+                    user_item, users_nitter_net['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -979,6 +982,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -999,7 +1003,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
             for user_item in users_nitter['user_dict']:
                 nitter_instance = users_nitter['config']['nitter_base_url']
                 sample_user_obj = User(
-                    user_item, users_nitter['config'], os.getcwd()
+                    user_item, users_nitter['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1028,7 +1032,8 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                 (
                                     tweet["id"],
                                     tweet["text"],
-                                    tweet["created_at"]
+                                    tweet["created_at"],
+                                    None
                                 ),
                                 None,
                                 False,
@@ -1061,7 +1066,7 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
             for user_item in users_invidious['user_dict']:
                 invidious_instance = user_item['invidious_base_url']
                 sample_user_obj = User(
-                    user_item, users_invidious['config'], os.getcwd()
+                    user_item, users_invidious['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1084,7 +1089,8 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
                                 (
                                     tweet["id"],
                                     tweet["text"],
-                                    tweet["created_at"]
+                                    tweet["created_at"],
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1116,7 +1122,7 @@ def test_original_date(sample_users, mock_request, global_mock):
 
             for user_item in users_date['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_date['config'], os.getcwd()
+                    user_item, users_date['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1140,6 +1146,7 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1167,7 +1174,7 @@ def test_original_date(sample_users, mock_request, global_mock):
 
             for user_item in users_no_date['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_date['config'], os.getcwd()
+                    user_item, users_date['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1191,6 +1198,7 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1225,7 +1233,7 @@ def test_tweet_order(sample_users, mock_request, global_mock):
 
             for user_item in users['user_dict']:
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets = sample_user_obj._get_tweets(
@@ -1293,7 +1301,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
             users_no_keep = get_config_users('config_no_keep_media_links.yml')
             for user_item in users_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_keep['config'], os.getcwd()
+                    user_item, users_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1332,7 +1340,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
             users_no_keep = get_config_users('config_no_keep_media_links.yml')
             for user_item in users_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_keep['config'], os.getcwd()
+                    user_item, users_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1367,7 +1375,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
                                     os.remove(file_path)
             for user_item in users_no_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_no_keep['config'], os.getcwd()
+                    user_item, users_no_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id

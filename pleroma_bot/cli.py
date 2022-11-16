@@ -31,6 +31,7 @@
 import os
 import sys
 import time
+import json
 import yaml
 import shutil
 import logging
@@ -94,7 +95,7 @@ class User(object):
     from ._processing import _replace_mentions
     from ._processing import _get_best_bitrate_video
 
-    def __init__(self, user_cfg: dict, cfg: dict, base_path: str):
+    def __init__(self, user_cfg: dict, cfg: dict, base_path: str, posts_ids):
         self.posts = None
         self.tweets = None
         self.first_time = False
@@ -104,6 +105,7 @@ class User(object):
         self.profile_banner_url = {}
         self.t_user_tweets = {}
         self.twitter_ids = {}
+        self.posts_ids = posts_ids
         self.instance = ""
         self.max_attachments = 16
         valid_visibility = ("public", "unlisted", "private", "direct")
@@ -203,10 +205,11 @@ class User(object):
         self.twitter_url = CaseInsensitiveDict()
         for t_user in t_users:
             self.twitter_url[t_user] = f"{twitter_url}/{t_user}"
-        self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.base_path = base_path
         self.users_path = os.path.join(self.base_path, "users")
         self.tweets_temp_path = os.path.join(self.base_path, "tweets")
+        if self.pleroma_base_url not in self.posts_ids:
+            self.posts_ids[self.pleroma_base_url] = {}
         self.user_path = {}
         self.avatar_path = {}
         self.header_path = {}
@@ -215,6 +218,7 @@ class User(object):
             t_path = self.user_path[t_user]
             self.avatar_path[t_user] = os.path.join(t_path, "profile.jpg")
             self.header_path[t_user] = os.path.join(t_path, "banner.jpg")
+
         os.makedirs(self.users_path, exist_ok=True)
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         for t_user in t_users:
@@ -405,6 +409,11 @@ def main():
             base_path, cfg_file = os.path.split(os.path.abspath(config_path))
         else:
             config_path = os.path.join(base_path, "config.yml")
+        posts_ids = {}
+        posts_path = os.path.join(base_path, "posts.json")
+        if os.path.isfile(posts_path):
+            with open(posts_path) as f:
+                posts_ids = json.load(f)
         tweets_temp_path = os.path.join(base_path, "tweets")
         logger.info(_("config path: {}").format(config_path))
         logger.info(_("tweets temp folder: {}").format(tweets_temp_path))
@@ -458,16 +467,16 @@ def main():
                         ).format(t_user)
                         logger.info(first_time_msg)
                         first_time = True
-                user = User(user_item, config, base_path)
+                user = User(user_item, config, base_path, posts_ids)
                 if args.archive:
                     user.archive = args.archive
                 if first_time and not args.skipChecks and not args.forceDate:
                     user.first_time = True
                 if (
-                    (args.forceDate
-                     and args.forceDate in user.twitter_username)
-                    or args.forceDate == "all"
-                    or user.first_time
+                        (args.forceDate
+                         and args.forceDate in user.twitter_username)
+                        or args.forceDate == "all"
+                        or user.first_time
                 ) and not args.skipChecks:
                     date_fedi = user.force_date()
                 elif args.forceDate and user.check_date_format(args.forceDate):
@@ -569,14 +578,24 @@ def main():
                         logger.info(
                             f"({tweet_counter}/{len(tweets_to_post['data'])})"
                         )
+                        if "reply_id" in tweet.keys():
+                            reply_id = tweet["reply_id"]
+                        else:
+                            reply_id = None
                         post_id = user.post(
-                            (tweet["id"], tweet["text"], tweet["created_at"]),
+                            (
+                                tweet["id"],
+                                tweet["text"],
+                                tweet["created_at"],
+                                reply_id
+                            ),
                             tweet["polls"],
                             tweet["possibly_sensitive"],
                             tweets_to_post["media_processed"]
                         )
                         posted[tweet["id"]] = post_id
                         time.sleep(user.delay_post)
+                posts_ids = user.posts_ids
                 if not user.skip_pin:
                     user.check_pinned(posted)
 
@@ -597,6 +616,8 @@ def main():
                 )
                 exit_code = 1
                 continue
+        with open(posts_path, "w") as f:
+            f.write(json.dumps(posts_ids, indent=4))
     except Exception:
         logger.error(_("Exception occurred"), exc_info=True)
         return 1

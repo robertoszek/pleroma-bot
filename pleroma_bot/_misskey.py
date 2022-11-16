@@ -37,7 +37,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
 
     misskey_post_url = f"{self.pleroma_base_url}/api/notes/create"
 
-    tweet_id, tweet_text, tweet_date = tweet
+    tweet_id, tweet_text, tweet_date, tweet_reply_id = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
     # config setting override tweet attr
     if self.sensitive:
@@ -63,7 +63,12 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
 
     if len(media_ids) != 0:
         data.update({"fileIds": media_ids})
-
+    if (
+            tweet_reply_id
+            and tweet_reply_id in self.posts_ids[self.pleroma_base_url]
+    ):
+        post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
+        data.update({"replyId": post_reply_id})
     if poll:
         data.update(
             {
@@ -83,6 +88,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
         response.raise_for_status()
     logger.info(_("Post in Misskey:\t{}").format(str(response)))
     post_id = json.loads(response.text)["createdNote"]["id"]
+    self.posts_ids[self.pleroma_base_url].update({tweet_id: post_id})
     return post_id
 
 

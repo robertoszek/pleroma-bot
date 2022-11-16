@@ -1,6 +1,12 @@
 ## Unreleased
 ## Fixed
 - Bug: Handle exception when media attachments are geoblocked (403 Unauthorized)
+- Regression: Take into account new structure of Twitter's archive (tweet.js changed to tweets.js)
+- Bug: Handle special media types that don't include link to media in some cases. Thanks @tewhalen!
+
+## Added
+- RSS support, you can now use an RSS feed as a source of tweets to post. Take a look at the docs for more info.
+- Thread support, now mirrored users should reply to their own posts.
 
 ## [1.1.0] 06-06-2022
 ## Fixed
