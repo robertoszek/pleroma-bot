@@ -15,6 +15,7 @@ import mimetypes
 from typing import cast
 from errno import ENOENT
 from itertools import cycle
+from bs4 import BeautifulSoup
 from multiprocessing import Queue
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
@@ -610,7 +611,7 @@ def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
     post_id = None
     instance = self.instance
     if media:
-        media_id = 'id' if self.archive else 'media_key'
+        media_id = 'id' if (self.archive or self.rss) else 'media_key'
         media = {
             key: [
                 l_item for l_item in media if l_item[media_id] == key
@@ -657,3 +658,186 @@ def update_profile(self):
         self.update_pleroma()
     elif instance == "misskey":
         self.update_misskey()
+
+
+def random_id() -> str:
+    return "".join(
+        random.choice(string.ascii_lowercase + string.digits)
+        for _ in range(19)
+    )
+
+
+def parse_rss_feed(self, rss_link, start_time):
+    import feedparser
+
+    tweets = {
+        "data": [],
+        "media_processed": [],
+        "meta": []
+    }
+    d = feedparser.parse(rss_link)
+
+    for item in d.entries[:self.max_tweets]:
+        created_at = datetime.strftime(
+            datetime.strptime(item.published, "%a, %d %b %Y %H:%M:%S %Z"),
+            "%Y-%m-%dT%H:%M:%S.000Z",
+        )
+        if start_time:
+            if created_at < start_time:
+                continue
+        text = item.summary_detail.value
+        soup = BeautifulSoup(text, "html.parser")
+        soup_title = BeautifulSoup(item.title_detail.value, "html.parser")
+        # Remove parent p tags if there are any
+        if hasattr(soup.p, "unwrap"):
+            soup.p.unwrap()
+        # title_detail includes RT or reply header
+        # but only summary_details includes links to media
+        if not self.include_rts:
+            if (
+                    soup.prettify().startswith('RT ')
+                    or soup_title.prettify().startswith('RT ')
+            ):
+                continue
+        if not self.include_replies:
+            if (
+                    soup.prettify().startswith('@')
+                    or soup.prettify().startswith('Re @')
+                    or soup.prettify().startswith('R to @')
+                    or soup_title.prettify().startswith('@')
+                    or soup_title.prettify().startswith('Re @')
+                    or soup_title.prettify().startswith('R to @')
+            ):
+                continue
+
+        tweet_id = item.id.strip('#m').split('/')[-1]
+
+        media = []
+        for link in soup.find_all('a'):
+            link.replace_with(f' {link.get("href")} ')
+
+        for source in soup.find_all('source'):
+            src = source.get('src')
+            if src:
+                media.append(
+                    {
+                        'url': src,
+                        'type': 'rss',
+                        'id': random_id()
+                    }
+                )
+            source.replace_with('')
+        for video in soup.find_all('video'):
+            src = video.get('src')
+            if src:
+                media.append(
+                    {
+                        'url': src,
+                        'type': 'rss',
+                        'id': random_id()
+                    }
+                )
+            video.replace_with('')
+        for image in soup.find_all('img'):
+            src = image.get('src')
+            if src:
+                media.append(
+                    {
+                        'url': src,
+                        'type': 'rss',
+                        'id': random_id()
+                    }
+                )
+            image.replace_with('')
+        for br in soup.find_all('br'):
+            br.replace_with('\n')
+        if (
+                (
+                    soup_title.prettify().startswith('RT ')
+                    or soup_title.prettify().startswith('@')
+                    or soup_title.prettify().startswith('Re @')
+                    or soup_title.prettify().startswith('R to @')
+                )
+                and not (
+                    soup_title.prettify().endswith('...')
+                    or soup_title.prettify().endswith('…')
+                    or soup_title.prettify().endswith('...\n')
+                    or soup.prettify().startswith('RT ')
+                    or soup.prettify().startswith('@')
+                    or soup.prettify().startswith('Re @')
+                    or soup.prettify().startswith('R to @')
+                )
+        ):
+            tweet_text = soup_title.prettify()
+        else:
+            tweet_text = soup.prettify()
+        tweet = {"text": tweet_text, "created_at": created_at}
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                tweet["text"] = self._replace_mentions(tweet)
+
+        if self.invidious:
+            tweet["text"] = self._replace_url(
+                tweet["text"],
+                "https://youtube.com",
+                self.invidious_base_url
+            )
+        signature = ''
+        if self.signature:
+            signature = f"\n\n 🐦🔗: {item.link}"
+            total_length = len(tweet["text"]) + len(signature)
+            if total_length > self.max_post_length:  # pragma
+                body_max_length = self.max_post_length - len(signature) - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            tweet["text"] = f"{tweet['text']}{signature}"
+        if self.nitter:
+            tweet["text"] = self._replace_url(
+                tweet["text"],
+                "https://twitter.com",
+                self.nitter_base_url
+            )
+        if self.original_date:
+            tweet_date = tweet["created_at"]
+            date = datetime.strftime(
+                datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
+                self.original_date_format,
+            )
+            orig_date = f"\n\n[{date}]"
+            total_length = len(tweet["text"]) + len(orig_date)
+            if total_length > self.max_post_length:  # pragma
+                if self.signature:
+                    tweet["text"] = tweet["text"].replace(signature, '')
+                l_date = len(orig_date)
+                l_sig = len(signature)
+                body_max_length = self.max_post_length - l_date - l_sig - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            else:
+                signature = ''
+            tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
+        # Truncate text if needed
+        if len(tweet["text"]) > self.max_post_length:  # pragma
+            logger.info(
+                _(
+                    "Post text longer than allowed ({}), truncating..."
+                ).format(self.max_post_length)
+            )
+            tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
+
+        data = {
+            'id': tweet_id,
+            'created_at': created_at,
+            'text': tweet["text"],
+            'author_id': item.author,
+            'possibly_sensitive': False,
+            'polls': []
+        }
+
+        tweets["data"].append(data)
+        if self.media_upload:
+            if len(media) > 0:
+                tweet_path = os.path.join(self.tweets_temp_path, tweet_id)
+                os.makedirs(tweet_path, exist_ok=True)
+                self._download_media(media, data)
+                tweets["media_processed"].extend(media)
+
+    return tweets

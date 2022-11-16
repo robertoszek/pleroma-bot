@@ -75,6 +75,7 @@ class User(object):
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
+    from ._utils import parse_rss_feed
     from ._utils import update_profile
     from ._utils import transform_date
     from ._utils import check_date_format
@@ -141,7 +142,8 @@ class User(object):
             "max_post_length": 5000,
             "include_quotes": True,
             "website": None,
-            "no_profile": False
+            "no_profile": False,
+            "rss": None
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -176,12 +178,12 @@ class User(object):
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
 
         if all(
-            [
-                self.consumer_key,
-                self.consumer_secret,
-                self.access_token_key,
-                self.access_token_secret,
-            ]
+                [
+                    self.consumer_key,
+                    self.consumer_secret,
+                    self.access_token_key,
+                    self.access_token_secret,
+                ]
         ):
             self.auth = OAuth1(
                 self.consumer_key,
@@ -219,8 +221,13 @@ class User(object):
             os.makedirs(self.user_path[t_user], exist_ok=True)
         # Get Fedi instance info
         self._get_instance_info()
-        # Get Twitter info on instance creation
-        self._get_twitter_info()
+        if self.rss:
+            self.skip_pin = True
+            self.no_profile = True
+        else:
+            # Get Twitter info on instance creation
+            self._get_twitter_info()
+            self.pinned_tweet_id = self._get_pinned_tweet_id()
         if self.instance == "mastodon":  # pragma
             self.mastodon_enforce_limits()
         self.website = self.website if self.website else ""
@@ -509,6 +516,16 @@ def main():
                         args.archive, start_time=date_fedi
                     )
                     user.result_count = len(tweets["data"])
+                elif user.rss:
+                    rss_msg = _("\nUsing RSS feed. The following features "
+                                "will not be available: \n- Profile "
+                                "update\n- Pinned tweets\n- Polls")
+                    logger.debug(rss_msg)
+                    tweets_rss = user.parse_rss_feed(
+                        user.rss, start_time=date_fedi
+                    )
+                    tweets = tweets_rss
+                    user.result_count = len(tweets_rss["data"])
                 else:
                     tweets = user.get_tweets(start_time=date_fedi)
                 logger.debug(f"tweets: \t {tweets}")
@@ -531,7 +548,12 @@ def main():
                     tweets["data"].reverse()
                     cores = mp.cpu_count()
                     threads = round(cores / 2 if cores > 4 else 4)
-                    tweets_to_post = process_parallel(tweets, user, threads)
+                    if user.rss:
+                        tweets_to_post = tweets_rss
+                    else:
+                        tweets_to_post = process_parallel(
+                            tweets, user, threads
+                        )
                     logger.info(
                         _("tweets to post: \t {}").format(
                             len(tweets_to_post['data'])

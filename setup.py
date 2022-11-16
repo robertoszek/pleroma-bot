@@ -36,9 +36,11 @@ setuptools.setup(
     },
     python_requires='>=3.6',
     install_requires=[
-        'requests>=2.24.0',
+        'requests>=2.28.1',
         'PyYAML>=5.3.1',
-        'requests-oauthlib>=1.3.0'
+        'requests-oauthlib>=1.3.0',
+        'feedparser>=6.0.10',
+        'beautifulsoup4>=4.9.3'
     ],
     extras_require={
         'lint': [

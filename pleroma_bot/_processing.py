@@ -310,7 +310,9 @@ def _download_media(self, media, tweet):
             media_url = _get_best_bitrate_video(self, item)
 
         if media_url:
-            key = item["media_key"] if not self.archive else item["id"]
+            key = item["media_key"] if not (
+                self.archive or self.rss
+            ) else item["id"]
             response = requests.get(media_url, stream=True)
             try:
                 if not response.ok:
