@@ -564,6 +564,9 @@ def process_archive(archive_zip_path, start_time=None):
     with zipfile.ZipFile(archive_zip_path, "r") as zip_ref:
         zip_ref.extractall(extracted_dir)
     tweet_js_path = os.path.join(extracted_dir, 'data', 'tweet.js')
+    # new archives filename
+    if not os.path.isfile(tweet_js_path):
+        tweet_js_path = os.path.join(extracted_dir, 'data', 'tweets.js')
     tweets_archive = get_tweets_from_archive(tweet_js_path)
     tweets = {
         "data": [],
@@ -579,7 +582,7 @@ def process_archive(archive_zip_path, start_time=None):
         created_at = tweet["tweet"]["created_at"]
         created_at_f = datetime.strftime(
             datetime.strptime(created_at, "%a %b %d %H:%M:%S +0000 %Y"),
-            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S.000Z",
         )
         if start_time:
             if created_at_f < start_time:

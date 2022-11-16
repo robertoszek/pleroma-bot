@@ -535,6 +535,9 @@ def test_process_archive(rootdir):
     archive = os.path.join(media_dir, 'twitter-archive.zip')
     tweets = process_archive(archive)
     assert tweets is not None
+    new_archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
+    tweets = process_archive(new_archive)
+    assert tweets is not None
 
 
 def test_get_twitter_info(mock_request, sample_users):
@@ -1517,7 +1520,13 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
 
         sample_data_dir = os.path.join(test_files_dir, 'sample_data')
         media_dir = os.path.join(sample_data_dir, 'media')
+
         archive = os.path.join(media_dir, 'twitter-archive.zip')
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
+        with patch.object(sys, 'argv', ['', '--archive', archive]):
+            assert cli.main() == 0
+
+        archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
         monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
         with patch.object(sys, 'argv', ['', '--archive', archive]):
             assert cli.main() == 0
@@ -1576,6 +1585,9 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         if os.path.isfile(backup_config):
             shutil.copy(backup_config, prev_config)
         archive_dir = os.path.join(media_dir, 'twitter-archive')
+        if os.path.isdir(archive_dir):
+            shutil.rmtree(archive_dir)
+        archive_dir = os.path.join(media_dir, 'twitter-archive-new-format')
         if os.path.isdir(archive_dir):
             shutil.rmtree(archive_dir)
         for sample_user in sample_users:
