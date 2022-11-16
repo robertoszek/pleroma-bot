@@ -305,7 +305,10 @@ def _process_polls(self, tweet, media):
 def _download_media(self, media, tweet):
     for idx, item in enumerate(media):
         if item["type"] != "video" and item["type"] != "animated_gif":
-            media_url = item["url"]
+            if "media_url" in item:
+                media_url = item['media_url']
+            else:
+                media_url = item["url"]
         else:
             media_url = _get_best_bitrate_video(self, item)
 
