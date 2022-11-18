@@ -578,16 +578,21 @@ def main():
                         logger.info(
                             f"({tweet_counter}/{len(tweets_to_post['data'])})"
                         )
-                        if "reply_id" in tweet.keys():
+                        try:
                             reply_id = tweet["reply_id"]
-                        else:
+                        except KeyError:
                             reply_id = None
+                        try:
+                            retweet_id = tweet["retweet_id"]
+                        except KeyError:
+                            retweet_id = None
                         post_id = user.post(
                             (
                                 tweet["id"],
                                 tweet["text"],
                                 tweet["created_at"],
-                                reply_id
+                                reply_id,
+                                retweet_id
                             ),
                             tweet["polls"],
                             tweet["possibly_sensitive"],

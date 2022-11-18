@@ -37,13 +37,14 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
 
     misskey_post_url = f"{self.pleroma_base_url}/api/notes/create"
 
-    tweet_id, tweet_text, tweet_date, tweet_reply_id = tweet
+    tweet_id, tweet_text, tweet_date, tweet_reply_id, retweet_id = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
     # config setting override tweet attr
     if self.sensitive:
         sensitive = self.sensitive
     media_ids = []
-    if self.media_upload:
+    posts_ids = self.posts_ids[self.pleroma_base_url]
+    if self.media_upload and retweet_id not in posts_ids:
         if os.path.isdir(tweet_folder):
             media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
@@ -55,21 +56,25 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
                     media_ids.append(media_id)
 
     data = {
-        "visibility": self.visibility,
-        "text": tweet_text,
         "i": self.pleroma_token,
         # cw: '',
     }
+    if retweet_id and retweet_id in posts_ids:
+        renote_id = posts_ids[retweet_id]
+        data.update({"renoteId": renote_id})
+    else:
+        data.update({"visibility": self.visibility, "text": tweet_text})
 
     if len(media_ids) != 0:
         data.update({"fileIds": media_ids})
     if (
             tweet_reply_id
-            and tweet_reply_id in self.posts_ids[self.pleroma_base_url]
+            and tweet_reply_id in posts_ids
+            and retweet_id not in posts_ids
     ):
         post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
         data.update({"replyId": post_reply_id})
-    if poll:
+    if poll and retweet_id not in posts_ids:
         data.update(
             {
                 "poll": {

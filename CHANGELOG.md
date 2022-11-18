@@ -7,6 +7,7 @@
 ## Added
 - RSS support, you can now use an RSS feed as a source of tweets to post. Take a look at the docs for more info.
 - Thread support, now mirrored users should reply to their own posts.
+- Native retweet support, now users in your config should be able to reblog their posts and also do it from each other if they are on the same instance.
 
 ## [1.1.0] 06-06-2022
 ## Fixed

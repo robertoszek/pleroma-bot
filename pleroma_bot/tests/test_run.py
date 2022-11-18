@@ -629,7 +629,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 shutil.copy(mp4, tweet_folder)
                 shutil.copy(gif, tweet_folder)
                 sample_user_obj.post_pleroma(
-                    (test_user.pinned, "", "", None), None, False
+                    (test_user.pinned, "", "", None, None), None, False
                 )
 
                 history = mock.request_history
@@ -982,6 +982,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
                                     None
                                 ), None, False
                             )
@@ -1033,6 +1034,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
                                     None
                                 ),
                                 None,
@@ -1090,6 +1092,7 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
                                     None
                                 ), None, False
                             )
@@ -1146,6 +1149,7 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
                                     None
                                 ), None, False
                             )
@@ -1198,6 +1202,7 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
                                     None
                                 ), None, False
                             )

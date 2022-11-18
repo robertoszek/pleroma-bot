@@ -195,29 +195,32 @@ def _find_pinned(self, pinned_file):
     pinned = []
     if self.posts != "none_found":
         while page < 10:
-            if self.posts:
-                for post in self.posts:
-                    if post["pinned"]:
-                        pinned.append(post["id"])
-                        with open(pinned_file, "w") as file:
-                            file.write(f'{post["id"]}\n')
-                        self.unpin_pleroma(pinned_file)
-            page += 1
-            pleroma_posts_url = (
-                f"{self.pleroma_base_url}/api/v1/accounts/"
-                f"{self.pleroma_username}/statuses"
-            )
-
-            if headers_page_url:
-                statuses_url = headers_page_url
-            else:
-                statuses_url = pleroma_posts_url
-            response = requests.get(statuses_url, headers=self.header_pleroma)
-            if not response.ok:
-                response.raise_for_status()
-            posts = json.loads(response.text)
-            self.posts = posts
             try:
+                if self.posts:
+                    for post in self.posts:
+                        if post["pinned"]:
+                            pinned.append(post["id"])
+                            with open(pinned_file, "w") as file:
+                                file.write(f'{post["id"]}\n')
+                            self.unpin_pleroma(pinned_file)
+                page += 1
+                pleroma_posts_url = (
+                    f"{self.pleroma_base_url}/api/v1/accounts/"
+                    f"{self.pleroma_username}/statuses"
+                )
+
+                if headers_page_url:
+                    statuses_url = headers_page_url
+                else:
+                    statuses_url = pleroma_posts_url
+                response = requests.get(
+                    statuses_url, headers=self.header_pleroma
+                )
+                if not response.ok:
+                    response.raise_for_status()
+                posts = json.loads(response.text)
+                self.posts = posts
+
                 links = requests.utils.parse_header_links(
                     response.headers["link"].rstrip(">").replace(">,<", ",<")
                 )

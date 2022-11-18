@@ -78,8 +78,21 @@ def post_pleroma(
     pleroma_post_url = f"{self.pleroma_base_url}/api/v1/statuses"
     pleroma_media_url = f"{self.pleroma_base_url}/api/v1/media"
 
-    tweet_id, tweet_text, tweet_date, tweet_reply_id = tweet
+    tweet_id, tweet_text, tweet_date, tweet_reply_id, retweet_id = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
+
+    if retweet_id and retweet_id in self.posts_ids[self.pleroma_base_url]:
+        post_id = self.posts_ids[self.pleroma_base_url][retweet_id]
+        pleroma_reblog_url = (
+            f"{self.pleroma_base_url}/api/v1/statuses/{post_id}/reblog"
+        )
+        response = requests.post(
+            pleroma_reblog_url, headers=self.header_pleroma
+        )
+        if not response.ok:
+            response.raise_for_status()
+        logger.info(_("Reblog in Pleroma:\t{}").format(str(response)))
+        return post_id
 
     media_ids = []
     if self.media_upload:

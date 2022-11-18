@@ -458,7 +458,7 @@ def test_post_pleroma_exception(sample_users, mock_request):
                 err_ex = requests.exceptions.HTTPError
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj.post_pleroma(
-                        (test_user.pinned, "Test", "", None), None, False
+                        (test_user.pinned, "Test", "", None, None), None, False
                     )
                 exception_value = f"500 Server Error: None for url: {post_url}"
                 assert str(error_info.value) == exception_value
@@ -479,7 +479,7 @@ def test_post_misskey_exception(sample_users, mock_request):
                 err_ex = requests.exceptions.HTTPError
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj.post_misskey(
-                        (test_user.pinned, "Test", "", None), None, False
+                        (test_user.pinned, "Test", "", None, None), None, False
                     )
                 exception_value = f"500 Server Error: None for url: {post_url}"
                 assert str(error_info.value) == exception_value
@@ -718,7 +718,7 @@ def test_post_misskey_update_exception(rootdir, caplog, global_mock):
             if user_obj.sensitive and user_obj.media_upload:
                 with pytest.raises(err_ex) as error_info:
                     user_obj.post(
-                        (test_user.pinned, "", "", None), None, False
+                        (test_user.pinned, "", "", None, None), None, False
                     )
                 exception_value = (
                     f"500 Server Error: None for url: {media_update_url}"
