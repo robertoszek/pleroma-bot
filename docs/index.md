@@ -31,6 +31,7 @@ Supports:
 * [x] Retrieves latest **tweets** and posts them on the Fediverse account
     * [x] Can filter out RTs
     * [x] Can filter out replies
+    * [x] Supports threads
 * [x] Media retrieval and upload of multiple **attachments**
     * [x] :material-video: Video
     * [x] :material-file-image: Images

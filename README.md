@@ -39,6 +39,7 @@ So basically, it does the following:
 * Retrieves latest **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
   * Can filter out RTs or not
   * Can filter out replies or not
+  * Supports threads
 * Media retrieval and upload of multiple **attachments**. This includes:
   * Video
   * Images
