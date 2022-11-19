@@ -107,6 +107,8 @@ Once installed using your preferred method, test that the package has been corre
       -a ARCHIVE, --archive ARCHIVE
                             path of the Twitter archive file (zip) to use for
                             posting tweets.
+      -t THREADS, --threads THREADS
+                            number of threads to use when processing tweets
       --verbose, -v
       --version             show program's version number and exit
     ```
@@ -172,6 +174,8 @@ Once installed using your preferred method, test that the package has been corre
       -a ARCHIVE, --archive ARCHIVE
                             path of the Twitter archive file (zip) to use for
                             posting tweets.
+      -t THREADS, --threads THREADS
+                            number of threads to use when processing tweets
       --verbose, -v
       --version             show program's version number and exit
     ```
@@ -236,6 +240,8 @@ Once installed using your preferred method, test that the package has been corre
       -a ARCHIVE, --archive ARCHIVE
                             path of the Twitter archive file (zip) to use for
                             posting tweets.
+      -t THREADS, --threads THREADS
+                            number of threads to use when processing tweets
       --verbose, -v
       --version             show program's version number and exit
     ```

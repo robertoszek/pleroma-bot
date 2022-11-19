@@ -83,13 +83,14 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 
 There a few mappings *exclusive* to users:
 
-| User mapping     | Optional | Default | Description                                                                       |
-|:-----------------|:--------:|:--------|:----------------------------------------------------------------------------------|
-| twitter_username |    No    |         | Username of Twitter account to mirror (can be a list)                             |
-| pleroma_username |    No    |         | Username of target Fediverse account to post content and update profile           |
-| pleroma_token    |    No    |         | Bearer token of target Fediverse account                                          |
-| bio_text         |   Yes    |         | Text to be appended to the Twitter account bio text                               |
-| fields           |   Yes    |         | Optional metadata fields (sequence of name-value pairs) for the Fediverse profile |
+| User mapping     | Optional | Default | Description                                                                                      |
+|:-----------------|:--------:|:--------|:-------------------------------------------------------------------------------------------------|
+| twitter_username |    No    |         | Username of Twitter account to mirror (can be a list)                                            |
+| pleroma_username |    No    |         | Username of target Fediverse account to post content and update profile                          |
+| pleroma_token    |    No    |         | Bearer token of target Fediverse account                                                         |
+| bio_text         |   Yes    |         | Text to be appended to the Twitter account bio text                                              |
+| fields           |   Yes    |         | Optional metadata fields (sequence of name-value pairs) for the Fediverse profile                |
+| rss              |   Yes    |         | URL to [RSS feed](/pleroma-bot/gettingstarted/usage/#using-an-rss-feed) for gathering tweets     |
 
 And mappings that can only be used *globally*:
 
@@ -139,6 +140,25 @@ A minimal config looks something like this:
       pleroma_username: MyMisskeyUser1
       # Misskey bearer token
       pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
+=== "Using an archive"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://pleroma.instance
+    users:
+    - twitter_username: User1
+      pleroma_username: MyPleromaUser1
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
+=== "Using RSS"
+
+    ```yaml title="config-minimal.yml.sample"
+    pleroma_base_url: https://pleroma.instance
+    users:
+    - twitter_username: User1
+      pleroma_username: MyPleromaUser1
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      rss: https://rsshub.app/twitter/user/<twitter_user>/
     ```
 
 #### Complex config

@@ -1,6 +1,20 @@
 # Before running
 
-If you haven't already, you need to [apply for a Twitter developer account](https://developer.twitter.com/en/apply-for-access).
+There are multiple options for using the bot.
+
+You can either choose to use: 
+
+- :fontawesome-solid-file-archive: A [Twitter archive](/pleroma-bot/gettingstarted/usage/#using-an-archive)
+- :fontawesome-solid-rss-square: An [RSS feed](/pleroma-bot/gettingstarted/usage/#using-an-rss-feed)
+- :material-account-key: [Twitter tokens](/pleroma-bot/gettingstarted/beforerunning/#twitter-tokens) with a Developer account 
+
+You'll need to create a [configuration file](/pleroma-bot/gettingstarted/configuration/) and obtain the [Fediverse tokens](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) for your accounts no matter what you choose to use.
+
+## Twitter tokens
+
+!!! info "Not needed if using an archive or an RSS feed"
+
+To take full advantage of the bot, [applying for a Twitter developer account](https://developer.twitter.com/en/apply-for-access) is recommended.
 
 The process involves some review of the developer account application by Twitter and it's very likely you'll be asked for some details pertaining your usecase. It usually doesn't take longer than a day or two to complete the application, the back and forth is mostly automated on their part.
 
@@ -11,8 +25,6 @@ We still use v1.1 for downloading videos and profile banners, and as of now ther
 So, you'll **need** [_***Elevated access***_](https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api#v2-access-level) for the bot to function properly until further notice.
 
 You can apply for Elevated access [here](https://developer.twitter.com/en/portal/products/elevated).
-
-## Twitter tokens
 
 Once you have a Twitter developer account, you need to access your [dashboard](https://developer.twitter.com/en/portal/dashboard) and create a new project (so your app has v2 access) and also create a new app associated to that new project.
 
@@ -34,7 +46,7 @@ Alternatively, you can obtain the Access Token and Secret by running [this](http
 
 ## Fediverse tokens
 
-You also need to obtain the bearer tokens for the Fediverse account(s) you plan to use for mirroring.
+You will need to obtain the bearer tokens for the Fediverse account(s) you plan to use for mirroring.
 
 === "Mastodon"
 
