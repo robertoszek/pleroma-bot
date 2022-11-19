@@ -560,9 +560,10 @@ def main():
                     if user.rss:
                         tweets_to_post = tweets_rss
                     else:
-                        tweets_to_post = process_parallel(
-                            tweets, user, threads
-                        )
+                        tweets_to_post = user.process_tweets(tweets)
+                        # tweets_to_post = process_parallel(
+                        #     tweets, user, threads
+                        # )
                     logger.info(
                         _("tweets to post: \t {}").format(
                             len(tweets_to_post['data'])
@@ -599,8 +600,10 @@ def main():
                             tweets_to_post["media_processed"]
                         )
                         posted[tweet["id"]] = post_id
+                        posts_ids = user.posts_ids
+                        with open(posts_path, "w") as f:
+                            f.write(json.dumps(posts_ids, indent=4))
                         time.sleep(user.delay_post)
-                posts_ids = user.posts_ids
                 if not user.skip_pin:
                     user.check_pinned(posted)
 
@@ -621,8 +624,6 @@ def main():
                 )
                 exit_code = 1
                 continue
-        with open(posts_path, "w") as f:
-            f.write(json.dumps(posts_ids, indent=4))
     except Exception:
         logger.error(_("Exception occurred"), exc_info=True)
         return 1
