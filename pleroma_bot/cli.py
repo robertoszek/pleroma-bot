@@ -380,10 +380,10 @@ def get_args(sysargs):
     )
     parser.add_argument(
         "-t",
-        "--single-threaded",
+        "--threads",
         required=False,
-        action="store_true",
-        help=(_("runs in a single thread")),
+        action="store",
+        help=(_("number of threads to use when processing tweets")),
     )
 
 
@@ -563,17 +563,20 @@ def main():
                     )
                     # Put oldest first to iterate them and post them in order
                     tweets["data"].reverse()
-                    cores = mp.cpu_count()
-                    threads = round(cores / 2 if cores > 4 else 4)
+                    if args.threads:
+                        threads = args.threads
+                    else:
+                        cores = mp.cpu_count()
+                        threads = round(cores / 2 if cores > 4 else 4)
                     if user.rss:
                         tweets_to_post = tweets_rss
                     else:
-                        if args.single_threaded:
-                            tweets_to_post = user.process_tweets(tweets)
-                        else:
+                        if int(threads) > 1:
                             tweets_to_post = process_parallel(
                                 tweets, user, threads
                             )
+                        else:
+                            tweets_to_post = user.process_tweets(tweets)
                     logger.info(
                         _("tweets to post: \t {}").format(
                             len(tweets_to_post['data'])
