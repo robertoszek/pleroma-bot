@@ -378,6 +378,14 @@ def get_args(sysargs):
             )
         ),
     )
+    parser.add_argument(
+        "-t",
+        "--single-threaded",
+        required=False,
+        action="store_true",
+        help=(_("runs in a single thread")),
+    )
+
 
     parser.add_argument("--verbose", "-v", action="count", default=0)
 
@@ -560,10 +568,12 @@ def main():
                     if user.rss:
                         tweets_to_post = tweets_rss
                     else:
-                        tweets_to_post = user.process_tweets(tweets)
-                        # tweets_to_post = process_parallel(
-                        #     tweets, user, threads
-                        # )
+                        if args.single_threaded:
+                            tweets_to_post = user.process_tweets(tweets)
+                        else:
+                            tweets_to_post = process_parallel(
+                                tweets, user, threads
+                            )
                     logger.info(
                         _("tweets to post: \t {}").format(
                             len(tweets_to_post['data'])
