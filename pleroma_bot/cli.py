@@ -386,7 +386,6 @@ def get_args(sysargs):
         help=(_("number of threads to use when processing tweets")),
     )
 
-
     parser.add_argument("--verbose", "-v", action="count", default=0)
 
     parser.add_argument(
