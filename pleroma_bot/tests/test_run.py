@@ -14,7 +14,7 @@ from conftest import get_config_users
 
 from pleroma_bot import cli, User
 from pleroma_bot._utils import random_string, previous_and_next, guess_type
-from pleroma_bot._utils import process_parallel, process_archive
+from pleroma_bot._utils import process_parallel
 
 
 def test_random_string():
@@ -528,16 +528,20 @@ def test_guess_type(rootdir):
     assert 'image/gif' == guess_type(gif)
 
 
-def test_process_archive(rootdir):
+def test_process_archive(rootdir, sample_users):
     test_files_dir = os.path.join(rootdir, 'test_files')
     sample_data_dir = os.path.join(test_files_dir, 'sample_data')
     media_dir = os.path.join(sample_data_dir, 'media')
     archive = os.path.join(media_dir, 'twitter-archive.zip')
-    tweets = process_archive(archive)
-    assert tweets is not None
     new_archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
-    tweets = process_archive(new_archive)
-    assert tweets is not None
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets = sample_user_obj.process_archive(archive)
+            assert tweets is not None
+            tweets = sample_user_obj.process_archive(new_archive)
+            assert tweets is not None
+    return mock
 
 
 def test_get_twitter_info(mock_request, sample_users):

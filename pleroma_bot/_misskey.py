@@ -248,27 +248,30 @@ def update_misskey(self):
     """
     # Only update 1 user
     t_user = self.twitter_username[0]
-    # Get the biggest resolution for the profile picture (400x400)
-    # instead of 'normal'
-    if t_user in self.profile_image_url:
-        profile_img_big = re.sub(
-            r"normal", "400x400",
-            self.profile_image_url[t_user]
-        )
-        response = requests.get(profile_img_big, stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        with open(self.avatar_path[t_user], "wb") as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+    if not self.archive:
+        # Get the biggest resolution for the profile picture (400x400)
+        # instead of 'normal'
+        if t_user in self.profile_image_url:
+            profile_img_big = re.sub(
+                r"normal", "400x400",
+                self.profile_image_url[t_user]
+            )
+            response = requests.get(profile_img_big, stream=True)
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            with open(self.avatar_path[t_user], "wb") as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
-    if t_user in self.profile_banner_url:
-        response = requests.get(self.profile_banner_url[t_user], stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        with open(self.header_path[t_user], "wb") as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+        if t_user in self.profile_banner_url:
+            response = requests.get(
+                self.profile_banner_url[t_user], stream=True
+            )
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            with open(self.header_path[t_user], "wb") as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
     data = {"i": self.pleroma_token}
 

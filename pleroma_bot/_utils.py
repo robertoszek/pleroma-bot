@@ -5,6 +5,7 @@ import time
 import json
 import string
 import random
+import shutil
 import zipfile
 import tempfile
 import requests
@@ -558,7 +559,9 @@ def transform_date(self, input_date):
     return date
 
 
-def process_archive(archive_zip_path, start_time=None):
+def process_archive(self, archive_zip_path, start_time=None):
+    from pleroma_bot._processing import _expand_urls
+
     archive_zip_path = os.path.abspath(archive_zip_path)
     par_dir = os.path.dirname(archive_zip_path)
     archive_name = os.path.basename(archive_zip_path).split('.')[0]
@@ -566,6 +569,48 @@ def process_archive(archive_zip_path, start_time=None):
     with zipfile.ZipFile(archive_zip_path, "r") as zip_ref:
         zip_ref.extractall(extracted_dir)
     tweet_js_path = os.path.join(extracted_dir, 'data', 'tweet.js')
+    profile_js_path = os.path.join(extracted_dir, 'data', 'profile.js')
+    account_js_path = os.path.join(extracted_dir, 'data', 'account.js')
+    profile_info = _get_twitter_info_from_archive(profile_js_path)
+    account_info = _get_account_info_from_archive(account_js_path)
+
+    t_user = self.twitter_username[0]
+    bio_text = profile_info["description"]["bio"]
+    if self.twitter_bio:
+        bio_short = profile_info["description"]["bio"]
+        bio = {'text': bio_short, 'entities': None}
+        bio_long = _expand_urls(self, bio)
+        max_len = self.max_post_length
+        len_bio = len(f"{self.bio_text['_generic_bio_text']}{bio_long}")
+        bio_text = bio_long if len_bio < max_len else bio_short
+    self.bio_text[t_user] = (
+        f"{self.bio_text['_generic_bio_text']}{bio_text}"
+        if self.twitter_bio
+        else f"{self.bio_text['_generic_bio_text']}"
+    )
+    self.website = profile_info["description"]["website"]
+    self.display_name[t_user] = account_info["username"]
+    self.twitter_ids[account_info["accountId"]] = account_info["username"]
+    a_end_id = ""
+    h_end_id = ""
+    if "avatarMediaUrl" in profile_info:
+        a_end_id = profile_info["avatarMediaUrl"].split("/")[-1].split('.')[0]
+    if "headerMediaUrl" in profile_info:
+        h_end_id = profile_info["headerMediaUrl"].split("/")[-1].split('.')[0]
+
+    profile_media_path = os.path.join(extracted_dir, 'data', 'profile_media')
+    for media in os.listdir(profile_media_path):
+        m_end_id = media.split("-")[-1].split('.')[0]
+        if m_end_id == a_end_id:
+            media_path = os.path.join(profile_media_path, media)
+            self.profile_image_url[t_user] = media_path
+            shutil.copy(media_path, self.avatar_path[t_user])
+        if m_end_id == h_end_id:
+            media_path = os.path.join(profile_media_path, media)
+            self.profile_banner_url[t_user] = media_path
+            shutil.copy(media_path, self.header_path[t_user])
+
+    tweet_media_path = os.path.join(extracted_dir, 'data', 'tweet_media')
     # new archives filename
     if not os.path.isfile(tweet_js_path):
         tweet_js_path = os.path.join(extracted_dir, 'data', 'tweets.js')
@@ -593,6 +638,14 @@ def process_archive(archive_zip_path, start_time=None):
         tweet["tweet"]["created_at"] = created_at_f
         if "possibly_sensitive" not in tweet["tweet"].keys():
             tweet["tweet"]["possibly_sensitive"] = False
+        tweet_id = tweet["tweet"]["id"]
+        tweet_media_dir = os.path.join(self.tweets_temp_path, tweet_id)
+        if not os.path.isdir(tweet_media_dir):
+            os.makedirs(tweet_media_dir, exist_ok=True)
+        for media in os.listdir(tweet_media_path):
+            if media.startswith(tweet_id):
+                media_path = os.path.join(tweet_media_path, media)
+                shutil.copy(media_path, tweet_media_dir)
         tweets["data"].append(tweet["tweet"])
     # Order it just in case
     tweets["data"] = sorted(
@@ -610,6 +663,30 @@ def get_tweets_from_archive(tweet_js_path):
         tweets = '\n'.join(lines[1:-1])
     json_t = json.loads('{"tweets":[' + tweets + ']}')
     return json_t["tweets"]
+
+
+def _get_twitter_info_from_archive(profile_js_path):
+    with open(profile_js_path, "r") as f:
+        lines = []
+        for line in f:
+            line = re.sub(r'\n', r'', line)
+            lines.append(line)
+        data = '\n'.join(lines[1:-1])
+    json_p = json.loads(data)
+
+    return json_p["profile"]
+
+
+def _get_account_info_from_archive(account_js_path):
+    with open(account_js_path, "r") as f:
+        lines = []
+        for line in f:
+            line = re.sub(r'\n', r'', line)
+            lines.append(line)
+        data = '\n'.join(lines[1:-1])
+    json_p = json.loads(data)
+
+    return json_p["account"]
 
 
 def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:

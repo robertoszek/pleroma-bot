@@ -65,6 +65,9 @@ def _get_twitter_info(self):
     """
     from pleroma_bot._processing import _expand_urls
 
+    if self.archive:
+        return
+
     for t_user in self.twitter_username:
         url = f"{self.twitter_base_url_v2}/users/by/username/{t_user}"
         params = {}

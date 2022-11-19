@@ -98,7 +98,7 @@ def process_tweets(self, tweets_to_post):
         tweet["text"] = html.unescape(tweet["text"])
 
         # Download media only if we plan to upload it later
-        if self.media_upload:
+        if self.media_upload and not self.archive:
             try:
                 if self.archive:
                     for item in tweet["extended_entities"]["media"]:

@@ -45,7 +45,7 @@ from requests.structures import CaseInsensitiveDict
 from .i18n import _
 from . import logger
 from .__init__ import __version__
-from ._utils import process_parallel, Locker, process_archive
+from ._utils import process_parallel, Locker
 
 
 class User(object):
@@ -79,6 +79,7 @@ class User(object):
     from ._utils import parse_rss_feed
     from ._utils import update_profile
     from ._utils import transform_date
+    from ._utils import process_archive
     from ._utils import check_date_format
     from ._utils import _get_instance_info
     from ._utils import get_date_last_post
@@ -231,7 +232,8 @@ class User(object):
         else:
             # Get Twitter info on instance creation
             self._get_twitter_info()
-            self.pinned_tweet_id = self._get_pinned_tweet_id()
+            if not self.archive:
+                self.pinned_tweet_id = self._get_pinned_tweet_id()
         if self.instance == "mastodon":  # pragma
             self.mastodon_enforce_limits()
         self.website = self.website if self.website else ""
@@ -441,6 +443,10 @@ def main():
         users_path = os.path.join(base_path, "users")
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
+            if args.noProfile:
+                user_item["skip_profile"] = True
+            else:
+                user_item["skip_profile"] = False
             t_users = user_item["twitter_username"]
             t_user_list = isinstance(t_users, list)
             t_users = t_users if t_user_list else [t_users]
@@ -451,6 +457,10 @@ def main():
                 )
                 logger.warning(warn_msg)
                 user_item["skip_pin"] = True
+                user_item["skip_profile"] = True
+            if args.archive:
+                user_item["skip_pin"] = True
+                user_item["archive"] = args.archive
 
         for user_item in user_dict:
             try:
@@ -475,8 +485,7 @@ def main():
                         logger.info(first_time_msg)
                         first_time = True
                 user = User(user_item, config, base_path, posts_ids)
-                if args.archive:
-                    user.archive = args.archive
+
                 if first_time and not args.skipChecks and not args.forceDate:
                     user.first_time = True
                 if (
@@ -528,7 +537,7 @@ def main():
                         for poll in next_tweet["includes"]["polls"]:
                             tweets["includes"]["polls"].append(poll)
                 elif args.archive:
-                    tweets = process_archive(
+                    tweets = user.process_archive(
                         args.archive, start_time=date_fedi
                     )
                     user.result_count = len(tweets["data"])
@@ -620,7 +629,7 @@ def main():
                     user.check_pinned(posted)
 
                 if not (user.no_profile or args.noProfile):
-                    if user.skip_pin:
+                    if user.skip_profile:
                         logger.warning(
                             _("Multiple twitter users, not updating profile")
                         )
