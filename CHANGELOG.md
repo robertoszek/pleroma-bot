@@ -4,6 +4,9 @@
 - Regression: Take into account new structure of Twitter's archive (tweet.js changed to tweets.js)
 - Bug: Handle special media types that don't include link to media in some cases. Thanks @tewhalen!
 
+## Enhancements
+- Archive support, you no longer need a Twitter developer account to process an archive.
+
 ## Added
 - RSS support, you can now use an RSS feed as a source of tweets to post. Take a look at the docs for more info.
 - Thread support, now mirrored users should be able to reply to their own posts.

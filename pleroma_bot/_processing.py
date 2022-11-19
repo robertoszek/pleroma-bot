@@ -100,29 +100,23 @@ def process_tweets(self, tweets_to_post):
         # Download media only if we plan to upload it later
         if self.media_upload and not self.archive:
             try:
-                if self.archive:
-                    for item in tweet["extended_entities"]["media"]:
-                        if item["type"] == "photo":
-                            item["url"] = item["media_url"]
-                        media.append(item)
-                else:
-                    media_keys = False
-                    attachments = "attachments" in tweet.keys()
-                    if attachments:
-                        tweet_attachments = tweet["attachments"]
-                        media_keys = "media_keys" in tweet_attachments.keys()
-                    if media_keys and attachments:
-                        includes_media = tweets_to_post["includes"]["media"]
-                        for item in tweet["attachments"]["media_keys"]:
-                            for media_include in includes_media:
-                                media_url = _get_media_url(
-                                    self, item, media_include, tweet
-                                )
-                                if media_url:
-                                    media.extend(media_url)
-                    # Get RT tweet media
-                    if "referenced_tweets" in tweet.keys():  # pragma: no cover
-                        _get_rt_media_url(self, tweet, media)
+                media_keys = False
+                attachments = "attachments" in tweet.keys()
+                if attachments:
+                    tweet_attachments = tweet["attachments"]
+                    media_keys = "media_keys" in tweet_attachments.keys()
+                if media_keys and attachments:
+                    includes_media = tweets_to_post["includes"]["media"]
+                    for item in tweet["attachments"]["media_keys"]:
+                        for media_include in includes_media:
+                            media_url = _get_media_url(
+                                self, item, media_include, tweet
+                            )
+                            if media_url:
+                                media.extend(media_url)
+                # Get RT tweet media
+                if "referenced_tweets" in tweet.keys():  # pragma: no cover
+                    _get_rt_media_url(self, tweet, media)
             except KeyError:
                 pass
             if len(media) > 0:
