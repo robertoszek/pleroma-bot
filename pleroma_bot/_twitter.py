@@ -215,7 +215,7 @@ def _get_tweets_v2(
         tweets_v2=None,
         t_user=None
 ):
-    if not (3200 >= self.max_tweets > 10):
+    if not (3200 >= self.max_tweets >= 10):
         global _
         error_msg = _(
             "max_tweets must be between 10 and 3200. max_tweets: {}"
