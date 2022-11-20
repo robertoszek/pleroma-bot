@@ -156,7 +156,13 @@ def process_tweets(self, tweets_to_post):
                     t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url_user = f"{self.twitter_url_home}/{t_user}"
             signature = f"\n\n 🐦🔗: {twitter_url_user}/status/{tweet['id']}"
-            total_length = len(tweet["text"]) + len(signature)
+            if self.instance == "mastodon":
+                len_text = self._mastodon_len(tweet["text"])
+                len_signature = self._mastodon_len(signature)
+            else:
+                len_text = len(tweet["text"])
+                len_signature = len(signature)
+            total_length = len_text + len_signature
             if total_length > self.max_post_length:  # pragma
                 body_max_length = self.max_post_length - len(signature) - 1
                 tweet["text"] = f"{tweet['text'][:body_max_length]}…"
@@ -168,7 +174,11 @@ def process_tweets(self, tweets_to_post):
                 self.original_date_format,
             )
             orig_date = f"\n\n[{date}]"
-            total_length = len(tweet["text"]) + len(orig_date)
+            if self.instance == "mastodon":
+                len_text = self._mastodon_len(tweet["text"])
+            else:
+                len_text = len(tweet["text"])
+            total_length = len_text + len(orig_date)
             if total_length > self.max_post_length:  # pragma
                 if self.signature:
                     tweet["text"] = tweet["text"].replace(signature, '')

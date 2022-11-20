@@ -76,6 +76,7 @@ class User(object):
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
+    from ._utils import _mastodon_len
     from ._utils import parse_rss_feed
     from ._utils import update_profile
     from ._utils import transform_date

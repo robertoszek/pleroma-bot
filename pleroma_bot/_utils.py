@@ -486,6 +486,24 @@ def _get_instance_info(self):
         logger.debug(_("Target instance is Mastodon..."))
         self.max_post_length = 500
         self.max_attachments = 4
+        self.characters_reserved_per_url = 23
+        instance_url = f"{self.pleroma_base_url}/api/v1/instance"
+        response = requests.get(instance_url)
+        instance_url_json = None
+        if response.ok:
+            instance_url_json = response.json()
+        if instance_url_json and "configuration" in instance_url_json:
+            if "statuses" in instance_url_json["configuration"]:
+                statuses_conf = instance_url_json["configuration"]["statuses"]
+                if "max_characters" in statuses_conf:
+                    max_post_length = statuses_conf["max_characters"]
+                    self.max_post_length = max_post_length
+                if "max_media_attachments" in statuses_conf:
+                    max_attachments = statuses_conf["max_media_attachments"]
+                    self.max_attachments = max_attachments
+                if "characters_reserved_per_url" in statuses_conf:
+                    chars_url = statuses_conf["characters_reserved_per_url"]
+                    self.characters_reserved_per_url = chars_url
 
 
 def mastodon_enforce_limits(self):
@@ -503,6 +521,22 @@ def mastodon_enforce_limits(self):
             logger.warning(
                 _("Mastodon doesn't support rich text. Disabling it...")
             )
+
+
+def _mastodon_len(self, text):
+    # URI regex
+    matching_pattern = (
+        r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
+        r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
+        r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
+        r';:\'".,<>?«»“”‘’]))'
+    )
+    matches = re.finditer(matching_pattern, text)
+    char_count_url = self.characters_reserved_per_url
+    for matchNum, match in enumerate(matches, start=1):
+        group = match.group()
+        text = re.sub(group, group[:char_count_url], text)
+    return len(text)
 
 
 def force_date(self):
