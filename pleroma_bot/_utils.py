@@ -576,6 +576,8 @@ def process_archive(self, archive_zip_path, start_time=None):
 
     t_user = self.twitter_username[0]
     bio_text = profile_info["description"]["bio"]
+    bio_text = self.replace_vars_in_str(str(self.bio_text))
+    self.bio_text = {"_generic_bio_text": bio_text}
     if self.twitter_bio:
         bio_short = profile_info["description"]["bio"]
         bio = {'text': bio_short, 'entities': None}
@@ -589,8 +591,14 @@ def process_archive(self, archive_zip_path, start_time=None):
         else f"{self.bio_text['_generic_bio_text']}"
     )
     self.website = profile_info["description"]["website"]
+    website = {'text': self.website, 'entities': None}
+    self.website = _expand_urls(self, website)
     self.display_name[t_user] = account_info["username"]
     self.twitter_ids[account_info["accountId"]] = account_info["username"]
+
+    self.fields = self.replace_vars_in_str(str(self.fields))
+    self.fields = eval(self.fields)
+
     a_end_id = ""
     h_end_id = ""
     if "avatarMediaUrl" in profile_info:
@@ -614,6 +622,8 @@ def process_archive(self, archive_zip_path, start_time=None):
     # new archives filename
     if not os.path.isfile(tweet_js_path):
         tweet_js_path = os.path.join(extracted_dir, 'data', 'tweets.js')
+    if not os.path.isdir(tweet_media_path):
+        tweet_media_path = os.path.join(extracted_dir, 'data', 'tweets_media')
     tweets_archive = get_tweets_from_archive(tweet_js_path)
     tweets = {
         "data": [],

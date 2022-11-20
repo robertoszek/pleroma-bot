@@ -172,9 +172,9 @@ class User(object):
             raise KeyError(
                 _("No Pleroma URL defined in config! [pleroma_base_url]")
             )
-
-        bio_text = self.replace_vars_in_str(str(self.bio_text))
-        self.bio_text = {"_generic_bio_text": bio_text}
+        if not self.archive:
+            bio_text = self.replace_vars_in_str(str(self.bio_text))
+            self.bio_text = {"_generic_bio_text": bio_text}
 
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
@@ -238,8 +238,9 @@ class User(object):
             self.mastodon_enforce_limits()
         self.website = self.website if self.website else ""
         logger.debug(f"Twitter website: {self.website}")
-        self.fields = self.replace_vars_in_str(str(self.fields))
-        self.fields = eval(self.fields)
+        if not self.archive:
+            self.fields = self.replace_vars_in_str(str(self.fields))
+            self.fields = eval(self.fields)
         df_visibility = "unlisted" if self.instance != "misskey" else "home"
         if not hasattr(self, "visibility") or self.visibility is None:
             self.__setattr__("visibility", df_visibility)
