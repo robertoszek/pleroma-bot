@@ -164,7 +164,7 @@ def process_tweets(self, tweets_to_post):
                 len_signature = len(signature)
             total_length = len_text + len_signature
             if total_length > self.max_post_length:  # pragma
-                body_max_length = self.max_post_length - len(signature) - 1
+                body_max_length = self.max_post_length - len_signature - 1
                 tweet["text"] = f"{tweet['text'][:body_max_length]}…"
             tweet["text"] = f"{tweet['text']}{signature}"
         if self.original_date:
@@ -183,7 +183,10 @@ def process_tweets(self, tweets_to_post):
                 if self.signature:
                     tweet["text"] = tweet["text"].replace(signature, '')
                 l_date = len(orig_date)
-                l_sig = len(signature)
+                if self.instance == "mastodon":
+                    l_sig = self._mastodon_len(signature)
+                else:
+                    l_sig = len(signature)
                 body_max_length = self.max_post_length - l_date - l_sig - 1
                 tweet["text"] = f"{tweet['text'][:body_max_length]}…"
             else:
