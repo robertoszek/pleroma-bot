@@ -955,7 +955,7 @@ def test__get_instance_info_exception(sample_users):
                 "Instance response was not understood"
             )
 
-            assert(
+            assert (
                 exception_value in str(error_info.value)
             )
 
