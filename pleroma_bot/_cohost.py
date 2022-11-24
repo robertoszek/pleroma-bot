@@ -38,7 +38,7 @@ def _login_cohost(self):
 
 def _get_cohost_profile_info(self):
     self._login_cohost()
-    cohost_info_url = f"{self.pleroma_base_url}/api/v1//trpc/login.loggedIn"
+    cohost_info_url = f"{self.pleroma_base_url}/api/v1/trpc/login.loggedIn"
     response = requests.get(cohost_info_url, cookies=self.cohost_cookies)
     user_info = response.json()['result']['data']
     self.cohost_user_id = user_info["userId"]

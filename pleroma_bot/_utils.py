@@ -16,12 +16,11 @@ import mimetypes
 from tqdm import tqdm
 from typing import cast
 from errno import ENOENT
-from itertools import cycle
 from bs4 import BeautifulSoup
 from multiprocessing import Queue, Pool
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
-from itertools import tee, islice, chain
+from itertools import tee, islice, chain, cycle
 from requests.structures import CaseInsensitiveDict
 
 # Try to import libmagic

@@ -641,6 +641,7 @@ def main():
                             f.write(json.dumps(posts_ids, indent=4))
                         pbar.update(1)
                         time.sleep(user.delay_post)
+                    pbar.close()
                 if not user.skip_pin:
                     user.check_pinned(posted)
 
