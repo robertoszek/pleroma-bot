@@ -13,11 +13,12 @@ import threading
 import functools
 import mimetypes
 
+from tqdm import tqdm
 from typing import cast
 from errno import ENOENT
 from itertools import cycle
 from bs4 import BeautifulSoup
-from multiprocessing import Queue
+from multiprocessing import Queue, Pool
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
 from itertools import tee, islice, chain
@@ -102,15 +103,24 @@ def chunkify(lst, n):
 def process_parallel(tweets, user, threads):
     dt = tweets["data"]
     chunks = chunkify(dt, threads)
-    mp = Multiprocessor()
+    # mp = Multiprocessor()
+    tweets_chunked = []
     for idx in range(threads):
-        tweets_chunked = {
+        tweets_chunked.append({
             "data": chunks[idx],
             "includes": tweets["includes"],
             "meta": tweets["meta"]
-        }
-        mp.run(user.process_tweets, tweets_chunked)
-    ret = mp.wait()  # get all results
+        })
+    with Pool(threads) as p:
+        ret = []
+        desc = _("Processing tweets... ")
+        with tqdm(total=len(dt), desc=desc) as pbar:
+            for idx, res in enumerate(
+                    p.imap_unordered(user.process_tweets, tweets_chunked)
+            ):
+                pbar.update(len(chunks[idx]))
+                ret.append(res)
+
     tweets_merged = {
         "data": [],
         "includes": tweets["includes"],
@@ -143,7 +153,7 @@ class Multiprocessor:
         self.processes.append(p)
         p.start()
 
-    @spinner(_("Processing tweets... "), 1.2)
+    # @spinner(_("Processing tweets... "), 1.2)
     def wait(self):
         rets = []
         for p in self.processes:
@@ -775,6 +785,8 @@ def get_date_last_post(self):
         date = self.get_date_last_pleroma_post()
     elif instance == "misskey":
         date = self.get_date_last_misskey_post()
+    elif instance == "cohost":
+        date = self.get_date_last_cohost_post()
     return date
 
 

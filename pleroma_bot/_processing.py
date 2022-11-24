@@ -7,6 +7,7 @@ import requests
 import mimetypes
 from datetime import datetime
 
+from tqdm import tqdm
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -78,7 +79,12 @@ def process_tweets(self, tweets_to_post):
                 tweets_to_post["data"].remove(tweet)
                 pass
     all_media = []
-    for tweet in tweets_to_post["data"]:
+    if int(self.threads) == 1:
+        desc = _("Processing tweets... ")
+        pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc)
+
+    for idx, tweet in enumerate(tweets_to_post["data"]):
+        # logger.info(_("Processing: {}/{}").format(idx+1, total_tweets))
         self.posts_ids[self.pleroma_base_url].update({tweet["id"]: ''})
         tweet["reply_id"] = None
         tweet["retweet_id"] = None
@@ -203,6 +209,8 @@ def process_tweets(self, tweets_to_post):
                 ).format(self.max_post_length)
             )
             tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
+        if int(self.threads) == 1:
+            pbar.update(1)
     tweets_to_post["media_processed"] = all_media
     return tweets_to_post
 

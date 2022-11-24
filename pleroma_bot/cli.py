@@ -38,6 +38,7 @@ import logging
 import argparse
 import multiprocessing as mp
 
+from tqdm import tqdm
 from random import shuffle
 from requests_oauthlib import OAuth1
 from requests.structures import CaseInsensitiveDict
@@ -68,6 +69,10 @@ class User(object):
     from ._misskey import post_misskey
     from ._misskey import update_misskey
     from ._misskey import get_date_last_misskey_post
+
+    from ._cohost import _login_cohost
+    from ._cohost import _get_cohost_profile_info
+    from ._cohost import get_date_last_cohost_post
 
     from ._utils import pin
     from ._utils import post
@@ -147,7 +152,8 @@ class User(object):
             "include_quotes": True,
             "website": None,
             "no_profile": False,
-            "rss": None
+            "rss": None,
+            "threads": 1
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -225,8 +231,12 @@ class User(object):
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         for t_user in t_users:
             os.makedirs(self.user_path[t_user], exist_ok=True)
-        # Get Fedi instance info
-        self._get_instance_info()
+        if self.pleroma_base_url == "https://cohost.org":
+            self.instance = "cohost"
+            self._get_cohost_profile_info()
+        else:
+            # Get Fedi instance info
+            self._get_instance_info()
         if self.rss:
             self.skip_pin = True
             self.no_profile = True
@@ -578,6 +588,7 @@ def main():
                     else:
                         cores = mp.cpu_count()
                         threads = round(cores / 2 if cores > 4 else 4)
+                    user.threads = threads
                     if user.rss:
                         tweets_to_post = tweets_rss
                     else:
@@ -597,9 +608,11 @@ def main():
                     )
                     tweet_counter = 0
                     posted = {}
+                    desc = _("Posting tweets... ")
+                    pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc)
                     for tweet in tweets_to_post["data"]:
                         tweet_counter += 1
-                        logger.info(
+                        logger.debug(
                             f"({tweet_counter}/{len(tweets_to_post['data'])})"
                         )
                         try:
@@ -626,6 +639,7 @@ def main():
                         posts_ids = user.posts_ids
                         with open(posts_path, "w") as f:
                             f.write(json.dumps(posts_ids, indent=4))
+                        pbar.update(1)
                         time.sleep(user.delay_post)
                 if not user.skip_pin:
                     user.check_pinned(posted)

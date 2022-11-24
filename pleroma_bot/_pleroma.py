@@ -91,7 +91,7 @@ def post_pleroma(
         )
         if not response.ok:
             response.raise_for_status()
-        logger.info(_("Reblog in Pleroma:\t{}").format(str(response)))
+        logger.debug(_("Reblog in Pleroma:\t{}").format(str(response)))
         return post_id
 
     media_ids = []
@@ -208,7 +208,7 @@ def post_pleroma(
         )
         if not response.ok:
             response.raise_for_status()
-        logger.info(_("Post in Pleroma:\t{}").format(str(response)))
+        logger.debug(_("Post in Pleroma:\t{}").format(str(response)))
         post_id = json.loads(response.text)["id"]
         self.posts_ids[self.pleroma_base_url].update({tweet_id: post_id})
     return post_id

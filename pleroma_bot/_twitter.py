@@ -1,11 +1,13 @@
 import time
 import requests
 
+from tqdm import tqdm
 from datetime import datetime
 
 from . import logger
 from pleroma_bot.i18n import _
-from pleroma_bot._utils import spinner
+
+# from pleroma_bot._utils import spinner
 
 
 def twitter_api_request(method, url,
@@ -149,7 +151,8 @@ def _get_tweets(
         version: str,
         tweet_id=None,
         start_time=None,
-        t_user=None):
+        t_user=None,
+        pbar=None):
     """Gathers last 'max_tweets' tweets from the user and returns them
     as an dict
     :param version: Twitter API version to use to retrieve the tweets
@@ -198,7 +201,7 @@ def _get_tweets(
             return tweets
     elif version == "v2":
         tweets_v2 = self._get_tweets_v2(
-            tweet_id=tweet_id, start_time=start_time, t_user=t_user
+            tweet_id=tweet_id, start_time=start_time, t_user=t_user, pbar=pbar
         )
         return tweets_v2
     else:
@@ -213,7 +216,8 @@ def _get_tweets_v2(
         previous_token=None,
         count=0,
         tweets_v2=None,
-        t_user=None
+        t_user=None,
+        pbar=None
 ):
     if not (3200 >= self.max_tweets >= 10):
         global _
@@ -353,7 +357,8 @@ def _get_tweets_v2(
         tweets_v2["meta"] = next_tweets["meta"]
     else:
         tweets_v2 = response.json()
-
+    if pbar:
+        pbar.update(response.json()["meta"]["result_count"])
     try:
         next_token = response.json()["meta"]["next_token"]
         count += response.json()["meta"]["result_count"]
@@ -364,7 +369,8 @@ def _get_tweets_v2(
                 next_token=next_token,
                 previous_token=previous_token,
                 count=count,
-                t_user=t_user
+                t_user=t_user,
+                pbar=pbar
             )
     except KeyError:
         pass
@@ -372,8 +378,9 @@ def _get_tweets_v2(
     return tweets_v2
 
 
-@spinner(_("Gathering tweets... "))
+# @spinner(_("Gathering tweets... "))
 def get_tweets(self, start_time):
+    from .i18n import _
     t_utweets = {}
     self.result_count = 0
     tweets_merged = {
@@ -382,11 +389,15 @@ def get_tweets(self, start_time):
     }
     try:
         for t_user in self.twitter_username:
+            desc = _("Gathering tweets... ")
+            pbar = tqdm(desc=desc, position=0, total=10000, bar_format='{desc}{n_fmt}')
             t_utweets[t_user] = self._get_tweets(
                 "v2",
                 start_time=start_time,
-                t_user=t_user
+                t_user=t_user,
+                pbar=pbar
             )
+            pbar.close()
             self.result_count += t_utweets[t_user]["meta"]["result_count"]
             tweets_merged["meta"] = {}
 

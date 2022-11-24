@@ -40,7 +40,8 @@ setuptools.setup(
         'PyYAML>=5.3.1',
         'requests-oauthlib>=1.3.0',
         'feedparser>=6.0.10',
-        'beautifulsoup4>=4.9.3'
+        'beautifulsoup4>=4.9.3',
+        'tqdm>=4.64.1',
     ],
     extras_require={
         'lint': [
