@@ -7,7 +7,7 @@ from . import logger
 from .i18n import _
 
 
-def _login_cohost(self):
+def _login_cohost(self):  # pragma: todo
     email = self.pleroma_username
     passwd = self.pleroma_token
     cohost_salt_url = f"{self.pleroma_base_url}/api/v1/login/salt"
@@ -36,7 +36,7 @@ def _login_cohost(self):
     return cookie
 
 
-def _get_cohost_profile_info(self):
+def _get_cohost_profile_info(self):  # pragma: todo
     self._login_cohost()
     cohost_info_url = f"{self.pleroma_base_url}/api/v1/trpc/login.loggedIn"
     response = requests.get(cohost_info_url, cookies=self.cohost_cookies)
@@ -46,7 +46,7 @@ def _get_cohost_profile_info(self):
     self.cohost_project_handle = user_info["projectHandle"]
 
 
-def get_date_last_cohost_post(self):
+def get_date_last_cohost_post(self):  # pragma: todo
     handle = self.cohost_project_handle
     page = 0
     cohost_posts_url = (

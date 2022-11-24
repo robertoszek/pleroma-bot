@@ -59,7 +59,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
         "i": self.pleroma_token,
         # cw: '',
     }
-    if retweet_id and retweet_id in posts_ids:
+    if retweet_id and retweet_id in posts_ids:  # pragma: todo
         renote_id = posts_ids[retweet_id]
         data.update({"renoteId": renote_id})
     else:
@@ -71,7 +71,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
             tweet_reply_id
             and tweet_reply_id in posts_ids
             and retweet_id not in posts_ids
-    ):
+    ):  # pragma: todo
         post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
         data.update({"replyId": post_reply_id})
     if poll and retweet_id not in posts_ids:

@@ -43,7 +43,9 @@ from . import logger
 from ._error import TimeoutLocker
 
 
-def spinner(message, wait: float = 0.3, spinner_symbols: list = None):
+def spinner(
+        message, wait: float = 0.3, spinner_symbols: list = None
+):  # pragma: deprecated
     """
     Decorator that launches the function wrapped and the spinner each in a
     separate thread
@@ -135,7 +137,7 @@ def process_parallel(tweets, user, threads):
     return tweets_merged
 
 
-class Multiprocessor:
+class Multiprocessor:  # pragma: deprecated
 
     def __init__(self):
         self.processes = []
@@ -163,7 +165,7 @@ class Multiprocessor:
         return rets
 
 
-class PropagatingThread(threading.Thread):
+class PropagatingThread(threading.Thread):  # pragma: deprecated
     """
     Thread that surfaces exceptions that occur inside of it
     """
@@ -501,7 +503,10 @@ def _get_instance_info(self):
         instance_url_json = None
         if response.ok:
             instance_url_json = response.json()
-        if instance_url_json and "configuration" in instance_url_json:
+        if (
+                instance_url_json
+                and "configuration" in instance_url_json
+        ):  # pragma: todo
             if "statuses" in instance_url_json["configuration"]:
                 statuses_conf = instance_url_json["configuration"]["statuses"]
                 if "max_characters" in statuses_conf:
@@ -532,7 +537,7 @@ def mastodon_enforce_limits(self):
             )
 
 
-def _mastodon_len(self, text):
+def _mastodon_len(self, text):  # pragma: todo
     # URI regex
     matching_pattern = (
         r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
@@ -784,7 +789,7 @@ def get_date_last_post(self):
         date = self.get_date_last_pleroma_post()
     elif instance == "misskey":
         date = self.get_date_last_misskey_post()
-    elif instance == "cohost":
+    elif instance == "cohost":  # pragma: todo
         date = self.get_date_last_cohost_post()
     return date
 
@@ -797,14 +802,14 @@ def update_profile(self):
         self.update_misskey()
 
 
-def random_id() -> str:
+def random_id() -> str:  # pragma: todo
     return "".join(
         random.choice(string.ascii_lowercase + string.digits)
         for _ in range(19)
     )
 
 
-def parse_rss_feed(self, rss_link, start_time):
+def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
     import feedparser
 
     tweets = {

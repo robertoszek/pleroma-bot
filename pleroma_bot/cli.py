@@ -231,13 +231,13 @@ class User(object):
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         for t_user in t_users:
             os.makedirs(self.user_path[t_user], exist_ok=True)
-        if self.pleroma_base_url == "https://cohost.org":
+        if self.pleroma_base_url == "https://cohost.org":  # pragma: todo
             self.instance = "cohost"
             self._get_cohost_profile_info()
         else:
             # Get Fedi instance info
             self._get_instance_info()
-        if self.rss:
+        if self.rss:  # pragma: todo
             self.skip_pin = True
             self.no_profile = True
         else:
@@ -455,7 +455,7 @@ def main():
         users_path = os.path.join(base_path, "users")
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
-            if args.noProfile:
+            if args.noProfile:  # pragma: todo
                 user_item["skip_profile"] = True
             else:
                 user_item["skip_profile"] = False
@@ -553,7 +553,7 @@ def main():
                         args.archive, start_time=date_fedi
                     )
                     user.result_count = len(tweets["data"])
-                elif user.rss:
+                elif user.rss:  # pragma: todo
                     rss_msg = _("\nUsing RSS feed. The following features "
                                 "will not be available: \n- Profile "
                                 "update\n- Pinned tweets\n- Polls")
@@ -583,20 +583,20 @@ def main():
                     )
                     # Put oldest first to iterate them and post them in order
                     tweets["data"].reverse()
-                    if args.threads:
+                    if args.threads:  # pragma: todo
                         threads = args.threads
                     else:
                         cores = mp.cpu_count()
                         threads = round(cores / 2 if cores > 4 else 4)
                     user.threads = threads
-                    if user.rss:
+                    if user.rss:  # pragma: todo
                         tweets_to_post = tweets_rss
                     else:
                         if int(threads) > 1:
                             tweets_to_post = process_parallel(
                                 tweets, user, threads
                             )
-                        else:
+                        else:  # pragma: todo
                             tweets_to_post = user.process_tweets(tweets)
                     logger.info(
                         _("tweets to post: \t {}").format(
@@ -617,11 +617,11 @@ def main():
                         )
                         try:
                             reply_id = tweet["reply_id"]
-                        except KeyError:
+                        except KeyError:  # pragma: todo
                             reply_id = None
                         try:
                             retweet_id = tweet["retweet_id"]
-                        except KeyError:
+                        except KeyError:  # pragma: todo
                             retweet_id = None
                         post_id = user.post(
                             (

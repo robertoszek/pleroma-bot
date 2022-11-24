@@ -44,7 +44,7 @@ def process_tweets(self, tweets_to_post):
             except KeyError:
                 pass
     # Remove quote tweets if include_quotes is false
-    if not self.include_quotes:
+    if not self.include_quotes:  # pragma: todo
         for tweet in tweets_to_post["data"][:]:
             try:
                 for reference in tweet["referenced_tweets"]:
@@ -154,7 +154,7 @@ def process_tweets(self, tweets_to_post):
             )
         signature = ''
         if self.signature:
-            if self.archive:
+            if self.archive:  # pragma: todo
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
             else:
                 t_user = "i/web"
@@ -162,7 +162,7 @@ def process_tweets(self, tweets_to_post):
                     t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url_user = f"{self.twitter_url_home}/{t_user}"
             signature = f"\n\n 🐦🔗: {twitter_url_user}/status/{tweet['id']}"
-            if self.instance == "mastodon":
+            if self.instance == "mastodon":  # pragma: todo
                 len_text = self._mastodon_len(tweet["text"])
                 len_signature = self._mastodon_len(signature)
             else:
@@ -180,7 +180,7 @@ def process_tweets(self, tweets_to_post):
                 self.original_date_format,
             )
             orig_date = f"\n\n[{date}]"
-            if self.instance == "mastodon":
+            if self.instance == "mastodon":  # pragma: todo
                 len_text = self._mastodon_len(tweet["text"])
             else:
                 len_text = len(tweet["text"])
@@ -330,7 +330,7 @@ def _process_polls(self, tweet, media):
 def _download_media(self, media, tweet):
     for idx, item in enumerate(media):
         if item["type"] != "video" and item["type"] != "animated_gif":
-            if "media_url" in item:
+            if "media_url" in item:  # pragma: todo
                 media_url = item['media_url']
             else:
                 media_url = item["url"]
