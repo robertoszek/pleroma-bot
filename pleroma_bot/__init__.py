@@ -2,7 +2,6 @@ import os
 import sys
 import locale
 import logging
-from tqdm._utils import _term_move_up
 
 __version__ = "1.1.0"
 
@@ -17,21 +16,19 @@ class CustomFormatter(logging.Formatter):
     yellow = "\x1b[33;21m"
     red = "\x1b[31;21m"
     bold_red = "\x1b[31;1m"
-    reset = "\x1b[0m\x1b[80D\x1b[1A\x1b[K"
+    reset = "\x1b[0m"
     format_r = "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
     format_l = (
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
         "(%(filename)s:%(lineno)d) "
     )
-    border = "=" * 50
-    clear_border = _term_move_up() + "\r" + " " * len(border) + "\r"
     if sys.platform != "win32" and sys.stdout.encoding.casefold() == 'utf-8':
         FORMATS = {
-            logging.DEBUG: clear_border + grey + format_r + reset,
-            logging.INFO: clear_border + grey + "ℹ " + format_r + reset,
-            logging.WARNING: clear_border + yellow + "⚠ " + format_l + reset,
-            logging.ERROR: clear_border + red + "✖ " + format_l + reset,
-            logging.CRITICAL: clear_border + bold_red + format_l + reset,
+            logging.DEBUG: grey + format_r + reset,
+            logging.INFO: grey + "ℹ " + format_r + reset,
+            logging.WARNING: yellow + "⚠ " + format_l + reset,
+            logging.ERROR: red + "✖ " + format_l + reset,
+            logging.CRITICAL: bold_red + format_l + reset,
         }
     else:  # pragma: win32 cover
         FORMATS = {
