@@ -983,3 +983,36 @@ def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
                 tweets["media_processed"].extend(media)
 
     return tweets
+
+
+def _update_bot_status(self, bot):  # pragma: todo
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        self._pleroma_update_bot_status(bot)
+    elif instance == "misskey":
+        self._misskey_update_bot_status(bot)
+
+
+def _get_fedi_profile_info(self):  # pragma: todo
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        fedi_profile = self._get_pleroma_profile_info()
+    elif instance == "misskey":
+        fedi_profile = self._get_misskey_profile_info()
+    else:
+        fedi_profile = None
+    if hasattr(self, "bot"):
+        fedi_bot = self.bot
+        if "bot" in fedi_profile:
+            fedi_bot = fedi_profile["bot"]
+        if fedi_bot is not self.bot:
+            msg = _(
+                "Bot flag in target profile ({}) differs from your config. "
+                "Updating it to {}... "
+            ).format(fedi_bot, self.bot)
+            logger.warning(msg)
+            self._update_bot_status(self.bot)
+
+
+def _get_fedi_info(self):  # pragma: todo
+    self._get_fedi_profile_info()

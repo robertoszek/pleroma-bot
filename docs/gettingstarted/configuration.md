@@ -80,6 +80,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | keep_media_links     |   Yes    | false                      | Keep redundant media links on the tweet text or not (`https://twitter.com/<display_name>/status/<tweet_id>/photo/1`)  |
 | invidious            |   Yes    | false                      | If Youtube links should be replaced with invidious ones                                                               |
 | invidious_base_url   |   Yes    | https://yewtu.be           | Change this to your [preferred invidious instance](https://docs.invidious.io/instances/)                              |
+| bot                  |   Yes    |                            | Set the [bot flag](https://docs.joinmastodon.org/user/profile/#bot) on the target account (to true or false)          | 
 
 There a few mappings *exclusive* to users:
 

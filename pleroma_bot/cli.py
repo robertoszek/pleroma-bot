@@ -64,10 +64,14 @@ class User(object):
 
     from ._pleroma import post_pleroma
     from ._pleroma import update_pleroma
+    from ._pleroma import _get_pleroma_profile_info
+    from ._pleroma import _pleroma_update_bot_status
     from ._pleroma import get_date_last_pleroma_post
 
     from ._misskey import post_misskey
     from ._misskey import update_misskey
+    from ._misskey import _get_misskey_profile_info
+    from ._misskey import _misskey_update_bot_status
     from ._misskey import get_date_last_misskey_post
 
     from ._cohost import _login_cohost
@@ -82,6 +86,7 @@ class User(object):
     from ._utils import check_pinned
     from ._utils import random_string
     from ._utils import _mastodon_len
+    from ._utils import _get_fedi_info
     from ._utils import parse_rss_feed
     from ._utils import update_profile
     from ._utils import transform_date
@@ -89,7 +94,9 @@ class User(object):
     from ._utils import check_date_format
     from ._utils import _get_instance_info
     from ._utils import get_date_last_post
+    from ._utils import _update_bot_status
     from ._utils import replace_vars_in_str
+    from ._utils import _get_fedi_profile_info
     from ._utils import mastodon_enforce_limits
 
     from ._processing import process_tweets
@@ -153,7 +160,8 @@ class User(object):
             "website": None,
             "no_profile": False,
             "rss": None,
-            "threads": 1
+            "threads": 1,
+            "bot": None
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -237,6 +245,8 @@ class User(object):
         else:
             # Get Fedi instance info
             self._get_instance_info()
+            if self.bot is not None:  # pragma: todo
+                self._get_fedi_info()
         if self.rss:  # pragma: todo
             self.skip_pin = True
             self.no_profile = True

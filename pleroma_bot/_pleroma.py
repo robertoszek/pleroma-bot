@@ -329,3 +329,27 @@ def update_pleroma(self):
             response.raise_for_status()
     logger.info(_("Updating profile:\t {}").format(str(response)))
     return
+
+
+def _pleroma_update_bot_status(self, bot):  # pragma: todo
+    update_cred_url = (
+        f"{self.pleroma_base_url}/api/v1/accounts/update_credentials"
+    )
+    data = {"bot": str(bot).lower()}
+    response = requests.patch(
+        update_cred_url, headers=self.header_pleroma, data=data
+    )
+    if not response.ok:
+        response.raise_for_status()
+
+
+def _get_pleroma_profile_info(self):  # pragma: todo
+    profile_url = (
+        f"{self.pleroma_base_url}/api/v1/accounts/"
+        f"{self.pleroma_username}"
+    )
+    response = requests.get(profile_url, headers=self.header_pleroma)
+    if not response.ok:
+        response.raise_for_status()
+    profile = response.json()
+    return profile
