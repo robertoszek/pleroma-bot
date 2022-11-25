@@ -202,7 +202,11 @@ def process_tweets(self, tweets_to_post):
         tweet["polls"] = _process_polls(self, tweet, media)
 
         # Truncate text if needed
-        if len(tweet["text"]) > self.max_post_length:  # pragma
+        if self.instance == "mastodon":  # pragma: todo
+            total_tweet_length = self._mastodon_len(tweet["text"])
+        else:
+            total_tweet_length = len(tweet["text"])
+        if total_tweet_length > self.max_post_length:  # pragma
             logger.info(
                 _(
                     "Post text longer than allowed ({}), truncating..."

@@ -458,9 +458,9 @@ def main():
                 try:
                     file_posts = json.load(f)
                     posts_ids = file_posts
-                except json.JSONDecodeError:
+                except json.JSONDecodeError:  # pragma: todo
                     pass
-        else:
+        else:    # pragma: todo
             with open(posts_path, "w"):
                 pass
         tweets_temp_path = os.path.join(base_path, "tweets")
