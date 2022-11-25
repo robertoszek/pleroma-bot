@@ -100,6 +100,7 @@ def post_pleroma(
 
     media_ids = []
     if self.media_upload:
+        tweet_video_count = 0
         if os.path.isdir(tweet_folder):
             media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
@@ -114,6 +115,19 @@ def post_pleroma(
                     item = media[key][0]
                     alt_text = item["alt_text"] if "alt_text" in item else None
                 mime_type = guess_type(os.path.join(tweet_folder, file))
+                if (
+                        mime_type.startswith("video")
+                        and self.max_video_attachments
+                ):  # pragma: todo
+                    tweet_video_count += 1
+                    if tweet_video_count > self.max_video_attachments:
+                        logger.warning(
+                            _(
+                                "Mastodon only supports 1 video per post. "
+                                "Already reached max, skipping... "
+                            )
+                        )
+                        continue
                 timestamp = int(float(datetime.now().timestamp()))
                 file_name = (
                     f"pleromapyupload_"

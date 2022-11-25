@@ -502,6 +502,7 @@ def _get_instance_info(self):
         self.max_post_length = 500
         self.max_attachments = 4
         self.characters_reserved_per_url = 23
+        self.max_video_attachments = 1
         instance_url = f"{self.pleroma_base_url}/api/v1/instance"
         response = requests.get(instance_url)
         instance_url_json = None

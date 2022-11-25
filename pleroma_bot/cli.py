@@ -123,6 +123,7 @@ class User(object):
         self.posts_ids = posts_ids
         self.instance = ""
         self.max_attachments = 16
+        self.max_video_attachments = None
         valid_visibility = ("public", "unlisted", "private", "direct")
         valid_visibility_mk = ("public", "home", "followers", "specified")
         default_cfg_attributes = {
