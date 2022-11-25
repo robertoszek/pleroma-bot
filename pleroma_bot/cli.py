@@ -455,7 +455,14 @@ def main():
         posts_path = os.path.join(base_path, "posts.json")
         if os.path.isfile(posts_path):
             with open(posts_path) as f:
-                posts_ids = json.load(f)
+                try:
+                    file_posts = json.load(f)
+                    posts_ids = file_posts
+                except json.JSONDecodeError:
+                    pass
+        else:
+            with open(posts_path, "w"):
+                pass
         tweets_temp_path = os.path.join(base_path, "tweets")
         logger.info(_("config path: {}").format(config_path))
         logger.info(_("tweets temp folder: {}").format(tweets_temp_path))
