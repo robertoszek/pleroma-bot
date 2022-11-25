@@ -657,7 +657,7 @@ def main():
                         )
                         posted[tweet["id"]] = post_id
                         posts_ids = user.posts_ids
-                        with open(posts_path, "w") as f:
+                        with open(posts_path, "r+") as f:
                             f.write(json.dumps(posts_ids, indent=4))
                         pbar.update(1)
                         time.sleep(user.delay_post)
