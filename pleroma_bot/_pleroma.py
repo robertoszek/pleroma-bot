@@ -84,6 +84,7 @@ def post_pleroma(
     if (
             retweet_id
             and retweet_id in self.posts_ids[self.pleroma_base_url]
+            and len(self.posts_ids[self.pleroma_base_url][tweet_reply_id]) > 0
     ):  # pragma: todo
         post_id = self.posts_ids[self.pleroma_base_url][retweet_id]
         pleroma_reblog_url = (
@@ -189,6 +190,7 @@ def post_pleroma(
     if (
             tweet_reply_id
             and tweet_reply_id in self.posts_ids[self.pleroma_base_url]
+            and len(self.posts_ids[self.pleroma_base_url][tweet_reply_id]) > 0
     ):  # pragma: todo
         post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
         data.update({"in_reply_to_id": post_reply_id})
