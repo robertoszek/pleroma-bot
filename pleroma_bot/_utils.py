@@ -553,7 +553,7 @@ def _mastodon_len(self, text):  # pragma: todo
     char_count_url = self.characters_reserved_per_url
     for matchNum, match in enumerate(matches, start=1):
         group = match.group()
-        text = re.sub(group, group[:char_count_url], text)
+        text = text.replace(group, group[:char_count_url])
     return len(text)
 
 
