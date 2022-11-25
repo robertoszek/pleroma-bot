@@ -417,7 +417,7 @@ def get_args(sysargs):
         action="store",
         help=(
             _(
-                "path of lock file (pleroma-bot.lock) to prevent collisions "
+                "path of lock file (pleroma_bot.lock) to prevent collisions "
                 " with multiple bot instances. By default it will be placed "
                 " next to your config file."
             )

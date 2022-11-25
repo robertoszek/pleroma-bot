@@ -113,7 +113,7 @@ Once installed using your preferred method, test that the package has been corre
       -t THREADS, --threads THREADS
                             number of threads to use when processing tweets
       -L LOCKFILE, --lockfile LOCKFILE
-                            path of lock file (pleroma-bot.lock) to prevent
+                            path of lock file (pleroma_bot.lock) to prevent
                             collisions with multiple bot instances. By default it
                             will be placed next to your config file.
       --verbose, -v
@@ -184,7 +184,7 @@ Once installed using your preferred method, test that the package has been corre
       -t THREADS, --threads THREADS
                             number of threads to use when processing tweets
       -L LOCKFILE, --lockfile LOCKFILE
-                            path of lock file (pleroma-bot.lock) to prevent
+                            path of lock file (pleroma_bot.lock) to prevent
                             collisions with multiple bot instances. By default it
                             will be placed next to your config file.
       --verbose, -v
@@ -254,7 +254,7 @@ Once installed using your preferred method, test that the package has been corre
       -t THREADS, --threads THREADS
                             number of threads to use when processing tweets
       -L LOCKFILE, --lockfile LOCKFILE
-                            path of lock file (pleroma-bot.lock) to prevent
+                            path of lock file (pleroma_bot.lock) to prevent
                             collisions with multiple bot instances. By default it
                             will be placed next to your config file.
       --verbose, -v
