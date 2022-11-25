@@ -821,7 +821,9 @@ def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
         "meta": []
     }
     d = feedparser.parse(rss_link)
-
+    logger.info(_("Gathering tweets...{}").format(len(d.entries)))
+    desc = _("Processing tweets... ")
+    pbar = tqdm(total=len(d.entries), desc=desc)
     for item in d.entries[:self.max_tweets]:
         created_at = datetime.strftime(
             datetime.strptime(item.published, "%a, %d %b %Y %H:%M:%S %Z"),
@@ -984,7 +986,7 @@ def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
                 os.makedirs(tweet_path, exist_ok=True)
                 self._download_media(media, data)
                 tweets["media_processed"].extend(media)
-
+        pbar.update(1)
     return tweets
 
 
