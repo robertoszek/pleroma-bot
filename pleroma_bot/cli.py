@@ -95,6 +95,7 @@ class User(object):
     from ._utils import _get_instance_info
     from ._utils import get_date_last_post
     from ._utils import _update_bot_status
+    from ._utils import _process_tweets_rss
     from ._utils import replace_vars_in_str
     from ._utils import _get_fedi_profile_info
     from ._utils import mastodon_enforce_limits
@@ -517,7 +518,12 @@ def main():
                         logger.info(first_time_msg)
                         first_time = True
                 user = User(user_item, config, base_path, posts_ids)
-
+                if args.threads:  # pragma: todo
+                    threads = int(args.threads)
+                else:
+                    cores = mp.cpu_count()
+                    threads = round(cores / 2 if cores > 4 else 4)
+                user.threads = threads
                 if first_time and not args.skipChecks and not args.forceDate:
                     user.first_time = True
                 if (
@@ -579,7 +585,7 @@ def main():
                                 "update\n- Pinned tweets\n- Polls")
                     logger.debug(rss_msg)
                     tweets_rss = user.parse_rss_feed(
-                        user.rss, start_time=date_fedi
+                        user.rss, start_time=date_fedi, threads=user.threads
                     )
                     tweets = tweets_rss
                     user.result_count = len(tweets_rss["data"])
@@ -603,16 +609,10 @@ def main():
                     )
                     # Put oldest first to iterate them and post them in order
                     tweets["data"].reverse()
-                    if args.threads:  # pragma: todo
-                        threads = args.threads
-                    else:
-                        cores = mp.cpu_count()
-                        threads = round(cores / 2 if cores > 4 else 4)
-                    user.threads = threads
                     if user.rss:  # pragma: todo
                         tweets_to_post = tweets_rss
                     else:
-                        if int(threads) > 1:
+                        if threads > 1:
                             tweets_to_post = process_parallel(
                                 tweets, user, threads
                             )

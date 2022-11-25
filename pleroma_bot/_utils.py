@@ -9,6 +9,7 @@ import shutil
 import zipfile
 import tempfile
 import requests
+import warnings
 import threading
 import functools
 import mimetypes
@@ -16,12 +17,12 @@ import mimetypes
 from tqdm import tqdm
 from typing import cast
 from errno import ENOENT
-from bs4 import BeautifulSoup
 from multiprocessing import Queue, Pool
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
 from itertools import tee, islice, chain, cycle
 from requests.structures import CaseInsensitiveDict
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -812,9 +813,10 @@ def random_id() -> str:  # pragma: todo
     )
 
 
-def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
+def parse_rss_feed(self, rss_link, start_time, threads=1):  # pragma: todo
     import feedparser
-
+    if start_time:
+        self.start_time = start_time
     tweets = {
         "data": [],
         "media_processed": [],
@@ -822,9 +824,52 @@ def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
     }
     d = feedparser.parse(rss_link)
     logger.info(_("Gathering tweets...{}").format(len(d.entries)))
-    desc = _("Processing tweets... ")
-    pbar = tqdm(total=len(d.entries), desc=desc)
-    for item in d.entries[:self.max_tweets]:
+
+    if threads > 1:
+        dt = d.entries
+        chunks = chunkify(dt, threads)
+        with Pool(threads) as p:
+            ret = []
+            desc = _("Processing tweets... ")
+            with tqdm(total=len(dt), desc=desc) as pbar:
+                for idx, res in enumerate(
+                        p.imap_unordered(
+                            self._process_tweets_rss, chunks
+                        )
+                ):
+                    pbar.update(len(chunks[idx]))
+                    ret.append(res)
+
+        tweets_merged = {
+            "data": [],
+            "meta": tweets["meta"],
+            "media_processed": []
+        }
+        for idx in range(threads):
+            tweets_merged["data"].extend(ret[idx]["data"])
+            tweets_merged["media_processed"].extend(
+                ret[idx]["media_processed"]
+            )
+        tweets_merged["data"] = sorted(
+            tweets_merged["data"], key=lambda i: i["created_at"]
+        )
+        tweets = tweets_merged
+    else:
+        tweets = self._process_tweets_rss(d.entries)
+    return tweets
+
+
+def _process_tweets_rss(self, entries):  # pragma: todo
+    start_time = self.start_time
+    tweets = {
+        "data": [],
+        "media_processed": [],
+        "meta": []
+    }
+    if self.threads == 1:
+        desc = _("Processing tweets... ")
+        pbar = tqdm(total=len(entries), desc=desc)
+    for item in entries[:self.max_tweets]:
         created_at = datetime.strftime(
             datetime.strptime(item.published, "%a, %d %b %Y %H:%M:%S %Z"),
             "%Y-%m-%dT%H:%M:%S.000Z",
@@ -833,6 +878,9 @@ def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
             if created_at < start_time:
                 continue
         text = item.summary_detail.value
+        warnings.filterwarnings(
+            'ignore', category=MarkupResemblesLocatorWarning
+        )
         soup = BeautifulSoup(text, "html.parser")
         soup_title = BeautifulSoup(item.title_detail.value, "html.parser")
         # Remove parent p tags if there are any
@@ -986,7 +1034,8 @@ def parse_rss_feed(self, rss_link, start_time):  # pragma: todo
                 os.makedirs(tweet_path, exist_ok=True)
                 self._download_media(media, data)
                 tweets["media_processed"].extend(media)
-        pbar.update(1)
+        if self.threads == 1:
+            pbar.update(1)
     return tweets
 
 
