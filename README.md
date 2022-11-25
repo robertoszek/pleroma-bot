@@ -100,6 +100,10 @@ optional arguments:
                         posting tweets.
   -t THREADS, --threads THREADS
                         number of threads to use when processing tweets
+  -L LOCKFILE, --lockfile LOCKFILE
+                        path of lock file (pleroma-bot.lock) to prevent
+                        collisions with multiple bot instances. By default it
+                        will be placed next to your config file.
   --verbose, -v
   --version             show program's version number and exit
 ```

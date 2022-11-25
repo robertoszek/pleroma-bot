@@ -410,6 +410,20 @@ def get_args(sysargs):
         help=(_("number of threads to use when processing tweets")),
     )
 
+    parser.add_argument(
+        "-L",
+        "--lockfile",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of lock file (pleroma-bot.lock) to prevent collisions "
+                " with multiple bot instances. By default it will be placed "
+                " next to your config file."
+            )
+        ),
+    )
+
     parser.add_argument("--verbose", "-v", action="count", default=0)
 
     parser.add_argument(
@@ -428,10 +442,6 @@ def main():
         "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
     ]
     args = get_args(sysargs=arguments)
-
-    if args.verbose > 0:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.debug(_("Debug logging enabled"))
 
     try:
         base_path = os.getcwd()
@@ -680,19 +690,28 @@ def main():
 
 
 def init():
+    module_name = __loader__.name.split('.')[0]
+    lock_filename = f"{module_name}.lock"
     # Convert legacy flag to proper flag format
     mangle_args = "noProfile"
     arguments = [
         "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
     ]
     args = get_args(sysargs=arguments)
-    if args.log:
-        log_path = args.log
-    elif args.config:
+    if args.verbose > 0:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug(_("Debug logging enabled"))
+    locker_path = os.path.join(os.getcwd(), lock_filename)
+    log_path = os.path.join(os.getcwd(), "error.log")
+    if args.config:
         base_path, cfg_file = os.path.split(os.path.abspath(args.config))
         log_path = os.path.join(base_path, "error.log")
-    else:
-        log_path = os.path.join(os.getcwd(), "error.log")
+        locker_path = os.path.join(base_path, lock_filename)
+    if args.log:
+        log_path = args.log
+    if args.lockfile:
+        locker_path = args.lockfile
+
     f_handler = logging.FileHandler(log_path)
     f_handler.setLevel(logging.ERROR)
     f_format = logging.Formatter(
@@ -702,12 +721,12 @@ def init():
     logger.addHandler(f_handler)
     if args.daemon:  # pragma
         poll_rate = int(args.pollrate) * 60 if args.pollrate else 3600
-        with Locker():
+        with Locker(locker_path):
             while True:
                 main()
                 time.sleep(poll_rate)
     else:
-        with Locker():
+        with Locker(locker_path):
             sys.exit(main())
 
 

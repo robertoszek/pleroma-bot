@@ -15,6 +15,7 @@
 - Thread support, now mirrored users should be able to reply to their own posts and create reply threads.
 - Native retweet support, now users in your config should be able to reblog their own and each other's posts if they are on the same instance.
 - `bot` config mapping, for setting the [bot flag](https://docs.joinmastodon.org/user/profile/#bot) on the target account.
+- `--lockerfile` argument, for specifying the path of the locker file that prevents collisions between multiple concurrent bot executions.
 
 ## [1.1.0] 06-06-2022
 ## Fixed

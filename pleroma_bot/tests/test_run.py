@@ -9,6 +9,9 @@ import multiprocessing as mp
 from unittest.mock import patch
 from datetime import datetime, timedelta
 from urllib import parse
+
+import pytest
+
 from test_user import UserTemplate
 from conftest import get_config_users
 
@@ -1557,6 +1560,16 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
                 sys, 'argv', ['', '--archive', archive, '--forceDate']
         ):
             assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-13")
+        locker_path = os.path.join(test_files_dir, 'pleroma-bot.lock')
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            with patch.object(
+                    sys, 'argv', ['', '--lockfile', locker_path, '--verbose']
+            ):
+                cli.init()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 0
 
         with patch.object(
                 sys, 'argv', ['', '--forceDate', '2021-12-13']

@@ -1047,3 +1047,14 @@ def test_locker():
         "another instance of pleroma-bot running?"
     )
     assert str(error_info.value) == exception_value
+
+    locker_path = '/tmp/new_lock.lock'
+    with pytest.raises(TimeoutLocker) as error_info:
+        with Locker(locker_path):
+            with Locker(locker_path):
+                time.sleep(20)
+    exception_value = (
+        "The file lock '{}' could not be acquired. Is "
+        "another instance of pleroma-bot running?".format(locker_path)
+    )
+    assert str(error_info.value) == exception_value

@@ -196,13 +196,16 @@ class Locker:
     Context manager that creates lock file
     """
 
-    def __init__(self, timeout=5):
-        module_name = __loader__.name.split('.')[0]
-        lock_filename = f"{module_name}.lock"
+    def __init__(self, lock_filename=None, timeout=5):
         self.timeout = timeout
-        self.tmp = tempfile.gettempdir()
+        if lock_filename:
+            self._lock_file = lock_filename
+        else:
+            module_name = __loader__.name.split('.')[0]
+            lock_filename = f"{module_name}.lock"
+            self.tmp = tempfile.gettempdir()
+            self._lock_file = os.path.join(self.tmp, lock_filename)
         self.mode = os.O_RDWR | os.O_CREAT | os.O_TRUNC
-        self._lock_file = os.path.join(self.tmp, lock_filename)
         self._lock_file_fd = None
 
     @property
