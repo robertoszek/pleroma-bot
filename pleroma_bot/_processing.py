@@ -125,6 +125,12 @@ def process_tweets(self, tweets_to_post):
                     _get_rt_media_url(self, tweet, media)
             except KeyError:
                 pass
+
+            if self.guest:  # pragma: todo
+                if "extended_entities" in tweet:
+                    if "media" in tweet['extended_entities']:
+                        for item in tweet['extended_entities']['media']:
+                            media.append(item)
             if len(media) > 0:
                 # Create folder to store attachments related to the tweet ID
                 tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])

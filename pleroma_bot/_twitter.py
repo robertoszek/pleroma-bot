@@ -53,6 +53,52 @@ def twitter_api_request(method, url,
     return response
 
 
+def _get_twitter_info_guest(self):  # pragma: todo
+    from pleroma_bot._processing import _expand_urls
+
+    for t_user in self.twitter_username:
+        twitter_user_url = (
+            f"{self.twitter_base_url}"
+            f"/users/show.json?screen_name="
+            f"{t_user}"
+        )
+        response = requests.get(
+            twitter_user_url, headers=self.header_twitter, auth=self.auth
+        )
+        if not response.ok:
+            response.raise_for_status()
+        user_twitter = response.json()
+
+        bio_text = user_twitter["description"]
+        # Expand bio urls if possible
+        if self.twitter_bio:
+            bio_short = user_twitter["description"]
+            bio = {'text': user_twitter["description"], 'entities': None}
+            bio_long = _expand_urls(self, bio)
+            max_len = self.max_post_length
+            len_bio = len(f"{self.bio_text['_generic_bio_text']}{bio_long}")
+            bio_text = bio_long if len_bio < max_len else bio_short
+        self.bio_text[t_user] = (
+            f"{self.bio_text['_generic_bio_text']}{bio_text}"
+            if self.twitter_bio
+            else f"{self.bio_text['_generic_bio_text']}"
+        )
+
+        # Check if user has profile image
+        if "profile_image_url_https" in user_twitter.keys():
+            profile_img = user_twitter["profile_image_url_https"]
+            self.profile_image_url[t_user] = profile_img
+        # Check if user has banner image
+        if "profile_banner_url" in user_twitter.keys():
+            base_banner_url = user_twitter["profile_banner_url"]
+            self.profile_banner_url[t_user] = f"{base_banner_url}/1500x500"
+        self.display_name[t_user] = user_twitter["name"]
+        if "entities" in user_twitter:
+            if "url" in user_twitter["entities"]:
+                wb = user_twitter["entities"]["url"]["urls"][0]["expanded_url"]
+                self.website = wb
+
+
 def _get_twitter_info(self):
     """Updates User object attributes with current Twitter info
 
@@ -69,7 +115,9 @@ def _get_twitter_info(self):
 
     if self.archive:
         return
-
+    if self.guest:  # pragma: todo
+        self._get_twitter_info_guest()
+        return
     for t_user in self.twitter_username:
         url = f"{self.twitter_base_url_v2}/users/by/username/{t_user}"
         params = {}
@@ -146,6 +194,83 @@ def _get_twitter_info(self):
     return
 
 
+def _package_tweets_v2(tweets_v1):  # pragma: todo
+    tweets = {"data": [], "includes": {}}
+    if isinstance(tweets_v1, dict):
+        for entity in tweets_v1["entities"]:
+            tweets["includes"][entity] = tweets_v1["entities"][entity]
+        if "user" in tweets_v1.keys():
+            tweets_v1["user"]["id"] = tweets_v1["user"]["id_str"]
+            tweets_v1["user"]["username"] = tweets_v1["user"]["screen_name"]
+            tweets["includes"]["users"] = [tweets_v1["user"]]
+        tweets_v1["text"] = tweets_v1["full_text"]
+        tweets_v1["id"] = str(tweets_v1["id"])
+        tweets_v1["author_id"] = tweets_v1["user"]["id_str"]
+        if "possibly_sensitive" not in tweets_v1.keys():
+            tweets_v1["possibly_sensitive"] = False
+        quote_id = None
+        reply_id = None
+        if "quoted_status_id_str" in tweets_v1.keys():
+            quote_id = tweets_v1["quoted_status_id_str"]
+        if "in_reply_to_status_id_str" in tweets_v1.keys():
+            reply_id = tweets_v1["in_reply_to_status_id_str"]
+        if quote_id or reply_id:
+            tweets_v1["referenced_tweets"] = []
+            if reply_id:
+                reply = {"id": reply_id, "type": "replied_to"}
+                tweets_v1["referenced_tweets"].append(reply)
+            if quote_id:
+                quoted_tw = tweets_v1["quoted_status"]
+                quoted_tw["author_id"] = quoted_tw["user"]["id_str"]
+                quoted_tw["id"]: quote_id
+                quoted_tw["type"] = "quoted"
+                tweets_v1["referenced_tweets"].append(quoted_tw)
+        tweets["data"] = tweets_v1
+    else:
+        tweets["meta"] = {"result_count": len(tweets_v1)}
+        for tweet_v1 in tweets_v1:
+            tweet_v1["text"] = tweet_v1["full_text"]
+            tweet_v1["id"] = str(tweet_v1["id"])
+            date_twitter = datetime.strftime(
+                datetime.strptime(
+                    tweet_v1["created_at"], '%a %b %d %H:%M:%S +0000 %Y'
+                ),
+                '%Y-%m-%dT%H:%M:%S.000Z'
+            )
+            tweet_v1["created_at"] = date_twitter
+            if "possibly_sensitive" not in tweet_v1.keys():
+                tweet_v1["possibly_sensitive"] = False
+            if "user_id_str" in tweet_v1.keys():
+                tweet_v1["author_id"] = tweet_v1["user_id_str"]
+            retweet_id = None
+            quote_id = None
+            reply_id = None
+            if "user" in tweet_v1.keys():
+                tweet_v1["user"]["id"] = tweet_v1["user"]["id_str"]
+                tweet_v1["user"]["username"] = tweet_v1["user"]["screen_name"]
+                tweets["includes"]["users"] = [tweet_v1["user"]]
+            if "quoted_status_id_str" in tweet_v1.keys():
+                quote_id = tweet_v1["quoted_status_id_str"]
+            if "in_reply_to_status_id_str" in tweet_v1.keys():
+                reply_id = tweet_v1["in_reply_to_status_id_str"]
+            if quote_id or reply_id or retweet_id:
+                tweet_v1["referenced_tweets"] = []
+                if reply_id:
+                    reply = {"id": reply_id, "type": "replied_to"}
+                    tweet_v1["referenced_tweets"].append(reply)
+                if quote_id:
+                    quoted_tw = {"id": quote_id, "type": "quoted"}
+                    tweet_v1["referenced_tweets"].append(quoted_tw)
+            tweets["data"].append(tweet_v1)
+            if "entities" in tweet_v1:
+                for entity in tweet_v1["entities"]:
+                    tweets["includes"][entity] = tweet_v1["entities"][entity]
+        tweets["data"] = sorted(
+            tweets["data"], key=lambda i: i["created_at"], reverse=True
+        )
+    return tweets
+
+
 def _get_tweets(
         self,
         version: str,
@@ -154,7 +279,7 @@ def _get_tweets(
         t_user=None,
         pbar=None):
     """Gathers last 'max_tweets' tweets from the user and returns them
-    as an dict
+    as a dict
     :param version: Twitter API version to use to retrieve the tweets
     :type version: string
     :param tweet_id: Tweet ID to retrieve
@@ -163,7 +288,7 @@ def _get_tweets(
     :returns: last 'max_tweets' tweets
     :rtype: dict
     """
-    if version == "v1.1":
+    if version == "v1.1" or self.guest:
         if tweet_id:
             twitter_status_url = (
                 f"{self.twitter_base_url}/statuses/"
@@ -179,24 +304,81 @@ def _get_tweets(
             if not response.ok:
                 response.raise_for_status()
             tweet = response.json()
+            if self.guest:  # pragma: todo
+                tweet_v2 = _package_tweets_v2(tweet)
+                tweet = tweet_v2
             return tweet
         else:
             for t_user in self.twitter_username:
-                twitter_status_url = (
-                    f"{self.twitter_base_url}"
-                    f"/statuses/user_timeline.json?screen_name="
-                    f"{t_user}"
-                    f"&count={str(self.max_tweets)}&include_rts=true"
-                )
-                response = twitter_api_request(
-                    'GET',
-                    twitter_status_url,
-                    headers=self.header_twitter,
-                    auth=self.auth
-                )
-                if not response.ok:
-                    response.raise_for_status()
-                tweets = response.json()
+                if not self.guest:
+                    twitter_status_url = (
+                        f"{self.twitter_base_url}"
+                        f"/statuses/user_timeline.json?screen_name="
+                        f"{t_user}"
+                        f"&count={str(self.max_tweets)}&include_rts=true"
+                    )
+                    response = twitter_api_request(
+                        'GET',
+                        twitter_status_url,
+                        headers=self.header_twitter,
+                        auth=self.auth
+                    )
+                    if not response.ok:
+                        response.raise_for_status()
+                    tweets = response.json()
+                else:  # pragma: todo
+                    now = datetime.strftime(
+                        datetime.now(), "%Y-%m-%dT%H:%M:%SZ"
+                    )
+                    query = f"(from:{t_user}) since:{start_time} until:{now}"
+                    param = {
+                        "include_profile_interstitial_type": "1",
+                        "include_blocking": "1",
+                        "include_blocked_by": "1",
+                        "include_followed_by": "1",
+                        "include_want_retweets": "1",
+                        "include_mute_edge": "1",
+                        "include_can_dm": "1",
+                        "include_can_media_tag": "1",
+                        "skip_status": "1",
+                        "cards_platform": "Web-12",
+                        "include_cards": "1",
+                        "include_ext_alt_text": "true",
+                        "include_quote_count": "true",
+                        "include_reply_count": "1",
+                        "tweet_mode": "extended",
+                        "include_entities": "true",
+                        "include_user_entities": "true",
+                        "include_ext_media_color": "true",
+                        "include_ext_media_availability": "true",
+                        "send_error_codes": "true",
+                        "simple_quoted_tweet": "true",
+                        "q": query,
+                        "count": "300",
+                        "query_source": "typed_query",
+                        "pc": "1",
+                        "spelling_corrections": "1",
+                        "ext": "mediaStats,highlightedLabel",
+                    }
+
+                    search_url = (
+                        "https://twitter.com/i/api/2/search/adaptive.json"
+                    )
+                    response = twitter_api_request(
+                        'GET',
+                        search_url,
+                        headers=self.header_twitter,
+                        params=param,
+                    )
+
+                    tweets_guest = response.json()["globalObjects"]["tweets"]
+                    self.result_count += len(tweets_guest)
+                    pbar.update(len(tweets_guest))
+                    tweets = []
+                    for tweet in tweets_guest:
+                        tweets.append(tweets_guest[tweet])
+                    tweets_v2 = _package_tweets_v2(tweets)
+                    tweets = tweets_v2
 
             return tweets
     elif version == "v2":

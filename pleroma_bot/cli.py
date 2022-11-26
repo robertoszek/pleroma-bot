@@ -54,6 +54,7 @@ class User(object):
     from ._twitter import _get_tweets
     from ._twitter import _get_tweets_v2
     from ._twitter import _get_twitter_info
+    from ._twitter import _get_twitter_info_guest
 
     from ._pin import pin_pleroma
     from ._pin import pin_misskey
@@ -98,6 +99,7 @@ class User(object):
     from ._utils import _process_tweets_rss
     from ._utils import replace_vars_in_str
     from ._utils import _get_fedi_profile_info
+    from ._utils import _get_guest_token_header
     from ._utils import mastodon_enforce_limits
 
     from ._processing import process_tweets
@@ -163,7 +165,8 @@ class User(object):
             "no_profile": False,
             "rss": None,
             "threads": 1,
-            "bot": None
+            "bot": None,
+            "guest": None
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -196,6 +199,14 @@ class User(object):
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
+
+        if not self.twitter_token or self.guest:  # pragma: todo
+            # Guest token
+            guest_token, headers = self._get_guest_token_header()
+            self.twitter_token = guest_token
+            self.header_twitter = headers
+            self.guest = True
+            self.skip_pin = True
 
         if all(
                 [
@@ -255,7 +266,7 @@ class User(object):
         else:
             # Get Twitter info on instance creation
             self._get_twitter_info()
-            if not self.archive:
+            if not self.archive and not self.guest:
                 self.pinned_tweet_id = self._get_pinned_tweet_id()
         if self.instance == "mastodon":  # pragma
             self.mastodon_enforce_limits()

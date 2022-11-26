@@ -1071,3 +1071,25 @@ def _get_fedi_profile_info(self):  # pragma: todo
 
 def _get_fedi_info(self):  # pragma: todo
     self._get_fedi_profile_info()
+
+
+def _get_guest_token_header(self):  # pragma: todo
+    _guest_token = (
+        "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7tt"
+        "fk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+    )
+    guest_url = f"{self.twitter_base_url}/guest/activate.json"
+    headers = {"Authorization": f"Bearer {_guest_token}"}
+    response = requests.post(guest_url, headers=headers, stream=True)
+    json_resp = response.json()
+    guest_token = json_resp['guest_token']
+    headers.update({"x-guest-token": guest_token})
+    headers.update({
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) "
+                      "Gecko/20100101 Firefox/84.0",
+        "accept": "*/*",
+        "accept-language": "de,en-US;q=0.7,en;q=0.3",
+        "accept-encoding": "gzip, deflate, utf-8",
+        "te": "trailers",
+    })
+    return _guest_token, headers
