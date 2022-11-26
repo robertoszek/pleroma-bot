@@ -34,13 +34,17 @@ def get_date_last_pleroma_post(self):
     if not response.ok:
         response.raise_for_status()
     posts = json.loads(response.text)
+    if self.application_name:
+        posts = [i for i in posts if i["application"]["name"] == self.application_name]
+        logger.debug(f"filter pleroma posts with application name {self.application_name}, length: {len(posts)}")
+
     self.posts = posts
     if posts:
         date_pleroma = posts[0]["created_at"]
     else:
         self.posts = "none_found"
         logger.warning(
-            _("No posts were found in the target Fediverse account")
+            _("No sufficient posts were found in the target Fediverse account")
         )
         if self.first_time:
             date_pleroma = self.force_date()

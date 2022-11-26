@@ -141,7 +141,8 @@ class User(object):
             "max_post_length": 5000,
             "include_quotes": True,
             "website": None,
-            "no_profile": False
+            "no_profile": False,
+            "application_name": None,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
