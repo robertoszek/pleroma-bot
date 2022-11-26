@@ -4,6 +4,7 @@
 - Regression: Take into account new structure of Twitter's archive (tweet.js changed to tweets.js)
 - Bug: Handle special media types that don't include link to media in some cases. Thanks @tewhalen!
 - Bug: Align max_tweets minimum value (10) with the warning message and actual value. Thanks @nemobis!
+- Bug: Multiple video attachments cause HTTP 422 on Mastodon when posting.
 
 ## Enhancements
 - Archive offline support, you no longer need a Twitter developer account or access to their API to process an archive.
