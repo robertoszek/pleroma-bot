@@ -333,6 +333,9 @@ def _get_tweets(
                     query = f"(from:{t_user}) since:{start_time} until:{now}"
                     param = {
                         "include_profile_interstitial_type": "1",
+                        "include_rts": {str(self.include_rts).lower()},
+                        "include_replies": {str(self.include_replies).lower()},
+                        "include_quotes": {str(self.include_quotes).lower()},
                         "include_blocking": "1",
                         "include_blocked_by": "1",
                         "include_followed_by": "1",
@@ -354,7 +357,7 @@ def _get_tweets(
                         "send_error_codes": "true",
                         "simple_quoted_tweet": "true",
                         "q": query,
-                        "count": "300",
+                        "count": str(self.max_tweets),
                         "query_source": "typed_query",
                         "pc": "1",
                         "spelling_corrections": "1",
