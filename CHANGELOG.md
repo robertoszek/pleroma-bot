@@ -10,6 +10,7 @@
 - Archive offline support, you no longer need a Twitter developer account or access to their API to process an archive.
 - Mastodon limits, make URLs count as 23 characters (or the instance configured value) when determining if truncating is necessary
 - Added progress bars when gathering, processing and posting tweets
+- Pleroma and Mastodon rate limits, handle HTTP 429 more gracefully (wait until they reset and continue)
 
 ## Added
 - RSS support, you can now use an RSS feed as a source of tweets to post. Take a look at the docs for more info.
