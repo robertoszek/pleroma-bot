@@ -214,7 +214,6 @@ class User(object):
             self.header_twitter = headers
             self.guest = True
             self.skip_pin = True
-            self.get_tweets(start_time="2022-01-01")
 
         if all(
                 [
