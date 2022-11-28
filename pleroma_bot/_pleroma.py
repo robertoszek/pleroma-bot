@@ -139,7 +139,7 @@ def post_pleroma(
     if (
             retweet_id
             and retweet_id in self.posts_ids[self.pleroma_base_url]
-            and len(self.posts_ids[self.pleroma_base_url][tweet_reply_id]) > 0
+            and len(self.posts_ids[self.pleroma_base_url][retweet_id]) > 0
     ):  # pragma: todo
         post_id = self.posts_ids[self.pleroma_base_url][retweet_id]
         pleroma_reblog_url = (
