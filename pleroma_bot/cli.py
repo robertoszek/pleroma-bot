@@ -206,20 +206,15 @@ class User(object):
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
 
         if not self.twitter_token or self.guest:  # pragma: todo
-            count = 0
-            while True:
-                # Guest token
-                if self.proxy and self.proxy_pool:
-                    self.pool_iter = cycle(self.proxy_pool)
-                guest_token, headers = self._get_guest_token_header()
-                count = count + 1
-                self.twitter_token = guest_token
-                self.header_twitter = headers
-                self.guest = True
-                self.skip_pin = True
-                self.get_tweets(start_time="2022-01-01")
-                count = count + 1
-                print(count)
+            # Guest token
+            if self.proxy and self.proxy_pool:
+                self.pool_iter = cycle(self.proxy_pool)
+            guest_token, headers = self._get_guest_token_header()
+            self.twitter_token = guest_token
+            self.header_twitter = headers
+            self.guest = True
+            self.skip_pin = True
+            self.get_tweets(start_time="2022-01-01")
 
         if all(
                 [
