@@ -129,7 +129,6 @@ class User(object):
         self.max_attachments = 16
         self.max_video_attachments = None
         self.proxy = True
-        self.proxy_pool = None
         self.pool_iter = None
         valid_visibility = ("public", "unlisted", "private", "direct")
         valid_visibility_mk = ("public", "home", "followers", "specified")
@@ -171,7 +170,8 @@ class User(object):
             "rss": None,
             "threads": 1,
             "bot": None,
-            "guest": None
+            "guest": None,
+            "proxy_pool": None
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
