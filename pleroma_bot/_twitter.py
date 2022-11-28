@@ -327,10 +327,19 @@ def _get_tweets(
                         response.raise_for_status()
                     tweets = response.json()
                 else:  # pragma: todo
-                    now = datetime.strftime(
-                        datetime.now(), "%Y-%m-%dT%H:%M:%SZ"
+                    now_ts = int(datetime.utcnow().timestamp())
+                    fmt_date = ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ")
+                    for fmt in fmt_date:
+                        try:
+                            start_time_ts = int(datetime.strptime(
+                                start_time, fmt
+                            ).timestamp())
+                        except ValueError:
+                            pass
+                    query = (
+                        f"(from:{t_user}) "
+                        f"since_time:{start_time_ts} until_time:{now_ts}"
                     )
-                    query = f"(from:{t_user}) since:{start_time} until:{now}"
                     param = {
                         "include_profile_interstitial_type": "1",
                         "include_rts": {str(self.include_rts).lower()},
