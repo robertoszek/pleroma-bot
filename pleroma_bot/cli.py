@@ -40,6 +40,7 @@ import multiprocessing as mp
 
 from tqdm import tqdm
 from random import shuffle
+from itertools import cycle
 from requests_oauthlib import OAuth1
 from requests.structures import CaseInsensitiveDict
 
@@ -88,6 +89,7 @@ class User(object):
     from ._utils import random_string
     from ._utils import _mastodon_len
     from ._utils import _get_fedi_info
+    from ._utils import _request_proxy
     from ._utils import parse_rss_feed
     from ._utils import update_profile
     from ._utils import transform_date
@@ -126,6 +128,9 @@ class User(object):
         self.instance = ""
         self.max_attachments = 16
         self.max_video_attachments = None
+        self.proxy = True
+        self.proxy_pool = None
+        self.pool_iter = None
         valid_visibility = ("public", "unlisted", "private", "direct")
         valid_visibility_mk = ("public", "home", "followers", "specified")
         default_cfg_attributes = {
@@ -201,12 +206,20 @@ class User(object):
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
 
         if not self.twitter_token or self.guest:  # pragma: todo
-            # Guest token
-            guest_token, headers = self._get_guest_token_header()
-            self.twitter_token = guest_token
-            self.header_twitter = headers
-            self.guest = True
-            self.skip_pin = True
+            count = 0
+            while True:
+                # Guest token
+                if self.proxy and self.proxy_pool:
+                    self.pool_iter = cycle(self.proxy_pool)
+                guest_token, headers = self._get_guest_token_header()
+                count = count + 1
+                self.twitter_token = guest_token
+                self.header_twitter = headers
+                self.guest = True
+                self.skip_pin = True
+                self.get_tweets(start_time="2022-01-01")
+                count = count + 1
+                print(count)
 
         if all(
                 [

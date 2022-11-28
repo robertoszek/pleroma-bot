@@ -373,6 +373,19 @@ def _get_tweets(
                         headers=self.header_twitter,
                         params=param,
                     )
+                    if self.proxy and response.status_code == 429:
+                        logger.warning(
+                            _(
+                                "Rate limit exceeded when collecting tweets "
+                                "with a guest token. Retrying with a proxy."
+                            )
+                        )
+                        response = self._request_proxy(
+                            'GET',
+                            search_url,
+                            headers=self.header_twitter,
+                            params=param
+                        )
 
                     tweets_guest = response.json()["globalObjects"]["tweets"]
                     self.result_count += len(tweets_guest)

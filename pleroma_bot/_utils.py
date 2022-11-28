@@ -1080,16 +1080,65 @@ def _get_guest_token_header(self):  # pragma: todo
     )
     guest_url = f"{self.twitter_base_url}/guest/activate.json"
     headers = {"Authorization": f"Bearer {_guest_token}"}
+    user_agent = (
+        f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
+        f" like Gecko) Chrome/79.0.3945.{random.randint(0, 9999)} Safari/537."
+        f"{random.randint(0, 99)}"
+    )
+    headers['User-Agent'] = user_agent
+    headers.update({"user-agent": user_agent})
     response = requests.post(guest_url, headers=headers, stream=True)
+    if not response.ok:
+        if self.proxy and response.status_code == 429:
+            logger.warning(
+                _(
+                    "Rate limit exceeded when getting guest token. Retrying "
+                    "with a proxy."
+                )
+            )
+            response = self._request_proxy('POST', guest_url, headers)
     json_resp = response.json()
     guest_token = json_resp['guest_token']
     headers.update({"x-guest-token": guest_token})
+
     headers.update({
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) "
-                      "Gecko/20100101 Firefox/84.0",
         "accept": "*/*",
         "accept-language": "de,en-US;q=0.7,en;q=0.3",
         "accept-encoding": "gzip, deflate, utf-8",
         "te": "trailers",
     })
     return _guest_token, headers
+
+
+def _request_proxy(
+        self, method, url, headers=None, params=None
+):  # pragma: todo
+    if not self.pool_iter:
+        response = requests.get('https://www.sslproxies.org/')
+        matches = re.findall(
+            r"<td>\d+.\d+.\d+.\d+</td><td>\d+</td>", response.text
+        )
+        entries = [m.replace('<td>', '') for m in matches]
+        proxies = [s[:-5].replace('</td>', ':') for s in entries]
+        self.pool_iter = cycle(proxies)
+    for i in range(100):
+        proxy = next(self.pool_iter)
+        try:
+            logger.info(_("Trying {}").format(proxy))
+            proxies = {
+                "http": 'http://' + proxy,
+                "https": 'http://' + proxy
+            }
+            response = requests.request(
+                method,
+                url,
+                headers=headers,
+                proxies=proxies,
+                params=params,
+                timeout=5.0
+            )
+            if response.status_code == 200:
+                return response
+        except Exception as e:
+            logger.debug(e)
+            continue
