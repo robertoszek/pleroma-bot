@@ -18,6 +18,9 @@
 - Native retweet support, now users in your config should be able to reblog their own and each other's posts if they are on the same instance.
 - `bot` config mapping, for setting the [bot flag](https://docs.joinmastodon.org/user/profile/#bot) on the target account.
 - `--lockerfile` argument, for specifying the path of the locker file that prevents collisions between multiple concurrent bot executions.
+- `guest` mapping, for enabling the use of Guest Tokens (so you don't need a Twitter Developer account). If no `twitter_token` is present in your config it will default to `true`
+- `proxy_pool` mapping, list of proxies to use when being rate limited with Guest Tokens 
+- `proxy` mapping, for enabling or disabling the use of proxies when using guest tokens
 
 ## [1.1.0] 06-06-2022
 ## Fixed
