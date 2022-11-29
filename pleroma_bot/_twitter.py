@@ -2,7 +2,7 @@ import time
 import requests
 
 from tqdm import tqdm
-from datetime import datetime
+from datetime import datetime, timezone
 
 from . import logger
 from pleroma_bot.i18n import _
@@ -327,13 +327,13 @@ def _get_tweets(
                         response.raise_for_status()
                     tweets = response.json()
                 else:  # pragma: todo
-                    now_ts = int(datetime.utcnow().timestamp())
+                    now_ts = int(datetime.now(tz=timezone.utc).timestamp())
                     fmt_date = ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ")
                     for fmt in fmt_date:
                         try:
                             start_time_ts = int(datetime.strptime(
                                 start_time, fmt
-                            ).timestamp())
+                            ).replace(tzinfo=timezone.utc).timestamp())
                         except ValueError:
                             pass
                     query = (
