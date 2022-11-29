@@ -208,14 +208,20 @@ def _package_tweets_v2(tweets_v1):  # pragma: todo
         tweets_v1["author_id"] = tweets_v1["user"]["id_str"]
         if "possibly_sensitive" not in tweets_v1.keys():
             tweets_v1["possibly_sensitive"] = False
+        retweet_id = None
         quote_id = None
         reply_id = None
+        if "retweeted_status_id_str" in tweets_v1.keys():
+            retweet_id = tweets_v1["retweeted_status_id_str"]
         if "quoted_status_id_str" in tweets_v1.keys():
             quote_id = tweets_v1["quoted_status_id_str"]
         if "in_reply_to_status_id_str" in tweets_v1.keys():
             reply_id = tweets_v1["in_reply_to_status_id_str"]
         if quote_id or reply_id:
             tweets_v1["referenced_tweets"] = []
+            if retweet_id:
+                rt = {"id": retweet_id, "type": "retweeted"}
+                tweets_v1["referenced_tweets"].append(rt)
             if reply_id:
                 reply = {"id": reply_id, "type": "replied_to"}
                 tweets_v1["referenced_tweets"].append(reply)
@@ -249,12 +255,17 @@ def _package_tweets_v2(tweets_v1):  # pragma: todo
                 tweet_v1["user"]["id"] = tweet_v1["user"]["id_str"]
                 tweet_v1["user"]["username"] = tweet_v1["user"]["screen_name"]
                 tweets["includes"]["users"] = [tweet_v1["user"]]
+            if "retweeted_status_id_str" in tweet_v1.keys():
+                retweet_id = tweet_v1["retweeted_status_id_str"]
             if "quoted_status_id_str" in tweet_v1.keys():
                 quote_id = tweet_v1["quoted_status_id_str"]
             if "in_reply_to_status_id_str" in tweet_v1.keys():
                 reply_id = tweet_v1["in_reply_to_status_id_str"]
             if quote_id or reply_id or retweet_id:
                 tweet_v1["referenced_tweets"] = []
+                if retweet_id:
+                    rt = {"id": retweet_id, "type": "retweeted"}
+                    tweet_v1["referenced_tweets"].append(rt)
                 if reply_id:
                     reply = {"id": reply_id, "type": "replied_to"}
                     tweet_v1["referenced_tweets"].append(reply)
@@ -336,9 +347,12 @@ def _get_tweets(
                             ).replace(tzinfo=timezone.utc).timestamp())
                         except ValueError:
                             pass
+                    rts = ""
+                    if self.include_rts:
+                        rts = "include:nativeretweets"
                     query = (
                         f"(from:{t_user}) "
-                        f"since_time:{start_time_ts} until_time:{now_ts}"
+                        f"since_time:{start_time_ts} until_time:{now_ts} {rts}"
                     )
                     param = {
                         "include_profile_interstitial_type": "1",
