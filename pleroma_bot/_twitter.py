@@ -31,7 +31,7 @@ def twitter_api_request(self, method, url,
         remaining_header = response.headers.get('x-rate-limit-remaining')
         reset_header = response.headers.get('x-rate-limit-reset')
         limit_header = response.headers.get('x-rate-limit-limit')
-        if self.guest:
+        if self.guest:  # pragma: todo
             logger.warning(
                 _(
                     "Rate limit exceeded when using a guest token. "
