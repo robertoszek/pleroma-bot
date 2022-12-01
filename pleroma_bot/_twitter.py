@@ -10,7 +10,7 @@ from pleroma_bot.i18n import _
 # from pleroma_bot._utils import spinner
 
 
-def twitter_api_request(method, url,
+def twitter_api_request(self, method, url,
                         params=None, data=None, headers=None, cookies=None,
                         files=None, auth=None, timeout=None, proxies=None,
                         hooks=None, allow_redirects=True, stream=None,
@@ -28,28 +28,75 @@ def twitter_api_request(method, url,
         hooks=hooks,
     )
     if response.status_code == 429:
-        remaining = int(response.headers.get('x-rate-limit-remaining'))
-        if remaining == 0:
-            limit = int(response.headers.get('x-rate-limit-limit'))
-            reset_header = int(response.headers.get('x-rate-limit-reset'))
-            reset_time = datetime.utcfromtimestamp(reset_header)
+        remaining_header = response.headers.get('x-rate-limit-remaining')
+        reset_header = response.headers.get('x-rate-limit-reset')
+        limit_header = response.headers.get('x-rate-limit-limit')
+        if self.guest:
+            logger.warning(
+                _(
+                    "Rate limit exceeded when using a guest token. "
+                    "Refreshing token and retrying..."
+                )
+            )
+            guest_token, headers = self._get_guest_token_header()
+            self.twitter_token = guest_token
+            self.header_twitter = headers
+            response = requests.request(
+                method=method.upper(),
+                url=url,
+                headers=headers,
+                files=files,
+                data=data or {},
+                json=json,
+                params=params or {},
+                auth=auth,
+                cookies=cookies,
+                hooks=hooks,
+            )
+            if response.status_code == 429 and self.proxy:
+                logger.warning(
+                    _(
+                        "Rate limit exceeded when using a guest token. "
+                        "Retrying with a proxy..."
+                    )
+                )
+                response = self._request_proxy(
+                    method, url, params=params,
+                    data=data, headers=headers,
+                    cookies=cookies, files=files,
+                    auth=auth, hooks=hooks,
+                    timeout=timeout,
+                    proxies=proxies,
+                    allow_redirects=allow_redirects,
+                    stream=stream, verify=verify,
+                    cert=cert, json=json
+                )
+        elif remaining_header and reset_header and limit_header:
+            limit = int(limit_header)
+            remaining = int(remaining_header)
+            reset = int(reset_header)
+            reset_time = datetime.utcfromtimestamp(reset)
             logger.info(_(
-                "Rate limit exceeded. 0 out of {} requests remaining until {}"
+                "Rate limit exceeded. {} out of {} requests remaining until {}"
                 " UTC"
-            ).format(limit, reset_time))
+            ).format(remaining, limit, reset_time))
 
             delay = (reset_time - datetime.utcnow()).total_seconds() + 2
             logger.info(_("Sleeping for {}s...").format(round(delay)))
             time.sleep(delay)
 
-            response = twitter_api_request(method, url,
-                                           params=params, data=data,
-                                           headers=headers, cookies=cookies,
-                                           files=files, auth=auth, hooks=hooks,
-                                           timeout=timeout, proxies=proxies,
-                                           allow_redirects=allow_redirects,
-                                           stream=stream, verify=verify,
-                                           cert=cert, json=json)
+            response = self.twitter_api_request(
+                method, url, params=params,
+                data=data, headers=headers,
+                cookies=cookies, files=files,
+                auth=auth, hooks=hooks,
+                timeout=timeout,
+                proxies=proxies,
+                allow_redirects=allow_redirects,
+                stream=stream, verify=verify,
+                cert=cert, json=json
+            )
+
     return response
 
 
@@ -137,7 +184,7 @@ def _get_twitter_info(self):
                                 "withheld",
             }
         )
-        response = twitter_api_request(
+        response = self.twitter_api_request(
             'GET',
             url,
             headers=self.header_twitter,
@@ -178,7 +225,7 @@ def _get_twitter_info(self):
             f"/users/show.json?screen_name="
             f"{t_user}"
         )
-        response = twitter_api_request(
+        response = self.twitter_api_request(
             'GET',
             twitter_user_url,
             headers=self.header_twitter,
@@ -292,7 +339,7 @@ def _get_tweets(
                 f"show.json?id={str(tweet_id)}&include_entities=true"
                 f"&tweet_mode=extended"
             )
-            response = twitter_api_request(
+            response = self.twitter_api_request(
                 'GET',
                 twitter_status_url,
                 headers=self.header_twitter,
@@ -314,7 +361,7 @@ def _get_tweets(
                         f"{t_user}"
                         f"&count={str(self.max_tweets)}&include_rts=true"
                     )
-                    response = twitter_api_request(
+                    response = self.twitter_api_request(
                         'GET',
                         twitter_status_url,
                         headers=self.header_twitter,
@@ -376,26 +423,12 @@ def _get_tweets(
                     search_url = (
                         "https://twitter.com/i/api/2/search/adaptive.json"
                     )
-                    response = twitter_api_request(
+                    response = self.twitter_api_request(
                         'GET',
                         search_url,
                         headers=self.header_twitter,
                         params=param,
                     )
-                    if self.proxy and response.status_code == 429:
-                        logger.warning(
-                            _(
-                                "Rate limit exceeded when collecting tweets "
-                                "with a guest token. Retrying with a proxy."
-                            )
-                        )
-                        response = self._request_proxy(
-                            'GET',
-                            search_url,
-                            headers=self.header_twitter,
-                            params=param
-                        )
-
                     tweets_guest = response.json()["globalObjects"]["tweets"]
                     self.result_count += len(tweets_guest)
                     pbar.update(len(tweets_guest))
@@ -470,7 +503,7 @@ def _get_tweets_v2(
                                 "withheld",
             }
         )
-        response = twitter_api_request(
+        response = self.twitter_api_request(
             'GET',
             url,
             headers=self.header_twitter,
@@ -489,7 +522,7 @@ def _get_tweets_v2(
             f"{self.twitter_base_url_v2}/users/by?"
             f"usernames={t_user}"
         )
-        response = twitter_api_request(
+        response = self.twitter_api_request(
             'GET', url, headers=self.header_twitter, auth=self.auth
         )
         if not response.ok:
@@ -530,7 +563,7 @@ def _get_tweets_v2(
         }
     )
 
-    response = twitter_api_request(
+    response = self.twitter_api_request(
         'GET', url, headers=self.header_twitter, params=params, auth=self.auth
     )
     if not response.ok:

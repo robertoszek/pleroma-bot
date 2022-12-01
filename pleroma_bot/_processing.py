@@ -18,7 +18,6 @@ except ImportError:
 
 from . import logger
 from .i18n import _
-from pleroma_bot._twitter import twitter_api_request
 
 
 def process_tweets(self, tweets_to_post):
@@ -311,7 +310,7 @@ def _process_polls(self, tweet, media):
                 "poll.fields": "duration_minutes," "options",
             }
 
-            response = twitter_api_request(
+            response = self.twitter_api_request(
                 'GET',
                 poll_url,
                 headers=self.header_twitter,

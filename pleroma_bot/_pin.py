@@ -6,7 +6,6 @@ import requests
 
 from . import logger
 from .i18n import _
-from pleroma_bot._twitter import twitter_api_request
 
 
 def pin_misskey(self, id_post):
@@ -249,7 +248,7 @@ def _get_pinned_tweet_id(self):
         "expansions": "pinned_tweet_id",
         "tweet.fields": "entities",
     }
-    response = twitter_api_request(
+    response = self.twitter_api_request(
         'GET', url, headers=self.header_twitter, params=params, auth=self.auth
     )
     if not response.ok:

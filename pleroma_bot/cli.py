@@ -55,6 +55,7 @@ class User(object):
     from ._twitter import _get_tweets
     from ._twitter import _get_tweets_v2
     from ._twitter import _get_twitter_info
+    from ._twitter import twitter_api_request
     from ._twitter import _get_twitter_info_guest
 
     from ._pin import pin_pleroma
@@ -171,7 +172,8 @@ class User(object):
             "threads": 1,
             "bot": None,
             "guest": None,
-            "proxy_pool": None
+            "proxy_pool": None,
+            "proxy": True
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:

@@ -1096,7 +1096,11 @@ def _get_guest_token_header(self):  # pragma: todo
                     "with a proxy."
                 )
             )
-            response = self._request_proxy('POST', guest_url, headers)
+            response = self._request_proxy(
+                method='POST', url=guest_url, headers=headers
+            )
+        else:
+            response.raise_for_status()
     json_resp = response.json()
     guest_token = json_resp['guest_token']
     headers.update({"x-guest-token": guest_token})
@@ -1111,7 +1115,11 @@ def _get_guest_token_header(self):  # pragma: todo
 
 
 def _request_proxy(
-        self, method, url, headers=None, params=None
+        self, method, url,
+        params=None, data=None, headers=None, cookies=None,
+        files=None, auth=None, timeout=None, proxies=None,
+        hooks=None, allow_redirects=True, stream=None,
+        verify=None, cert=None, json=None
 ):  # pragma: todo
     if not self.pool_iter:
         response = requests.get('https://www.sslproxies.org/')
@@ -1132,9 +1140,16 @@ def _request_proxy(
             response = requests.request(
                 method,
                 url,
+                data=data or {},
+                json=json,
+                params=params or {},
                 headers=headers,
+                cookies=cookies, files=files,
+                auth=auth, hooks=hooks,
                 proxies=proxies,
-                params=params,
+                allow_redirects=allow_redirects,
+                stream=stream, verify=verify,
+                cert=cert,
                 timeout=5.0
             )
             if response.status_code == 200:
