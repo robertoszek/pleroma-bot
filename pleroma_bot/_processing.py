@@ -105,6 +105,11 @@ def process_tweets(self, tweets_to_post):
 
         # Download media only if we plan to upload it later
         if self.media_upload and not self.archive:
+            if self.guest:  # pragma: todo
+                if "extended_entities" in tweet:
+                    if "media" in tweet['extended_entities']:
+                        for item in tweet['extended_entities']['media']:
+                            media.append(item)
             try:
                 media_keys = False
                 attachments = "attachments" in tweet.keys()
@@ -125,12 +130,6 @@ def process_tweets(self, tweets_to_post):
                     _get_rt_media_url(self, tweet, media)
             except KeyError:
                 pass
-
-            if self.guest:  # pragma: todo
-                if "extended_entities" in tweet:
-                    if "media" in tweet['extended_entities']:
-                        for item in tweet['extended_entities']['media']:
-                            media.append(item)
             if len(media) > 0:
                 # Create folder to store attachments related to the tweet ID
                 tweet_path = os.path.join(self.tweets_temp_path, tweet["id"])
@@ -283,6 +282,12 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
                                     ]
                                 ]
                                 media.extend(new)
+                if self.guest:  # pragma: todo
+                    if "extended_entities" in tw_data:
+                        if "media" in tw_data['extended_entities']:
+                            for item in tw_data['extended_entities']['media']:
+                                if item not in media:
+                                    media.append(item)
             else:
                 break
         i += 1
