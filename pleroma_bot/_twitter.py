@@ -194,88 +194,74 @@ def _get_twitter_info(self):
     return
 
 
+def _package_tweet_v2(tweet_v1):  # pragma: todo
+    include_users = None
+    entities = None
+    tweet_v1["text"] = tweet_v1["full_text"]
+    tweet_v1["id"] = str(tweet_v1["id"])
+    date_twitter = datetime.strftime(
+        datetime.strptime(
+            tweet_v1["created_at"], '%a %b %d %H:%M:%S +0000 %Y'
+        ),
+        '%Y-%m-%dT%H:%M:%S.000Z'
+    )
+    tweet_v1["created_at"] = date_twitter
+    if "possibly_sensitive" not in tweet_v1.keys():
+        tweet_v1["possibly_sensitive"] = False
+    if "user_id_str" in tweet_v1.keys():
+        tweet_v1["author_id"] = tweet_v1["user_id_str"]
+    if "user" in tweet_v1.keys():
+        tweet_v1["author_id"] = tweet_v1["user"]["id_str"]
+    retweet_id = None
+    quote_id = None
+    reply_id = None
+    if "user" in tweet_v1.keys():
+        tweet_v1["user"]["id"] = tweet_v1["user"]["id_str"]
+        tweet_v1["user"]["username"] = tweet_v1["user"]["screen_name"]
+        include_users = [tweet_v1["user"]]
+    if "retweeted_status_id_str" in tweet_v1.keys():
+        retweet_id = tweet_v1["retweeted_status_id_str"]
+    if "quoted_status_id_str" in tweet_v1.keys():
+        quote_id = tweet_v1["quoted_status_id_str"]
+    if "in_reply_to_status_id_str" in tweet_v1.keys():
+        reply_id = tweet_v1["in_reply_to_status_id_str"]
+    if quote_id or reply_id or retweet_id:
+        tweet_v1["referenced_tweets"] = []
+        if retweet_id:
+            rt = {"id": retweet_id, "type": "retweeted"}
+            tweet_v1["referenced_tweets"].append(rt)
+        if reply_id:
+            reply = {"id": reply_id, "type": "replied_to"}
+            tweet_v1["referenced_tweets"].append(reply)
+        if quote_id:
+            quoted_tw = {"id": quote_id, "type": "quoted"}
+            tweet_v1["referenced_tweets"].append(quoted_tw)
+    if "entities" in tweet_v1:
+        entities = tweet_v1["entities"]
+
+    return include_users, entities, tweet_v1
+
+
 def _package_tweets_v2(tweets_v1):  # pragma: todo
     tweets = {"data": [], "includes": {}}
     if isinstance(tweets_v1, dict):
-        for entity in tweets_v1["entities"]:
-            tweets["includes"][entity] = tweets_v1["entities"][entity]
-        if "user" in tweets_v1.keys():
-            tweets_v1["user"]["id"] = tweets_v1["user"]["id_str"]
-            tweets_v1["user"]["username"] = tweets_v1["user"]["screen_name"]
-            tweets["includes"]["users"] = [tweets_v1["user"]]
-        tweets_v1["text"] = tweets_v1["full_text"]
-        tweets_v1["id"] = str(tweets_v1["id"])
-        tweets_v1["author_id"] = tweets_v1["user"]["id_str"]
-        if "possibly_sensitive" not in tweets_v1.keys():
-            tweets_v1["possibly_sensitive"] = False
-        retweet_id = None
-        quote_id = None
-        reply_id = None
-        if "retweeted_status_id_str" in tweets_v1.keys():
-            retweet_id = tweets_v1["retweeted_status_id_str"]
-        if "quoted_status_id_str" in tweets_v1.keys():
-            quote_id = tweets_v1["quoted_status_id_str"]
-        if "in_reply_to_status_id_str" in tweets_v1.keys():
-            reply_id = tweets_v1["in_reply_to_status_id_str"]
-        if quote_id or reply_id:
-            tweets_v1["referenced_tweets"] = []
-            if retweet_id:
-                rt = {"id": retweet_id, "type": "retweeted"}
-                tweets_v1["referenced_tweets"].append(rt)
-            if reply_id:
-                reply = {"id": reply_id, "type": "replied_to"}
-                tweets_v1["referenced_tweets"].append(reply)
-            if quote_id:
-                quoted_tw = tweets_v1["quoted_status"]
-                quoted_tw["author_id"] = quoted_tw["user"]["id_str"]
-                quoted_tw["id"]: quote_id
-                quoted_tw["type"] = "quoted"
-                tweets_v1["referenced_tweets"].append(quoted_tw)
+        include_users, entities, tweet_v2 = _package_tweet_v2(tweets_v1)
         tweets["data"] = tweets_v1
+        if include_users:
+            tweets["includes"]["users"] = include_users
+        if entities:
+            for entity in entities:
+                tweets["includes"][entity] = tweet_v2["entities"][entity]
     else:
         tweets["meta"] = {"result_count": len(tweets_v1)}
         for tweet_v1 in tweets_v1:
-            tweet_v1["text"] = tweet_v1["full_text"]
-            tweet_v1["id"] = str(tweet_v1["id"])
-            date_twitter = datetime.strftime(
-                datetime.strptime(
-                    tweet_v1["created_at"], '%a %b %d %H:%M:%S +0000 %Y'
-                ),
-                '%Y-%m-%dT%H:%M:%S.000Z'
-            )
-            tweet_v1["created_at"] = date_twitter
-            if "possibly_sensitive" not in tweet_v1.keys():
-                tweet_v1["possibly_sensitive"] = False
-            if "user_id_str" in tweet_v1.keys():
-                tweet_v1["author_id"] = tweet_v1["user_id_str"]
-            retweet_id = None
-            quote_id = None
-            reply_id = None
-            if "user" in tweet_v1.keys():
-                tweet_v1["user"]["id"] = tweet_v1["user"]["id_str"]
-                tweet_v1["user"]["username"] = tweet_v1["user"]["screen_name"]
-                tweets["includes"]["users"] = [tweet_v1["user"]]
-            if "retweeted_status_id_str" in tweet_v1.keys():
-                retweet_id = tweet_v1["retweeted_status_id_str"]
-            if "quoted_status_id_str" in tweet_v1.keys():
-                quote_id = tweet_v1["quoted_status_id_str"]
-            if "in_reply_to_status_id_str" in tweet_v1.keys():
-                reply_id = tweet_v1["in_reply_to_status_id_str"]
-            if quote_id or reply_id or retweet_id:
-                tweet_v1["referenced_tweets"] = []
-                if retweet_id:
-                    rt = {"id": retweet_id, "type": "retweeted"}
-                    tweet_v1["referenced_tweets"].append(rt)
-                if reply_id:
-                    reply = {"id": reply_id, "type": "replied_to"}
-                    tweet_v1["referenced_tweets"].append(reply)
-                if quote_id:
-                    quoted_tw = {"id": quote_id, "type": "quoted"}
-                    tweet_v1["referenced_tweets"].append(quoted_tw)
-            tweets["data"].append(tweet_v1)
-            if "entities" in tweet_v1:
-                for entity in tweet_v1["entities"]:
-                    tweets["includes"][entity] = tweet_v1["entities"][entity]
+            include_users, entities, tweet_v2 = _package_tweet_v2(tweet_v1)
+            tweets["data"].append(tweet_v2)
+            if include_users:
+                tweets["includes"]["users"] = include_users
+            if entities:
+                for entity in entities:
+                    tweets["includes"][entity] = tweet_v2["entities"][entity]
         tweets["data"] = sorted(
             tweets["data"], key=lambda i: i["created_at"], reverse=True
         )
