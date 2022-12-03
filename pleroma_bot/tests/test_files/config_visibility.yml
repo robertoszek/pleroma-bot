@@ -1,3 +1,4 @@
+avoid_duplicates: false
 twitter_base_url: https://api.twitter.com/1.1
 # Change this to your Fediverse instance
 pleroma_base_url: https://pleroma.robertoszek.xyz

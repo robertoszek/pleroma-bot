@@ -43,8 +43,9 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
     if self.sensitive:
         sensitive = self.sensitive
     media_ids = []
-    posts_ids = self.posts_ids[self.pleroma_base_url]
-    if self.media_upload and retweet_id not in posts_ids:
+    posts = self.posts_ids[self.pleroma_base_url]
+
+    if self.media_upload and retweet_id not in posts:
         if os.path.isdir(tweet_folder):
             media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
@@ -59,8 +60,37 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
         "i": self.pleroma_token,
         # cw: '',
     }
-    if retweet_id and retweet_id in posts_ids:  # pragma: todo
-        renote_id = posts_ids[retweet_id]
+    if (
+            tweet_id in posts
+            and len(str(posts[tweet_id])) > 0
+            and self.avoid_duplicates
+    ):  # pragma: todo
+        post_id = self.posts_ids[self.pleroma_base_url][tweet_id]
+
+        misskey_posted_url = f"{self.pleroma_base_url}/api/notes/show"
+
+        data_n = {
+            "i": self.pleroma_token,
+            "noteId": post_id,
+        }
+        response = requests.post(
+            misskey_posted_url, json.dumps(data_n), headers=self.header_pleroma
+        )
+        if response.ok:
+            logger.warning(
+                _(
+                    "Tweet already posted in Misskey:\t{} - {}."
+                    " Skipping to avoid duplicates..."
+                ).format(tweet_id, posts[tweet_id])
+            )
+            return post_id
+
+    if (
+            retweet_id
+            and retweet_id in posts
+            and len(str(posts[retweet_id])) > 0
+    ):  # pragma: todo
+        renote_id = posts[retweet_id]
         data.update({"renoteId": renote_id})
     else:
         data.update({"visibility": self.visibility, "text": tweet_text})
@@ -69,12 +99,12 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
         data.update({"fileIds": media_ids})
     if (
             tweet_reply_id
-            and tweet_reply_id in posts_ids
-            and retweet_id not in posts_ids
+            and tweet_reply_id in posts
+            and len(posts[tweet_reply_id]) > 0
     ):  # pragma: todo
         post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
         data.update({"replyId": post_reply_id})
-    if poll and retweet_id not in posts_ids:
+    if poll and retweet_id not in posts:
         data.update(
             {
                 "poll": {

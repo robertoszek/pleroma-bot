@@ -84,6 +84,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | guest                |   Yes    | false                      | Use guest tokens instead of `twitter_token`. No Twitter Developer account necessary. If no `twitter_token` is present it will default to `true` |
 | proxy_pool           |   Yes    |                            | List of proxies to use when a request to Twitter's API is rate limited. `(Only applies when using guest tokens)`                                |
 | proxy                |   Yes    | true                       | Use proxies when a request to Twitter's API is rate limited `(Only applies when using guest tokens)`                                            |
+| avoid_duplicates     |   Yes    | true                       | Use IDs stored in `posts.json` to check if tweet has already been published on the Fedi instance with the bot                                   |
 
 There a few mappings *exclusive* to users:
 

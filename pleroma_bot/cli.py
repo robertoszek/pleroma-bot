@@ -173,7 +173,8 @@ class User(object):
             "bot": None,
             "guest": None,
             "proxy_pool": None,
-            "proxy": True
+            "proxy": True,
+            "avoid_duplicates": True,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:

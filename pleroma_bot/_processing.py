@@ -84,7 +84,9 @@ def process_tweets(self, tweets_to_post):
 
     for idx, tweet in enumerate(tweets_to_post["data"]):
         # logger.info(_("Processing: {}/{}").format(idx+1, total_tweets))
-        self.posts_ids[self.pleroma_base_url].update({tweet["id"]: ''})
+        posts = self.posts_ids[self.pleroma_base_url]
+        if tweet["id"] not in posts:
+            self.posts_ids[self.pleroma_base_url].update({tweet["id"]: ''})
         tweet["reply_id"] = None
         tweet["retweet_id"] = None
         # get reply ids
@@ -352,9 +354,9 @@ def _download_media(self, media, tweet):
             media_url = _get_best_bitrate_video(self, item)
 
         if media_url:
-            key = item["media_key"] if not (
-                self.archive or self.rss
-            ) else item["id"]
+            if "media_key" not in item:
+                item["media_key"] = str(item["id"])
+            key = item["media_key"]
             response = requests.get(media_url, stream=True)
             try:
                 if not response.ok:
@@ -379,7 +381,7 @@ def _download_media(self, media, tweet):
                 else:
                     response.raise_for_status()
             response.raw.decode_content = True
-            filename = str(idx) + "-" + key + mimetypes.guess_extension(
+            filename = str(idx) + "-" + str(key) + mimetypes.guess_extension(
                 response.headers["Content-Type"]
             )
             file_path = os.path.join(

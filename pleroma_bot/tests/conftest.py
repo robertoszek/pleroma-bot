@@ -265,6 +265,11 @@ def _sample_users(mock_request, rootdir):
                      json=mock_request['sample_data']['pleroma_statuses_pin'],
                      headers=headers_statuses,
                      status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/statuses/A1yPx3LUeX9RfhNSYy",
+                     json=mock_request['sample_data']['pleroma_statuses_pin'],
+                     headers=headers_statuses,
+                     status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
                       f"/api/v1/statuses",
                       headers=headers_statuses,
@@ -292,6 +297,10 @@ def _sample_users(mock_request, rootdir):
                       status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
                       f"/api/users/notes",
+                      json=mock_request['sample_data']['misskey_notes'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/notes/show",
                       json=mock_request['sample_data']['misskey_notes'],
                       status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
@@ -427,6 +436,10 @@ def _sample_users(mock_request, rootdir):
                      json=mock_request['sample_data']['tweets_v1'],
                      status_code=200)
             posts = {}
+            # Clean-up posts
+            posts_file = os.path.join(rootdir, 'posts.json')
+            if os.path.isfile(posts_file):
+                os.remove(posts_file)
             users.append(
                 {
                     'user_obj': User(

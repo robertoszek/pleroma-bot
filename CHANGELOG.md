@@ -21,6 +21,7 @@
 - `guest` mapping, for enabling the use of Guest Tokens (so you don't need a Twitter Developer account). If no `twitter_token` is present in your config it will default to `true`
 - `proxy_pool` mapping, list of proxies to use when being rate limited with Guest Tokens 
 - `proxy` mapping, for enabling or disabling the use of proxies when using guest tokens
+- Caching IDs of posts published and skip mirroring tweet if associated published post is found to avoid duplicates. You can change this with the `avoid_duplicates` mapping.
 
 ## [1.1.0] 06-06-2022
 ## Fixed

@@ -136,10 +136,34 @@ def post_pleroma(
     tweet_id, tweet_text, tweet_date, tweet_reply_id, retweet_id = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
 
+    posts = self.posts_ids[self.pleroma_base_url]
+    if (
+            tweet_id in posts
+            and len(str(posts[tweet_id])) > 0
+            and self.avoid_duplicates
+    ):  # pragma: todo
+        post_id = self.posts_ids[self.pleroma_base_url][tweet_id]
+        pleroma_posted_url = (
+            f"{self.pleroma_base_url}/api/v1/statuses/{post_id}"
+        )
+        response = pleroma_api_request(
+            'GET',
+            pleroma_posted_url,
+            headers=self.header_pleroma,
+        )
+        if response.ok:
+            logger.warning(
+                _(
+                    "Tweet already posted in Pleroma:\t{} - {}."
+                    " Skipping to avoid duplicates..."
+                ).format(tweet_id, posts[tweet_id])
+            )
+            return post_id
+
     if (
             retweet_id
-            and retweet_id in self.posts_ids[self.pleroma_base_url]
-            and len(self.posts_ids[self.pleroma_base_url][retweet_id]) > 0
+            and retweet_id in posts
+            and len(str(posts[retweet_id])) > 0
     ):  # pragma: todo
         post_id = self.posts_ids[self.pleroma_base_url][retweet_id]
         pleroma_reblog_url = (
@@ -261,8 +285,8 @@ def post_pleroma(
     }
     if (
             tweet_reply_id
-            and tweet_reply_id in self.posts_ids[self.pleroma_base_url]
-            and len(self.posts_ids[self.pleroma_base_url][tweet_reply_id]) > 0
+            and tweet_reply_id in posts
+            and len(str(posts[tweet_reply_id])) > 0
     ):  # pragma: todo
         post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
         data.update({"in_reply_to_id": post_reply_id})
