@@ -34,8 +34,15 @@ def get_date_last_pleroma_post(self):
     if not response.ok:
         response.raise_for_status()
     posts = json.loads(response.text)
+
+    def is_same_application_name(item):
+        app = item.get('application')
+        if app:
+            return app.get('name') == self.application_name
+        return False
+
     if self.application_name:
-        posts = [i for i in posts if i["application"]["name"] == self.application_name]
+        posts = [i for i in posts if is_same_application_name(i)]
         logger.debug(f"filter pleroma posts with application name {self.application_name}, length: {len(posts)}")
 
     self.posts = posts
