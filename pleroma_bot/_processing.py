@@ -354,7 +354,7 @@ def _download_media(self, media, tweet):
             media_url = _get_best_bitrate_video(self, item)
 
         if media_url:
-            if "media_key" not in item:
+            if "media_key" not in item:  # pragma: todo
                 item["media_key"] = str(item["id"])
             key = item["media_key"]
             response = requests.get(media_url, stream=True)
