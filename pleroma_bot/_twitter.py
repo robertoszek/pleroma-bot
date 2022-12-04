@@ -145,6 +145,8 @@ def _get_twitter_info_guest(self):  # pragma: todo
             if "url" in user_twitter["entities"]:
                 wb = user_twitter["entities"]["url"]["urls"][0]["expanded_url"]
                 self.website = wb
+        if "pinned_tweet_ids" in user_twitter:
+            self.pinned_tweet_id = user_twitter["pinned_tweet_ids_str"][0]
 
 
 def _get_twitter_info(self):
@@ -288,6 +290,7 @@ def _package_tweet_v2(tweet_v1):  # pragma: todo
         entities = tweet_v1["entities"]
 
     card = {}
+    tweet_v1["polls"] = {}
     if "card" in tweet_v1.keys():
         tw_card = tweet_v1["card"]
         if "binding_values" in tw_card.keys():
