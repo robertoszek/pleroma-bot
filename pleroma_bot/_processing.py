@@ -205,7 +205,8 @@ def process_tweets(self, tweets_to_post):
                 signature = ''
             tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
         # Process poll if exists and no media is used
-        tweet["polls"] = _process_polls(self, tweet, media)
+        if not self.guest:
+            tweet["polls"] = _process_polls(self, tweet, media)
 
         # Truncate text if needed
         if self.instance == "mastodon":  # pragma: todo

@@ -287,15 +287,26 @@ def _package_tweet_v2(tweet_v1):  # pragma: todo
     if "entities" in tweet_v1:
         entities = tweet_v1["entities"]
 
-    card = None
+    card = {}
     if "card" in tweet_v1.keys():
         tw_card = tweet_v1["card"]
         if "binding_values" in tw_card.keys():
             b_v = tw_card["binding_values"]
+            if tw_card["name"] == "poll4choice_text_only":
+                k = "string_value"
+                poll_opts = [b_v[c][k] for c in b_v if c.endswith("_label")]
+                duration = b_v['duration_minutes']['string_value']
+                pleroma_poll = {
+                    "options": poll_opts,
+                    "expires_in": int(duration) * 60,
+                }
+                tweet_v1["polls"] = pleroma_poll
+
             if "unified_card" in b_v.keys():
                 u_c = b_v["unified_card"]
                 if "string_value" in u_c:
                     card = json.loads(u_c["string_value"])
+
         if "destination_objects" in card:
             try:
                 d_o = card["destination_objects"]
