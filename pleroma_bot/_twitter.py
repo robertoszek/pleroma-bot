@@ -1,4 +1,5 @@
 import time
+import json
 import requests
 
 from tqdm import tqdm
@@ -286,6 +287,40 @@ def _package_tweet_v2(tweet_v1):  # pragma: todo
     if "entities" in tweet_v1:
         entities = tweet_v1["entities"]
 
+    card = None
+    if "card" in tweet_v1.keys():
+        tw_card = tweet_v1["card"]
+        if "binding_values" in tw_card.keys():
+            b_v = tw_card["binding_values"]
+            if "unified_card" in b_v.keys():
+                u_c = b_v["unified_card"]
+                if "string_value" in u_c:
+                    card = json.loads(u_c["string_value"])
+        if "destination_objects" in card:
+            try:
+                d_o = card["destination_objects"]
+                b_1 = d_o["browser_1"]
+                dt = b_1["data"]
+                url_dt = dt["url_data"]
+                url = url_dt["url"]
+                tweet_v1["text"] = f'{tweet_v1["text"]}\n{url}'
+            except KeyError:
+                pass
+        if "media_entities" in card.keys():
+            if "extended_entities" not in tweet_v1.keys():
+                tweet_v1.update({"extended_entities": {}})
+            tw_ext_entities = tweet_v1["extended_entities"]
+            if "media" not in tw_ext_entities:
+                tw_ext_entities.update({"media": []})
+            if "media" not in entities:
+                if entities is None:
+                    entities = {"media": []}
+                else:
+                    entities.update({"media": []})
+
+            for media in card['media_entities']:
+                entities["media"].append(card['media_entities'][media])
+                tw_ext_entities["media"].append(card['media_entities'][media])
     return include_users, entities, tweet_v1
 
 
@@ -336,12 +371,40 @@ def _get_tweets(
         if tweet_id:
             twitter_status_url = (
                 f"{self.twitter_base_url}/statuses/"
-                f"show.json?id={str(tweet_id)}&include_entities=true"
-                f"&tweet_mode=extended"
+                f"show.json?id={str(tweet_id)}"
             )
+            param = {
+                "include_profile_interstitial_type": "1",
+                "include_blocking": "1",
+                "include_blocked_by": "1",
+                "include_followed_by": "1",
+                "include_want_retweets": "1",
+                "include_mute_edge": "1",
+                "include_can_dm": "1",
+                "include_can_media_tag": "1",
+                "skip_status": "1",
+                "cards_platform": "Web-12",
+                "include_cards": "1",
+                "include_ext_alt_text": "true",
+                "include_quote_count": "true",
+                "include_reply_count": "1",
+                "tweet_mode": "extended",
+                "include_entities": "true",
+                "include_user_entities": "true",
+                "include_ext_media_color": "true",
+                "include_ext_media_availability": "true",
+                "send_error_codes": "true",
+                "simple_quoted_tweet": "true",
+                "query_source": "typed_query",
+                "pc": "1",
+                "spelling_corrections": "1",
+                "ext": "mediaStats,highlightedLabel",
+
+            }
             response = self.twitter_api_request(
                 'GET',
                 twitter_status_url,
+                params=param,
                 headers=self.header_twitter,
                 auth=self.auth
             )

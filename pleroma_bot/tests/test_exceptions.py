@@ -736,8 +736,7 @@ def test__get_tweets_exception(sample_users, mock_request):
                 tweet_id_url = (
                     f"{sample_user_obj.twitter_base_url}"
                     f"/statuses/show.json?id="
-                    f"{str(sample_user_obj.pinned_tweet_id)}&include_entities"
-                    f"=true&tweet_mode=extended"
+                    f"{str(sample_user_obj.pinned_tweet_id)}"
                 )
 
                 mock.get(tweet_id_url, status_code=500)
@@ -748,20 +747,18 @@ def test__get_tweets_exception(sample_users, mock_request):
                     )
                 exception_value = f"500 Server Error: " \
                                   f"None for url: {tweet_id_url}"
-                assert str(error_info.value) == exception_value
+                assert exception_value in str(error_info.value)
                 tweets_url = (
                     f"{sample_user_obj.twitter_base_url}"
                     f"/statuses/user_timeline.json?screen_name="
                     f"{sample_user_obj.twitter_username[idx]}"
-                    f"&count={str(sample_user_obj.max_tweets)}"
-                    f"&include_rts=true"
                 )
                 mock.get(tweets_url, status_code=500)
                 with pytest.raises(err_ex) as error_info:
                     sample_user_obj._get_tweets("v1.1")
                 exception_value = f"500 Server Error: " \
                                   f"None for url: {tweets_url}"
-                assert str(error_info.value) == exception_value
+                assert exception_value in str(error_info.value)
 
 
 def test__get_tweets_v2_exception(sample_users):

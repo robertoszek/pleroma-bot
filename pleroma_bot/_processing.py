@@ -348,6 +348,8 @@ def _download_media(self, media, tweet):
         if item["type"] != "video" and item["type"] != "animated_gif":
             if "media_url" in item:  # pragma: todo
                 media_url = item['media_url']
+                if len(media_url) == 0 and "media_url_https" in item:
+                    media_url = item['media_url_https']
             else:
                 media_url = item["url"]
         else:
