@@ -295,7 +295,7 @@ def _package_tweet_v2(tweet_v1):  # pragma: todo
         tw_card = tweet_v1["card"]
         if "binding_values" in tw_card.keys():
             b_v = tw_card["binding_values"]
-            if tw_card["name"] == "poll4choice_text_only":
+            if tw_card["name"].startswith("poll"):
                 k = "string_value"
                 poll_opts = [b_v[c][k] for c in b_v if c.endswith("_label")]
                 duration = b_v['duration_minutes']['string_value']
