@@ -216,7 +216,6 @@ class User(object):
             self.twitter_token = guest_token
             self.header_twitter = headers
             self.guest = True
-            self.skip_pin = True
 
         if all(
                 [
