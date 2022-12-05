@@ -133,7 +133,7 @@ def process_parallel(tweets, user, threads):
         tweets_merged["data"].extend(ret[idx]["data"])
         tweets_merged["media_processed"].extend(ret[idx]["media_processed"])
     tweets_merged["data"] = sorted(
-        tweets_merged["data"], key=lambda i: i["created_at"]
+        tweets_merged["data"], key=lambda i: i["id"]
     )
     return tweets_merged
 
@@ -712,7 +712,7 @@ def process_archive(self, archive_zip_path, start_time=None):
         tweets["data"].append(tweet["tweet"])
     # Order it just in case
     tweets["data"] = sorted(
-        tweets["data"], key=lambda i: i["created_at"], reverse=True
+        tweets["data"], key=lambda i: i["id"], reverse=True
     )
     return tweets
 
@@ -852,7 +852,7 @@ def parse_rss_feed(self, rss_link, start_time, threads=1):  # pragma: todo
                 ret[idx]["media_processed"]
             )
         tweets_merged["data"] = sorted(
-            tweets_merged["data"], key=lambda i: i["created_at"]
+            tweets_merged["data"], key=lambda i: i["id"]
         )
         tweets = tweets_merged
     else:

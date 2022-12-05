@@ -359,7 +359,7 @@ def _package_tweets_v2(tweets_v1):  # pragma: todo
                 for entity in entities:
                     tweets["includes"][entity] = tweet_v2["entities"][entity]
         tweets["data"] = sorted(
-            tweets["data"], key=lambda i: i["created_at"], reverse=True
+            tweets["data"], key=lambda i: i["id"], reverse=True
         )
     return tweets
 
