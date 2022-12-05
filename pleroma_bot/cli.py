@@ -169,6 +169,7 @@ class User(object):
             "include_quotes": True,
             "website": None,
             "no_profile": False,
+            "application_name": None,
             "rss": None,
             "threads": 1,
             "bot": None,

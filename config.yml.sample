@@ -7,6 +7,8 @@ nitter_base_url: https://nitter.net
 max_tweets: 40
 # Twitter bearer token
 twitter_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# Application name, used for finding the latest status that is created specifically by this bot, to avoid getting the wrong date if there are new statuses posted from other appliations like Pleroma FE
+application_name: my-pleroma-bot
 # List of users and their attributes
 users:
 - twitter_username: KyleBosman
