@@ -146,7 +146,10 @@ def _get_twitter_info_guest(self):  # pragma: todo
                 wb = user_twitter["entities"]["url"]["urls"][0]["expanded_url"]
                 self.website = wb
         if "pinned_tweet_ids" in user_twitter:
-            self.pinned_tweet_id = user_twitter["pinned_tweet_ids_str"][0]
+            if len(user_twitter["pinned_tweet_ids_str"]) > 0:
+                self.pinned_tweet_id = user_twitter["pinned_tweet_ids_str"][0]
+            else:
+                self.pinned_tweet_id = None
 
 
 def _get_twitter_info(self):
