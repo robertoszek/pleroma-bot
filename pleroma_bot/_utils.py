@@ -488,6 +488,10 @@ def _get_instance_info(self):
                 self.instance = nodeinfo_json["software"]["name"]
         if self.instance == "misskey":
             logger.info(_("Instance appears to be Misskey ฅ^•ﻌ•^ฅ"))
+            if self.application_name:
+                logger.warn(
+                    _("application_name won't work for Misskey ฅ^ዋ⋏ዋ^ฅ")
+                )
             if "metadata" in nodeinfo_json:
                 metadata = nodeinfo_json["metadata"]
                 self.max_post_length = metadata["maxNoteTextLength"]

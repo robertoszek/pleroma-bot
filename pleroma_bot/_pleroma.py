@@ -98,7 +98,11 @@ def get_date_last_pleroma_post(self):
 
     if self.application_name:
         posts = [i for i in posts if is_same_application_name(i)]
-        logger.debug(f"filter pleroma posts with application name {self.application_name}, length: {len(posts)}")
+        logger.debug(
+            _(
+                "filter pleroma posts with application name {}, length: {}"
+            ).format(self.application_name, len(posts))
+        )
 
     self.posts = posts
     if posts:
@@ -106,7 +110,7 @@ def get_date_last_pleroma_post(self):
     else:
         self.posts = "none_found"
         logger.warning(
-            _("No sufficient posts were found in the target Fediverse account")
+            _("Not enough posts were found in the target Fediverse account")
         )
         if self.first_time:
             date_pleroma = self.force_date()

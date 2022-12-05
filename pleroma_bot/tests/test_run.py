@@ -503,14 +503,53 @@ def test_get_date_last_pleroma_post_no_posts(
             with caplog.at_level(logging.WARNING):
                 sample_user_obj.first_time = False
                 date = sample_user_obj.get_date_last_pleroma_post()
-            warning_msg = 'No posts were found in the target Fediverse account'
+            warning_msg = (
+                'Not enough posts were found in the target Fediverse account'
+            )
             assert warning_msg in caplog.text
             with caplog.at_level(logging.WARNING):
                 sample_user_obj.first_time = True
                 monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
                 date = sample_user_obj.get_date_last_pleroma_post()
-            warning_msg = 'No posts were found in the target Fediverse account'
+            warning_msg = (
+                'Not enough posts were found in the target Fediverse account'
+            )
             assert warning_msg in caplog.text
+    return date
+
+
+def test_get_date_last_pleroma_post_app_name(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            config_users = get_config_users('config_app_name.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                date = sample_user_obj.get_date_last_pleroma_post()
+                posts = mock_request['sample_data']['pleroma_statuses']
+
+                assert date == test_user.pleroma_date_app_name
+                for post in posts:
+                    if post["created_at"] == date:
+                        app_name = post["application"]["name"]
+                        assert app_name == test_user.app_name
+
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mk'],
+                         status_code=200)
+                with caplog.at_level(logging.WARNING):
+                    sample_user_obj._get_instance_info()
+                warning_msg = (
+                    "application_name won't work for Misskey ฅ^ዋ⋏ዋ^ฅ"
+                )
+                assert warning_msg in caplog.text
+
     return date
 
 

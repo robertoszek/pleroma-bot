@@ -22,6 +22,7 @@
 - `proxy_pool` mapping, list of proxies to use when being rate limited with Guest Tokens 
 - `proxy` mapping, for enabling or disabling the use of proxies when using guest tokens
 - Caching IDs of posts published and skip mirroring tweet if associated published post is found to avoid duplicates. You can change this with the `avoid_duplicates` mapping.
+- `application_name` mapping, for specifying the Fediverse application name to use as a filter when getting the date of the latest published post by the bot. Thanks @reorx!
 
 ## [1.1.0] 06-06-2022
 ## Fixed
