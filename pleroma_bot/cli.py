@@ -55,6 +55,7 @@ class User(object):
     from ._twitter import _get_tweets
     from ._twitter import _get_tweets_v2
     from ._twitter import _get_twitter_info
+    from ._twitter import _get_tweets_guest
     from ._twitter import twitter_api_request
     from ._twitter import _get_twitter_info_guest
 

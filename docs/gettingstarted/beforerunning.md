@@ -18,7 +18,6 @@ The bot will automatically obtain them on its own when no `twitter_token` mappin
 
 It has certain limitations, however:
 
-- Only gathers the latest 20 tweets for each account in every run
 - No access to tweets from protected accounts
 
 To get started with Guest Tokens you'll just need to obtain the [Fediverse tokens](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) and create a [configuration file](/pleroma-bot/gettingstarted/configuration/).

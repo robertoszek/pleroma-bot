@@ -495,20 +495,9 @@ def _get_tweets(
                         "pc": "1",
                         "spelling_corrections": "1",
                         "ext": "mediaStats,highlightedLabel",
+                        "tweet_search_mode": "live",
                     }
-
-                    search_url = (
-                        "https://twitter.com/i/api/2/search/adaptive.json"
-                    )
-                    response = self.twitter_api_request(
-                        'GET',
-                        search_url,
-                        headers=self.header_twitter,
-                        params=param,
-                    )
-                    tweets_guest = response.json()["globalObjects"]["tweets"]
-                    self.result_count += len(tweets_guest)
-                    pbar.update(len(tweets_guest))
+                    tweets_guest = self._get_tweets_guest(param, pbar)
                     tweets = []
                     for tweet in tweets_guest:
                         tweets.append(tweets_guest[tweet])
@@ -523,6 +512,57 @@ def _get_tweets(
         return tweets_v2
     else:
         raise ValueError(_("API version not supported: {}").format(version))
+
+
+def _get_tweets_guest(
+        self, param=None, pbar=None, tweets=None, retries=None
+):  # pragma: todo
+    if tweets is None:
+        tweets = {}
+    if retries is None:
+        retries = 0
+    max_retries = 5
+    search_url = (
+        "https://twitter.com/i/api/2/search/adaptive.json"
+    )
+    response = self.twitter_api_request(
+        'GET',
+        search_url,
+        headers=self.header_twitter,
+        params=param,
+    )
+    resp_json = response.json()
+    tweets_guest = resp_json["globalObjects"]["tweets"]
+    insts = resp_json['timeline']['instructions']
+
+    entries = None
+    cursor = None
+    direction = "bottom"
+
+    for idx, inst in enumerate(insts):
+        if "addEntries" in insts[idx]:
+            entries = insts[idx]["addEntries"]["entries"]
+        elif "replaceEntry" in insts[idx]:
+            entry = insts[idx]["replaceEntry"]["entry"]
+            if entry['entryId'].startswith(f"sq-cursor-{direction}"):
+                entries = [entry]
+    if entries:
+        for idx, entry in enumerate(entries):
+            if entry['entryId'].startswith(f"sq-cursor-{direction}"):
+                cursor = entry["content"]["operation"]["cursor"]["value"]
+    self.result_count += len(tweets_guest)
+    if pbar:
+        pbar.update(len(tweets_guest))
+    tweets.update(tweets_guest)
+    if cursor:
+        if "cursor" in param:
+            if param["cursor"] == cursor or len(tweets_guest) == 0:
+                retries += 1
+        param.update({"cursor": cursor})
+        if retries <= max_retries:
+            tweets_guest = self._get_tweets_guest(param, pbar, tweets, retries)
+            tweets.update(tweets_guest)
+    return tweets
 
 
 def _get_tweets_v2(
