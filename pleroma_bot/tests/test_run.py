@@ -1258,16 +1258,16 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                     tw_z = zip(tweets["data"], tweets_to_post["data"])
 
                     for prev, (f, b), nxt in previous_and_next(tw_z):
-                        assert f["created_at"] == b["created_at"]
+                        assert f["id"] == b["id"]
                         # prev and nxt are not None (start or end of list)
                         if all((prev, nxt)):
                             (prevf, prevb) = prev
                             (nxtf, nxtb) = nxt
-                            assert prevf["created_at"] > f["created_at"]
-                            assert f["created_at"] > nxtf["created_at"]
+                            assert prevf["id"] > f["id"]
+                            assert f["id"] > nxtf["id"]
 
-                            assert prevb["created_at"] > b["created_at"]
-                            assert b["created_at"] > nxtb["created_at"]
+                            assert prevb["id"] > b["id"]
+                            assert b["id"] > nxtb["id"]
 
                     # Test mp reverse order
                     tweets = sample_user_obj._get_tweets(
@@ -1282,16 +1282,16 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                     )
                     tw_z = zip(tweets["data"], tweets_to_post["data"])
                     for prev, (f, b), nxt in previous_and_next(tw_z):
-                        assert f["created_at"] == b["created_at"]
+                        assert f["id"] == b["id"]
                         # prev and nxt are not None (start or end of list)
                         if all((prev, nxt)):
                             (prevf, prevb) = prev
                             (nxtf, nxtb) = nxt
-                            assert prevf["created_at"] < f["created_at"]
-                            assert f["created_at"] < nxtf["created_at"]
+                            assert prevf["id"] < f["id"]
+                            assert f["id"] < nxtf["id"]
 
-                            assert prevb["created_at"] < b["created_at"]
-                            assert b["created_at"] < nxtb["created_at"]
+                            assert prevb["id"] < b["id"]
+                            assert b["id"] < nxtb["id"]
                     for tweet in tweets_to_post["data"]:
                         # Clean up
                         tweet_folder = os.path.join(
