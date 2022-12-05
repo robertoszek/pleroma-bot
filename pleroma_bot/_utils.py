@@ -1161,3 +1161,141 @@ def _request_proxy(
         except Exception as e:
             logger.debug(e)
             continue
+
+
+def config_wizard(base_path, config_path):  # pragma: todo
+    cfg_abs_path = os.path.join(base_path, config_path)
+    create_msg = _(
+        "\n"
+        "\nNo config found at {}"
+        "\nDo you want to create one? (Y/n)"
+    ).format(cfg_abs_path)
+    logger.info(create_msg)
+    create_cfg = input()
+    if create_cfg.lower().strip() == 'y' or create_cfg == '':
+        option = ''
+        while option == '' or not 0 < option < 5:
+            try:
+                option_msg = _(
+                    "\n"
+                    "\nIn order to generate a config file, "
+                    "some information will be needed.\n"
+                    "\nWhat do you want to use with the bot?"
+                    "\n1. Twitter archive"
+                    "\n2. RSS feed"
+                    "\n3. Guest tokens (no required developer account)"
+                    "\n4. Twitter tokens"
+                    "\nSelect an option (1-4): "
+                )
+                logger.info(option_msg)
+                option = int(input())
+            except ValueError:
+                pass
+
+        options = {
+            "archive": False,
+            "rss": False,
+            "guest": False,
+            "twitter_token": False,
+        }
+        if option == 1:
+            options["archive"] = True
+            options["guest"] = True
+        elif option == 2:
+            options["rss"] = True
+            options["guest"] = True
+        elif option == 3:
+            options["guest"] = True
+        elif option == 4:
+            options["twitter_token"] = True
+
+        if options["twitter_token"]:
+            twitter_token = None
+            while not twitter_token or twitter_token == '':
+                tw_token_msg = _(
+                    "\n"
+                    "\nPlease input your Twitter Bearer token [twitter_token]:"
+                )
+                logger.info(tw_token_msg)
+                twitter_token = input()
+                options["twitter_token"] = twitter_token
+        if options["rss"]:
+            while not options["rss"] or options["rss"] == '':
+                rss_msg = _(
+                    "\n"
+                    "\nPlease input the RSS URL to use [rss]:"
+                )
+                logger.info(rss_msg)
+                rss = input()
+                options["rss"] = rss
+
+        instance = None
+        while not instance or instance == '':
+            instance_msg = _(
+                "\n"
+                "\nPlease input the URL of your "
+                "Fediverse instance (Pleroma/Mastodon/Misskey)"
+                " [pleroma_base_url]:"
+            )
+            logger.info(instance_msg)
+            instance = input()
+
+        twitter_user = None
+        while not twitter_user or twitter_user == '':
+            tw_user_msg = _(
+                "\n"
+                "\nPlease input the username of the Twitter"
+                " user you want to mirror [twitter_username]:"
+            )
+            logger.info(tw_user_msg)
+            twitter_user = input()
+
+        pleroma_user = None
+        while not pleroma_user or pleroma_user == '':
+            fedi_user_msg = _(
+                "\n"
+                "\nPlease input the username (or account ID if using Mastodon)"
+                " of the Fediverse account\nto use as a target when mirroring "
+                "[pleroma_username]:"
+            )
+            logger.info(fedi_user_msg)
+            pleroma_user = input()
+
+        fedi_token = None
+        while not fedi_token or fedi_token == '':
+            fedi_token_msg = _(
+                "\n"
+                "\nPlease input your Fediverse token [pleroma_token]:"
+            )
+            logger.info(fedi_token_msg)
+            fedi_token = input()
+
+        data = [f"pleroma_base_url: {instance}", "max_tweets: 40"]
+        if options["twitter_token"]:
+            data.append(f"twitter_token: {options['twitter_token']}")
+        data.append("users:")
+        data.append(f"- twitter_username: {twitter_user}")
+        data.append(f"  pleroma_username: {pleroma_user}")
+        data.append(f"  pleroma_token: {fedi_token}")
+        if options["rss"]:
+            data.append(f"  rss: {options['rss']}")
+        data.append(
+            r"""  bio_text: "\U0001F916 BEEP BOOP \U0001F916 \n I'm a bot """
+            r"""that mirrors {{ twitter_username }} Twitter's account."""
+            r'''\n \n "'''
+        )
+        data.append('  fields:')
+        data.append(r'      - name: "\U0001F426 Birdsite"')
+        data.append('        value: "{{ twitter_url }}"')
+        data.append('      - name: "Status"')
+        data.append(
+            '        value: "I am completely operational, and all my circuits'
+            ' are functioning perfectly."'
+        )
+        data.append('      - name: "WWW"')
+        data.append('        value: "{{ website }}"')
+
+        config_content = '\n'.join(data)
+        with open(cfg_abs_path, "w") as f:
+            f.write(config_content)
+            f.close()

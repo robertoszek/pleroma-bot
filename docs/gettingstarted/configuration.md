@@ -2,9 +2,70 @@
 
 To run ```pleroma-bot``` you need to create a configuration file first.
 
+You can generate one by running the bot:
+
+=== ":material-language-python: Using PyPi"
+
+    ```console
+    $ pleroma-bot
+
+        No config found at /path/to/config.yml
+        Do you want to create one? (Y/n)
+
+        In order to generate a config file, some information will be needed.
+        
+        What do you want to use with the bot?
+        1. Twitter archive
+        2. RSS feed
+        3. Guest tokens (no required developer account)
+        4. Twitter tokens
+        Select an option (1-4):  
+    ```
+
+=== ":material-arch: Using AUR package"
+
+    ```console
+    $ pleroma-bot
+
+        No config found at /path/to/config.yml
+        Do you want to create one? (Y/n)
+
+        In order to generate a config file, some information will be needed.
+        
+        What do you want to use with the bot?
+        1. Twitter archive
+        2. RSS feed
+        3. Guest tokens (no required developer account)
+        4. Twitter tokens
+        Select an option (1-4):  
+    ```
+
+=== ":material-git: Using Git"
+
+    ```console
+    $ python3 -m pleroma_bot.cli
+        
+        No config found at /path/to/config.yml
+        Do you want to create one? (Y/n) 
+        
+        In order to generate a config file, some information will be needed.
+        
+        What do you want to use with the bot?
+        1. Twitter archive
+        2. RSS feed
+        3. Guest tokens (no required developer account)
+        4. Twitter tokens
+        Select an option (1-4):  
+    ```
+
+
+
 The configuration file is written in [YAML](https://yaml.org/). If you're not familiar with it, [this page](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html) can run you through the basics.
 
-In the config file there are 2 distinct parts, the mappings at the top and a collection of users (each of them being a sequence of mappings).
+In the config file there are 2 distinct parts:
+
+- the global mappings at the top 
+- a collection of users (each of them being a sequence of mappings)
 
 ```yaml
 global_mapping: global_value
@@ -12,7 +73,7 @@ users:
 - user_mapping: user_value
 ```
 
-You can think of "users" as a [YAML list](https://gettaurus.org/docs/YAMLTutorial/#Lists-and-Dictionaries), in which each entry of the list is denoted by a hyphen/dash (```-```).
+You can think of "`users`" as a [YAML list](https://gettaurus.org/docs/YAMLTutorial/#Lists-and-Dictionaries), in which each entry of the list is denoted by a hyphen/dash (```-```).
 
 This allows you to add as little as 1 user and as much as you need, there's no upper limit to the number of users you can add.
 

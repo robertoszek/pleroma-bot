@@ -47,6 +47,7 @@ from requests.structures import CaseInsensitiveDict
 from .i18n import _
 from . import logger
 from .__init__ import __version__
+from ._utils import config_wizard
 from ._utils import process_parallel, Locker
 
 
@@ -489,8 +490,8 @@ def main():
         tweets_temp_path = os.path.join(base_path, "tweets")
         logger.info(_("config path: {}").format(config_path))
         logger.info(_("tweets temp folder: {}").format(tweets_temp_path))
-        # TODO: Add config generator wizard if config file is not found?
-        #  create a minimal config asking the user for the values
+        if not os.path.isfile(config_path):  # pragma: todo
+            config_wizard(base_path, config_path)
         with open(config_path, "r") as stream:
             config = yaml.safe_load(stream)
         user_dict = config["users"]
