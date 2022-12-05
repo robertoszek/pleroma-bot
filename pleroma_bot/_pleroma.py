@@ -185,6 +185,12 @@ def post_pleroma(
         tweet_video_count = 0
         if os.path.isdir(tweet_folder):
             media_files = sorted(os.listdir(tweet_folder))
+            if len(media_files) > self.max_attachments:  # pragma: todo
+                logger.warning(_(
+                    "Attachments: {}. Media attachment limit for target "
+                    "instance is {}. Ignoring the rest..."
+                ).format(len(media_files), self.max_attachments))
+            media_files = media_files[:self.max_attachments]
             for file in media_files:
                 # for file in media_files:
                 file_path = os.path.join(tweet_folder, file)
@@ -205,10 +211,10 @@ def post_pleroma(
                     if tweet_video_count > self.max_video_attachments:
                         logger.warning(
                             _(
-                                "Mastodon only supports 1 video per post. "
+                                "Mastodon only supports {} video/s per post. "
                                 "Already reached max media,"
                                 " skipping the rest... "
-                            )
+                            ).format(self.max_video_attachments)
                         )
                         continue
                 timestamp = int(float(datetime.now().timestamp()))
@@ -285,22 +291,23 @@ def post_pleroma(
         for video_id in video_ids:
             if video_id in media_ids:
                 idx = media_ids.index(video_id)
-                if idx > 0 and len(media_ids) > 1:
+                if idx > 0 and len(media_ids) > self.max_video_attachments:
                     logger.warning(
                         _(
                             "Mastodon cannot attach a video to a post that "
                             "already contains images, "
-                            "skipping the rest of media... "
+                            "skipping video attachment... "
                         )
                     )
                     media_ids.remove(video_id)
-                if idx == 0 and len(media_ids) > 1:
+                if idx == 0 and len(media_ids) > self.max_video_attachments:
                     logger.warning(
                         _(
-                            "Mastodon only supports 1 video per post. "
+                            "Mastodon only supports {} video/s per post,"
+                            " with no mixed media."
                             "Already reached max media,"
                             " skipping the rest... "
-                        )
+                        ).format(self.max_video_attachments)
                     )
                     media_ids = media_ids[:1]
     # config setting override tweet attr
