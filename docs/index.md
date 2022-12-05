@@ -28,9 +28,11 @@ Supports:
 
 ## Features
 * [x] Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
+* [x] Can use an RSS feed as the source of the tweets to post
 * [x] Retrieves latest **tweets** and posts them on the Fediverse account
     * [x] Can filter out RTs
     * [x] Can filter out replies
+    * [x] Supports threads
 * [x] Media retrieval and upload of multiple **attachments**
     * [x] :material-video: Video
     * [x] :material-file-image: Images

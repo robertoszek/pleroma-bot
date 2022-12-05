@@ -9,12 +9,15 @@ import multiprocessing as mp
 from unittest.mock import patch
 from datetime import datetime, timedelta
 from urllib import parse
+
+import pytest
+
 from test_user import UserTemplate
 from conftest import get_config_users
 
 from pleroma_bot import cli, User
 from pleroma_bot._utils import random_string, previous_and_next, guess_type
-from pleroma_bot._utils import process_parallel, process_archive
+from pleroma_bot._utils import process_parallel
 
 
 def test_random_string():
@@ -528,13 +531,20 @@ def test_guess_type(rootdir):
     assert 'image/gif' == guess_type(gif)
 
 
-def test_process_archive(rootdir):
+def test_process_archive(rootdir, sample_users):
     test_files_dir = os.path.join(rootdir, 'test_files')
     sample_data_dir = os.path.join(test_files_dir, 'sample_data')
     media_dir = os.path.join(sample_data_dir, 'media')
     archive = os.path.join(media_dir, 'twitter-archive.zip')
-    tweets = process_archive(archive)
-    assert tweets is not None
+    new_archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets = sample_user_obj.process_archive(archive)
+            assert tweets is not None
+            tweets = sample_user_obj.process_archive(new_archive)
+            assert tweets is not None
+    return mock
 
 
 def test_get_twitter_info(mock_request, sample_users):
@@ -626,7 +636,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 shutil.copy(mp4, tweet_folder)
                 shutil.copy(gif, tweet_folder)
                 sample_user_obj.post_pleroma(
-                    (test_user.pinned, "", ""), None, False
+                    (test_user.pinned, "", "", None, None), None, False
                 )
 
                 history = mock.request_history
@@ -778,8 +788,9 @@ def test_include_rts(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_norts.yml')
             for user_item in config_users['user_dict']:
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, config_users['config'], os.getcwd()
+                    user_item, config_users['config'], os.getcwd(), posts_ids
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -822,8 +833,9 @@ def test_include_replies(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_noreplies.yml')
             for user_item in config_users['user_dict']:
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, config_users['config'], os.getcwd()
+                    user_item, config_users['config'], os.getcwd(), posts_ids
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -884,8 +896,9 @@ def test_delay_post(sample_users, global_mock):
 
             for user_item in users['user_dict']:
                 delay_post = users['config']['delay_post']
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), posts_ids
                 )
                 assert delay_post == sample_user_obj.delay_post
 
@@ -899,7 +912,7 @@ def test_hashtags(sample_users, global_mock):
 
             for user_item in users['user_dict']:
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     if sample_user_obj.hashtags:
@@ -952,7 +965,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
             for user_item in users_nitter_net['user_dict']:
                 nitter_instance = users_nitter_net['config']['nitter_base_url']
                 sample_user_obj = User(
-                    user_item, users_nitter_net['config'], os.getcwd()
+                    user_item, users_nitter_net['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -976,6 +989,8 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -996,7 +1011,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
             for user_item in users_nitter['user_dict']:
                 nitter_instance = users_nitter['config']['nitter_base_url']
                 sample_user_obj = User(
-                    user_item, users_nitter['config'], os.getcwd()
+                    user_item, users_nitter['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1025,7 +1040,9 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                 (
                                     tweet["id"],
                                     tweet["text"],
-                                    tweet["created_at"]
+                                    tweet["created_at"],
+                                    None,
+                                    None
                                 ),
                                 None,
                                 False,
@@ -1058,7 +1075,7 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
             for user_item in users_invidious['user_dict']:
                 invidious_instance = user_item['invidious_base_url']
                 sample_user_obj = User(
-                    user_item, users_invidious['config'], os.getcwd()
+                    user_item, users_invidious['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1081,7 +1098,9 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
                                 (
                                     tweet["id"],
                                     tweet["text"],
-                                    tweet["created_at"]
+                                    tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1113,7 +1132,7 @@ def test_original_date(sample_users, mock_request, global_mock):
 
             for user_item in users_date['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_date['config'], os.getcwd()
+                    user_item, users_date['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1137,6 +1156,8 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1164,7 +1185,7 @@ def test_original_date(sample_users, mock_request, global_mock):
 
             for user_item in users_no_date['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_date['config'], os.getcwd()
+                    user_item, users_date['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1188,6 +1209,8 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1222,7 +1245,7 @@ def test_tweet_order(sample_users, mock_request, global_mock):
 
             for user_item in users['user_dict']:
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets = sample_user_obj._get_tweets(
@@ -1235,16 +1258,16 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                     tw_z = zip(tweets["data"], tweets_to_post["data"])
 
                     for prev, (f, b), nxt in previous_and_next(tw_z):
-                        assert f["created_at"] == b["created_at"]
+                        assert f["id"] == b["id"]
                         # prev and nxt are not None (start or end of list)
                         if all((prev, nxt)):
                             (prevf, prevb) = prev
                             (nxtf, nxtb) = nxt
-                            assert prevf["created_at"] > f["created_at"]
-                            assert f["created_at"] > nxtf["created_at"]
+                            assert prevf["id"] > f["id"]
+                            assert f["id"] > nxtf["id"]
 
-                            assert prevb["created_at"] > b["created_at"]
-                            assert b["created_at"] > nxtb["created_at"]
+                            assert prevb["id"] > b["id"]
+                            assert b["id"] > nxtb["id"]
 
                     # Test mp reverse order
                     tweets = sample_user_obj._get_tweets(
@@ -1259,16 +1282,16 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                     )
                     tw_z = zip(tweets["data"], tweets_to_post["data"])
                     for prev, (f, b), nxt in previous_and_next(tw_z):
-                        assert f["created_at"] == b["created_at"]
+                        assert f["id"] == b["id"]
                         # prev and nxt are not None (start or end of list)
                         if all((prev, nxt)):
                             (prevf, prevb) = prev
                             (nxtf, nxtb) = nxt
-                            assert prevf["created_at"] < f["created_at"]
-                            assert f["created_at"] < nxtf["created_at"]
+                            assert prevf["id"] < f["id"]
+                            assert f["id"] < nxtf["id"]
 
-                            assert prevb["created_at"] < b["created_at"]
-                            assert b["created_at"] < nxtb["created_at"]
+                            assert prevb["id"] < b["id"]
+                            assert b["id"] < nxtb["id"]
                     for tweet in tweets_to_post["data"]:
                         # Clean up
                         tweet_folder = os.path.join(
@@ -1290,7 +1313,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
             users_no_keep = get_config_users('config_no_keep_media_links.yml')
             for user_item in users_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_keep['config'], os.getcwd()
+                    user_item, users_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1329,7 +1352,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
             users_no_keep = get_config_users('config_no_keep_media_links.yml')
             for user_item in users_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_keep['config'], os.getcwd()
+                    user_item, users_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1364,7 +1387,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
                                     os.remove(file_path)
             for user_item in users_no_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_no_keep['config'], os.getcwd()
+                    user_item, users_no_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1517,7 +1540,13 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
 
         sample_data_dir = os.path.join(test_files_dir, 'sample_data')
         media_dir = os.path.join(sample_data_dir, 'media')
+
         archive = os.path.join(media_dir, 'twitter-archive.zip')
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
+        with patch.object(sys, 'argv', ['', '--archive', archive]):
+            assert cli.main() == 0
+
+        archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
         monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
         with patch.object(sys, 'argv', ['', '--archive', archive]):
             assert cli.main() == 0
@@ -1531,6 +1560,16 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
                 sys, 'argv', ['', '--archive', archive, '--forceDate']
         ):
             assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-13")
+        locker_path = os.path.join(test_files_dir, 'pleroma-bot.lock')
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            with patch.object(
+                    sys, 'argv', ['', '--lockfile', locker_path, '--verbose']
+            ):
+                cli.init()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 0
 
         with patch.object(
                 sys, 'argv', ['', '--forceDate', '2021-12-13']
@@ -1576,6 +1615,9 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         if os.path.isfile(backup_config):
             shutil.copy(backup_config, prev_config)
         archive_dir = os.path.join(media_dir, 'twitter-archive')
+        if os.path.isdir(archive_dir):
+            shutil.rmtree(archive_dir)
+        archive_dir = os.path.join(media_dir, 'twitter-archive-new-format')
         if os.path.isdir(archive_dir):
             shutil.rmtree(archive_dir)
         for sample_user in sample_users:

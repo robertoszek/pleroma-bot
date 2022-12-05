@@ -82,3 +82,47 @@ $ pleroma-bot --archive /path/to/archive.zip
 This is particularly useful when trying to circumvent Twitter's API limitations, when you need to copy more than 3200 tweets or from an earlier date than `2010-11-06T00:00:00Z`.
 
 It can also be used as a way of transferring all of your Twitter's account data to a Fediverse instance and making the migration process easier.
+
+## Using an RSS feed
+
+You can use RSS feeds as the source of the tweets to post on your Fediverse account.
+
+We recommend using either:
+
+=== "Nitter RSS"
+  
+    Choose a [nitter instance](https://github.com/zedeus/nitter/wiki/Instances) and use the following format:
+    
+        https://nitter.instance/<twitter_user>/with_replies/rss
+    
+    example: `https://nitter.lacontrevoie.fr/github/with_replies/rss`
+    
+    An then use it in your config in the `rss` mapping:
+
+    ```yaml hl_lines="6"
+    pleroma_base_url: https://pleroma.instance
+    users:
+    - twitter_username: User1
+      pleroma_username: MyPleromaUser1
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      rss: https://nitter.instance/<twitter_user>/with_replies/rss
+    ```
+
+=== "RSSHub"
+
+    Use the following format:
+
+        https://rsshub.app/twitter/user/<twitter_user>/
+
+    example: `https://rsshub.app/twitter/user/github/count=100`
+
+    An then use it in your config in the `rss` mapping:
+    
+    ```yaml hl_lines="6"
+    pleroma_base_url: https://pleroma.instance
+    users:
+    - twitter_username: User1
+      pleroma_username: MyPleromaUser1
+      pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      rss: https://rsshub.app/twitter/user/<twitter_user>/
+    ```

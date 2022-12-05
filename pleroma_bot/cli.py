@@ -31,20 +31,23 @@
 import os
 import sys
 import time
+import json
 import yaml
 import shutil
 import logging
 import argparse
 import multiprocessing as mp
 
+from tqdm import tqdm
 from random import shuffle
+from itertools import cycle
 from requests_oauthlib import OAuth1
 from requests.structures import CaseInsensitiveDict
 
 from .i18n import _
 from . import logger
 from .__init__ import __version__
-from ._utils import process_parallel, Locker, process_archive
+from ._utils import process_parallel, Locker
 
 
 class User(object):
@@ -52,6 +55,9 @@ class User(object):
     from ._twitter import _get_tweets
     from ._twitter import _get_tweets_v2
     from ._twitter import _get_twitter_info
+    from ._twitter import _get_tweets_guest
+    from ._twitter import twitter_api_request
+    from ._twitter import _get_twitter_info_guest
 
     from ._pin import pin_pleroma
     from ._pin import pin_misskey
@@ -62,11 +68,19 @@ class User(object):
 
     from ._pleroma import post_pleroma
     from ._pleroma import update_pleroma
+    from ._pleroma import _get_pleroma_profile_info
+    from ._pleroma import _pleroma_update_bot_status
     from ._pleroma import get_date_last_pleroma_post
 
     from ._misskey import post_misskey
     from ._misskey import update_misskey
+    from ._misskey import _get_misskey_profile_info
+    from ._misskey import _misskey_update_bot_status
     from ._misskey import get_date_last_misskey_post
+
+    from ._cohost import _login_cohost
+    from ._cohost import _get_cohost_profile_info
+    from ._cohost import get_date_last_cohost_post
 
     from ._utils import pin
     from ._utils import post
@@ -75,12 +89,21 @@ class User(object):
     from ._utils import guess_type
     from ._utils import check_pinned
     from ._utils import random_string
+    from ._utils import _mastodon_len
+    from ._utils import _get_fedi_info
+    from ._utils import _request_proxy
+    from ._utils import parse_rss_feed
     from ._utils import update_profile
     from ._utils import transform_date
+    from ._utils import process_archive
     from ._utils import check_date_format
     from ._utils import _get_instance_info
     from ._utils import get_date_last_post
+    from ._utils import _update_bot_status
+    from ._utils import _process_tweets_rss
     from ._utils import replace_vars_in_str
+    from ._utils import _get_fedi_profile_info
+    from ._utils import _get_guest_token_header
     from ._utils import mastodon_enforce_limits
 
     from ._processing import process_tweets
@@ -93,7 +116,7 @@ class User(object):
     from ._processing import _replace_mentions
     from ._processing import _get_best_bitrate_video
 
-    def __init__(self, user_cfg: dict, cfg: dict, base_path: str):
+    def __init__(self, user_cfg: dict, cfg: dict, base_path: str, posts_ids):
         self.posts = None
         self.tweets = None
         self.first_time = False
@@ -103,8 +126,12 @@ class User(object):
         self.profile_banner_url = {}
         self.t_user_tweets = {}
         self.twitter_ids = {}
+        self.posts_ids = posts_ids
         self.instance = ""
         self.max_attachments = 16
+        self.max_video_attachments = None
+        self.proxy = True
+        self.pool_iter = None
         valid_visibility = ("public", "unlisted", "private", "direct")
         valid_visibility_mk = ("public", "home", "followers", "specified")
         default_cfg_attributes = {
@@ -143,6 +170,13 @@ class User(object):
             "website": None,
             "no_profile": False,
             "application_name": None,
+            "rss": None,
+            "threads": 1,
+            "bot": None,
+            "guest": None,
+            "proxy_pool": None,
+            "proxy": True,
+            "avoid_duplicates": True,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -168,21 +202,30 @@ class User(object):
             raise KeyError(
                 _("No Pleroma URL defined in config! [pleroma_base_url]")
             )
-
-        bio_text = self.replace_vars_in_str(str(self.bio_text))
-        self.bio_text = {"_generic_bio_text": bio_text}
+        if not self.archive:
+            bio_text = self.replace_vars_in_str(str(self.bio_text))
+            self.bio_text = {"_generic_bio_text": bio_text}
 
         # Auth
         self.header_pleroma = {"Authorization": f"Bearer {self.pleroma_token}"}
         self.header_twitter = {"Authorization": f"Bearer {self.twitter_token}"}
 
+        if not self.twitter_token or self.guest:  # pragma: todo
+            # Guest token
+            if self.proxy and self.proxy_pool:
+                self.pool_iter = cycle(self.proxy_pool)
+            guest_token, headers = self._get_guest_token_header()
+            self.twitter_token = guest_token
+            self.header_twitter = headers
+            self.guest = True
+
         if all(
-            [
-                self.consumer_key,
-                self.consumer_secret,
-                self.access_token_key,
-                self.access_token_secret,
-            ]
+                [
+                    self.consumer_key,
+                    self.consumer_secret,
+                    self.access_token_key,
+                    self.access_token_secret,
+                ]
         ):
             self.auth = OAuth1(
                 self.consumer_key,
@@ -202,10 +245,11 @@ class User(object):
         self.twitter_url = CaseInsensitiveDict()
         for t_user in t_users:
             self.twitter_url[t_user] = f"{twitter_url}/{t_user}"
-        self.pinned_tweet_id = self._get_pinned_tweet_id()
         self.base_path = base_path
         self.users_path = os.path.join(self.base_path, "users")
         self.tweets_temp_path = os.path.join(self.base_path, "tweets")
+        if self.pleroma_base_url not in self.posts_ids:
+            self.posts_ids[self.pleroma_base_url] = {}
         self.user_path = {}
         self.avatar_path = {}
         self.header_path = {}
@@ -214,20 +258,34 @@ class User(object):
             t_path = self.user_path[t_user]
             self.avatar_path[t_user] = os.path.join(t_path, "profile.jpg")
             self.header_path[t_user] = os.path.join(t_path, "banner.jpg")
+
         os.makedirs(self.users_path, exist_ok=True)
         os.makedirs(self.tweets_temp_path, exist_ok=True)
         for t_user in t_users:
             os.makedirs(self.user_path[t_user], exist_ok=True)
-        # Get Fedi instance info
-        self._get_instance_info()
-        # Get Twitter info on instance creation
-        self._get_twitter_info()
+        if self.pleroma_base_url == "https://cohost.org":  # pragma: todo
+            self.instance = "cohost"
+            self._get_cohost_profile_info()
+        else:
+            # Get Fedi instance info
+            self._get_instance_info()
+            if self.bot is not None:  # pragma: todo
+                self._get_fedi_info()
+        if self.rss:  # pragma: todo
+            self.skip_pin = True
+            self.no_profile = True
+        else:
+            # Get Twitter info on instance creation
+            self._get_twitter_info()
+            if not self.archive and not self.guest:
+                self.pinned_tweet_id = self._get_pinned_tweet_id()
         if self.instance == "mastodon":  # pragma
             self.mastodon_enforce_limits()
         self.website = self.website if self.website else ""
         logger.debug(f"Twitter website: {self.website}")
-        self.fields = self.replace_vars_in_str(str(self.fields))
-        self.fields = eval(self.fields)
+        if not self.archive:
+            self.fields = self.replace_vars_in_str(str(self.fields))
+            self.fields = eval(self.fields)
         df_visibility = "unlisted" if self.instance != "misskey" else "home"
         if not hasattr(self, "visibility") or self.visibility is None:
             self.__setattr__("visibility", df_visibility)
@@ -368,6 +426,27 @@ def get_args(sysargs):
             )
         ),
     )
+    parser.add_argument(
+        "-t",
+        "--threads",
+        required=False,
+        action="store",
+        help=(_("number of threads to use when processing tweets")),
+    )
+
+    parser.add_argument(
+        "-L",
+        "--lockfile",
+        required=False,
+        action="store",
+        help=(
+            _(
+                "path of lock file (pleroma_bot.lock) to prevent collisions "
+                " with multiple bot instances. By default it will be placed "
+                " next to your config file."
+            )
+        ),
+    )
 
     parser.add_argument("--verbose", "-v", action="count", default=0)
 
@@ -388,10 +467,6 @@ def main():
     ]
     args = get_args(sysargs=arguments)
 
-    if args.verbose > 0:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.debug(_("Debug logging enabled"))
-
     try:
         base_path = os.getcwd()
         if args.config:
@@ -399,6 +474,18 @@ def main():
             base_path, cfg_file = os.path.split(os.path.abspath(config_path))
         else:
             config_path = os.path.join(base_path, "config.yml")
+        posts_ids = {}
+        posts_path = os.path.join(base_path, "posts.json")
+        if os.path.isfile(posts_path):
+            with open(posts_path) as f:
+                try:
+                    file_posts = json.load(f)
+                    posts_ids = file_posts
+                except json.JSONDecodeError:  # pragma: todo
+                    pass
+        else:    # pragma: todo
+            with open(posts_path, "w"):
+                pass
         tweets_temp_path = os.path.join(base_path, "tweets")
         logger.info(_("config path: {}").format(config_path))
         logger.info(_("tweets temp folder: {}").format(tweets_temp_path))
@@ -419,6 +506,10 @@ def main():
         users_path = os.path.join(base_path, "users")
         for user_item in user_dict[:]:
             user_item["skip_pin"] = False
+            if args.noProfile:  # pragma: todo
+                user_item["skip_profile"] = True
+            else:
+                user_item["skip_profile"] = False
             t_users = user_item["twitter_username"]
             t_user_list = isinstance(t_users, list)
             t_users = t_users if t_user_list else [t_users]
@@ -429,6 +520,10 @@ def main():
                 )
                 logger.warning(warn_msg)
                 user_item["skip_pin"] = True
+                user_item["skip_profile"] = True
+            if args.archive:
+                user_item["skip_pin"] = True
+                user_item["archive"] = args.archive
 
         for user_item in user_dict:
             try:
@@ -452,16 +547,20 @@ def main():
                         ).format(t_user)
                         logger.info(first_time_msg)
                         first_time = True
-                user = User(user_item, config, base_path)
-                if args.archive:
-                    user.archive = args.archive
+                user = User(user_item, config, base_path, posts_ids)
+                if args.threads:  # pragma: todo
+                    threads = int(args.threads)
+                else:
+                    cores = mp.cpu_count()
+                    threads = round(cores / 2 if cores > 4 else 4)
+                user.threads = threads
                 if first_time and not args.skipChecks and not args.forceDate:
                     user.first_time = True
                 if (
-                    (args.forceDate
-                     and args.forceDate in user.twitter_username)
-                    or args.forceDate == "all"
-                    or user.first_time
+                        (args.forceDate
+                         and args.forceDate in user.twitter_username)
+                        or args.forceDate == "all"
+                        or user.first_time
                 ) and not args.skipChecks:
                     date_fedi = user.force_date()
                 elif args.forceDate and user.check_date_format(args.forceDate):
@@ -506,10 +605,20 @@ def main():
                         for poll in next_tweet["includes"]["polls"]:
                             tweets["includes"]["polls"].append(poll)
                 elif args.archive:
-                    tweets = process_archive(
+                    tweets = user.process_archive(
                         args.archive, start_time=date_fedi
                     )
                     user.result_count = len(tweets["data"])
+                elif user.rss:  # pragma: todo
+                    rss_msg = _("\nUsing RSS feed. The following features "
+                                "will not be available: \n- Profile "
+                                "update\n- Pinned tweets\n- Polls")
+                    logger.debug(rss_msg)
+                    tweets_rss = user.parse_rss_feed(
+                        user.rss, start_time=date_fedi, threads=user.threads
+                    )
+                    tweets = tweets_rss
+                    user.result_count = len(tweets_rss["data"])
                 else:
                     tweets = user.get_tweets(start_time=date_fedi)
                 logger.debug(f"tweets: \t {tweets}")
@@ -530,9 +639,15 @@ def main():
                     )
                     # Put oldest first to iterate them and post them in order
                     tweets["data"].reverse()
-                    cores = mp.cpu_count()
-                    threads = round(cores / 2 if cores > 4 else 4)
-                    tweets_to_post = process_parallel(tweets, user, threads)
+                    if user.rss:  # pragma: todo
+                        tweets_to_post = tweets_rss
+                    else:
+                        if threads > 1:
+                            tweets_to_post = process_parallel(
+                                tweets, user, threads
+                            )
+                        else:  # pragma: todo
+                            tweets_to_post = user.process_tweets(tweets)
                     logger.info(
                         _("tweets to post: \t {}").format(
                             len(tweets_to_post['data'])
@@ -543,24 +658,45 @@ def main():
                     )
                     tweet_counter = 0
                     posted = {}
+                    desc = _("Posting tweets... ")
+                    pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc)
                     for tweet in tweets_to_post["data"]:
                         tweet_counter += 1
-                        logger.info(
+                        logger.debug(
                             f"({tweet_counter}/{len(tweets_to_post['data'])})"
                         )
+                        try:
+                            reply_id = tweet["reply_id"]
+                        except KeyError:  # pragma: todo
+                            reply_id = None
+                        try:
+                            retweet_id = tweet["retweet_id"]
+                        except KeyError:  # pragma: todo
+                            retweet_id = None
                         post_id = user.post(
-                            (tweet["id"], tweet["text"], tweet["created_at"]),
+                            (
+                                tweet["id"],
+                                tweet["text"],
+                                tweet["created_at"],
+                                reply_id,
+                                retweet_id
+                            ),
                             tweet["polls"],
                             tweet["possibly_sensitive"],
                             tweets_to_post["media_processed"]
                         )
                         posted[tweet["id"]] = post_id
+                        posts_ids = user.posts_ids
+                        with open(posts_path, "r+") as f:
+                            f.write(json.dumps(posts_ids, indent=4))
+                        pbar.update(1)
                         time.sleep(user.delay_post)
+                    pbar.close()
                 if not user.skip_pin:
                     user.check_pinned(posted)
 
                 if not (user.no_profile or args.noProfile):
-                    if user.skip_pin:
+                    if user.skip_profile:
                         logger.warning(
                             _("Multiple twitter users, not updating profile")
                         )
@@ -584,19 +720,28 @@ def main():
 
 
 def init():
+    module_name = __loader__.name.split('.')[0]
+    lock_filename = f"{module_name}.lock"
     # Convert legacy flag to proper flag format
     mangle_args = "noProfile"
     arguments = [
         "--" + arg if arg in mangle_args else arg for arg in sys.argv[1:]
     ]
     args = get_args(sysargs=arguments)
-    if args.log:
-        log_path = args.log
-    elif args.config:
+    if args.verbose > 0:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug(_("Debug logging enabled"))
+    locker_path = os.path.join(os.getcwd(), lock_filename)
+    log_path = os.path.join(os.getcwd(), "error.log")
+    if args.config:
         base_path, cfg_file = os.path.split(os.path.abspath(args.config))
         log_path = os.path.join(base_path, "error.log")
-    else:
-        log_path = os.path.join(os.getcwd(), "error.log")
+        locker_path = os.path.join(base_path, lock_filename)
+    if args.log:
+        log_path = args.log
+    if args.lockfile:
+        locker_path = args.lockfile
+
     f_handler = logging.FileHandler(log_path)
     f_handler.setLevel(logging.ERROR)
     f_format = logging.Formatter(
@@ -606,12 +751,12 @@ def init():
     logger.addHandler(f_handler)
     if args.daemon:  # pragma
         poll_rate = int(args.pollrate) * 60 if args.pollrate else 3600
-        with Locker():
+        with Locker(locker_path):
             while True:
                 main()
                 time.sleep(poll_rate)
     else:
-        with Locker():
+        with Locker(locker_path):
             sys.exit(main())
 
 

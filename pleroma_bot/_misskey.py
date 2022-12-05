@@ -37,13 +37,15 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
 
     misskey_post_url = f"{self.pleroma_base_url}/api/notes/create"
 
-    tweet_id, tweet_text, tweet_date = tweet
+    tweet_id, tweet_text, tweet_date, tweet_reply_id, retweet_id = tweet
     tweet_folder = os.path.join(self.tweets_temp_path, tweet_id)
     # config setting override tweet attr
     if self.sensitive:
         sensitive = self.sensitive
     media_ids = []
-    if self.media_upload:
+    posts = self.posts_ids[self.pleroma_base_url]
+
+    if self.media_upload and retweet_id not in posts:
         if os.path.isdir(tweet_folder):
             media_files = sorted(os.listdir(tweet_folder))
             for file in media_files:
@@ -55,16 +57,54 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
                     media_ids.append(media_id)
 
     data = {
-        "visibility": self.visibility,
-        "text": tweet_text,
         "i": self.pleroma_token,
         # cw: '',
     }
+    if (
+            tweet_id in posts
+            and len(str(posts[tweet_id])) > 0
+            and self.avoid_duplicates
+    ):  # pragma: todo
+        post_id = self.posts_ids[self.pleroma_base_url][tweet_id]
+
+        misskey_posted_url = f"{self.pleroma_base_url}/api/notes/show"
+
+        data_n = {
+            "i": self.pleroma_token,
+            "noteId": post_id,
+        }
+        response = requests.post(
+            misskey_posted_url, json.dumps(data_n), headers=self.header_pleroma
+        )
+        if response.ok:
+            logger.warning(
+                _(
+                    "Tweet already posted in Misskey:\t{} - {}."
+                    " Skipping to avoid duplicates..."
+                ).format(tweet_id, posts[tweet_id])
+            )
+            return post_id
+
+    if (
+            retweet_id
+            and retweet_id in posts
+            and len(str(posts[retweet_id])) > 0
+    ):  # pragma: todo
+        renote_id = posts[retweet_id]
+        data.update({"renoteId": renote_id})
+    else:
+        data.update({"visibility": self.visibility, "text": tweet_text})
 
     if len(media_ids) != 0:
         data.update({"fileIds": media_ids})
-
-    if poll:
+    if (
+            tweet_reply_id
+            and tweet_reply_id in posts
+            and len(posts[tweet_reply_id]) > 0
+    ):  # pragma: todo
+        post_reply_id = self.posts_ids[self.pleroma_base_url][tweet_reply_id]
+        data.update({"replyId": post_reply_id})
+    if poll and retweet_id not in posts:
         data.update(
             {
                 "poll": {
@@ -83,6 +123,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
         response.raise_for_status()
     logger.info(_("Post in Misskey:\t{}").format(str(response)))
     post_id = json.loads(response.text)["createdNote"]["id"]
+    self.posts_ids[self.pleroma_base_url].update({tweet_id: post_id})
     return post_id
 
 
@@ -237,27 +278,30 @@ def update_misskey(self):
     """
     # Only update 1 user
     t_user = self.twitter_username[0]
-    # Get the biggest resolution for the profile picture (400x400)
-    # instead of 'normal'
-    if t_user in self.profile_image_url:
-        profile_img_big = re.sub(
-            r"normal", "400x400",
-            self.profile_image_url[t_user]
-        )
-        response = requests.get(profile_img_big, stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        with open(self.avatar_path[t_user], "wb") as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+    if not self.archive:
+        # Get the biggest resolution for the profile picture (400x400)
+        # instead of 'normal'
+        if t_user in self.profile_image_url:
+            profile_img_big = re.sub(
+                r"normal", "400x400",
+                self.profile_image_url[t_user]
+            )
+            response = requests.get(profile_img_big, stream=True)
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            with open(self.avatar_path[t_user], "wb") as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
-    if t_user in self.profile_banner_url:
-        response = requests.get(self.profile_banner_url[t_user], stream=True)
-        if not response.ok:
-            response.raise_for_status()
-        response.raw.decode_content = True
-        with open(self.header_path[t_user], "wb") as outfile:
-            shutil.copyfileobj(response.raw, outfile)
+        if t_user in self.profile_banner_url:
+            response = requests.get(
+                self.profile_banner_url[t_user], stream=True
+            )
+            if not response.ok:
+                response.raise_for_status()
+            response.raw.decode_content = True
+            with open(self.header_path[t_user], "wb") as outfile:
+                shutil.copyfileobj(response.raw, outfile)
 
     data = {"i": self.pleroma_token}
 
@@ -317,3 +361,25 @@ def update_misskey(self):
             response.raise_for_status()
     logger.info(_("Updating profile:\t {}").format(str(response)))
     return
+
+
+def _misskey_update_bot_status(self, bot):  # pragma: todo
+    i_update_url = f"{self.pleroma_base_url}/api/i/update"
+    data = {"i": self.pleroma_token, "isBot": bot}
+    response = requests.post(
+        i_update_url, json.dumps(data), headers=self.header_pleroma
+    )
+    if not response.ok:
+        response.raise_for_status()
+
+
+def _get_misskey_profile_info(self):  # pragma: todo
+    i_url = f"{self.pleroma_base_url}/api/i"
+    data = {"i": self.pleroma_token}
+    response = requests.post(
+        i_url, json.dumps(data), headers=self.header_pleroma
+    )
+    i_json = response.json()
+    bot = i_json["isBot"]
+    i_json["bot"] = bot
+    return i_json

@@ -5,21 +5,24 @@ import time
 import json
 import string
 import random
+import shutil
 import zipfile
 import tempfile
 import requests
+import warnings
 import threading
 import functools
 import mimetypes
 
+from tqdm import tqdm
 from typing import cast
 from errno import ENOENT
-from itertools import cycle
-from multiprocessing import Queue
+from multiprocessing import Queue, Pool
 from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
-from itertools import tee, islice, chain
+from itertools import tee, islice, chain, cycle
 from requests.structures import CaseInsensitiveDict
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -41,7 +44,9 @@ from . import logger
 from ._error import TimeoutLocker
 
 
-def spinner(message, wait: float = 0.3, spinner_symbols: list = None):
+def spinner(
+        message, wait: float = 0.3, spinner_symbols: list = None
+):  # pragma: deprecated
     """
     Decorator that launches the function wrapped and the spinner each in a
     separate thread
@@ -100,15 +105,24 @@ def chunkify(lst, n):
 def process_parallel(tweets, user, threads):
     dt = tweets["data"]
     chunks = chunkify(dt, threads)
-    mp = Multiprocessor()
+    # mp = Multiprocessor()
+    tweets_chunked = []
     for idx in range(threads):
-        tweets_chunked = {
+        tweets_chunked.append({
             "data": chunks[idx],
             "includes": tweets["includes"],
             "meta": tweets["meta"]
-        }
-        mp.run(user.process_tweets, tweets_chunked)
-    ret = mp.wait()  # get all results
+        })
+    with Pool(threads) as p:
+        ret = []
+        desc = _("Processing tweets... ")
+        with tqdm(total=len(dt), desc=desc) as pbar:
+            for idx, res in enumerate(
+                    p.imap_unordered(user.process_tweets, tweets_chunked)
+            ):
+                pbar.update(len(chunks[idx]))
+                ret.append(res)
+
     tweets_merged = {
         "data": [],
         "includes": tweets["includes"],
@@ -119,12 +133,12 @@ def process_parallel(tweets, user, threads):
         tweets_merged["data"].extend(ret[idx]["data"])
         tweets_merged["media_processed"].extend(ret[idx]["media_processed"])
     tweets_merged["data"] = sorted(
-        tweets_merged["data"], key=lambda i: i["created_at"]
+        tweets_merged["data"], key=lambda i: i["id"]
     )
     return tweets_merged
 
 
-class Multiprocessor:
+class Multiprocessor:  # pragma: deprecated
 
     def __init__(self):
         self.processes = []
@@ -141,7 +155,7 @@ class Multiprocessor:
         self.processes.append(p)
         p.start()
 
-    @spinner(_("Processing tweets... "), 1.2)
+    # @spinner(_("Processing tweets... "), 1.2)
     def wait(self):
         rets = []
         for p in self.processes:
@@ -152,7 +166,7 @@ class Multiprocessor:
         return rets
 
 
-class PropagatingThread(threading.Thread):
+class PropagatingThread(threading.Thread):  # pragma: deprecated
     """
     Thread that surfaces exceptions that occur inside of it
     """
@@ -183,13 +197,16 @@ class Locker:
     Context manager that creates lock file
     """
 
-    def __init__(self, timeout=5):
-        module_name = __loader__.name.split('.')[0]
-        lock_filename = f"{module_name}.lock"
+    def __init__(self, lock_filename=None, timeout=5):
         self.timeout = timeout
-        self.tmp = tempfile.gettempdir()
+        if lock_filename:
+            self._lock_file = lock_filename
+        else:
+            module_name = __loader__.name.split('.')[0]
+            lock_filename = f"{module_name}.lock"
+            self.tmp = tempfile.gettempdir()
+            self._lock_file = os.path.join(self.tmp, lock_filename)
         self.mode = os.O_RDWR | os.O_CREAT | os.O_TRUNC
-        self._lock_file = os.path.join(self.tmp, lock_filename)
         self._lock_file_fd = None
 
     @property
@@ -349,6 +366,8 @@ def check_pinned(self, posted=None):
                     self.pinned_tweet_id,
                     tweets_to_post["data"][0]["text"],
                     pinned_tweet["data"]["created_at"],
+                    tweets_to_post["data"][0]["reply_id"],
+                    tweets_to_post["data"][0]["retweet_id"]
                 ),
                 tweets_to_post["data"][0]["polls"],
                 tweets_to_post["data"][0]["possibly_sensitive"],
@@ -482,6 +501,28 @@ def _get_instance_info(self):
         logger.debug(_("Target instance is Mastodon..."))
         self.max_post_length = 500
         self.max_attachments = 4
+        self.characters_reserved_per_url = 23
+        self.max_video_attachments = 1
+        instance_url = f"{self.pleroma_base_url}/api/v1/instance"
+        response = requests.get(instance_url)
+        instance_url_json = None
+        if response.ok:
+            instance_url_json = response.json()
+        if (
+                instance_url_json
+                and "configuration" in instance_url_json
+        ):  # pragma: todo
+            if "statuses" in instance_url_json["configuration"]:
+                statuses_conf = instance_url_json["configuration"]["statuses"]
+                if "max_characters" in statuses_conf:
+                    max_post_length = statuses_conf["max_characters"]
+                    self.max_post_length = max_post_length
+                if "max_media_attachments" in statuses_conf:
+                    max_attachments = statuses_conf["max_media_attachments"]
+                    self.max_attachments = max_attachments
+                if "characters_reserved_per_url" in statuses_conf:
+                    chars_url = statuses_conf["characters_reserved_per_url"]
+                    self.characters_reserved_per_url = chars_url
 
 
 def mastodon_enforce_limits(self):
@@ -499,6 +540,22 @@ def mastodon_enforce_limits(self):
             logger.warning(
                 _("Mastodon doesn't support rich text. Disabling it...")
             )
+
+
+def _mastodon_len(self, text):  # pragma: todo
+    # URI regex
+    matching_pattern = (
+        r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
+        r"{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*"
+        r"\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{}"
+        r';:\'".,<>?«»“”‘’]))'
+    )
+    matches = re.finditer(matching_pattern, text)
+    char_count_url = self.characters_reserved_per_url
+    for matchNum, match in enumerate(matches, start=1):
+        group = match.group()
+        text = text.replace(group, group[:char_count_url])
+    return len(text)
 
 
 def force_date(self):
@@ -555,7 +612,9 @@ def transform_date(self, input_date):
     return date
 
 
-def process_archive(archive_zip_path, start_time=None):
+def process_archive(self, archive_zip_path, start_time=None):
+    from pleroma_bot._processing import _expand_urls
+
     archive_zip_path = os.path.abspath(archive_zip_path)
     par_dir = os.path.dirname(archive_zip_path)
     archive_name = os.path.basename(archive_zip_path).split('.')[0]
@@ -563,6 +622,61 @@ def process_archive(archive_zip_path, start_time=None):
     with zipfile.ZipFile(archive_zip_path, "r") as zip_ref:
         zip_ref.extractall(extracted_dir)
     tweet_js_path = os.path.join(extracted_dir, 'data', 'tweet.js')
+    profile_js_path = os.path.join(extracted_dir, 'data', 'profile.js')
+    account_js_path = os.path.join(extracted_dir, 'data', 'account.js')
+    profile_info = _get_twitter_info_from_archive(profile_js_path)
+    account_info = _get_account_info_from_archive(account_js_path)
+
+    t_user = self.twitter_username[0]
+    bio_text = profile_info["description"]["bio"]
+    bio_text = self.replace_vars_in_str(str(self.bio_text))
+    self.bio_text = {"_generic_bio_text": bio_text}
+    if self.twitter_bio:
+        bio_short = profile_info["description"]["bio"]
+        bio = {'text': bio_short, 'entities': None}
+        bio_long = _expand_urls(self, bio)
+        max_len = self.max_post_length
+        len_bio = len(f"{self.bio_text['_generic_bio_text']}{bio_long}")
+        bio_text = bio_long if len_bio < max_len else bio_short
+    self.bio_text[t_user] = (
+        f"{self.bio_text['_generic_bio_text']}{bio_text}"
+        if self.twitter_bio
+        else f"{self.bio_text['_generic_bio_text']}"
+    )
+    self.website = profile_info["description"]["website"]
+    website = {'text': self.website, 'entities': None}
+    self.website = _expand_urls(self, website)
+    self.display_name[t_user] = account_info["username"]
+    self.twitter_ids[account_info["accountId"]] = account_info["username"]
+
+    self.fields = self.replace_vars_in_str(str(self.fields))
+    self.fields = eval(self.fields)
+
+    a_end_id = ""
+    h_end_id = ""
+    if "avatarMediaUrl" in profile_info:
+        a_end_id = profile_info["avatarMediaUrl"].split("/")[-1].split('.')[0]
+    if "headerMediaUrl" in profile_info:
+        h_end_id = profile_info["headerMediaUrl"].split("/")[-1].split('.')[0]
+
+    profile_media_path = os.path.join(extracted_dir, 'data', 'profile_media')
+    for media in os.listdir(profile_media_path):
+        m_end_id = media.split("-")[-1].split('.')[0]
+        if m_end_id == a_end_id:
+            media_path = os.path.join(profile_media_path, media)
+            self.profile_image_url[t_user] = media_path
+            shutil.copy(media_path, self.avatar_path[t_user])
+        if m_end_id == h_end_id:
+            media_path = os.path.join(profile_media_path, media)
+            self.profile_banner_url[t_user] = media_path
+            shutil.copy(media_path, self.header_path[t_user])
+
+    tweet_media_path = os.path.join(extracted_dir, 'data', 'tweet_media')
+    # new archives filename
+    if not os.path.isfile(tweet_js_path):
+        tweet_js_path = os.path.join(extracted_dir, 'data', 'tweets.js')
+    if not os.path.isdir(tweet_media_path):
+        tweet_media_path = os.path.join(extracted_dir, 'data', 'tweets_media')
     tweets_archive = get_tweets_from_archive(tweet_js_path)
     tweets = {
         "data": [],
@@ -578,7 +692,7 @@ def process_archive(archive_zip_path, start_time=None):
         created_at = tweet["tweet"]["created_at"]
         created_at_f = datetime.strftime(
             datetime.strptime(created_at, "%a %b %d %H:%M:%S +0000 %Y"),
-            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S.000Z",
         )
         if start_time:
             if created_at_f < start_time:
@@ -587,10 +701,18 @@ def process_archive(archive_zip_path, start_time=None):
         tweet["tweet"]["created_at"] = created_at_f
         if "possibly_sensitive" not in tweet["tweet"].keys():
             tweet["tweet"]["possibly_sensitive"] = False
+        tweet_id = tweet["tweet"]["id"]
+        tweet_media_dir = os.path.join(self.tweets_temp_path, tweet_id)
+        if not os.path.isdir(tweet_media_dir):
+            os.makedirs(tweet_media_dir, exist_ok=True)
+        for media in os.listdir(tweet_media_path):
+            if media.startswith(tweet_id):
+                media_path = os.path.join(tweet_media_path, media)
+                shutil.copy(media_path, tweet_media_dir)
         tweets["data"].append(tweet["tweet"])
     # Order it just in case
     tweets["data"] = sorted(
-        tweets["data"], key=lambda i: i["created_at"], reverse=True
+        tweets["data"], key=lambda i: i["id"], reverse=True
     )
     return tweets
 
@@ -606,11 +728,35 @@ def get_tweets_from_archive(tweet_js_path):
     return json_t["tweets"]
 
 
+def _get_twitter_info_from_archive(profile_js_path):
+    with open(profile_js_path, "r") as f:
+        lines = []
+        for line in f:
+            line = re.sub(r'\n', r'', line)
+            lines.append(line)
+        data = '\n'.join(lines[1:-1])
+    json_p = json.loads(data)
+
+    return json_p["profile"]
+
+
+def _get_account_info_from_archive(account_js_path):
+    with open(account_js_path, "r") as f:
+        lines = []
+        for line in f:
+            line = re.sub(r'\n', r'', line)
+            lines.append(line)
+        data = '\n'.join(lines[1:-1])
+    json_p = json.loads(data)
+
+    return json_p["account"]
+
+
 def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
     post_id = None
     instance = self.instance
     if media:
-        media_id = 'id' if self.archive else 'media_key'
+        media_id = 'id' if (self.archive or self.rss) else 'media_key'
         media = {
             key: [
                 l_item for l_item in media if l_item[media_id] == key
@@ -648,6 +794,8 @@ def get_date_last_post(self):
         date = self.get_date_last_pleroma_post()
     elif instance == "misskey":
         date = self.get_date_last_misskey_post()
+    elif instance == "cohost":  # pragma: todo
+        date = self.get_date_last_cohost_post()
     return date
 
 
@@ -657,3 +805,355 @@ def update_profile(self):
         self.update_pleroma()
     elif instance == "misskey":
         self.update_misskey()
+
+
+def random_id() -> str:  # pragma: todo
+    return "".join(
+        random.choice(string.ascii_lowercase + string.digits)
+        for _ in range(19)
+    )
+
+
+def parse_rss_feed(self, rss_link, start_time, threads=1):  # pragma: todo
+    import feedparser
+    if start_time:
+        self.start_time = start_time
+    tweets = {
+        "data": [],
+        "media_processed": [],
+        "meta": []
+    }
+    d = feedparser.parse(rss_link)
+    logger.info(_("Gathering tweets...{}").format(len(d.entries)))
+
+    if threads > 1:
+        dt = d.entries
+        chunks = chunkify(dt, threads)
+        with Pool(threads) as p:
+            ret = []
+            desc = _("Processing tweets... ")
+            with tqdm(total=len(dt), desc=desc) as pbar:
+                for idx, res in enumerate(
+                        p.imap_unordered(
+                            self._process_tweets_rss, chunks
+                        )
+                ):
+                    pbar.update(len(chunks[idx]))
+                    ret.append(res)
+
+        tweets_merged = {
+            "data": [],
+            "meta": tweets["meta"],
+            "media_processed": []
+        }
+        for idx in range(threads):
+            tweets_merged["data"].extend(ret[idx]["data"])
+            tweets_merged["media_processed"].extend(
+                ret[idx]["media_processed"]
+            )
+        tweets_merged["data"] = sorted(
+            tweets_merged["data"], key=lambda i: i["id"]
+        )
+        tweets = tweets_merged
+    else:
+        tweets = self._process_tweets_rss(d.entries)
+    return tweets
+
+
+def _process_tweets_rss(self, entries):  # pragma: todo
+    start_time = self.start_time
+    tweets = {
+        "data": [],
+        "media_processed": [],
+        "meta": []
+    }
+    if self.threads == 1:
+        desc = _("Processing tweets... ")
+        pbar = tqdm(total=len(entries), desc=desc)
+    for item in entries[:self.max_tweets]:
+        created_at = datetime.strftime(
+            datetime.strptime(item.published, "%a, %d %b %Y %H:%M:%S %Z"),
+            "%Y-%m-%dT%H:%M:%S.000Z",
+        )
+        if start_time:
+            if created_at < start_time:
+                continue
+        text = item.summary_detail.value
+        warnings.filterwarnings(
+            'ignore', category=MarkupResemblesLocatorWarning
+        )
+        soup = BeautifulSoup(text, "html.parser")
+        soup_title = BeautifulSoup(item.title_detail.value, "html.parser")
+        # Remove parent p tags if there are any
+        if hasattr(soup.p, "unwrap"):
+            soup.p.unwrap()
+        # title_detail includes RT or reply header
+        # but only summary_details includes links to media
+        if not self.include_rts:
+            if (
+                    soup.prettify().startswith('RT ')
+                    or soup_title.prettify().startswith('RT ')
+            ):
+                continue
+        if not self.include_replies:
+            if (
+                    soup.prettify().startswith('@')
+                    or soup.prettify().startswith('Re @')
+                    or soup.prettify().startswith('R to @')
+                    or soup_title.prettify().startswith('@')
+                    or soup_title.prettify().startswith('Re @')
+                    or soup_title.prettify().startswith('R to @')
+            ):
+                continue
+
+        tweet_id = item.id.strip('#m').split('/')[-1]
+
+        media = []
+        for link in soup.find_all('a'):
+            link.replace_with(f' {link.get("href")} ')
+
+        for source in soup.find_all('source'):
+            src = source.get('src')
+            if src:
+                media.append(
+                    {
+                        'url': src,
+                        'type': 'rss',
+                        'id': random_id()
+                    }
+                )
+            source.replace_with('')
+        for video in soup.find_all('video'):
+            src = video.get('src')
+            if src:
+                media.append(
+                    {
+                        'url': src,
+                        'type': 'rss',
+                        'id': random_id()
+                    }
+                )
+            video.replace_with('')
+        for image in soup.find_all('img'):
+            src = image.get('src')
+            if src:
+                media.append(
+                    {
+                        'url': src,
+                        'type': 'rss',
+                        'id': random_id()
+                    }
+                )
+            image.replace_with('')
+        for br in soup.find_all('br'):
+            br.replace_with('\n')
+        if (
+                (
+                    soup_title.prettify().startswith('RT ')
+                    or soup_title.prettify().startswith('@')
+                    or soup_title.prettify().startswith('Re @')
+                    or soup_title.prettify().startswith('R to @')
+                )
+                and not (
+                    soup_title.prettify().endswith('...')
+                    or soup_title.prettify().endswith('…')
+                    or soup_title.prettify().endswith('...\n')
+                    or soup.prettify().startswith('RT ')
+                    or soup.prettify().startswith('@')
+                    or soup.prettify().startswith('Re @')
+                    or soup.prettify().startswith('R to @')
+                )
+        ):
+            tweet_text = soup_title.prettify()
+        else:
+            tweet_text = soup.prettify()
+        tweet = {"text": tweet_text, "created_at": created_at}
+        if hasattr(self, "rich_text"):
+            if self.rich_text:
+                tweet["text"] = self._replace_mentions(tweet)
+
+        if self.invidious:
+            tweet["text"] = self._replace_url(
+                tweet["text"],
+                "https://youtube.com",
+                self.invidious_base_url
+            )
+        signature = ''
+        if self.signature:
+            signature = f"\n\n 🐦🔗: {item.link}"
+            total_length = len(tweet["text"]) + len(signature)
+            if total_length > self.max_post_length:  # pragma
+                body_max_length = self.max_post_length - len(signature) - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            tweet["text"] = f"{tweet['text']}{signature}"
+        if self.nitter:
+            tweet["text"] = self._replace_url(
+                tweet["text"],
+                "https://twitter.com",
+                self.nitter_base_url
+            )
+        if self.original_date:
+            tweet_date = tweet["created_at"]
+            date = datetime.strftime(
+                datetime.strptime(tweet_date, "%Y-%m-%dT%H:%M:%S.000Z"),
+                self.original_date_format,
+            )
+            orig_date = f"\n\n[{date}]"
+            total_length = len(tweet["text"]) + len(orig_date)
+            if total_length > self.max_post_length:  # pragma
+                if self.signature:
+                    tweet["text"] = tweet["text"].replace(signature, '')
+                l_date = len(orig_date)
+                l_sig = len(signature)
+                body_max_length = self.max_post_length - l_date - l_sig - 1
+                tweet["text"] = f"{tweet['text'][:body_max_length]}…"
+            else:
+                signature = ''
+            tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
+        # Truncate text if needed
+        if len(tweet["text"]) > self.max_post_length:  # pragma
+            logger.info(
+                _(
+                    "Post text longer than allowed ({}), truncating..."
+                ).format(self.max_post_length)
+            )
+            tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
+
+        data = {
+            'id': tweet_id,
+            'created_at': created_at,
+            'text': tweet["text"],
+            'author_id': item.author,
+            'possibly_sensitive': False,
+            'polls': []
+        }
+
+        tweets["data"].append(data)
+        if self.media_upload:
+            if len(media) > 0:
+                tweet_path = os.path.join(self.tweets_temp_path, tweet_id)
+                os.makedirs(tweet_path, exist_ok=True)
+                self._download_media(media, data)
+                tweets["media_processed"].extend(media)
+        if self.threads == 1:
+            pbar.update(1)
+    return tweets
+
+
+def _update_bot_status(self, bot):  # pragma: todo
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        self._pleroma_update_bot_status(bot)
+    elif instance == "misskey":
+        self._misskey_update_bot_status(bot)
+
+
+def _get_fedi_profile_info(self):  # pragma: todo
+    instance = self.instance
+    if instance == "mastodon" or instance == "pleroma" or instance is None:
+        fedi_profile = self._get_pleroma_profile_info()
+    elif instance == "misskey":
+        fedi_profile = self._get_misskey_profile_info()
+    else:
+        fedi_profile = None
+    if hasattr(self, "bot"):
+        fedi_bot = self.bot
+        if "bot" in fedi_profile:
+            fedi_bot = fedi_profile["bot"]
+        if fedi_bot is not self.bot:
+            msg = _(
+                "Bot flag in target profile ({}) differs from your config. "
+                "Updating it to {}... "
+            ).format(fedi_bot, self.bot)
+            logger.warning(msg)
+            self._update_bot_status(self.bot)
+
+
+def _get_fedi_info(self):  # pragma: todo
+    self._get_fedi_profile_info()
+
+
+def _get_guest_token_header(self):  # pragma: todo
+    _guest_token = (
+        "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7tt"
+        "fk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+    )
+    guest_url = f"{self.twitter_base_url}/guest/activate.json"
+    headers = {"Authorization": f"Bearer {_guest_token}"}
+    user_agent = (
+        f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
+        f" like Gecko) Chrome/79.0.3945.{random.randint(0, 9999)} Safari/537."
+        f"{random.randint(0, 99)}"
+    )
+    headers['User-Agent'] = user_agent
+    headers.update({"user-agent": user_agent})
+    response = requests.post(guest_url, headers=headers, stream=True)
+    if not response.ok:
+        if self.proxy and response.status_code == 429:
+            logger.warning(
+                _(
+                    "Rate limit exceeded when getting guest token. Retrying "
+                    "with a proxy."
+                )
+            )
+            response = self._request_proxy(
+                method='POST', url=guest_url, headers=headers
+            )
+        else:
+            response.raise_for_status()
+    json_resp = response.json()
+    guest_token = json_resp['guest_token']
+    headers.update({"x-guest-token": guest_token})
+
+    headers.update({
+        "accept": "*/*",
+        "accept-language": "de,en-US;q=0.7,en;q=0.3",
+        "accept-encoding": "gzip, deflate, utf-8",
+        "te": "trailers",
+    })
+    return _guest_token, headers
+
+
+def _request_proxy(
+        self, method, url,
+        params=None, data=None, headers=None, cookies=None,
+        files=None, auth=None, timeout=None, proxies=None,
+        hooks=None, allow_redirects=True, stream=None,
+        verify=None, cert=None, json=None
+):  # pragma: todo
+    if not self.pool_iter:
+        response = requests.get('https://www.sslproxies.org/')
+        matches = re.findall(
+            r"<td>\d+.\d+.\d+.\d+</td><td>\d+</td>", response.text
+        )
+        entries = [m.replace('<td>', '') for m in matches]
+        proxies = [s[:-5].replace('</td>', ':') for s in entries]
+        self.pool_iter = cycle(proxies)
+    for i in range(100):
+        proxy = next(self.pool_iter)
+        try:
+            logger.info(_("Trying {}").format(proxy))
+            proxies = {
+                "http": 'http://' + proxy,
+                "https": 'http://' + proxy
+            }
+            response = requests.request(
+                method,
+                url,
+                data=data or {},
+                json=json,
+                params=params or {},
+                headers=headers,
+                cookies=cookies, files=files,
+                auth=auth, hooks=hooks,
+                proxies=proxies,
+                allow_redirects=allow_redirects,
+                stream=stream, verify=verify,
+                cert=cert,
+                timeout=5.0
+            )
+            if response.status_code == 200:
+                return response
+        except Exception as e:
+            logger.debug(e)
+            continue

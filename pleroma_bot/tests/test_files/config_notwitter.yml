@@ -1,3 +1,4 @@
+avoid_duplicates: false
 # Change this to your Fediverse instance
 # How many tweets to get in every execution
 # Twitter's API hard limit is 3,200

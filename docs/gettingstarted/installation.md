@@ -34,12 +34,15 @@ First you need to install ```pleroma-bot``` on your system. There are multiple m
 
     Either way, here's a list of the dependencies in case you need them:
 
-    | Name                     | Git repo                                                | Docs                                                         |
-    |--------------------------|---------------------------------------------------------|--------------------------------------------------------------|
-    | python-oauthlib          | [GitHub](https://github.com/oauthlib/oauthlib)          | [Documentation](https://oauthlib.readthedocs.io/en/latest/)  |
-    | python-pyaml             | [GitHub](https://github.com/yaml/pyyaml)                | [Documentation](https://pyyaml.org/wiki/PyYAMLDocumentation) |
-    | python-requests          | [GitHub](https://github.com/psf/requests)               | [Documentation](https://requests.readthedocs.io/)            |
-    | python-requests-oauthlib | [GitHub](https://github.com/requests/requests-oauthlib) | [Documentation](https://requests-oauthlib.readthedocs.org)   |
+    | Name                     | Git repo                                                      | Docs                                                                    |
+    |--------------------------|---------------------------------------------------------------|-------------------------------------------------------------------------|
+    | python-oauthlib          | [GitHub](https://github.com/oauthlib/oauthlib)                | [Documentation](https://oauthlib.readthedocs.io/en/latest/)             |
+    | python-pyaml             | [GitHub](https://github.com/yaml/pyyaml)                      | [Documentation](https://pyyaml.org/wiki/PyYAMLDocumentation)            |
+    | python-requests          | [GitHub](https://github.com/psf/requests)                     | [Documentation](https://requests.readthedocs.io/)                       |
+    | python-requests-oauthlib | [GitHub](https://github.com/requests/requests-oauthlib)       | [Documentation](https://requests-oauthlib.readthedocs.org)              |
+    | feedparser               | [GitHub](https://github.com/kurtmckee/feedparser)             | [Documentation](https://feedparser.readthedocs.io/en/latest/)           |
+    | beautifulsoup4           | [Webpage](https://www.crummy.com/software/BeautifulSoup/bs4/) | [Documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) |
+    | tqdm                     | [GitHub](https://github.com/tqdm/tqdm)                        | [Documentation](https://tqdm.github.io/)                                |
 
 ## Test the installation
 
@@ -107,6 +110,12 @@ Once installed using your preferred method, test that the package has been corre
       -a ARCHIVE, --archive ARCHIVE
                             path of the Twitter archive file (zip) to use for
                             posting tweets.
+      -t THREADS, --threads THREADS
+                            number of threads to use when processing tweets
+      -L LOCKFILE, --lockfile LOCKFILE
+                            path of lock file (pleroma_bot.lock) to prevent
+                            collisions with multiple bot instances. By default it
+                            will be placed next to your config file.
       --verbose, -v
       --version             show program's version number and exit
     ```
@@ -172,6 +181,12 @@ Once installed using your preferred method, test that the package has been corre
       -a ARCHIVE, --archive ARCHIVE
                             path of the Twitter archive file (zip) to use for
                             posting tweets.
+      -t THREADS, --threads THREADS
+                            number of threads to use when processing tweets
+      -L LOCKFILE, --lockfile LOCKFILE
+                            path of lock file (pleroma_bot.lock) to prevent
+                            collisions with multiple bot instances. By default it
+                            will be placed next to your config file.
       --verbose, -v
       --version             show program's version number and exit
     ```
@@ -236,6 +251,12 @@ Once installed using your preferred method, test that the package has been corre
       -a ARCHIVE, --archive ARCHIVE
                             path of the Twitter archive file (zip) to use for
                             posting tweets.
+      -t THREADS, --threads THREADS
+                            number of threads to use when processing tweets
+      -L LOCKFILE, --lockfile LOCKFILE
+                            path of lock file (pleroma_bot.lock) to prevent
+                            collisions with multiple bot instances. By default it
+                            will be placed next to your config file.
       --verbose, -v
       --version             show program's version number and exit
     ```

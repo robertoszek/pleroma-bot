@@ -39,6 +39,7 @@ So basically, it does the following:
 * Retrieves latest **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
   * Can filter out RTs or not
   * Can filter out replies or not
+  * Supports threads
 * Media retrieval and upload of multiple **attachments**. This includes:
   * Video
   * Images
@@ -97,21 +98,33 @@ optional arguments:
   -a ARCHIVE, --archive ARCHIVE
                         path of the Twitter archive file (zip) to use for
                         posting tweets.
+  -t THREADS, --threads THREADS
+                        number of threads to use when processing tweets
+  -L LOCKFILE, --lockfile LOCKFILE
+                        path of lock file (pleroma-bot.lock) to prevent
+                        collisions with multiple bot instances. By default it
+                        will be placed next to your config file.
   --verbose, -v
   --version             show program's version number and exit
 ```
 ### Before running
-You'll need the following:
 
-* A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
-* The user/users [Pleroma/Mastodon Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
+There are multiple options for using the bot.
+
+You can either choose to use: 
+
+- A Twitter archive
+- An RSS feed
+- [Twitter tokens](https://developer.twitter.com/en/docs/authentication/api-reference/token) with a Developer account 
+
+You'll need to create a configuration file and obtain the [Fediverse tokens](https://tinysubversions.com/notes/mastodon-bot/) for your accounts no matter what you choose to use.
 
 If you plan on retrieving tweets from an account which has their tweets **protected**, you'll also need the following:
 * Consumer Key and Secret. You'll find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard)
 * Access Token Key and Secret.  You'll also find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard). 
 Alternatively, you can obtain the Access Token and Secret by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
 
-You'll also need Elevated access in your Twitter's API project in order for the bot to function properly.
+You'll may also need Elevated access in your Twitter's API project in order for the bot to function properly.
 
 Refer to the docs [for more info about this](https://robertoszek.github.io/pleroma-bot/gettingstarted/beforerunning/#before-running).
 
