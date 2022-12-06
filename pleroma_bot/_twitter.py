@@ -141,6 +141,7 @@ def _get_twitter_info_guest(self):  # pragma: todo
             base_banner_url = user_twitter["profile_banner_url"]
             self.profile_banner_url[t_user] = f"{base_banner_url}/1500x500"
         self.display_name[t_user] = user_twitter["name"]
+        self.twitter_ids[user_twitter["id"]] = user_twitter["screen_name"]
         if "entities" in user_twitter:
             if "url" in user_twitter["entities"]:
                 wb = user_twitter["entities"]["url"]["urls"][0]["expanded_url"]
@@ -341,7 +342,7 @@ def _package_tweet_v2(tweet_v1):  # pragma: todo
     return include_users, entities, tweet_v1
 
 
-def _package_tweets_v2(tweets_v1):  # pragma: todo
+def _package_tweets_v2(tweets_v1, author_ids):  # pragma: todo
     tweets = {"data": [], "includes": {}}
     if isinstance(tweets_v1, dict):
         include_users, entities, tweet_v2 = _package_tweet_v2(tweets_v1)
@@ -352,8 +353,9 @@ def _package_tweets_v2(tweets_v1):  # pragma: todo
             for entity in entities:
                 tweets["includes"][entity] = tweet_v2["entities"][entity]
     else:
-        tweets["meta"] = {"result_count": len(tweets_v1)}
         for tweet_v1 in tweets_v1:
+            if tweet_v1["user_id"] not in author_ids:
+                continue
             include_users, entities, tweet_v2 = _package_tweet_v2(tweet_v1)
             tweets["data"].append(tweet_v2)
             if include_users:
@@ -364,6 +366,7 @@ def _package_tweets_v2(tweets_v1):  # pragma: todo
         tweets["data"] = sorted(
             tweets["data"], key=lambda i: i["id"], reverse=True
         )
+        tweets["meta"] = {"result_count": len(tweets["data"])}
     return tweets
 
 
@@ -429,7 +432,7 @@ def _get_tweets(
                 response.raise_for_status()
             tweet = response.json()
             if self.guest:  # pragma: todo
-                tweet_v2 = _package_tweets_v2(tweet)
+                tweet_v2 = _package_tweets_v2(tweet, self.twitter_ids)
                 tweet = tweet_v2
             return tweet
         else:
@@ -504,7 +507,7 @@ def _get_tweets(
                     tweets = []
                     for tweet in tweets_guest:
                         tweets.append(tweets_guest[tweet])
-                    tweets_v2 = _package_tweets_v2(tweets)
+                    tweets_v2 = _package_tweets_v2(tweets, self.twitter_ids)
                     tweets = tweets_v2
 
             return tweets
