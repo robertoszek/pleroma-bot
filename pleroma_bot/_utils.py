@@ -474,6 +474,7 @@ def random_string(length: int) -> str:
 
 
 def _get_instance_info(self):
+    known_software = ["pleroma", "mastodon", "misskey"]
     try:
         nodeinfo_json = None
         nodeinfo_url = f"{self.pleroma_base_url}/.well-known/nodeinfo"
@@ -489,6 +490,12 @@ def _get_instance_info(self):
                     response.raise_for_status()  # pragma
                 nodeinfo_json = response.json()
                 self.instance = nodeinfo_json["software"]["name"]
+        if self.instance not in known_software:
+            logger.info(_(
+                "Software on target instance ({}) not recognized."
+                " Falling back to Pleroma-like API"
+            ).format(self.instance))
+            self.instance = "pleroma"
         if self.instance == "misskey":
             logger.info(_("Instance appears to be Misskey ฅ^•ﻌ•^ฅ"))
             if self.application_name:

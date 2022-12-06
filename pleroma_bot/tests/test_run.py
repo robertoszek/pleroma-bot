@@ -518,6 +518,47 @@ def test_get_date_last_pleroma_post_no_posts(
     return date
 
 
+def test_get_instance_info(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            config_users = get_config_users('config_app_name.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == "pleroma"
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mk'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == "misskey"
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mt'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == "mastodon"
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0ak'],
+                         status_code=200)
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_instance_info()
+                instance_msg = (
+                    'Software on target instance (akkoma) not recognized. '
+                    'Falling back to Pleroma-like API'
+                )
+                assert sample_user_obj.instance == "pleroma"
+                assert instance_msg in caplog.text
+
+
 def test_get_date_last_pleroma_post_app_name(
         sample_users, caplog, monkeypatch, mock_request
 ):
