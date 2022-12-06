@@ -68,7 +68,24 @@ def unpin_misskey(self, pinned_file):
             unpin_url, json.dumps(data), headers=headers
         )
         if not response.ok:
-            response.raise_for_status()
+            if response.status_code == 404:  # pragma: todo
+                logger.warning(
+                    _(
+                        "Pinned post {} not found."
+                        " Was it deleted? Checking"
+                        " last posts for pinned post..."
+                    ).format(previous_pinned_post_id)
+                )
+                pinned = _find_pinned_misskey(self, pinned_file)
+                if pinned:
+                    unpinned = ' '.join(map(str, pinned))
+                    logger.info(_("Unpinned: {}").format(unpinned))
+                else:
+                    logger.warning(
+                        _("Pinned post not found. Giving up unpinning..."))
+                return
+            else:
+                response.raise_for_status()
         logger.info(_("Unpinning previous:\t{}").format(response))
     else:
         logger.info(
@@ -166,7 +183,24 @@ def unpin_pleroma(self, pinned_file):
         )
         response = requests.post(unpin_url, headers=self.header_pleroma)
         if not response.ok:
-            response.raise_for_status()
+            if response.status_code == 404:  # pragma: todo
+                logger.warning(
+                    _(
+                        "Pinned post {} not found."
+                        " Was it deleted? Checking"
+                        " last posts for pinned post..."
+                    ).format(previous_pinned_post_id)
+                )
+                pinned = _find_pinned(self, pinned_file)
+                if pinned:
+                    unpinned = ' '.join(map(str, pinned))
+                    logger.info(_("Unpinned: {}").format(unpinned))
+                else:
+                    logger.warning(
+                        _("Pinned post not found. Giving up unpinning..."))
+                return
+            else:
+                response.raise_for_status()
         logger.info(_("Unpinning previous:\t{}").format(response))
     else:
         logger.info(
