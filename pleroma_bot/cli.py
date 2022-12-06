@@ -589,6 +589,8 @@ def main():
                             tweets["includes"].update({include: []})
                     for tweet_id in user.tweet_ids:
                         next_tweet = user._get_tweets("v2", tweet_id=tweet_id)
+                        if not next_tweet:  # pragma: todo
+                            continue
                         includes = ["users", "tweets", "media", "polls"]
                         for include in includes:
                             try:

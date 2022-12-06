@@ -356,6 +356,8 @@ def check_pinned(self, posted=None):
             id_post_to_pin = posted[self.pinned_tweet_id]
         else:
             pinned_tweet = self._get_tweets("v2", self.pinned_tweet_id)
+            if not pinned_tweet:  # pragma: todo
+                return
             tweets_to_post = {
                 "data": [pinned_tweet["data"]],
                 "includes": pinned_tweet["includes"],

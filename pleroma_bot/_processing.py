@@ -235,7 +235,8 @@ def _get_rt_text(self, tweet):  # pragma: no cover
         if retweeted or quoted:
             tweet_ref_id = reference["id"]
             tweet_ref = self._get_tweets("v2", tweet_ref_id)
-
+            if not tweet_ref:  # pragma: todo
+                continue
             match = re.search(r"RT.*?\:", tweet["text"])
             prefix = match.group() if match else ""
             if retweeted:
@@ -263,6 +264,8 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
             if retweeted or quoted:
                 tweet_id = reference["id"]
                 tweet_rt = self._get_tweets("v2", tweet_id)
+                if not tweet_rt:
+                    continue
                 tw_data = tweet_rt["data"]
                 att = "attachments" in tw_data.keys()
                 if att:

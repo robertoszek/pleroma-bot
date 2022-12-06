@@ -429,6 +429,14 @@ def _get_tweets(
                 auth=self.auth
             )
             if not response.ok:
+                if response.status_code == 404:  # pragma: todo
+                    logger.warning(
+                        _(
+                            "Received HTTP 404 when trying to get tweet."
+                            " Tweet deleted? Skipping..."
+                        )
+                    )
+                    return None
                 response.raise_for_status()
             tweet = response.json()
             if self.guest:  # pragma: todo
