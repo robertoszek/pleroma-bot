@@ -205,6 +205,7 @@ def process_tweets(self, tweets_to_post):
                 signature = ''
             tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
         # Process poll if exists and no media is used
+        tweet["polls"] = None
         if not self.guest:
             tweet["polls"] = _process_polls(self, tweet, media)
 
@@ -304,6 +305,7 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
 
 
 def _process_polls(self, tweet, media):
+    tweet["polls"] = None
     try:
         if tweet["attachments"]["poll_ids"] and not media:
 

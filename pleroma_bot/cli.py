@@ -607,9 +607,9 @@ def main():
                             tweets["includes"]["media"].append(media)
                         for poll in next_tweet["includes"]["polls"]:
                             tweets["includes"]["polls"].append(poll)
-                elif args.archive:
+                elif user.archive:
                     tweets = user.process_archive(
-                        args.archive, start_time=date_fedi
+                        user.archive, start_time=date_fedi
                     )
                     user.result_count = len(tweets["data"])
                 elif user.rss:  # pragma: todo

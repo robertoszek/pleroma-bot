@@ -37,19 +37,20 @@ If you don't input any value and press ++enter++ it will default to the oldest d
 
 To force this behaviour in the future, you can use the ```--forceDate``` argument.
 
-!!! warning "Be careful, no validation is performed with the already posted toots/posts by that Fediverse account and you can end up with duplicates posts/toots!"
 
 Additionally, you can provide the ```twitter_username``` value if you only want to force the date for that particular user in your config.
 
 For example:
 
 ```console
-$ pleroma-bot --forceDate WoolieWoolz
+$ pleroma-bot --forceDate TwitterUsername
 ```
 
 ## Only gather tweets
 
-If the ```--noProfile``` argument is passed, *only* tweets will be posted. The profile picture, banner, display name and bio will **not** be updated on the Fediverse account and will be skipped for all users in the config.
+If the ```--noProfile``` argument is used, *only* tweets will be posted.
+
+The profile picture, banner, display name and bio will **not** be updated on the Fediverse account and will be skipped for all users in the config.
 
 Alternatively, you can also choose to use the `no_profile` [mapping on your config](/pleroma-bot/gettingstarted/configuration/#mappings), setting it to `true` on the users you wish to do so:
 ```yaml hl_lines="5"
@@ -77,6 +78,17 @@ A Twitter [archive](https://twitter.com/settings/your_twitter_data) can also be 
 
 ```console
 $ pleroma-bot --archive /path/to/archive.zip
+```
+
+Or using the `archive` mapping in your config file:
+
+```yaml title="config.yml"
+pleroma_base_url: https://pleroma.instance
+users:
+- twitter_username: User1
+  pleroma_username: MyPleromaUser1
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  archive: /path/to/archive.zip
 ```
 
 This is particularly useful when trying to circumvent Twitter's API limitations, when you need to copy more than 3200 tweets or from an earlier date than `2010-11-06T00:00:00Z`.

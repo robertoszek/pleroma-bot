@@ -132,8 +132,9 @@ def process_parallel(tweets, user, threads):
     for idx in range(threads):
         tweets_merged["data"].extend(ret[idx]["data"])
         tweets_merged["media_processed"].extend(ret[idx]["media_processed"])
+    sort_key = "id" if not user.archive else "created_at"
     tweets_merged["data"] = sorted(
-        tweets_merged["data"], key=lambda i: i["id"]
+        tweets_merged["data"], key=lambda i: i[sort_key]
     )
     return tweets_merged
 
@@ -718,7 +719,7 @@ def process_archive(self, archive_zip_path, start_time=None):
         tweets["data"].append(tweet["tweet"])
     # Order it just in case
     tweets["data"] = sorted(
-        tweets["data"], key=lambda i: i["id"], reverse=True
+        tweets["data"], key=lambda i: i["created_at"], reverse=True
     )
     return tweets
 
@@ -1211,6 +1212,16 @@ def config_wizard(base_path, config_path):  # pragma: todo
         elif option == 4:
             options["twitter_token"] = True
 
+        if options["archive"]:
+            archive = None
+            while not archive or archive == '':
+                tw_archive_msg = _(
+                    "\n"
+                    "\nPlease input the path to your archive (.zip):"
+                )
+                logger.info(tw_archive_msg)
+                archive = input()
+                options["archive"] = archive
         if options["twitter_token"]:
             twitter_token = None
             while not twitter_token or twitter_token == '':
@@ -1279,6 +1290,9 @@ def config_wizard(base_path, config_path):  # pragma: todo
         data.append(f"- twitter_username: {twitter_user}")
         data.append(f"  pleroma_username: {pleroma_user}")
         data.append(f"  pleroma_token: {fedi_token}")
+        data.append("  signature: true")
+        if options["archive"]:
+            data.append(f"  archive: {options['archive']}")
         if options["rss"]:
             data.append(f"  rss: {options['rss']}")
         data.append(
