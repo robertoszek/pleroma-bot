@@ -416,11 +416,13 @@ def _get_tweets(
                 "send_error_codes": "true",
                 "simple_quoted_tweet": "true",
                 "query_source": "typed_query",
-                "pc": "1",
                 "spelling_corrections": "1",
                 "ext": "mediaStats,highlightedLabel",
 
             }
+            if self.guest:  # pragma: todo
+                param.update({"pc": "1"})
+
             response = self.twitter_api_request(
                 'GET',
                 twitter_status_url,
