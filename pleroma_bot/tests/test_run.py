@@ -578,8 +578,8 @@ def test_get_fedi_profile_info(
                 with caplog.at_level(logging.INFO):
                     sample_user_obj._get_pleroma_profile_info()
                 bot_msg = (
-                    'Bot flag in target profile ({}) differs from your config. '
-                    'Updating it to {}...'
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
                 ).format(True, sample_user_obj.bot)
                 assert sample_user_obj.instance == "pleroma"
                 assert sample_user_obj.bot
@@ -596,8 +596,8 @@ def test_get_fedi_profile_info(
                 with caplog.at_level(logging.INFO):
                     sample_user_obj._get_pleroma_profile_info()
                 bot_msg = (
-                    'Bot flag in target profile ({}) differs from your config. '
-                    'Updating it to {}...'
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
                 ).format(True, sample_user_obj.bot)
                 assert sample_user_obj.instance == "pleroma"
                 assert not sample_user_obj.bot
@@ -616,8 +616,8 @@ def test_get_fedi_profile_info(
                 with caplog.at_level(logging.INFO):
                     sample_user_obj._get_pleroma_profile_info()
                 bot_msg = (
-                    'Bot flag in target profile ({}) differs from your config. '
-                    'Updating it to {}...'
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
                 ).format(True, sample_user_obj.bot)
                 assert sample_user_obj.instance == "misskey"
                 assert sample_user_obj.bot
@@ -634,8 +634,8 @@ def test_get_fedi_profile_info(
                 with caplog.at_level(logging.INFO):
                     sample_user_obj._get_pleroma_profile_info()
                 bot_msg = (
-                    'Bot flag in target profile ({}) differs from your config. '
-                    'Updating it to {}...'
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
                 ).format(True, sample_user_obj.bot)
                 assert sample_user_obj.instance == "misskey"
                 assert not sample_user_obj.bot
