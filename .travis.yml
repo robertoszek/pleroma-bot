@@ -20,7 +20,7 @@ env:
     CC_TEST_REPORTER_ID=f108a5ed53a9d98475fc6133c72c9a82756749e158e002c1345dc465e233999e
 
 install:
-    - pip install tox<=3.28.0 tox-travis coverage
+    - pip install tox==3.28.0 tox-travis coverage
     - eval $(dbus-launch --sh-syntax)
 
 before_script:
