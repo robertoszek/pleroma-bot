@@ -1040,10 +1040,10 @@ def test_locker():
             with Locker():
                 time.sleep(20)
     exception_value = (
-        "The file lock '/tmp/pleroma_bot.lock' could not be acquired. Is "
+        "pleroma_bot.lock' could not be acquired. Is "
         "another instance of pleroma-bot running?"
     )
-    assert str(error_info.value) == exception_value
+    assert exception_value in str(error_info.value)
 
     locker_path = '/tmp/new_lock.lock'
     with pytest.raises(TimeoutLocker) as error_info:

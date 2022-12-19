@@ -1,0 +1,102 @@
+{
+   "acct":"test",
+   "avatar":"https://instance.url/media/a63215878a7108062d034151d2651f8ab6030e9c847648f4c17ee29f9be0c69e.jpg",
+   "avatar_static":"https://instance.url/media/a63215878a7108062d034151d2651f8ab6030e9c847648f4c17ee29f9be0c69e.jpg",
+   "bot":true,
+   "created_at":"2022-11-08T19:24:04.000Z",
+   "display_name":"My Pleroma Account 𒉭",
+   "emojis":[
+      
+   ],
+   "fields":[
+      {
+         "name":"🐦 Birdsite",
+         "value":"<a href=\"https://nitter.net/twitter\" rel=\"ugc\">https://nitter.net/twitter</a>"
+      },
+      {
+         "name":"Status",
+         "value":"I am completely operational, and all my circuits are functioning perfectly."
+      },
+      {
+         "name":"Source",
+         "value":"<a href=\"https://gitea.robertoszek.xyz/robertoszek/pleroma_bot\" rel=\"ugc\">https://gitea.robertoszek.xyz/robertoszek/pleroma_bot</a>"
+      },
+      {
+         "name":"WWW",
+         "value":""
+      }
+   ],
+   "follow_requests_count":0,
+   "followers_count":0,
+   "following_count":0,
+   "fqn":"test@instance.url",
+   "header":"https://instance.url/media/e94b1435451cabd61d65043051f26b7947b1e99cc8d06cc9af4710b2fc707501.jpg",
+   "header_static":"https://instance.url/media/e94b1435451cabd61d65043051f26b7947b1e99cc8d06cc9af4710b2fc707501.jpg",
+   "id":"APP4Y7pyKT5ktCAaem",
+   "locked":false,
+   "note":"🤖 BEEP BOOP 🤖 <br/>I&#39;m a bot that mirrors Twitter Twitter&#39;s account. <br/>Any issues please contact <span class=\"h-card\"><a class=\"u-url mention\" data-user=\"AFlssHZZpFY7gkp0LY\" href=\"https://instance.url/users/robertoszek\" rel=\"ugc\">@<span>robertoszek</span></a></span> <br/> <br/> My bio text.<br/>Multiple lines,<br/>even.<br/>yeyeye",
+   "pleroma":{
+      "accepts_chat_messages":true,
+      "allow_following_move":true,
+      "also_known_as":[
+         
+      ],
+      "ap_id":"https://instance.url/users/test",
+      "background_image":"None",
+      "email":"test@test.test",
+      "favicon":"https://instance.url/favicon.png",
+      "hide_favorites":true,
+      "hide_followers":false,
+      "hide_followers_count":false,
+      "hide_follows":false,
+      "hide_follows_count":false,
+      "is_admin":false,
+      "is_confirmed":true,
+      "is_moderator":false,
+      "notification_settings":{
+         "block_from_strangers":false,
+         "hide_notification_contents":false
+      },
+      "relationship":{
+         
+      },
+      "skip_thread_containment":false,
+      "tags":[
+         
+      ],
+      "unread_conversation_count":0,
+      "unread_notifications_count":0
+   },
+   "source":{
+      "fields":[
+         {
+            "name":"🐦 Birdsite",
+            "value":"https://nitter.net/twitter"
+         },
+         {
+            "name":"Status",
+            "value":"I am completely operational, and all my circuits are functioning perfectly."
+         },
+         {
+            "name":"Source",
+            "value":"https://gitea.robertoszek.xyz/robertoszek/pleroma_bot"
+         },
+         {
+            "name":"WWW",
+            "value":""
+         }
+      ],
+      "note":"🤖 BEEP BOOP 🤖 \nI'm a bot that mirrors Twitter Twitter's account. \nAny issues please contact @robertoszek \n \n My bio text.\nMultiple lines,\neven.\nyeyeye",
+      "pleroma":{
+         "actor_type":"Service",
+         "discoverable":false,
+         "no_rich_text":false,
+         "show_role":true
+      },
+      "privacy":"public",
+      "sensitive":false
+   },
+   "statuses_count":852,
+   "url":"https://instance.url/users/test",
+   "username":"test"
+}

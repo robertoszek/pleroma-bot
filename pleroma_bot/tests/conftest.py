@@ -266,6 +266,12 @@ def _sample_users(mock_request, rootdir):
                      headers=headers_statuses,
                      status_code=200)
             mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/accounts/"
+                     f"{user_item['pleroma_username']}",
+                     json=mock_request['sample_data']['pleroma_account'],
+                     headers=headers_statuses,
+                     status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
                      f"/api/v1/statuses/A1yPx3LUeX9RfhNSYy",
                      json=mock_request['sample_data']['pleroma_statuses_pin'],
                      headers=headers_statuses,

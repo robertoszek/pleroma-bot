@@ -559,6 +559,89 @@ def test_get_instance_info(
                 assert instance_msg in caplog.text
 
 
+def test_get_fedi_profile_info(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                     json=mock_request['sample_data']['2_0'],
+                     status_code=200)
+            config_users = get_config_users('config_bot.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config. '
+                    'Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "pleroma"
+                assert sample_user_obj.bot
+                assert bot_msg not in caplog.text
+
+            config_users = get_config_users('config_no_bot.yml')
+
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config. '
+                    'Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "pleroma"
+                assert not sample_user_obj.bot
+                assert bot_msg in caplog.text
+
+            mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                     json=mock_request['sample_data']['2_0mk'],
+                     status_code=200)
+            config_users = get_config_users('config_bot.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config. '
+                    'Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "misskey"
+                assert sample_user_obj.bot
+                assert bot_msg not in caplog.text
+
+            config_users = get_config_users('config_no_bot.yml')
+
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config. '
+                    'Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "misskey"
+                assert not sample_user_obj.bot
+                assert bot_msg in caplog.text
+
+
 def test_get_date_last_pleroma_post_app_name(
         sample_users, caplog, monkeypatch, mock_request
 ):

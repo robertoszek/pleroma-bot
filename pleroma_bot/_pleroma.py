@@ -488,7 +488,7 @@ def update_pleroma(self):
     return
 
 
-def _pleroma_update_bot_status(self, bot):  # pragma: todo
+def _pleroma_update_bot_status(self, bot):
     update_cred_url = (
         f"{self.pleroma_base_url}/api/v1/accounts/update_credentials"
     )
@@ -499,11 +499,11 @@ def _pleroma_update_bot_status(self, bot):  # pragma: todo
         data=data,
         headers=self.header_pleroma,
     )
-    if not response.ok:
+    if not response.ok:  # pragma
         response.raise_for_status()
 
 
-def _get_pleroma_profile_info(self):  # pragma: todo
+def _get_pleroma_profile_info(self):
     profile_url = (
         f"{self.pleroma_base_url}/api/v1/accounts/"
         f"{self.pleroma_username}"
@@ -513,7 +513,7 @@ def _get_pleroma_profile_info(self):  # pragma: todo
         profile_url,
         headers=self.header_pleroma,
     )
-    if not response.ok:
+    if not response.ok:  # pragma
         response.raise_for_status()
     profile = response.json()
     return profile

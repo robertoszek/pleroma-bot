@@ -1062,13 +1062,13 @@ def _update_bot_status(self, bot):  # pragma: todo
         self._misskey_update_bot_status(bot)
 
 
-def _get_fedi_profile_info(self):  # pragma: todo
+def _get_fedi_profile_info(self):
     instance = self.instance
     if instance == "mastodon" or instance == "pleroma" or instance is None:
         fedi_profile = self._get_pleroma_profile_info()
     elif instance == "misskey":
         fedi_profile = self._get_misskey_profile_info()
-    else:
+    else:  # pragma
         fedi_profile = None
     if hasattr(self, "bot"):
         fedi_bot = self.bot

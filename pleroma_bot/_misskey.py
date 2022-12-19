@@ -363,17 +363,17 @@ def update_misskey(self):
     return
 
 
-def _misskey_update_bot_status(self, bot):  # pragma: todo
+def _misskey_update_bot_status(self, bot):
     i_update_url = f"{self.pleroma_base_url}/api/i/update"
     data = {"i": self.pleroma_token, "isBot": bot}
     response = requests.post(
         i_update_url, json.dumps(data), headers=self.header_pleroma
     )
-    if not response.ok:
+    if not response.ok:  # pragma
         response.raise_for_status()
 
 
-def _get_misskey_profile_info(self):  # pragma: todo
+def _get_misskey_profile_info(self):
     i_url = f"{self.pleroma_base_url}/api/i"
     data = {"i": self.pleroma_token}
     response = requests.post(
