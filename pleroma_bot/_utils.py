@@ -525,7 +525,7 @@ def _get_instance_info(self):
         if (
                 instance_url_json
                 and "configuration" in instance_url_json
-        ):  # pragma: todo
+        ):
             if "statuses" in instance_url_json["configuration"]:
                 statuses_conf = instance_url_json["configuration"]["statuses"]
                 if "max_characters" in statuses_conf:
@@ -556,7 +556,7 @@ def mastodon_enforce_limits(self):
             )
 
 
-def _mastodon_len(self, text):  # pragma: todo
+def _mastodon_len(self, text):
     # URI regex
     matching_pattern = (
         r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]"
@@ -1054,7 +1054,7 @@ def _process_tweets_rss(self, entries):  # pragma: todo
     return tweets
 
 
-def _update_bot_status(self, bot):  # pragma: todo
+def _update_bot_status(self, bot):
     instance = self.instance
     if instance == "mastodon" or instance == "pleroma" or instance is None:
         self._pleroma_update_bot_status(bot)
@@ -1083,7 +1083,7 @@ def _get_fedi_profile_info(self):
             self._update_bot_status(self.bot)
 
 
-def _get_fedi_info(self):  # pragma: todo
+def _get_fedi_info(self):
     self._get_fedi_profile_info()
 
 
@@ -1173,7 +1173,7 @@ def _request_proxy(
             continue
 
 
-def config_wizard(base_path, config_path):  # pragma: todo
+def config_wizard(base_path, config_path):  # pragma
     cfg_abs_path = os.path.join(base_path, config_path)
     create_msg = _(
         "\n"

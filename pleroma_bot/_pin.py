@@ -68,7 +68,7 @@ def unpin_misskey(self, pinned_file):
             unpin_url, json.dumps(data), headers=headers
         )
         if not response.ok:
-            if response.status_code == 404:  # pragma: todo
+            if response.status_code == 404:  # pragma
                 logger.warning(
                     _(
                         "Pinned post {} not found."
@@ -183,7 +183,7 @@ def unpin_pleroma(self, pinned_file):
         )
         response = requests.post(unpin_url, headers=self.header_pleroma)
         if not response.ok:
-            if response.status_code == 404:  # pragma: todo
+            if response.status_code == 404:  # pragma
                 logger.warning(
                     _(
                         "Pinned post {} not found."

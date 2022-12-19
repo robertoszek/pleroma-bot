@@ -25,7 +25,7 @@ def pleroma_api_request(method, url,
                         params=None, data=None, headers=None, cookies=None,
                         files=None, auth=None, timeout=None, proxies=None,
                         hooks=None, allow_redirects=True, stream=None,
-                        verify=None, cert=None, json=None):  # pragma: todo
+                        verify=None, cert=None, json=None):
     response = requests.request(
         method=method.upper(),
         url=url,
@@ -38,7 +38,7 @@ def pleroma_api_request(method, url,
         cookies=cookies,
         hooks=hooks,
     )
-    if response.status_code == 429:
+    if response.status_code == 429:  # pragma
         remaining_header = response.headers.get("X-RateLimit-Remaining")
         limit_header = response.headers.get("X-RateLimit-Limit")
         reset_header = response.headers.get("X-RateLimit-Reset")

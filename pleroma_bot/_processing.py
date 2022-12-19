@@ -168,7 +168,7 @@ def process_tweets(self, tweets_to_post):
                     t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url_user = f"{self.twitter_url_home}/{t_user}"
             signature = f"\n\n 🐦🔗: {twitter_url_user}/status/{tweet['id']}"
-            if self.instance == "mastodon":  # pragma: todo
+            if self.instance == "mastodon":
                 len_text = self._mastodon_len(tweet["text"])
                 len_signature = self._mastodon_len(signature)
             else:
@@ -186,7 +186,7 @@ def process_tweets(self, tweets_to_post):
                 self.original_date_format,
             )
             orig_date = f"\n\n[{date}]"
-            if self.instance == "mastodon":  # pragma: todo
+            if self.instance == "mastodon":
                 len_text = self._mastodon_len(tweet["text"])
             else:
                 len_text = len(tweet["text"])
@@ -210,7 +210,7 @@ def process_tweets(self, tweets_to_post):
             tweet["polls"] = _process_polls(self, tweet, media)
 
         # Truncate text if needed
-        if self.instance == "mastodon":  # pragma: todo
+        if self.instance == "mastodon":
             total_tweet_length = self._mastodon_len(tweet["text"])
         else:
             total_tweet_length = len(tweet["text"])
