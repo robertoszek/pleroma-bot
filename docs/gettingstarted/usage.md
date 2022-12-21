@@ -138,3 +138,41 @@ We recommend using either:
       pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       rss: https://rsshub.app/twitter/user/<twitter_user>/
     ```
+
+## Content warnings
+By using the `content_warnings` mapping in your config, you can add content warning topics to a mirrored tweet if keywords from that topic are found within the tweet's text.
+
+```yaml title="config.yml"
+pleroma_base_url: https://pleroma.instance
+content_warnings:
+  "tetris spoilers":
+    - "tspin"
+    - "tetrimino"
+    - "line clear"
+  "dungeon-crawling":
+    - "rogue"
+    - "rogue-like"
+    - "rogue-lite"
+  "nippon cartoons":
+    - "manga"
+    - "anime"
+  "spoilers":
+    - "#spoilers"
+users:
+- twitter_username: User1
+  pleroma_username: MyPleromaUser1
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+For example, if the original tweet was:
+
+```
+The tspin was better in the manga
+#tetris #spoilers
+```
+
+Then the resulting content warning using the previous config will be:
+
+```Tetris spoilers, nippon cartoons, spoilers```
+
+![Content Warning](/pleroma-bot/images/cw.png)

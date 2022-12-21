@@ -178,6 +178,7 @@ class User(object):
             "proxy_pool": None,
             "proxy": True,
             "avoid_duplicates": True,
+            "content_warnings": {},
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
@@ -686,7 +687,8 @@ def main():
                             ),
                             tweet["polls"],
                             tweet["possibly_sensitive"],
-                            tweets_to_post["media_processed"]
+                            tweets_to_post["media_processed"],
+                            cw=tweet["cw"]
                         )
                         posted[tweet["id"]] = post_id
                         posts_ids = user.posts_ids

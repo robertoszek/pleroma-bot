@@ -148,6 +148,8 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | avoid_duplicates     |   Yes    | true                       | Use IDs stored in `posts.json` to check if tweet has already been published on the Fedi instance with the bot                                                              |
 | application_name     |   Yes    |                            | [Fediverse application name](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) to use as a filter when getting the date of the latest published post by the bot |
 | archive              |   Yes    |                            | [Twitter archive's](/pleroma-bot/gettingstarted/usage/#using-an-archive) path to use as a source of tweets to mirror                                                       |
+| content_warnings     |   Yes    |                            | [Content warnings](https://docs.joinmastodon.org/user/posting/#cw) topics containing a [list of keywords](/pleroma-bot/gettingstarted/usage/#content-warnings)             |
+
 
 There a few mappings *exclusive* to users:
 

@@ -127,7 +127,8 @@ def post_pleroma(
         tweet: tuple,
         poll: dict,
         sensitive: bool,
-        media: list = None
+        media: list = None,
+        cw: str = None
 ) -> str:
     """Post the given text to the Pleroma instance associated with the
     User object
@@ -140,6 +141,8 @@ def post_pleroma(
     :param poll: dict of poll if attached to tweet
     :type poll: dict
     :param sensitive: if tweet is possibly sensitive or not
+    :param cw: content warning to include
+    :type cw: str
     :type sensitive: bool
     :returns: id of post
     :rtype: str
@@ -334,6 +337,7 @@ def post_pleroma(
         "sensitive": str(sensitive).lower(),
         "visibility": self.visibility,
         "media_ids[]": media_ids,
+        "spoiler_text": cw
     }
     if (
             tweet_reply_id

@@ -1197,6 +1197,48 @@ def test_hashtags(sample_users, global_mock):
     return mock, sample_user
 
 
+def test_content_warnings(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_cw = get_config_users('config_cw.yml')
+
+            for user_item in users_cw['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_cw['config'], os.getcwd(), {}
+                )
+                for t_user in sample_user_obj.twitter_username:
+                    tweets_v2 = sample_user_obj._get_tweets(
+                        "v2", t_user=t_user
+                    )
+                    sample_data = mock_request['sample_data']
+                    assert tweets_v2 == sample_data['tweets_v2']
+                    tweet = sample_user_obj._get_tweets(
+                        "v1.1", test_user.pinned
+                    )
+                    assert tweet == mock_request['sample_data']['tweet']
+                    tweets = sample_user_obj._get_tweets("v1.1")
+                    assert tweets == mock_request['sample_data']['tweets_v1']
+
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+                    for tweet in tweets_to_post['data']:
+                        if sample_user_obj.signature:
+                            sample_user_obj.post_pleroma(
+                                (
+                                    tweet["id"],
+                                    tweet["text"],
+                                    tweet["created_at"],
+                                    None,
+                                    None
+                                ), None, False, cw=tweet["cw"]
+                            )
+                            history = mock.request_history
+                            if tweet["cw"]:
+                                enc_cw = urllib.parse.quote_plus(tweet["cw"])
+                                assert enc_cw in history[-1].text
+
+
 def test_nitter_instances(sample_users, mock_request, global_mock):
     test_user = UserTemplate()
     for sample_user in sample_users:

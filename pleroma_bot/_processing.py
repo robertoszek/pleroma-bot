@@ -221,10 +221,31 @@ def process_tweets(self, tweets_to_post):
                 ).format(self.max_post_length)
             )
             tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
+        tweet["cw"] = None
+        if self.content_warnings:
+            tweet["cw"] = _check_cw(tweet["text"], self.content_warnings)
         if int(self.threads) == 1:
             pbar.update(1)
     tweets_to_post["media_processed"] = all_media
     return tweets_to_post
+
+
+def _check_cw(data, cw_list):
+    cw_found = []
+    for cw_topic in cw_list:
+        alnum = [k for k in cw_list[cw_topic] if k.isalnum()]
+        not_alnum = [k for k in cw_list[cw_topic] if not k.isalnum()]
+        topic_found = False
+        if not_alnum:
+            matches = re.findall("|".join(not_alnum), data, re.IGNORECASE)
+            if matches:
+                topic_found = True
+        if any(k.lower() in data.lower().split() for k in alnum):
+            topic_found = True
+        if topic_found:
+            cw_found.append(cw_topic.lower())
+    cw_text = ", ".join(cw_found).capitalize()
+    return cw_text
 
 
 def _get_rt_text(self, tweet):  # pragma: no cover

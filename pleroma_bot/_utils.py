@@ -766,7 +766,7 @@ def _get_account_info_from_archive(account_js_path):
     return json_p["account"]
 
 
-def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
+def post(self, tweet: tuple, poll, sensitive, media=None, cw=None) -> str:
     post_id = None
     instance = self.instance
     if media:
@@ -777,9 +777,9 @@ def post(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
             ] for key in set([i[media_id] for i in media])
         }
     if instance == "mastodon" or instance == "pleroma" or instance is None:
-        post_id = self.post_pleroma(tweet, poll, sensitive, media)
+        post_id = self.post_pleroma(tweet, poll, sensitive, media, cw=cw)
     elif self.instance == "misskey":
-        post_id = self.post_misskey(tweet, poll, sensitive, media)
+        post_id = self.post_misskey(tweet, poll, sensitive, media, cw=cw)
     return post_id
 
 

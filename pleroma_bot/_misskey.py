@@ -18,7 +18,14 @@ from .i18n import _
 from ._utils import random_string, guess_type
 
 
-def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
+def post_misskey(
+        self,
+        tweet: tuple,
+        poll: dict,
+        sensitive,
+        media=None,
+        cw: str = None
+) -> str:
     """Post the given text to the Misskey instance associated with the
     User object
 
@@ -30,6 +37,8 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
     :param poll: dict of poll if attached to tweet
     :type poll: dict
     :param sensitive: if tweet is possibly sensitive or not
+    :param cw: content warning to include
+    :type cw: str
     :type sensitive: bool
     :returns: id of post
     :rtype: str
@@ -58,7 +67,7 @@ def post_misskey(self, tweet: tuple, poll: dict, sensitive, media=None) -> str:
 
     data = {
         "i": self.pleroma_token,
-        # cw: '',
+        "cw": cw,
     }
     if (
             tweet_id in posts
