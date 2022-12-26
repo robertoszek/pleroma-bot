@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pleroma-bot\n"
 "POT-Creation-Date: 2022-12-26 21:09+0100\n"
-"PO-Revision-Date: 2022-12-26 21:09+0100\n"
+"PO-Revision-Date: 2022-12-26 21:29+0100\n"
 "Last-Translator: robertoszek <robertoszek@robertoszek.xyz>\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -372,7 +372,7 @@ msgstr "Aumentando max_tweets al valor máximo admitido"
 
 #: _utils.py:841
 msgid "Gathering tweets...{}"
-msgstr "Recopilando tweets..."
+msgstr "Recopilando tweets...{}"
 
 #: _utils.py:1079
 msgid ""

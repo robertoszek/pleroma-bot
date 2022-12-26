@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pleroma-bot\n"
-"POT-Creation-Date: 2022-12-26 21:09+0100\n"
-"PO-Revision-Date: 2022-12-26 21:11+0100\n"
+"POT-Creation-Date: 2022-12-26 21:28+0100\n"
+"PO-Revision-Date: 2022-12-26 21:28+0100\n"
 "Last-Translator: robertoszek <robertoszek@robertoszek.xyz>\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -317,6 +317,8 @@ msgid ""
 "Software on target instance ({}) not recognized. Falling back to Pleroma-"
 "like API"
 msgstr ""
+"Software en la instancia objetivo ({}) no reconocido. Usando API de tipo "
+"Pleroma como alternativa"
 
 #: _utils.py:500
 msgid "Instance appears to be Misskey ฅ^•ﻌ•^ฅ"
@@ -324,7 +326,7 @@ msgstr "La instancia parecer tipo Misskey ฅ^•ﻌ•^ฅ"
 
 #: _utils.py:503
 msgid "application_name won't work for Misskey ฅ^ዋ⋏ዋ^ฅ"
-msgstr ""
+msgstr "application_name no funcionará en Misskey ฅ^ዋ⋏ዋ^ฅ"
 
 #: _utils.py:510
 msgid "Instance response was not understood {}"
@@ -370,10 +372,8 @@ msgid "Raising max_tweets to the maximum allowed value"
 msgstr "Aumentando max_tweets al valor máximo admitido"
 
 #: _utils.py:841
-#, fuzzy
-#| msgid "Gathering tweets... "
 msgid "Gathering tweets...{}"
-msgstr "Recopilando tweets... "
+msgstr "Recopilando tweets...{}"
 
 #: _utils.py:1079
 msgid ""
@@ -386,10 +386,12 @@ msgstr ""
 #: _utils.py:1109
 msgid "Rate limit exceeded when getting guest token. Retrying with a proxy."
 msgstr ""
+"Se ha superado el límite al utilizar un token de invitado. Reintentando con "
+"un proxy..."
 
 #: _utils.py:1149
 msgid "Trying {}"
-msgstr ""
+msgstr "Intentando con {}"
 
 #: _utils.py:1179
 msgid ""
@@ -398,6 +400,10 @@ msgid ""
 "No config found at {}\n"
 "Do you want to create one? (Y/n)"
 msgstr ""
+"\n"
+"\n"
+"No se ha encontrado un archivo de configuración en {}\n"
+"¿Quieres crear uno? (Y/n)"
 
 #: _utils.py:1190
 msgid ""
@@ -412,6 +418,16 @@ msgid ""
 "4. Twitter tokens\n"
 "Select an option (1-4): "
 msgstr ""
+"\n"
+"\n"
+"Para generar un archivo de configuración, cierta información es necesaria.\n"
+"\n"
+"¿Qué quieres usar con el bot?\n"
+"1. Archivo de Twitter\n"
+"2. Canal RSS\n"
+"3. Tokens de invitado (no se necesita cuenta de desarrollador)\n"
+"4. Tokens de Twitter\n"
+"Selecciona una opción (1-4): "
 
 #: _utils.py:1226
 msgid ""
@@ -419,6 +435,9 @@ msgid ""
 "\n"
 "Please input the path to your archive (.zip):"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca la ruta del archivo (.zip):"
 
 #: _utils.py:1236
 msgid ""
@@ -426,6 +445,9 @@ msgid ""
 "\n"
 "Please input your Twitter Bearer token [twitter_token]:"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca el Bearer Token de Twitter [twitter_token]:"
 
 #: _utils.py:1245
 msgid ""
@@ -433,6 +455,9 @@ msgid ""
 "\n"
 "Please input the RSS URL to use [rss]:"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca la URL del canal RSS a usar [rss]:"
 
 #: _utils.py:1255
 msgid ""
@@ -441,6 +466,10 @@ msgid ""
 "Please input the URL of your Fediverse instance (Pleroma/Mastodon/Misskey) "
 "[pleroma_base_url]:"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca la URL de la instancia objetivo (Pleroma/Mastodon/"
+"Misskey) [pleroma_base_url]:"
 
 #: _utils.py:1266
 msgid ""
@@ -449,6 +478,10 @@ msgid ""
 "Please input the username of the Twitter user you want to mirror "
 "[twitter_username]:"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca el nombre de usuario del usuario de Twitter que desea "
+"replicar [twitter_username]:"
 
 #: _utils.py:1276
 msgid ""
@@ -458,6 +491,11 @@ msgid ""
 "account\n"
 "to use as a target when mirroring [pleroma_username]:"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca el nombre del usuario (ó el ID de cuenta si usa "
+"Mastodon) de la cuenta de Fediverso\n"
+"a usar como objetivo al replicar [pleroma_username]:"
 
 #: _utils.py:1287
 msgid ""
@@ -465,6 +503,10 @@ msgid ""
 "\n"
 "Please input your Fediverse token [pleroma_token]:"
 msgstr ""
+"\n"
+"\n"
+"Por favor introduzca el Bearer token de la cuenta de Fediverso "
+"[pleroma_token]:"
 
 #: cli.py:207
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
@@ -558,6 +600,9 @@ msgid ""
 "path of lock file (pleroma_bot.lock) to prevent collisions  with multiple "
 "bot instances. By default it will be placed  next to your config file."
 msgstr ""
+"ruta del fichero de bloqueo (pleroma_bot.lock) para prevenir colisiones  con "
+"múltiples instancias del bot. Por defecto se creará  en la ruta del archivo "
+"de configuración."
 
 #: cli.py:494
 msgid "config path: {}"
