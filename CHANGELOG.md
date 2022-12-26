@@ -5,6 +5,7 @@
 - Bug: Handle special media types that don't include link to media in some cases. Thanks @tewhalen!
 - Bug: Align max_tweets minimum value (10) with the warning message and actual value. Thanks @nemobis!
 - Bug: Multiple video attachments cause HTTP 422 on Mastodon when posting.
+- Bug: Exception when post was manually pinned on the Fedi account and later one was pinned on the Twitter account. Thanks @selyod-ka!
 
 ## Enhancements
 - Archive offline support, you no longer need a Twitter developer account or access to their API to process an archive.

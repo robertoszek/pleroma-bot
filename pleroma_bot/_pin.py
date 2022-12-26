@@ -231,7 +231,7 @@ def _find_pinned(self, pinned_file):
             try:
                 if self.posts:
                     for post in self.posts:
-                        if post["pinned"]:
+                        if "pinned" in post.keys() and post["pinned"]:
                             pinned.append(post["id"])
                             with open(pinned_file, "w") as file:
                                 file.write(f'{post["id"]}\n')
