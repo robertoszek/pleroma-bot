@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pleroma-bot\n"
-"POT-Creation-Date: 2022-11-25 03:17+0100\n"
-"PO-Revision-Date: 2022-11-25 03:22+0100\n"
+"POT-Creation-Date: 2022-12-26 21:09+0100\n"
+"PO-Revision-Date: 2022-12-26 21:11+0100\n"
 "Last-Translator: robertoszek <robertoszek@robertoszek.xyz>\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -15,14 +15,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: tests\n"
 
-#: _cohost.py:62 _misskey.py:131 _pleroma.py:43
+#: _cohost.py:62 _misskey.py:170
 msgid "No posts were found in the target Fediverse account"
-msgstr "No se han encontrado posts en la cuenta de Fediverso objectivo"
+msgstr "No se han encontrado posts en la cuenta de Fediverso objetivo"
 
 #: _error.py:13
 msgid ""
@@ -32,11 +32,17 @@ msgstr ""
 "El bloqueo del fichero '{}' no pudo ser adquirido. ¿Hay otra instancia de "
 "pleroma-bot en ejecución?"
 
-#: _misskey.py:94
+#: _misskey.py:91
+msgid ""
+"Tweet already posted in Misskey:\t{} - {}. Skipping to avoid duplicates..."
+msgstr ""
+"Tweet ya publicado en Misskey: {} - {}. Omitiendo para evitar duplicados..."
+
+#: _misskey.py:133
 msgid "Post in Misskey:\t{}"
 msgstr "Publicando en Misskey\t{}"
 
-#: _misskey.py:209 _pleroma.py:145
+#: _misskey.py:248 _pleroma.py:268
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -53,7 +59,7 @@ msgstr ""
 "Considere aumentar el límite de\n"
 " tamaño de adjuntos para su instancia"
 
-#: _misskey.py:224 _pleroma.py:160
+#: _misskey.py:263 _pleroma.py:283
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -66,7 +72,7 @@ msgstr ""
 "{error}\n"
 "Archivo: {file}"
 
-#: _misskey.py:295 _pleroma.py:282
+#: _misskey.py:334 _pleroma.py:439
 msgid ""
 "Total number of metadata fields cannot exceed 4.\n"
 "Provided: {}. Exiting..."
@@ -74,7 +80,7 @@ msgstr ""
 "El número de campos de metadatos no puede ser superior a 4.\n"
 "Se han introducido {}. Saliendo..."
 
-#: _misskey.py:322 _pleroma.py:320
+#: _misskey.py:361 _pleroma.py:481
 msgid ""
 "Exception occurred\n"
 "Error code 422\n"
@@ -89,19 +95,35 @@ msgstr ""
 "metadatos\n"
 "no se muy largo."
 
-#: _misskey.py:332 _pleroma.py:330
+#: _misskey.py:371 _pleroma.py:491
 msgid "Updating profile:\t {}"
 msgstr "Actualizando perfil:\t{}"
 
-#: _pin.py:35 _pin.py:137
+#: _pin.py:34 _pin.py:153
 msgid "Pinning post:\t{}"
 msgstr "Fijando post:\t{}"
 
-#: _pin.py:73 _pin.py:171
+#: _pin.py:74 _pin.py:189
+msgid ""
+"Pinned post {} not found. Was it deleted? Checking last posts for pinned "
+"post..."
+msgstr ""
+"No se ha encontrado el archivo con el ID del anterior post fijado. Revisando "
+"últimos posts..."
+
+#: _pin.py:82 _pin.py:100 _pin.py:197 _pin.py:215
+msgid "Unpinned: {}"
+msgstr "Desfijado:\t{}"
+
+#: _pin.py:85 _pin.py:102 _pin.py:200 _pin.py:217
+msgid "Pinned post not found. Giving up unpinning..."
+msgstr "Post fijado no encontrado. Dejamos de intentar el desfijado..."
+
+#: _pin.py:89 _pin.py:204
 msgid "Unpinning previous:\t{}"
 msgstr "Desfijando anterior:\t{}"
 
-#: _pin.py:77 _pin.py:175
+#: _pin.py:93 _pin.py:208
 msgid ""
 "File with previous pinned post ID not found or empty. Checking last posts "
 "for pinned post..."
@@ -109,39 +131,85 @@ msgstr ""
 "No se ha encontrado el archivo con el ID del anterior post fijado. Revisando "
 "últimos posts..."
 
-#: _pin.py:84 _pin.py:182
-msgid "Unpinned: {}"
-msgstr "Desfijado:\t{}"
+#: _pleroma.py:55 _twitter.py:81
+msgid "Rate limit exceeded. {} out of {} requests remaining until {} UTC"
+msgstr "Límite excedido. 0 de {} peticiones restantes hasta {} UTC"
 
-#: _pin.py:86 _pin.py:184
-msgid "Pinned post not found. Giving up unpinning..."
-msgstr "Post fijado no encontrado. Dejamos de intentar el desfijado..."
+#: _pleroma.py:60 _twitter.py:86
+msgid "Sleeping for {}s..."
+msgstr "Esperando {} segundos..."
 
-#: _pleroma.py:97
+#: _pleroma.py:103
+msgid "filter pleroma posts with application name {}, length: {}"
+msgstr "filtrando Pleroma posts con nombre de aplicación {}, longitud: {}"
+
+#: _pleroma.py:113
+msgid "Not enough posts were found in the target Fediverse account"
+msgstr "No se han encontrado posts en la cuenta de Fediverso objetivo"
+
+#: _pleroma.py:175
+msgid ""
+"Tweet already posted in Pleroma:\t{} - {}. Skipping to avoid duplicates..."
+msgstr ""
+"Tweet ya publicado en Pleroma::\t{} - {}. Omitiendo para evitar duplicados..."
+
+#: _pleroma.py:197
 msgid "Reblog in Pleroma:\t{}"
 msgstr "Reblog en Pleroma\t{}"
 
-#: _pleroma.py:173
+#: _pleroma.py:208
+msgid ""
+"Attachments: {}. Media attachment limit for target instance is {}. Ignoring "
+"the rest..."
+msgstr ""
+"Archivos adjuntos: {}. El límite de archivos adjuntos multimedia para la "
+"instancia de destino es {}. Ignorando el resto..."
+
+#: _pleroma.py:232
+msgid ""
+"Mastodon only supports {} video/s per post. Already reached max media, "
+"skipping the rest... "
+msgstr ""
+"Mastodon solo soporta {} video/s por cada post. Ya se ha alcanzado el máximo "
+"de elementos multimedia, omitiendo el resto... "
+
+#: _pleroma.py:302
 msgid "Error uploading media:\t{}"
 msgstr "Error mientras subiendo contenido:\t{}"
 
-#: _pleroma.py:214
+#: _pleroma.py:315
+msgid ""
+"Mastodon cannot attach a video to a post that already contains images, "
+"skipping video attachment... "
+msgstr ""
+"Mastodon no puede adjuntar un vídeo a un post que ya contiene imágenes, "
+"omitiendo vídeo adjunto... "
+
+#: _pleroma.py:324
+msgid ""
+"Mastodon only supports {} video/s per post, with no mixed media.Already "
+"reached max media, skipping the rest... "
+msgstr ""
+"Mastodon sólo admite {} vídeo/s por post, sin elementos multimedia mixtos. "
+"Ya se ha alcanzado el máximo de elementos multimedia, omitiendo el resto... "
+
+#: _pleroma.py:371
 msgid "Post in Pleroma:\t{}"
 msgstr "Publicando en Pleroma\t{}"
 
-#: _processing.py:83 _utils.py:117
+#: _processing.py:82 _utils.py:118 _utils.py:848 _utils.py:885
 msgid "Processing tweets... "
 msgstr "Procesando tweets... "
 
-#: _processing.py:208 _utils.py:963
+#: _processing.py:227 _utils.py:1031
 msgid "Post text longer than allowed ({}), truncating..."
 msgstr "El texto del post es más largo que el permitido ({}), truncando..."
 
-#: _processing.py:281
+#: _processing.py:344
 msgid "Giving up, reference is too deep"
 msgstr "Dándose por vencido, la referencia está demasiado anidada"
 
-#: _processing.py:351
+#: _processing.py:417
 #, python-brace-format
 msgid ""
 "Exception occurred\n"
@@ -154,98 +222,119 @@ msgstr ""
 "{tweet} - {media_url}\n"
 "Ignorando el adjunto y continuando..."
 
-#: _processing.py:360
+#: _processing.py:426
 #, python-brace-format
 msgid "Media possibly geoblocked? (403) Skipping... {tweet} - {media_url} "
 msgstr ""
 "¿Contenido no disponible en tu ubicación? (403) Omitiendo... {tweet} - "
 "{media_url} "
 
-#: _processing.py:383
+#: _processing.py:449
 msgid "Attachment exceeded config file size limit ({})"
 msgstr "Contenido adjunto ha excedido el límite configurado ({})"
 
-#: _processing.py:387
+#: _processing.py:453
 msgid "File size: {}MB"
 msgstr "Tamaño de fichero: {}MB"
 
-#: _processing.py:391
+#: _processing.py:457
 msgid "Ignoring attachment and continuing..."
 msgstr "Ignorando adjunto y continuando..."
 
-#: _processing.py:483
+#: _processing.py:549
 msgid "Couldn't expand the url {}: {}"
 msgstr "No se pudo expandir la URL {}: {}"
 
-#: _processing.py:494
+#: _processing.py:560
 msgid "Couldn't expand the url: {}"
 msgstr "No se pudo expandir la URL: {}"
 
-#: _twitter.py:37
-msgid "Rate limit exceeded. 0 out of {} requests remaining until {} UTC"
-msgstr "Límite excedido. 0 de {} peticiones restantes hasta {} UTC"
+#: _twitter.py:38
+msgid ""
+"Rate limit exceeded when using a guest token. Refreshing token and "
+"retrying..."
+msgstr ""
+"Se ha superado el límite al utilizar un token de invitado. Actualizando "
+"token y reintentando..."
 
-#: _twitter.py:42
-msgid "Sleeping for {}s..."
-msgstr "Esperando {} segundos..."
+#: _twitter.py:60
+msgid "Rate limit exceeded when using a guest token. Retrying with a proxy..."
+msgstr ""
+"Se ha superado el límite al utilizar un token de invitado. Reintentando con "
+"un proxy..."
 
-#: _twitter.py:208
+#: _twitter.py:437
+msgid "Received HTTP 404 when trying to get tweet. Tweet deleted? Skipping..."
+msgstr ""
+"HTTP 404 recibido al obtener un tweet. ¿Ha sido eliminado? Omitiendo..."
+
+#: _twitter.py:530
 msgid "API version not supported: {}"
 msgstr "Versión de API no soportada: {}"
 
-#: _twitter.py:225
+#: _twitter.py:598
 msgid "max_tweets must be between 10 and 3200. max_tweets: {}"
 msgstr "El valor de max_tweets debe estar entre 10 y 3200. max_tweets: {}"
 
-#: _twitter.py:392
+#: _twitter.py:765
 msgid "Gathering tweets... "
 msgstr "Recopilando tweets... "
 
-#: _utils.py:221
+#: _utils.py:226
 msgid "Attempting to acquire lock {} on {}"
 msgstr "Intentando adquirir el bloqueo {} en {}"
 
-#: _utils.py:228
+#: _utils.py:233
 msgid "Lock {} acquired on {}"
 msgstr "Bloqueo {} adquirido en {}"
 
-#: _utils.py:234
+#: _utils.py:239
 msgid "Timeout on acquiring lock {} on {}"
 msgstr "Tiempo de espera excedido al intentar adquirir el bloqueo {} en {}"
 
-#: _utils.py:240
+#: _utils.py:245
 msgid "Lock {} not acquired on {}, waiting {} seconds ..."
 msgstr "Bloqueo {} no adquirido en {}, esperando {} segundos ..."
 
-#: _utils.py:275
+#: _utils.py:280
 msgid "Attempting to release lock {} on {}"
 msgstr "Intentando liberar el bloqueo {} en {}"
 
-#: _utils.py:280
+#: _utils.py:285
 msgid "Lock {} released on {}"
 msgstr "Bloqueo {} liberado en {}"
 
-#: _utils.py:334
+#: _utils.py:339
 msgid "Current pinned:\t{}"
 msgstr "Fijado actualmente:\t{}"
 
-#: _utils.py:345
+#: _utils.py:350
 msgid "Previous pinned:\t{}"
 msgstr "Fijado anteriormente:\t{}"
 
-#: _utils.py:486
+#: _utils.py:495
+msgid ""
+"Software on target instance ({}) not recognized. Falling back to Pleroma-"
+"like API"
+msgstr ""
+
+#: _utils.py:500
 msgid "Instance appears to be Misskey ฅ^•ﻌ•^ฅ"
 msgstr "La instancia parecer tipo Misskey ฅ^•ﻌ•^ฅ"
 
-#: _utils.py:492
+#: _utils.py:503
+msgid "application_name won't work for Misskey ฅ^ዋ⋏ዋ^ฅ"
+msgstr ""
+
+#: _utils.py:510
 msgid "Instance response was not understood {}"
 msgstr "La respuesta de la instancia no ha podido ser interpretada {}"
 
-#: _utils.py:497
+#: _utils.py:515
 msgid "Target instance is Mastodon..."
 msgstr "La instancia objetivo es Mastodon..."
 
-#: _utils.py:528
+#: _utils.py:547
 msgid ""
 "Mastodon doesn't support display names longer than 30 characters, truncating "
 "it and trying again..."
@@ -253,15 +342,15 @@ msgstr ""
 "Mastodon no soporta nombres para mostrar de más de 30 caracteres, "
 "truncándolo e intentándolo de nuevo..."
 
-#: _utils.py:536
+#: _utils.py:555
 msgid "Mastodon doesn't support rich text. Disabling it..."
 msgstr "Mastodon no soporta texto enriquecido. Desactivándolo..."
 
-#: _utils.py:558
+#: _utils.py:577
 msgid "How far back should we retrieve tweets from the Twitter account?"
 msgstr "¿Desde cuándo deberíamos recopilar los tweets de la cuenta de Twitter?"
 
-#: _utils.py:561
+#: _utils.py:580
 msgid ""
 "\n"
 "Enter a date (YYYY-MM-DD):\n"
@@ -276,24 +365,113 @@ msgstr ""
 "comporte como de costumbre (comprobando la fecha del\n"
 "último post de la cuenta del Fediverso)] "
 
-#: _utils.py:577 _utils.py:584
+#: _utils.py:596 _utils.py:603
 msgid "Raising max_tweets to the maximum allowed value"
 msgstr "Aumentando max_tweets al valor máximo admitido"
 
-#: _utils.py:1010
+#: _utils.py:841
+#, fuzzy
+#| msgid "Gathering tweets... "
+msgid "Gathering tweets...{}"
+msgstr "Recopilando tweets... "
+
+#: _utils.py:1079
 msgid ""
 "Bot flag in target profile ({}) differs from your config. Updating it to "
 "{}... "
 msgstr ""
 "Variable de bot en perfil de destino ({}) difiere de tu configuración. "
-"Actualizándola a {}..."
+"Actualizándola a {}… "
 
-#: cli.py:188
+#: _utils.py:1109
+msgid "Rate limit exceeded when getting guest token. Retrying with a proxy."
+msgstr ""
+
+#: _utils.py:1149
+msgid "Trying {}"
+msgstr ""
+
+#: _utils.py:1179
+msgid ""
+"\n"
+"\n"
+"No config found at {}\n"
+"Do you want to create one? (Y/n)"
+msgstr ""
+
+#: _utils.py:1190
+msgid ""
+"\n"
+"\n"
+"In order to generate a config file, some information will be needed.\n"
+"\n"
+"What do you want to use with the bot?\n"
+"1. Twitter archive\n"
+"2. RSS feed\n"
+"3. Guest tokens (no required developer account)\n"
+"4. Twitter tokens\n"
+"Select an option (1-4): "
+msgstr ""
+
+#: _utils.py:1226
+msgid ""
+"\n"
+"\n"
+"Please input the path to your archive (.zip):"
+msgstr ""
+
+#: _utils.py:1236
+msgid ""
+"\n"
+"\n"
+"Please input your Twitter Bearer token [twitter_token]:"
+msgstr ""
+
+#: _utils.py:1245
+msgid ""
+"\n"
+"\n"
+"Please input the RSS URL to use [rss]:"
+msgstr ""
+
+#: _utils.py:1255
+msgid ""
+"\n"
+"\n"
+"Please input the URL of your Fediverse instance (Pleroma/Mastodon/Misskey) "
+"[pleroma_base_url]:"
+msgstr ""
+
+#: _utils.py:1266
+msgid ""
+"\n"
+"\n"
+"Please input the username of the Twitter user you want to mirror "
+"[twitter_username]:"
+msgstr ""
+
+#: _utils.py:1276
+msgid ""
+"\n"
+"\n"
+"Please input the username (or account ID if using Mastodon) of the Fediverse "
+"account\n"
+"to use as a target when mirroring [pleroma_username]:"
+msgstr ""
+
+#: _utils.py:1287
+msgid ""
+"\n"
+"\n"
+"Please input your Fediverse token [pleroma_token]:"
+msgstr ""
+
+#: cli.py:207
 msgid "No Pleroma URL defined in config! [pleroma_base_url]"
 msgstr ""
 "¡No se ha definido la URL de Pleroma en la configuración! [pleroma_base_url]"
 
-#: cli.py:216
+#: cli.py:244
 msgid ""
 "Some or all OAuth 1.0a tokens missing, falling back to application-only "
 "authentication"
@@ -301,15 +479,15 @@ msgstr ""
 "No todos los tokens OAuth 1.0a han sido encontrados. Usando autenticación de "
 "aplicación en su lugar"
 
-#: cli.py:272 cli.py:281
+#: cli.py:300 cli.py:309
 msgid "Visibility not supported! Values allowed are: {}"
 msgstr "Visibilidad introducida no soportada. Valores válidos: {}"
 
-#: cli.py:296
+#: cli.py:324
 msgid "Bot for mirroring one or multiple Twitter accounts in Pleroma/Mastodon."
 msgstr "Bot para replicar una o varias cuentas de Twitter en Pleroma/Mastodon."
 
-#: cli.py:309
+#: cli.py:337
 msgid ""
 "path of config file (config.yml) to use and parse. If not specified, it will "
 "try to find it in the current working directory."
@@ -317,7 +495,7 @@ msgstr ""
 "ruta del fichero de configuración (config.yml) a usar e interpretar. Si no "
 "se especifica, se intentará usar el del directorio de trabajo actual."
 
-#: cli.py:323
+#: cli.py:351
 msgid ""
 "run in daemon mode. By default it will re-run every 60min. You can control "
 "this with --pollrate"
@@ -325,7 +503,7 @@ msgstr ""
 "correr en modo daemon. Por defecto será relanzado cada 60 minutos. Puede "
 "controlar la frecuencia con --pollrate"
 
-#: cli.py:336
+#: cli.py:364
 msgid ""
 "only applies to daemon mode. How often to run the program in the background "
 "(in minutes). By default is 60min."
@@ -333,7 +511,7 @@ msgstr ""
 "sólo aplica a modo daemon. Frecuencia con la que correr el programa de fondo "
 "(en minutos). Por defecto es 60 minutos."
 
-#: cli.py:348
+#: cli.py:376
 msgid ""
 "path of log file (error.log) to create. If not specified, it will try to "
 "store it at your config file path"
@@ -341,7 +519,7 @@ msgstr ""
 "ruta del fichero de log (error.log) a escribir. Si no se especifica, se "
 "intentará usar la ruta en la que se encuentra el fichero de configuración"
 
-#: cli.py:361
+#: cli.py:389
 msgid ""
 "skips Fediverse profile update (no background image, profile image, bio "
 "text, etc.)"
@@ -349,7 +527,7 @@ msgstr ""
 "omite la actualización de perfil en la cuenta del Fediverso (imagen de "
 "fondo, imagen de perfil, biografía, etc.)"
 
-#: cli.py:375
+#: cli.py:403
 msgid ""
 "forces the tweet retrieval to start from a specific date. The "
 "twitter_username value (FORCEDATE) can be supplied to only force it for that "
@@ -362,32 +540,34 @@ msgstr ""
 "de configuración. En lugar de twitter_username se puede proporcionar una "
 "fecha (AAAA-MM-DD) para forzar esa fecha en *todos* los usuarios"
 
-#: cli.py:390
+#: cli.py:418
 msgid "skips first run checks"
 msgstr "omite las validaciones de la primera ejecución"
 
-#: cli.py:400
+#: cli.py:428
 msgid "path of the Twitter archive file (zip) to use for posting tweets."
 msgstr ""
 "ruta del fichero de archivo de Twitter (zip) a usar para publicar tweets."
 
-#: cli.py:410
+#: cli.py:438
 msgid "number of threads to use when processing tweets"
 msgstr "número de hilos a usar cuando procesando tweets"
 
-#: cli.py:434
-msgid "Debug logging enabled"
-msgstr "Modo de depuración activado"
+#: cli.py:448
+msgid ""
+"path of lock file (pleroma_bot.lock) to prevent collisions  with multiple "
+"bot instances. By default it will be placed  next to your config file."
+msgstr ""
 
-#: cli.py:449
+#: cli.py:494
 msgid "config path: {}"
 msgstr "ruta de configuración: {}"
 
-#: cli.py:450
+#: cli.py:495
 msgid "tweets temp folder: {}"
 msgstr "carpeta temporal de tweets: {}"
 
-#: cli.py:477
+#: cli.py:522
 msgid ""
 "Multiple twitter users for one Fediverse account, skipping profile and "
 "pinned tweet."
@@ -395,11 +575,11 @@ msgstr ""
 "Varios usuarios de Twitter definidos para una cuenta de Fediverso, omitiendo "
 "la actualización de perfil y tweet fijado."
 
-#: cli.py:493
+#: cli.py:538
 msgid "Processing user:\t{}"
 msgstr "Procesando usuario:\t{}"
 
-#: cli.py:504
+#: cli.py:549
 msgid ""
 "It seems like pleroma-bot is running for the first time for this Twitter "
 "user: {}"
@@ -407,11 +587,11 @@ msgstr ""
 "Parece que pleroma-bot está ejecutándose por primera vez para este usuario: "
 "{}"
 
-#: cli.py:526
+#: cli.py:576
 msgid "Invalid forceDate format, use \"YYYY-mm-dd\""
-msgstr "Formato inválido en forceDate, use \"AAAA-MM-DD\" "
+msgstr "Formato inválido en forceDate, use \"AAAA-MM-DD\""
 
-#: cli.py:567
+#: cli.py:619
 msgid ""
 "\n"
 "Using RSS feed. The following features will not be available: \n"
@@ -425,7 +605,7 @@ msgstr ""
 "- Tweets fijados\n"
 "- Encuestas"
 
-#: cli.py:582
+#: cli.py:634
 msgid ""
 "Unable to retrieve tweets. Is the account protected? If so, you need to "
 "provide the following OAuth 1.0a fields in the user config:\n"
@@ -442,26 +622,30 @@ msgstr ""
 " - access_token_key \n"
 " - access_token_secret"
 
-#: cli.py:592
+#: cli.py:644
 msgid "tweets gathered: \t {}"
 msgstr "tweets recopilados: \t {}"
 
-#: cli.py:612
+#: cli.py:658
 msgid "tweets to post: \t {}"
 msgstr "tweets a publicar: \t {}"
 
-#: cli.py:621
+#: cli.py:667
 msgid "Posting tweets... "
 msgstr "Procesando tweets... "
 
-#: cli.py:661
+#: cli.py:708
 msgid "Multiple twitter users, not updating profile"
 msgstr "Varios usuarios de Twitter, omitiendo actualizado de perfil"
 
-#: cli.py:670
+#: cli.py:717
 msgid "Exception occurred for user, skipping..."
 msgstr "Se produjo una excepción para este usuario, omitiendo..."
 
-#: cli.py:676
+#: cli.py:723
 msgid "Exception occurred"
 msgstr "Se produjo una excepción"
+
+#: cli.py:740
+msgid "Debug logging enabled"
+msgstr "Modo de depuración activado"
