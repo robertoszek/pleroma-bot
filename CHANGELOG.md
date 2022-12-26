@@ -1,4 +1,4 @@
-## Unreleased
+## [1.2.0]
 ## Fixed
 - Bug: Handle exception when media attachments are geoblocked (403 Unauthorized)
 - Regression: Take into account new structure of Twitter's archive (tweet.js changed to tweets.js)
