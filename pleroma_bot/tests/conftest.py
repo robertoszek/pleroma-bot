@@ -443,9 +443,9 @@ def _sample_users(mock_request, rootdir):
                      status_code=200)
             posts = {}
             # Clean-up posts
-            posts_file = os.path.join(rootdir, 'posts.json')
-            if os.path.isfile(posts_file):
-                os.remove(posts_file)
+            # posts_file = os.path.join(rootdir, 'posts.json')
+            # if os.path.isfile(posts_file):
+            #    os.remove(posts_file)
             users.append(
                 {
                     'user_obj': User(
