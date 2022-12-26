@@ -82,7 +82,7 @@ $ pleroma-bot --archive /path/to/archive.zip
 
 Or using the `archive` mapping in your config file:
 
-```yaml title="config.yml"
+```yaml title="config.yml" hl_lines="6"
 pleroma_base_url: https://pleroma.instance
 users:
 - twitter_username: User1
@@ -139,10 +139,12 @@ We recommend using either:
       rss: https://rsshub.app/twitter/user/<twitter_user>/
     ```
 
-## Content warnings
-By using the `content_warnings` mapping in your config, you can add content warning topics to a mirrored tweet if keywords from that topic are found within the tweet's text.
+## Advanced usage
 
-```yaml title="config.yml"
+### Content warnings
+By using the `content_warnings` mapping in your config, you can add [content warning](https://docs.joinmastodon.org/user/posting/#cw) topics to a mirrored tweet if keywords from that topic are found within the tweet's text.
+
+```yaml title="config.yml" hl_lines="2-15"
 pleroma_base_url: https://pleroma.instance
 content_warnings:
   "tetris spoilers":
@@ -166,13 +168,52 @@ users:
 
 For example, if the original tweet was:
 
-```
-The tspin was better in the manga
-#tetris #spoilers
-```
+!!! quote "Original Tweet :material-twitter:" 
+    The ==tspin== was better in the ==manga==
+    \#tetris ==#spoilers==
+    
 
 Then the resulting content warning using the previous config will be:
 
-```Tetris spoilers, nippon cartoons, spoilers```
+        Tetris spoilers, nippon cartoons, spoilers
 
 ![Content Warning](/pleroma-bot/images/cw.png)
+
+### Custom replacements
+Using the `custom_replacements` mapping on your config you can set text to be replaced on the mirrored tweet before publishing it.
+
+For example, this is particularly useful if you happen to have multiple mirrored accounts but their handles are not an exact match on the Fediverse instance.
+
+`@Linus__Torvalds` may be have the `@TorvaldsBot` handle on your instance, so you would want to replace it with the correct one when they are mentioned by another user you're also mirroring.
+
+And not only that, you can replace any text you wish with whatever you may find useful or relevant for your usecase.
+
+You as key-value pairs on your config. The key at the left will be replaced by whatever value is associated to it:
+
+```yaml title="config.yml" hl_lines="2-6"
+pleroma_base_url: https://pleroma.instance
+custom_replacements:
+    "@replacethishandle": "@withthishandle"
+    "@Linus__Torvalds": "@TorvaldsBot"
+    "Twitter": "Birdsite"
+    "Soccer": "football"
+users:
+- twitter_username: User1
+  pleroma_username: MyPleromaUser1
+  pleroma_token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+So, by using the previous config example if the original tweet was:
+
+!!! quote "Original Tweet :material-twitter:"
+
+    Hey ==*@Linus__Torvalds*== hit me up on ==*Twitter*== DMs for further details on 
+    the ==*soccer*== league we're organising on next week's meetup.
+
+
+The post published on the mirror account would be the following:    
+
+!!! quote "Fediverse Post :fontawesome-solid-robot:"
+
+    Hey ==*@TorvaldsBot*== hit me up on ==*Birdsite*== DMs for further details on 
+    the ==*football*== league we're organising on next week's meetup.

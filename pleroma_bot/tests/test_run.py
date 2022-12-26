@@ -1239,6 +1239,45 @@ def test_content_warnings(sample_users, mock_request, global_mock):
                                 assert enc_cw in history[-1].text
 
 
+def test_custom_replacements(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_cw = get_config_users('config_custom_replacements.yml')
+
+            for user_item in users_cw['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_cw['config'], os.getcwd(), {}
+                )
+                for t_user in sample_user_obj.twitter_username:
+                    tweets_v2 = sample_user_obj._get_tweets(
+                        "v2", t_user=t_user
+                    )
+                    sample_data = mock_request['sample_data']
+                    assert tweets_v2 == sample_data['tweets_v2']
+                    tweet = sample_user_obj._get_tweets(
+                        "v1.1", test_user.pinned
+                    )
+                    assert tweet == mock_request['sample_data']['tweet']
+                    tweets = sample_user_obj._get_tweets("v1.1")
+                    assert tweets == mock_request['sample_data']['tweets_v1']
+                    to_replace = []
+                    for tw in tweets_v2["data"]:
+                        for key in sample_user_obj.custom_replacements:
+                            if key in tw["text"]:
+                                to_replace.append(key)
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+                    text = ''
+                    for tweet in tweets_to_post["data"]:
+                        for key in sample_user_obj.custom_replacements:
+                            assert key not in tweet["text"]
+                        text = f'{text}{tweet["text"]}'
+                    for key in to_replace:
+                        replacement = sample_user_obj.custom_replacements[key]
+                        assert replacement in text
+        return mock
+
+
 def test_nitter_instances(sample_users, mock_request, global_mock):
     test_user = UserTemplate()
     for sample_user in sample_users:

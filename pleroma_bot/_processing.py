@@ -158,6 +158,13 @@ def process_tweets(self, tweets_to_post):
                 "https://youtube.com",
                 self.invidious_base_url
             )
+        if hasattr(self, "custom_replacements"):
+            if self.custom_replacements:
+                tweet["text"] = _custom_replacements(
+                    self,
+                    tweet["text"],
+                    self.custom_replacements
+                )
         signature = ''
         if self.signature:
             if self.archive:  # pragma: todo
@@ -246,6 +253,20 @@ def _check_cw(data, cw_list):
             cw_found.append(cw_topic.lower())
     cw_text = ", ".join(cw_found).capitalize()
     return cw_text
+
+
+def _custom_replacements(self, data, custom_replacements):
+    pairs = custom_replacements.items()
+    # normalize dict keys to lower-case for case-insensitive matching
+    custom_replacements = {k.lower(): v for k, v in pairs}
+    # alternation regex on all keys in custom_replacements
+    keys_regex = "|".join(custom_replacements.keys())
+    matches = re.findall(keys_regex, data, re.IGNORECASE)
+    for match in matches:
+        data = re.sub(
+            match, lambda m: custom_replacements[m.group().lower()], data
+        )
+    return data
 
 
 def _get_rt_text(self, tweet):  # pragma: no cover

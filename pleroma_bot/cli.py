@@ -115,6 +115,7 @@ class User(object):
     from ._processing import _process_polls
     from ._processing import _download_media
     from ._processing import _replace_mentions
+    from ._processing import _custom_replacements
     from ._processing import _get_best_bitrate_video
 
     def __init__(self, user_cfg: dict, cfg: dict, base_path: str, posts_ids):
@@ -179,6 +180,7 @@ class User(object):
             "proxy": True,
             "avoid_duplicates": True,
             "content_warnings": {},
+            "custom_replacements": {},
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:

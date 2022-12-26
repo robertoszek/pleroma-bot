@@ -25,6 +25,7 @@
 - `application_name` mapping, for specifying the Fediverse application name to use as a filter when getting the date of the latest published post by the bot. Thanks @reorx!
 - Configuration wizard, which generates a minimal config if none is found
 - `content_warnings`, for specifying and keywords that if found will add a content warning to the Fediverse post
+- `custom_replacements` for replacing any text (Twitter handles that differ from the Fedi handle, for example) Thanks @selyod-ka!
 
 ## [1.1.0] 06-06-2022
 ## Fixed

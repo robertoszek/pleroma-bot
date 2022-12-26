@@ -149,10 +149,11 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | application_name     |   Yes    |                            | [Fediverse application name](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) to use as a filter when getting the date of the latest published post by the bot |
 | archive              |   Yes    |                            | [Twitter archive's](/pleroma-bot/gettingstarted/usage/#using-an-archive) path to use as a source of tweets to mirror                                                       |
 | content_warnings     |   Yes    |                            | [Content warnings](https://docs.joinmastodon.org/user/posting/#cw) topics containing a [list of keywords](/pleroma-bot/gettingstarted/usage/#content-warnings)             |
+| custom_replacements  |   Yes    |                            | Key-value-pairs for replacing text with [custom values](/pleroma-bot/gettingstarted/usage/#custom-replacements)                                                                                                                       |
 
 
 There a few mappings *exclusive* to users:
-
+ 
 | User mapping     | Optional | Default | Description                                                                                      |
 |:-----------------|:--------:|:--------|:-------------------------------------------------------------------------------------------------|
 | twitter_username |    No    |         | Username of Twitter account to mirror (can be a list)                                            |
