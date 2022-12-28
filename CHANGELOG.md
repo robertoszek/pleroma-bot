@@ -25,8 +25,9 @@
 - Caching IDs of posts published and skip mirroring tweet if associated published post is found to avoid duplicates. You can change this with the `avoid_duplicates` mapping.
 - `application_name` mapping, for specifying the Fediverse application name to use as a filter when getting the date of the latest published post by the bot. Thanks @reorx!
 - Configuration wizard, which generates a minimal config if none is found
-- `content_warnings`, for specifying and keywords that if found will add a content warning to the Fediverse post
+- `content_warnings`, for specifying keywords that if found will add a content warning to the Fediverse post
 - `custom_replacements` for replacing any text (Twitter handles that differ from the Fedi handle, for example) Thanks @selyod-ka!
+- `software` config mapping, for sidestepping the automatic detection of the type of software (mastodon, pleroma, misskey) running on the target instance and forcing a specific value. If your target is a fork of another project, for example, you would be able to force the bot to use whichever software (mastodon, pleroma, misskey) is the closest match for their API.
 
 ## [1.1.0] 06-06-2022
 ## Fixed

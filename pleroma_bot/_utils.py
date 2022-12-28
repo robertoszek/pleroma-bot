@@ -490,6 +490,9 @@ def _get_instance_info(self):
                     response.raise_for_status()  # pragma
                 nodeinfo_json = response.json()
                 self.instance = nodeinfo_json["software"]["name"]
+        if hasattr(self, "software"):
+            if self.software:
+                self.instance = self.software
         if self.instance not in known_software:
             logger.info(_(
                 "Software on target instance ({}) not recognized."

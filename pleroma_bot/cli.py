@@ -134,6 +134,7 @@ class User(object):
         self.max_video_attachments = None
         self.proxy = True
         self.pool_iter = None
+        self.software = None
         valid_visibility = ("public", "unlisted", "private", "direct")
         valid_visibility_mk = ("public", "home", "followers", "specified")
         default_cfg_attributes = {
@@ -181,6 +182,7 @@ class User(object):
             "avoid_duplicates": True,
             "content_warnings": {},
             "custom_replacements": {},
+            "software": None,
         }
         # iterate attrs defined in config
         for attribute in default_cfg_attributes:
