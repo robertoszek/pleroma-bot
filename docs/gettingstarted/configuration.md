@@ -150,7 +150,7 @@ Every mapping that ```pleroma-bot``` understands is listed below with a descript
 | archive              |   Yes    |                            | [Twitter archive's](/pleroma-bot/gettingstarted/usage/#using-an-archive) path to use as a source of tweets to mirror                                                       |
 | content_warnings     |   Yes    |                            | [Content warnings](https://docs.joinmastodon.org/user/posting/#cw) topics containing a [list of keywords](/pleroma-bot/gettingstarted/usage/#content-warnings)             |
 | custom_replacements  |   Yes    |                            | Key-value-pairs for replacing text with [custom values](/pleroma-bot/gettingstarted/usage/#custom-replacements)                                                                                                                       |
-| software             |   Yes    |                            | Override the automatic detection of the software running on the target instance. If the target is for example a fork or another project, you can force the bot to use the closest match. Must one of the following: `pleroma`, `mastodon`, `misskey`                                                                                                                |
+| software             |   Yes    |                            | Override the automatic detection of the software running on the target instance. If the target is for example a fork or another project, you can force the bot to use the closest match. Must be one of the following: `pleroma`, `mastodon`, `misskey`                                                                                                                |
 
 
 There a few mappings *exclusive* to users:
