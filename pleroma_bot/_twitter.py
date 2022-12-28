@@ -15,7 +15,7 @@ def twitter_api_request(self, method, url,
                         params=None, data=None, headers=None, cookies=None,
                         files=None, auth=None, timeout=None, proxies=None,
                         hooks=None, allow_redirects=True, stream=None,
-                        verify=None, cert=None, json=None):
+                        verify=None, cert=None, json=None, retries=0):
     response = requests.request(
         method=method.upper(),
         url=url,
@@ -28,6 +28,7 @@ def twitter_api_request(self, method, url,
         cookies=cookies,
         hooks=hooks,
     )
+    max_retries = 5
     if response.status_code == 429:
         remaining_header = response.headers.get('x-rate-limit-remaining')
         reset_header = response.headers.get('x-rate-limit-reset')
@@ -61,17 +62,19 @@ def twitter_api_request(self, method, url,
                         "Retrying with a proxy..."
                     )
                 )
-                response = self._request_proxy(
-                    method, url, params=params,
-                    data=data, headers=headers,
-                    cookies=cookies, files=files,
-                    auth=auth, hooks=hooks,
-                    timeout=timeout,
-                    proxies=proxies,
-                    allow_redirects=allow_redirects,
-                    stream=stream, verify=verify,
-                    cert=cert, json=json
-                )
+                retries += 1
+                if retries <= max_retries:
+                    response = self._request_proxy(
+                        method, url, params=params,
+                        data=data, headers=headers,
+                        cookies=cookies, files=files,
+                        auth=auth, hooks=hooks,
+                        timeout=timeout,
+                        proxies=proxies,
+                        allow_redirects=allow_redirects,
+                        stream=stream, verify=verify,
+                        cert=cert, json=json, retries=retries
+                    )
         elif remaining_header and reset_header and limit_header:
             limit = int(limit_header)
             remaining = int(remaining_header)
@@ -96,6 +99,26 @@ def twitter_api_request(self, method, url,
                 allow_redirects=allow_redirects,
                 stream=stream, verify=verify,
                 cert=cert, json=json
+            )
+        elif response.status_code == 503 and retries <= max_retries:  # pragma
+            retries += 1
+            logger.warning(
+                _(
+                    "Received HTTP 503 - {}"
+                    " Retrying... {}/{}"
+                ).format(response.text, retries, max_retries)
+            )
+            time.sleep(0.5 * retries)
+            response = self.twitter_api_request(
+                method, url, params=params,
+                data=data, headers=headers,
+                cookies=cookies, files=files,
+                auth=auth, hooks=hooks,
+                timeout=timeout,
+                proxies=proxies,
+                allow_redirects=allow_redirects,
+                stream=stream, verify=verify,
+                cert=cert, json=json, retries=retries
             )
 
     return response
