@@ -9,13 +9,14 @@
         <meta name="description" content="pleroma-bot">
       
       
+      
         <meta name="author" content="robertoszek">
       
       
         <link rel="canonical" href="https://robertoszek.github.io/pleroma-bot/gettingstarted/automateit/">
       
       <link rel="icon" href="../../images/Stork.ico">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.9">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-7.3.6">
     
     
       
@@ -23,10 +24,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.2b4465f4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a57b2b03.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.e6a45f82.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
         
       
     
@@ -36,13 +37,14 @@
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
     
       
+
 
     
     
@@ -59,8 +61,9 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="purple" data-md-color-accent="cyan">
   
     
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -76,7 +79,6 @@
     <div data-md-component="announce">
       
     </div>
-    
     
       
 
@@ -134,7 +136,8 @@
       <label class="md-header__button md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
-      <div class="md-search" data-md-component="search" role="dialog">
+      
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
@@ -166,7 +169,8 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
+        
+<a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -267,7 +271,8 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
+      
+<a href="https://github.com/robertoszek/pleroma-bot" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -419,6 +424,7 @@
       
         
 
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -448,7 +454,7 @@
       
         <li class="md-nav__item">
   <a href="#skip-first-run-checks" class="md-nav__link">
-    Skip first run checks
+    Skip first-run checks
   </a>
   
 </li>
@@ -560,6 +566,7 @@
                   <div class="md-sidebar__inner">
                     
 
+
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -589,7 +596,7 @@
       
         <li class="md-nav__item">
   <a href="#skip-first-run-checks" class="md-nav__link">
-    Skip first run checks
+    Skip first-run checks
   </a>
   
 </li>
@@ -633,11 +640,12 @@
             <article class="md-content__inner md-typeset">
               
                 
-
-<h1 id="automate-it">Automate it<a class="headerlink" href="#automate-it" title="Permanent link">&para;</a></h1>
+                
+                <h1 id="automate-it">Automate it<a class="headerlink" href="#automate-it" title="Permanent link">&para;</a></h1>
 <p>Great, now you're all ready to go, you have installed <code>pleroma-bot</code> and created a config for your needs. But where's the fun in all of that if you have to run it manually everytime, right?</p>
+<p>There a few options for running the bot automatically, you can choose to use whichever is more relevant for you.</p>
 <h2 id="daemon-mode">Daemon mode<a class="headerlink" href="#daemon-mode" title="Permanent link">&para;</a></h2>
-<p><code>pleroma-bot</code> can run in the background by launching it in daemon mode:
+<p><code>pleroma-bot</code> can keep running in the background by launching it in daemon mode:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span>pleroma-bot -d
 </code></pre></div>
 By default, it will re-run every 60 minutes. You can override this behaviour with <code>--pollrate</code> or <code>-p</code>.
@@ -646,8 +654,10 @@ This will run it every 15 minutes:
 </code></pre></div></p>
 <h2 id="systemd-service">Systemd service<a class="headerlink" href="#systemd-service" title="Permanent link">&para;</a></h2>
 <p>The <a href="https://aur.archlinux.org/packages/python-pleroma-bot">AUR package <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2c-.89 2.18-1.43 3.61-2.42 5.73.61.64 1.35 1.39 2.56 2.24-1.3-.54-2.19-1.07-2.85-1.63C8 11 6.03 14.75 2 22c3.17-1.83 5.63-2.96 7.92-3.39-.1-.42-.16-.88-.15-1.36v-.1c.05-2.03 1.11-3.59 2.36-3.48 1.25.1 2.22 1.83 2.17 3.87-.01.38-.05.75-.12 1.09 2.26.44 4.69 1.56 7.82 3.37-.62-1.14-1.17-2.16-1.69-3.13-.81-.64-1.7-1.48-3.46-2.37 1.21.3 2.08.66 2.76 1.07C14.26 7.62 13.83 6.3 12 2z"/></svg></span></a> will automatically install the systemd service <code>pleroma-bot.service</code>. </p>
-<p>If you installed <code>pleroma-bot</code> by other methods, you will have to manually install it:</p>
-<details class="note" open="open"><summary>The <code>pleroma-bot.service</code> file can be found at the root of the code repository</summary><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[Unit]</span><span class="w"></span>
+<p>If you installed <code>pleroma-bot</code> by other methods, you can manually install it:</p>
+<details class="note" open="open">
+<summary>The <code>pleroma-bot.service</code> file can be found at the root of the code repository</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[Unit]</span><span class="w"></span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">Stork (pleroma-bot)</span><span class="w"></span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="na">Documentation</span><span class="o">=</span><span class="s">https://robertoszek.github.io/pleroma-bot</span><span class="w"></span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="na">After</span><span class="o">=</span><span class="s">network.target</span><span class="w"></span>
@@ -658,7 +668,6 @@ This will run it every 15 minutes:
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1"># ExecStart=/path/to/venv/bin/pleroma-bot -d --config /etc/pleroma-bot/config.yml --log /var/log/pleroma-bot/error.log --skipChecks</span><span class="w"></span>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">pleroma-bot -d --config /etc/pleroma-bot/config.yml --log /var/log/pleroma-bot/error.log --skipChecks</span><span class="w"></span>
 </code></pre></div>
-
 </details>
 <div class="admonition warning">
 <p class="admonition-title">If you're using a <a href="https://docs.python.org/3/tutorial/venv.html">virtual environment <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0V3zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5z"/><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45z"/></svg></span></a> you may have to edit the service file first</p>
@@ -670,22 +679,21 @@ This will run it every 15 minutes:
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="gp">$ </span>sudo systemctl daemon-reload
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="gp">$ </span>sudo systemctl start pleroma-bot
 </code></pre></div>
-
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="gp">$ </span>cp pleroma-bot.service ~/.config/systemd/user/pleroma-bot.service
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="gp">$ </span>systemctl --user daemon-reload
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="gp">$ </span>systemctl --user start pleroma-bot
 </code></pre></div>
-
 </div>
 </div>
 </div>
-<h2 id="skip-first-run-checks">Skip first run checks<a class="headerlink" href="#skip-first-run-checks" title="Permanent link">&para;</a></h2>
-<p>It's worth noting that <code>pleroma-bot</code> accepts the flag <code>--skipChecks</code>, which will ignore all of the first run checks (e.g. no user folder found, no posts/toots in the target Fediverse account, etc). Most importantly, if you pass this argument you can rest assured no input will be asked during the run. Which makes it perfect for our purposes of running it on a timer with no manual intervention.</p>
+<h2 id="skip-first-run-checks">Skip first-run checks<a class="headerlink" href="#skip-first-run-checks" title="Permanent link">&para;</a></h2>
+<p>It's worth noting that you can use the argument <code>--skipChecks</code>, which will ignore all of the first-run checks (e.g. no user folder found, no posts/toots in the target Fediverse account, etc).</p>
+<p>Most importantly, if you pass this argument you can rest assured no input will be asked during the run (like the starting date for tweet gathering).</p>
+<p>Which makes it perfect for our purposes of running it on a timer with no manual intervention.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="gp">$ </span>pleroma-bot --skipChecks
 </code></pre></div>
-
 <h2 id="run-on-a-timer">Run on a timer<a class="headerlink" href="#run-on-a-timer" title="Permanent link">&para;</a></h2>
 <p>If you prefer not using the daemon mode, you can instead opt to run <code>pleroma-bot</code> on a timer of your choosing. </p>
 <h3 id="cron">Cron<a class="headerlink" href="#cron" title="Permanent link">&para;</a></h3>
@@ -694,7 +702,6 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <p>First, start by editing your current crontab:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="gp">$ </span>crontab -e
 </code></pre></div>
-
 <p>In our example, we'll add some lines at the end of the crontab, which will:</p>
 <ul>
 <li>Post new tweets <strong>(every 10 min.)</strong></li>
@@ -712,10 +719,14 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Post tweets every 10 min</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>*/10 * * * * pleroma-bot --noProfile --skipChecks -c /path/to/config.yml -l /path/to/error.log <span class="m">1</span>&gt; /dev/null
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Update pleroma profile with Twitter info every day at 6:15 AM</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Update pleroma profile with Twitter profile info every day at 6:15 AM</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="m">15</span> <span class="m">6</span> * * * pleroma-bot --skipChecks -c /path/to/config.yml <span class="m">1</span>&gt; /dev/null
 </code></pre></div>
-
+<details class="note" open="open">
+<summary>Note</summary>
+<p>If you have issues with cron running the bot you may have to specify the absolute path of your Python executable:</p>
+<p><code>*/10 * * * * /usr/bin/python /usr/local/bin/pleroma-bot</code></p>
+</details>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Post tweets every 10 min</span>
@@ -724,7 +735,6 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Update pleroma profile with Twitter info every day at 6:15 AM</span>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="m">15</span> <span class="m">6</span> * * * <span class="nb">cd</span> /path/to/your/venv/ <span class="o">&amp;&amp;</span> . bin/activate <span class="o">&amp;&amp;</span> pleroma-bot --skipChecks -c /path/to/config.yml -l /path/to/error.log
 </code></pre></div>
-
 </div>
 </div>
 </div>
@@ -739,7 +749,6 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Update pleroma profile with Twitter info every day at 6:15 AM</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="m">15</span> <span class="m">6</span> * * * pleroma-bot --skipChecks -c /path/to/config.yml -l /path/to/error.log
 </code></pre></div>
-
 </div>
 <div class="tabbed-block">
 <div class="admonition info">
@@ -751,7 +760,6 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Update pleroma profile with Twitter info every day at 6:15 AM</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="m">15</span> <span class="m">6</span> * * * <span class="nb">cd</span> /path/to/cloned/repo/ <span class="o">&amp;&amp;</span> python3 -m pleroma_bot.cli --skipChecks -c /path/to/config.yml -l /path/to/error.log
 </code></pre></div>
-
 </div>
 </div>
 </div>
@@ -765,7 +773,6 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="nv">Type</span><span class="o">=</span>oneshot
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/pleroma-bot --skipChecks -c /path/to/config.yml -l /path/to/error.log %i
 </code></pre></div>
-
 <p>Also, create 2 timer files with the following content:</p>
 <div class="highlight"><span class="filename">/etc/systemd/system/pleroma-bot-tweets.timer</span><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="o">[</span>Unit<span class="o">]</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nv">Description</span><span class="o">=</span>Run pleroma-bot every 10min
@@ -778,7 +785,6 @@ If you have trouble figuring out cron schedule expressions, you can use this <a 
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="o">[</span>Install<span class="o">]</span>
 <a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="nv">WantedBy</span><span class="o">=</span>timers.target
 </code></pre></div>
-
 <p><div class="highlight"><span class="filename">/etc/systemd/system/pleroma-bot-profile.timer</span><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="o">[</span>Unit<span class="o">]</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nv">Description</span><span class="o">=</span>Run pleroma-bot with noProfile at <span class="m">6</span>:15am
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
@@ -796,6 +802,11 @@ Enable and start the timers:
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="gp"># </span>systemctl <span class="nb">enable</span> pleroma-bot-tweets.timer
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="gp"># </span>systemctl --user start pleroma-bot-tweets.timer
 </code></pre></div></p>
+                
+              
+              
+                
+
 
               
             </article>
@@ -804,7 +815,8 @@ Enable and start the timers:
         
       </main>
       
-        <footer class="md-footer">
+        
+<footer class="md-footer">
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
@@ -843,56 +855,57 @@ Enable and start the timers:
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
+      <div class="md-footer-copyright">
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+            Material for MkDocs
+          </a>
+        
+        
+      </div>
       
-        <div class="md-social">
-  
-    
-    
-      
-      
-    
-    <a href="https://gitea.robertoszek.xyz/robertoszek/pleroma-bot" target="_blank" rel="noopener" title="gitea.robertoszek.xyz" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 3.254V3.25v.005a.75.75 0 1 1 0-.005v.004zm.45 1.9a2.25 2.25 0 1 0-1.95.218v5.256a2.25 2.25 0 1 0 1.5 0V7.123A5.735 5.735 0 0 0 9.25 9h1.378a2.251 2.251 0 1 0 0-1.5H9.25a4.25 4.25 0 0 1-3.8-2.346zM12.75 9a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5zm-8.5 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/></svg>
-    </a>
-  
-    
+  <div class="md-footer-social">
     
       
       
-    
-    <a href="https://pleroma.robertoszek.xyz/robertoszek" target="_blank" rel="noopener" title="pleroma.robertoszek.xyz" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/></svg>
-    </a>
-  
-    
+        
+        
+      
+      <a href="https://gitea.robertoszek.xyz/robertoszek/pleroma-bot" target="_blank" rel="noopener" title="gitea.robertoszek.xyz" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M5 3.254V3.25v.005a.75.75 0 1 1 0-.005v.004zm.45 1.9a2.25 2.25 0 1 0-1.95.218v5.256a2.25 2.25 0 1 0 1.5 0V7.123A5.735 5.735 0 0 0 9.25 9h1.378a2.251 2.251 0 1 0 0-1.5H9.25a4.25 4.25 0 0 1-3.8-2.346zM12.75 9a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5zm-8.5 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/></svg>
+      </a>
     
       
       
-    
-    <a href="https://github.com/robertoszek" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
-    </a>
-  
-    
+        
+        
+      
+      <a href="https://pleroma.robertoszek.xyz/robertoszek" target="_blank" rel="noopener" title="pleroma.robertoszek.xyz" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/></svg>
+      </a>
     
       
       
-    
-    <a href="https://gitlab.com/robertoszek" target="_blank" rel="noopener" title="gitlab.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
-    </a>
-  
-</div>
+        
+        
       
+      <a href="https://github.com/robertoszek" target="_blank" rel="noopener" title="github.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+      </a>
+    
+      
+      
+        
+        
+      
+      <a href="https://gitlab.com/robertoszek" target="_blank" rel="noopener" title="gitlab.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
+      </a>
+    
+  </div>
+
     </div>
   </div>
 </footer>
@@ -901,10 +914,10 @@ Enable and start the timers:
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.indexes", "navigation.instant", "metadata"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.22074ed6.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.indexes", "navigation.instant", "metadata"], "search": "../../assets/javascripts/workers/search.fcfe8b6d.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.960e086b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.b1047164.min.js"></script>
       
     
   </body>
