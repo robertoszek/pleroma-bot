@@ -1,0 +1,13 @@
+{
+   "software":{
+      "name":"akkoma",
+      "version":"2.4.2"
+   },
+   "usage":{
+      "localPosts":398,
+      "users":{
+         "total":4
+      }
+   },
+   "version":"2.0"
+}

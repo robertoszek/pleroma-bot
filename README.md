@@ -27,7 +27,7 @@ Supports:
 
 ## Introduction
 
-After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some actions which were of use to me. 
+After using the pretty cool [mastodon-bot](https://github.com/yogthos/mastodon-bot) for a while, I found it was lacking some features which were of use to me. 
 
 For precisely those cases I've written this Python project that automates them, asking such info to [Twitter's API](https://developer.twitter.com/en/docs/twitter-api/v1) and updating the relevant fields on the [Pleroma API](https://api.pleroma.social/)/[Mastodon API](https://docs.joinmastodon.org/client/intro/)/[Misskey API](https://misskey-hub.net/en/docs/api) side.
 
@@ -36,9 +36,11 @@ For precisely those cases I've written this Python project that automates them, 
 
 So basically, it does the following:
 * Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
+* Can use an RSS feed as the source of the tweets to post
 * Retrieves latest **tweets** and posts them on the Fediverse account if their timestamp is newer than the last post.
   * Can filter out RTs or not
   * Can filter out replies or not
+  * Supports Twitter threads
 * Media retrieval and upload of multiple **attachments**. This includes:
   * Video
   * Images
@@ -97,21 +99,34 @@ optional arguments:
   -a ARCHIVE, --archive ARCHIVE
                         path of the Twitter archive file (zip) to use for
                         posting tweets.
+  -t THREADS, --threads THREADS
+                        number of threads to use when processing tweets
+  -L LOCKFILE, --lockfile LOCKFILE
+                        path of lock file (pleroma-bot.lock) to prevent
+                        collisions with multiple bot instances. By default it
+                        will be placed next to your config file.
   --verbose, -v
   --version             show program's version number and exit
 ```
 ### Before running
-You'll need the following:
 
-* A [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/api-reference/token)
-* The user/users [Pleroma/Mastodon Bearer Tokens](https://tinysubversions.com/notes/mastodon-bot/)
+There are multiple options for using the bot.
+
+You can either choose to use: 
+
+- A Twitter archive
+- An RSS feed
+- Guest tokens
+- [Twitter tokens](https://developer.twitter.com/en/docs/authentication/api-reference/token) with a Developer account 
+
+You'll need to create a configuration file and obtain the [Fediverse tokens](https://tinysubversions.com/notes/mastodon-bot/) for your accounts no matter what you choose to use.
 
 If you plan on retrieving tweets from an account which has their tweets **protected**, you'll also need the following:
 * Consumer Key and Secret. You'll find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard)
 * Access Token Key and Secret.  You'll also find them on your project app keys and tokens section at [Twitter's Developer Portal](https://developer.twitter.com/en/portal/dashboard). 
 Alternatively, you can obtain the Access Token and Secret by running [this](https://github.com/joestump/python-oauth2/wiki/Twitter-Three-legged-OAuth-Python-3.0) locally, while being logged in with a Twitter account which follows or is the owner of the protected account
 
-You'll also need Elevated access in your Twitter's API project in order for the bot to function properly.
+You'll may also need Elevated access in your Twitter's API project in order for the bot to function properly.
 
 Refer to the docs [for more info about this](https://robertoszek.github.io/pleroma-bot/gettingstarted/beforerunning/#before-running).
 
@@ -127,7 +142,7 @@ Here's what a minimal config looks like:
 ```yaml
 # Change this to your target Fediverse instance
 pleroma_base_url: https://pleroma.instance
-# How many tweets to get in every execution
+# How many tweets to gather per-user in every execution
 # Twitter's API hard limit is 3,200
 max_tweets: 40
 # Twitter bearer token
@@ -154,7 +169,7 @@ For example:
 $ pleroma-bot --forceDate WoolieWoolz
 ```
 
-If the --noProfile argument is passed, the profile picture, banner, display name and bio will **not** be updated on the Fediverse account. However, it will still gather and post the tweets following your config's parameters.
+If the `--noProfile` argument is passed, the profile picture, banner, display name and bio will **not** be updated on the Fediverse account. However, it will still gather and post the tweets following your config's parameters.
 
 NOTE: An ```error.log``` file will be created at the path from which ```pleroma-bot``` is being called.
 
@@ -167,6 +182,9 @@ NOTE: An ```error.log``` file will be created at the path from which ```pleroma-
 # Update pleroma profile with Twitter info every day at 6:15 AM
 15 6 * * * cd /home/robertoszek/myvenv/ && . bin/activate && pleroma-bot
 ```
+NOTE: If you have issues with cron running the bot you may have to specify the full path of your Python executable
+
+```*/10 * * * * /usr/bin/python /usr/local/bin/pleroma-bot```
 
 ## Screenshots
 
@@ -194,7 +212,7 @@ Patches, pull requests, and bug reports are more than [welcome](https://github.c
 
 MIT License
 
-Copyright (c) 2022 Roberto Chamorro / project contributors
+Copyright (c) 2023 Roberto Chamorro / project contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

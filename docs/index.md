@@ -28,9 +28,11 @@ Supports:
 
 ## Features
 * [x] Can parse a Twitter [archive](https://twitter.com/settings/your_twitter_data), moving all your tweets to the Fediverse
+* [x] Can use an RSS feed as the source of the tweets to post
 * [x] Retrieves latest **tweets** and posts them on the Fediverse account
     * [x] Can filter out RTs
     * [x] Can filter out replies
+    * [x] Supports Twitter threads
 * [x] Media retrieval and upload of multiple **attachments**
     * [x] :material-video: Video
     * [x] :material-file-image: Images
@@ -46,8 +48,7 @@ Supports:
 ## Funding
 If you feel like supporting the creator or buying him a beer, you can donate through Ko-fi, Liberapay or Buy Me A Coffee:
 
-[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/robertoszek) [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;" >](https://www.buymeacoffee.com/robertoszek) [<img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" style="height: 30px !important;" >](https://www.patreon.com/bePatron?u=19859432)
-
+[![Donate using Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/robertoszek/donate) [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/robertoszek) [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 30px !important;" >](https://www.buymeacoffee.com/robertoszek) [<img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" style="height: 30px !important;" >](https://www.patreon.com/bePatron?u=19859432) [<img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="Donate using PayPal" style="height: 30px !important;">](https://paypal.me/robertoszek)
 
 | Type                              | Address                                                                                               |
 |:----------------------------------|-------------------------------------------------------------------------------------------------------|

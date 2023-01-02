@@ -7,6 +7,7 @@ import requests
 import mimetypes
 from datetime import datetime
 
+from tqdm import tqdm
 
 # Try to import libmagic
 # if it fails just use mimetypes
@@ -17,7 +18,6 @@ except ImportError:
 
 from . import logger
 from .i18n import _
-from pleroma_bot._twitter import twitter_api_request
 
 
 def process_tweets(self, tweets_to_post):
@@ -43,7 +43,7 @@ def process_tweets(self, tweets_to_post):
             except KeyError:
                 pass
     # Remove quote tweets if include_quotes is false
-    if not self.include_quotes:
+    if not self.include_quotes:  # pragma: todo
         for tweet in tweets_to_post["data"][:]:
             try:
                 for reference in tweet["referenced_tweets"]:
@@ -78,7 +78,24 @@ def process_tweets(self, tweets_to_post):
                 tweets_to_post["data"].remove(tweet)
                 pass
     all_media = []
-    for tweet in tweets_to_post["data"]:
+    if int(self.threads) == 1:
+        desc = _("Processing tweets... ")
+        pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc)
+
+    for idx, tweet in enumerate(tweets_to_post["data"]):
+        # logger.info(_("Processing: {}/{}").format(idx+1, total_tweets))
+        posts = self.posts_ids[self.pleroma_base_url]
+        if tweet["id"] not in posts:
+            self.posts_ids[self.pleroma_base_url].update({tweet["id"]: ''})
+        tweet["reply_id"] = None
+        tweet["retweet_id"] = None
+        # get reply ids
+        if "referenced_tweets" in tweet.keys():
+            for reference in tweet["referenced_tweets"]:
+                if reference["type"] == "replied_to":
+                    tweet["reply_id"] = reference["id"]
+                if reference["type"] == "retweeted":
+                    tweet["retweet_id"] = reference["id"]
         media = []
         logger.debug(tweet["id"])
         # Get full text from RT or quoted tweet
@@ -88,31 +105,30 @@ def process_tweets(self, tweets_to_post):
         tweet["text"] = html.unescape(tweet["text"])
 
         # Download media only if we plan to upload it later
-        if self.media_upload:
+        if self.media_upload and not self.archive:
+            if self.guest:  # pragma: todo
+                if "extended_entities" in tweet:
+                    if "media" in tweet['extended_entities']:
+                        for item in tweet['extended_entities']['media']:
+                            media.append(item)
             try:
-                if self.archive:
-                    for item in tweet["extended_entities"]["media"]:
-                        if item["type"] == "photo":
-                            item["url"] = item["media_url"]
-                        media.append(item)
-                else:
-                    media_keys = False
-                    attachments = "attachments" in tweet.keys()
-                    if attachments:
-                        tweet_attachments = tweet["attachments"]
-                        media_keys = "media_keys" in tweet_attachments.keys()
-                    if media_keys and attachments:
-                        includes_media = tweets_to_post["includes"]["media"]
-                        for item in tweet["attachments"]["media_keys"]:
-                            for media_include in includes_media:
-                                media_url = _get_media_url(
-                                    self, item, media_include, tweet
-                                )
-                                if media_url:
-                                    media.extend(media_url)
-                    # Get RT tweet media
-                    if "referenced_tweets" in tweet.keys():  # pragma: no cover
-                        _get_rt_media_url(self, tweet, media)
+                media_keys = False
+                attachments = "attachments" in tweet.keys()
+                if attachments:
+                    tweet_attachments = tweet["attachments"]
+                    media_keys = "media_keys" in tweet_attachments.keys()
+                if media_keys and attachments:
+                    includes_media = tweets_to_post["includes"]["media"]
+                    for item in tweet["attachments"]["media_keys"]:
+                        for media_include in includes_media:
+                            media_url = _get_media_url(
+                                self, item, media_include, tweet
+                            )
+                            if media_url:
+                                media.extend(media_url)
+                # Get RT tweet media
+                if "referenced_tweets" in tweet.keys():  # pragma: no cover
+                    _get_rt_media_url(self, tweet, media)
             except KeyError:
                 pass
             if len(media) > 0:
@@ -142,9 +158,16 @@ def process_tweets(self, tweets_to_post):
                 "https://youtube.com",
                 self.invidious_base_url
             )
+        if hasattr(self, "custom_replacements"):
+            if self.custom_replacements:
+                tweet["text"] = _custom_replacements(
+                    self,
+                    tweet["text"],
+                    self.custom_replacements
+                )
         signature = ''
         if self.signature:
-            if self.archive:
+            if self.archive:  # pragma: todo
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
             else:
                 t_user = "i/web"
@@ -152,9 +175,15 @@ def process_tweets(self, tweets_to_post):
                     t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url_user = f"{self.twitter_url_home}/{t_user}"
             signature = f"\n\n 🐦🔗: {twitter_url_user}/status/{tweet['id']}"
-            total_length = len(tweet["text"]) + len(signature)
+            if self.instance == "mastodon":
+                len_text = self._mastodon_len(tweet["text"])
+                len_signature = self._mastodon_len(signature)
+            else:
+                len_text = len(tweet["text"])
+                len_signature = len(signature)
+            total_length = len_text + len_signature
             if total_length > self.max_post_length:  # pragma
-                body_max_length = self.max_post_length - len(signature) - 1
+                body_max_length = self.max_post_length - len_signature - 1
                 tweet["text"] = f"{tweet['text'][:body_max_length]}…"
             tweet["text"] = f"{tweet['text']}{signature}"
         if self.original_date:
@@ -164,30 +193,80 @@ def process_tweets(self, tweets_to_post):
                 self.original_date_format,
             )
             orig_date = f"\n\n[{date}]"
-            total_length = len(tweet["text"]) + len(orig_date)
+            if self.instance == "mastodon":
+                len_text = self._mastodon_len(tweet["text"])
+            else:
+                len_text = len(tweet["text"])
+            total_length = len_text + len(orig_date)
             if total_length > self.max_post_length:  # pragma
                 if self.signature:
                     tweet["text"] = tweet["text"].replace(signature, '')
                 l_date = len(orig_date)
-                l_sig = len(signature)
+                if self.instance == "mastodon":
+                    l_sig = self._mastodon_len(signature)
+                else:
+                    l_sig = len(signature)
                 body_max_length = self.max_post_length - l_date - l_sig - 1
                 tweet["text"] = f"{tweet['text'][:body_max_length]}…"
             else:
                 signature = ''
             tweet["text"] = f"{tweet['text']}{signature}{orig_date}"
         # Process poll if exists and no media is used
-        tweet["polls"] = _process_polls(self, tweet, media)
+        tweet["polls"] = None
+        if not self.guest:
+            tweet["polls"] = _process_polls(self, tweet, media)
 
         # Truncate text if needed
-        if len(tweet["text"]) > self.max_post_length:  # pragma
+        if self.instance == "mastodon":
+            total_tweet_length = self._mastodon_len(tweet["text"])
+        else:
+            total_tweet_length = len(tweet["text"])
+        if total_tweet_length > self.max_post_length:  # pragma
             logger.info(
                 _(
                     "Post text longer than allowed ({}), truncating..."
                 ).format(self.max_post_length)
             )
             tweet["text"] = f"{tweet['text'][:self.max_post_length]}"
+        tweet["cw"] = None
+        if self.content_warnings:
+            tweet["cw"] = _check_cw(tweet["text"], self.content_warnings)
+        if int(self.threads) == 1:
+            pbar.update(1)
     tweets_to_post["media_processed"] = all_media
     return tweets_to_post
+
+
+def _check_cw(data, cw_list):
+    cw_found = []
+    for cw_topic in cw_list:
+        alnum = [k for k in cw_list[cw_topic] if k.isalnum()]
+        not_alnum = [k for k in cw_list[cw_topic] if not k.isalnum()]
+        topic_found = False
+        if not_alnum:
+            matches = re.findall("|".join(not_alnum), data, re.IGNORECASE)
+            if matches:
+                topic_found = True
+        if any(k.lower() in data.lower().split() for k in alnum):
+            topic_found = True
+        if topic_found:
+            cw_found.append(cw_topic.lower())
+    cw_text = ", ".join(cw_found).capitalize()
+    return cw_text
+
+
+def _custom_replacements(self, data, custom_replacements):
+    pairs = custom_replacements.items()
+    # normalize dict keys to lower-case for case-insensitive matching
+    custom_replacements = {k.lower(): v for k, v in pairs}
+    # alternation regex on all keys in custom_replacements
+    keys_regex = "|".join(custom_replacements.keys())
+    matches = re.findall(keys_regex, data, re.IGNORECASE)
+    for match in matches:
+        data = re.sub(
+            match, lambda m: custom_replacements[m.group().lower()], data
+        )
+    return data
 
 
 def _get_rt_text(self, tweet):  # pragma: no cover
@@ -199,7 +278,8 @@ def _get_rt_text(self, tweet):  # pragma: no cover
         if retweeted or quoted:
             tweet_ref_id = reference["id"]
             tweet_ref = self._get_tweets("v2", tweet_ref_id)
-
+            if not tweet_ref:  # pragma: todo
+                continue
             match = re.search(r"RT.*?\:", tweet["text"])
             prefix = match.group() if match else ""
             if retweeted:
@@ -227,6 +307,8 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
             if retweeted or quoted:
                 tweet_id = reference["id"]
                 tweet_rt = self._get_tweets("v2", tweet_id)
+                if not tweet_rt:
+                    continue
                 tw_data = tweet_rt["data"]
                 att = "attachments" in tw_data.keys()
                 if att:
@@ -248,6 +330,12 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
                                     ]
                                 ]
                                 media.extend(new)
+                if self.guest:  # pragma: todo
+                    if "extended_entities" in tw_data:
+                        if "media" in tw_data['extended_entities']:
+                            for item in tw_data['extended_entities']['media']:
+                                if item not in media:
+                                    media.append(item)
             else:
                 break
         i += 1
@@ -259,6 +347,7 @@ def _get_rt_media_url(self, tweet, media):  # pragma: no cover
 
 
 def _process_polls(self, tweet, media):
+    tweet["polls"] = None
     try:
         if tweet["attachments"]["poll_ids"] and not media:
 
@@ -271,7 +360,7 @@ def _process_polls(self, tweet, media):
                 "poll.fields": "duration_minutes," "options",
             }
 
-            response = twitter_api_request(
+            response = self.twitter_api_request(
                 'GET',
                 poll_url,
                 headers=self.header_twitter,
@@ -305,12 +394,19 @@ def _process_polls(self, tweet, media):
 def _download_media(self, media, tweet):
     for idx, item in enumerate(media):
         if item["type"] != "video" and item["type"] != "animated_gif":
-            media_url = item["url"]
+            if "media_url" in item:  # pragma: todo
+                media_url = item['media_url']
+                if len(media_url) == 0 and "media_url_https" in item:
+                    media_url = item['media_url_https']
+            else:
+                media_url = item["url"]
         else:
             media_url = _get_best_bitrate_video(self, item)
 
         if media_url:
-            key = item["media_key"] if not self.archive else item["id"]
+            if "media_key" not in item:  # pragma: todo
+                item["media_key"] = str(item["id"])
+            key = item["media_key"]
             response = requests.get(media_url, stream=True)
             try:
                 if not response.ok:
@@ -325,10 +421,17 @@ def _download_media(self, media, tweet):
                     ).format(tweet=tweet["id"], media_url=media_url)
                     logger.warning(att_not_found)
                     continue
+                elif response.status_code == 403:
+                    geoblocked = _(
+                        "Media possibly geoblocked? (403) Skipping... "
+                        "{tweet} - {media_url} "
+                    ).format(tweet=tweet["id"], media_url=media_url)
+                    logger.warning(geoblocked)
+                    continue
                 else:
                     response.raise_for_status()
             response.raw.decode_content = True
-            filename = str(idx) + "-" + key + mimetypes.guess_extension(
+            filename = str(idx) + "-" + str(key) + mimetypes.guess_extension(
                 response.headers["Content-Type"]
             )
             file_path = os.path.join(

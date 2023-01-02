@@ -1,3 +1,34 @@
+## [1.2.0] 02-01-2023
+## Fixed
+- Bug: Handle exception when media attachments are geoblocked (403 Unauthorized)
+- Regression: Take into account new structure of Twitter's archive (tweet.js changed to tweets.js)
+- Bug: Handle special media types that don't include link to media in some cases. Thanks @tewhalen!
+- Bug: Align max_tweets minimum value (10) with the warning message and actual value. Thanks @nemobis!
+- Bug: Multiple video attachments cause HTTP 422 on Mastodon when posting.
+- Bug: Exception when post was manually pinned on the Fedi account and later one was pinned on the Twitter account. Thanks @selyod-ka!
+
+## Enhancements
+- Archive offline support, you no longer need a Twitter developer account or access to their API to process an archive.
+- Mastodon limits, make URLs count as 23 characters (or the instance configured value) when determining if truncating is necessary
+- Added progress bars when gathering, processing and posting tweets
+- Pleroma and Mastodon rate limits, handle HTTP 429 more gracefully (wait until they reset and continue)
+
+## Added
+- RSS support, you can now use an RSS feed as a source of tweets to post. Take a look at the docs for more info.
+- Thread support, now mirrored users should be able to reply to their own posts and create reply threads.
+- Native retweet support, now users in your config should be able to reblog their own and each other's posts if they are on the same instance.
+- `bot` config mapping, for setting the [bot flag](https://docs.joinmastodon.org/user/profile/#bot) on the target account.
+- `--lockerfile` argument, for specifying the path of the locker file that prevents collisions between multiple concurrent bot executions.
+- `guest` mapping, for enabling the use of Guest Tokens (so you don't need a Twitter Developer account). If no `twitter_token` is present in your config it will default to `true`
+- `proxy_pool` mapping, list of proxies to use when being rate limited with Guest Tokens 
+- `proxy` mapping, for enabling or disabling the use of proxies when using guest tokens
+- Caching IDs of posts published and skip mirroring tweet if associated published post is found to avoid duplicates. You can change this with the `avoid_duplicates` mapping.
+- `application_name` mapping, for specifying the Fediverse application name to use as a filter when getting the date of the latest published post by the bot. Thanks @reorx!
+- Configuration wizard, which generates a minimal config if none is found
+- `content_warnings`, for specifying keywords that if found will add a content warning to the Fediverse post
+- `custom_replacements` for replacing any text (Twitter handles that differ from the Fedi handle, for example) Thanks @selyod-ka!
+- `software` config mapping, for sidestepping the automatic detection of the type of software (mastodon, pleroma, misskey) running on the target instance and forcing a specific value. If your target is a fork of another project, for example, you would be able to force the bot to use whichever software (mastodon, pleroma, misskey) is the closest match for their API.
+
 ## [1.1.0] 06-06-2022
 ## Fixed
 - Bug: Tweet media getting dropped if one of the attachments returned 404 Not Found

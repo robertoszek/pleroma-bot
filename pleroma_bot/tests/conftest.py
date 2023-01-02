@@ -265,6 +265,17 @@ def _sample_users(mock_request, rootdir):
                      json=mock_request['sample_data']['pleroma_statuses_pin'],
                      headers=headers_statuses,
                      status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/accounts/"
+                     f"{user_item['pleroma_username']}",
+                     json=mock_request['sample_data']['pleroma_account'],
+                     headers=headers_statuses,
+                     status_code=200)
+            mock.get(f"{config_users['config']['pleroma_base_url']}"
+                     f"/api/v1/statuses/A1yPx3LUeX9RfhNSYy",
+                     json=mock_request['sample_data']['pleroma_statuses_pin'],
+                     headers=headers_statuses,
+                     status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
                       f"/api/v1/statuses",
                       headers=headers_statuses,
@@ -292,6 +303,10 @@ def _sample_users(mock_request, rootdir):
                       status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
                       f"/api/users/notes",
+                      json=mock_request['sample_data']['misskey_notes'],
+                      status_code=200)
+            mock.post(f"{config_users['config']['pleroma_base_url']}"
+                      f"/api/notes/show",
                       json=mock_request['sample_data']['misskey_notes'],
                       status_code=200)
             mock.post(f"{config_users['config']['pleroma_base_url']}"
@@ -426,14 +441,18 @@ def _sample_users(mock_request, rootdir):
                      f"{max_tweets}&include_rts=true",
                      json=mock_request['sample_data']['tweets_v1'],
                      status_code=200)
-
+            posts = {}
+            # Clean-up posts
+            # posts_file = os.path.join(rootdir, 'posts.json')
+            # if os.path.isfile(posts_file):
+            #    os.remove(posts_file)
             users.append(
                 {
                     'user_obj': User(
-                        user_item, config_users['config'], os.getcwd()
+                        user_item, config_users['config'], os.getcwd(), posts
                     ),
                     'mock': mock,
-                    'config': config_users['config']}
+                    'config': config_users['config']},
             )
         sample_users = {'users': users, 'global_mock': mock}
         return sample_users

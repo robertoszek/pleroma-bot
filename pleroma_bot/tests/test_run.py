@@ -9,12 +9,15 @@ import multiprocessing as mp
 from unittest.mock import patch
 from datetime import datetime, timedelta
 from urllib import parse
+
+import pytest
+
 from test_user import UserTemplate
 from conftest import get_config_users
 
 from pleroma_bot import cli, User
 from pleroma_bot._utils import random_string, previous_and_next, guess_type
-from pleroma_bot._utils import process_parallel, process_archive
+from pleroma_bot._utils import process_parallel
 
 
 def test_random_string():
@@ -500,14 +503,218 @@ def test_get_date_last_pleroma_post_no_posts(
             with caplog.at_level(logging.WARNING):
                 sample_user_obj.first_time = False
                 date = sample_user_obj.get_date_last_pleroma_post()
-            warning_msg = 'No posts were found in the target Fediverse account'
+            warning_msg = (
+                'Not enough posts were found in the target Fediverse account'
+            )
             assert warning_msg in caplog.text
             with caplog.at_level(logging.WARNING):
                 sample_user_obj.first_time = True
                 monkeypatch.setattr('builtins.input', lambda: "2020-12-30")
                 date = sample_user_obj.get_date_last_pleroma_post()
-            warning_msg = 'No posts were found in the target Fediverse account'
+            warning_msg = (
+                'Not enough posts were found in the target Fediverse account'
+            )
             assert warning_msg in caplog.text
+    return date
+
+
+def test_get_instance_info(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            config_users = get_config_users('config_app_name.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == "pleroma"
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mk'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == "misskey"
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mt'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == "mastodon"
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0ak'],
+                         status_code=200)
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_instance_info()
+                instance_msg = (
+                    'Software on target instance (akkoma) not recognized. '
+                    'Falling back to Pleroma-like API'
+                )
+                assert sample_user_obj.instance == "pleroma"
+                assert instance_msg in caplog.text
+
+
+def test_get_instance_info_override(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            config_users = get_config_users('config_software.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == sample_user_obj.software
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mk'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == sample_user_obj.software
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mt'],
+                         status_code=200)
+                sample_user_obj._get_instance_info()
+                assert sample_user_obj.instance == sample_user_obj.software
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0ak'],
+                         status_code=200)
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_instance_info()
+                instance_msg = (
+                    'Software on target instance (akkoma) not recognized. '
+                    'Falling back to Pleroma-like API'
+                )
+                assert sample_user_obj.instance == sample_user_obj.software
+                assert instance_msg not in caplog.text
+
+
+def test_get_fedi_profile_info(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                     json=mock_request['sample_data']['2_0'],
+                     status_code=200)
+            config_users = get_config_users('config_bot.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "pleroma"
+                assert sample_user_obj.bot
+                assert bot_msg not in caplog.text
+
+            config_users = get_config_users('config_no_bot.yml')
+
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "pleroma"
+                assert not sample_user_obj.bot
+                assert bot_msg in caplog.text
+
+            mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                     json=mock_request['sample_data']['2_0mk'],
+                     status_code=200)
+            config_users = get_config_users('config_bot.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "misskey"
+                assert sample_user_obj.bot
+                assert bot_msg not in caplog.text
+
+            config_users = get_config_users('config_no_bot.yml')
+
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                with caplog.at_level(logging.INFO):
+                    sample_user_obj._get_pleroma_profile_info()
+                bot_msg = (
+                    'Bot flag in target profile ({}) differs from your config.'
+                    ' Updating it to {}...'
+                ).format(True, sample_user_obj.bot)
+                assert sample_user_obj.instance == "misskey"
+                assert not sample_user_obj.bot
+                assert bot_msg in caplog.text
+
+
+def test_get_date_last_pleroma_post_app_name(
+        sample_users, caplog, monkeypatch, mock_request
+):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            config_users = get_config_users('config_app_name.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                sample_user_obj.first_time = False
+                date = sample_user_obj.get_date_last_pleroma_post()
+                posts = mock_request['sample_data']['pleroma_statuses']
+
+                assert date == test_user.pleroma_date_app_name
+                for post in posts:
+                    if post["created_at"] == date:
+                        app_name = post["application"]["name"]
+                        assert app_name == test_user.app_name
+
+                mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                         json=mock_request['sample_data']['2_0mk'],
+                         status_code=200)
+                with caplog.at_level(logging.WARNING):
+                    sample_user_obj._get_instance_info()
+                warning_msg = (
+                    "application_name won't work for Misskey ฅ^ዋ⋏ዋ^ฅ"
+                )
+                assert warning_msg in caplog.text
+
     return date
 
 
@@ -528,13 +735,20 @@ def test_guess_type(rootdir):
     assert 'image/gif' == guess_type(gif)
 
 
-def test_process_archive(rootdir):
+def test_process_archive(rootdir, sample_users):
     test_files_dir = os.path.join(rootdir, 'test_files')
     sample_data_dir = os.path.join(test_files_dir, 'sample_data')
     media_dir = os.path.join(sample_data_dir, 'media')
     archive = os.path.join(media_dir, 'twitter-archive.zip')
-    tweets = process_archive(archive)
-    assert tweets is not None
+    new_archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            sample_user_obj = sample_user['user_obj']
+            tweets = sample_user_obj.process_archive(archive)
+            assert tweets is not None
+            tweets = sample_user_obj.process_archive(new_archive)
+            assert tweets is not None
+    return mock
 
 
 def test_get_twitter_info(mock_request, sample_users):
@@ -626,7 +840,7 @@ def test_post_pleroma_media(rootdir, sample_users, mock_request):
                 shutil.copy(mp4, tweet_folder)
                 shutil.copy(gif, tweet_folder)
                 sample_user_obj.post_pleroma(
-                    (test_user.pinned, "", ""), None, False
+                    (test_user.pinned, "", "", None, None), None, False
                 )
 
                 history = mock.request_history
@@ -769,6 +983,87 @@ def test_process_tweets(rootdir, sample_users, mock_request):
                                 f.close()
                                 assert file_hash == dict_hash[file]
                                 os.remove(file_path)
+
+    for sample_user in sample_users:
+        with sample_user['mock'] as mock:
+            mock.get(f"{test_user.pleroma_base_url}/nodeinfo/2.0",
+                     json=mock_request['sample_data']['2_0mt'],
+                     status_code=200)
+            mock.get(f"{test_user.pleroma_base_url}/api/v1/instance",
+                     json=mock_request['sample_data']['mt_instance'],
+                     status_code=200)
+            config_users = get_config_users('config.yml')
+            for user_item in config_users['user_dict']:
+                posts_ids = {}
+                sample_user_obj = User(
+                    user_item, config_users['config'], os.getcwd(), posts_ids
+                )
+                for t_user in sample_user_obj.twitter_username:
+                    tweets_v2 = sample_user_obj._get_tweets("v2",
+                                                            t_user=t_user)
+                    assert tweets_v2 == mock_request['sample_data'][
+                        'tweets_v2']
+                    tweet = sample_user_obj._get_tweets("v1.1",
+                                                        test_user.pinned)
+                    assert tweet == mock_request['sample_data']['tweet']
+                    tweets = sample_user_obj._get_tweets("v1.1")
+                    assert tweets == mock_request['sample_data']['tweets_v1']
+                    test_files_dir = os.path.join(rootdir, 'test_files')
+                    sample_data_dir = os.path.join(test_files_dir,
+                                                   'sample_data')
+                    media_dir = os.path.join(sample_data_dir, 'media')
+                    mp4 = os.path.join(media_dir, 'video.mp4')
+                    gif = os.path.join(media_dir, "animated_gif.gif")
+                    png = os.path.join(media_dir, 'image.png')
+
+                    gif_file = open(gif, 'rb')
+                    gif_content = gif_file.read()
+                    gif_hash = hashlib.sha256(gif_content).hexdigest()
+                    gif_file.close()
+
+                    png_file = open(png, 'rb')
+                    png_content = png_file.read()
+                    png_hash = hashlib.sha256(png_content).hexdigest()
+                    png_file.close()
+
+                    mp4_file = open(mp4, 'rb')
+                    mp4_content = mp4_file.read()
+                    mp4_hash = hashlib.sha256(mp4_content).hexdigest()
+                    mp4_file.close()
+
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+                    for tweet in tweets_to_post['data']:
+                        # Test poll retrieval
+                        if tweet['id'] == test_user.pinned:
+                            poll = mock_request['sample_data']['poll']
+                            options = poll['includes']['polls'][0]['options']
+                            polls = poll['includes']['polls']
+                            duration = polls[0]['duration_minutes']
+                            assert len(tweet['polls']['options']) == len(
+                                options)
+                            expire = tweet['polls']['expires_in']
+                            assert expire == duration * 60
+                        # Test download
+                        tweet_folder = os.path.join(
+                            sample_user_obj.tweets_temp_path, tweet["id"]
+                        )
+                        dict_hash = {
+                            '0-7_1323049175848833033.mp4': mp4_hash,
+                            '0-3_1323048111057604610.png': png_hash,
+                            '0-16_1323048298190721024.gif': gif_hash
+                        }
+                        if os.path.isdir(tweet_folder):
+                            for file in os.listdir(tweet_folder):
+                                file_path = os.path.join(tweet_folder, file)
+                                if os.path.isfile(file_path):
+                                    f = open(file_path, 'rb')
+                                    file_cont = f.read()
+                                    sha256 = hashlib.sha256(file_cont)
+                                    file_hash = sha256.hexdigest()
+                                    f.close()
+                                    assert file_hash == dict_hash[file]
+                                    os.remove(file_path)
     return mock
 
 
@@ -778,8 +1073,9 @@ def test_include_rts(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_norts.yml')
             for user_item in config_users['user_dict']:
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, config_users['config'], os.getcwd()
+                    user_item, config_users['config'], os.getcwd(), posts_ids
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -822,8 +1118,9 @@ def test_include_replies(sample_users, mock_request):
         with sample_user['mock'] as mock:
             config_users = get_config_users('config_noreplies.yml')
             for user_item in config_users['user_dict']:
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, config_users['config'], os.getcwd()
+                    user_item, config_users['config'], os.getcwd(), posts_ids
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -884,8 +1181,9 @@ def test_delay_post(sample_users, global_mock):
 
             for user_item in users['user_dict']:
                 delay_post = users['config']['delay_post']
+                posts_ids = {}
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), posts_ids
                 )
                 assert delay_post == sample_user_obj.delay_post
 
@@ -899,7 +1197,7 @@ def test_hashtags(sample_users, global_mock):
 
             for user_item in users['user_dict']:
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     if sample_user_obj.hashtags:
@@ -940,19 +1238,15 @@ def test_hashtags(sample_users, global_mock):
     return mock, sample_user
 
 
-def test_nitter_instances(sample_users, mock_request, global_mock):
+def test_content_warnings(sample_users, mock_request, global_mock):
     test_user = UserTemplate()
     for sample_user in sample_users:
         with global_mock as mock:
-            users_nitter_net = get_config_users('config_nitter_global.yml')
-            users_nitter = get_config_users(
-                'config_nitter_different_instance.yml'
-            )
+            users_cw = get_config_users('config_cw.yml')
 
-            for user_item in users_nitter_net['user_dict']:
-                nitter_instance = users_nitter_net['config']['nitter_base_url']
+            for user_item in users_cw['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_nitter_net['config'], os.getcwd()
+                    user_item, users_cw['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -976,6 +1270,93 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
+                                    None
+                                ), None, False, cw=tweet["cw"]
+                            )
+                            history = mock.request_history
+                            if tweet["cw"]:
+                                enc_cw = urllib.parse.quote_plus(tweet["cw"])
+                                assert enc_cw in history[-1].text
+
+
+def test_custom_replacements(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_cw = get_config_users('config_custom_replacements.yml')
+
+            for user_item in users_cw['user_dict']:
+                sample_user_obj = User(
+                    user_item, users_cw['config'], os.getcwd(), {}
+                )
+                for t_user in sample_user_obj.twitter_username:
+                    tweets_v2 = sample_user_obj._get_tweets(
+                        "v2", t_user=t_user
+                    )
+                    sample_data = mock_request['sample_data']
+                    assert tweets_v2 == sample_data['tweets_v2']
+                    tweet = sample_user_obj._get_tweets(
+                        "v1.1", test_user.pinned
+                    )
+                    assert tweet == mock_request['sample_data']['tweet']
+                    tweets = sample_user_obj._get_tweets("v1.1")
+                    assert tweets == mock_request['sample_data']['tweets_v1']
+                    to_replace = []
+                    for tw in tweets_v2["data"]:
+                        for key in sample_user_obj.custom_replacements:
+                            if key in tw["text"]:
+                                to_replace.append(key)
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+                    text = ''
+                    for tweet in tweets_to_post["data"]:
+                        for key in sample_user_obj.custom_replacements:
+                            assert key not in tweet["text"]
+                        text = f'{text}{tweet["text"]}'
+                    for key in to_replace:
+                        replacement = sample_user_obj.custom_replacements[key]
+                        assert replacement in text
+        return mock
+
+
+def test_nitter_instances(sample_users, mock_request, global_mock):
+    test_user = UserTemplate()
+    for sample_user in sample_users:
+        with global_mock as mock:
+            users_nitter_net = get_config_users('config_nitter_global.yml')
+            users_nitter = get_config_users(
+                'config_nitter_different_instance.yml'
+            )
+
+            for user_item in users_nitter_net['user_dict']:
+                nitter_instance = users_nitter_net['config']['nitter_base_url']
+                sample_user_obj = User(
+                    user_item, users_nitter_net['config'], os.getcwd(), {}
+                )
+                for t_user in sample_user_obj.twitter_username:
+                    tweets_v2 = sample_user_obj._get_tweets(
+                        "v2", t_user=t_user
+                    )
+                    sample_data = mock_request['sample_data']
+                    assert tweets_v2 == sample_data['tweets_v2']
+                    tweet = sample_user_obj._get_tweets(
+                        "v1.1", test_user.pinned
+                    )
+                    assert tweet == mock_request['sample_data']['tweet']
+                    tweets = sample_user_obj._get_tweets("v1.1")
+                    assert tweets == mock_request['sample_data']['tweets_v1']
+
+                    tweets_to_post = sample_user_obj.process_tweets(tweets_v2)
+
+                    for tweet in tweets_to_post['data']:
+                        if sample_user_obj.signature:
+                            sample_user_obj.post_pleroma(
+                                (
+                                    tweet["id"],
+                                    tweet["text"],
+                                    tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -996,7 +1377,7 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
             for user_item in users_nitter['user_dict']:
                 nitter_instance = users_nitter['config']['nitter_base_url']
                 sample_user_obj = User(
-                    user_item, users_nitter['config'], os.getcwd()
+                    user_item, users_nitter['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1025,7 +1406,9 @@ def test_nitter_instances(sample_users, mock_request, global_mock):
                                 (
                                     tweet["id"],
                                     tweet["text"],
-                                    tweet["created_at"]
+                                    tweet["created_at"],
+                                    None,
+                                    None
                                 ),
                                 None,
                                 False,
@@ -1058,7 +1441,7 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
             for user_item in users_invidious['user_dict']:
                 invidious_instance = user_item['invidious_base_url']
                 sample_user_obj = User(
-                    user_item, users_invidious['config'], os.getcwd()
+                    user_item, users_invidious['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1081,7 +1464,9 @@ def test_invidious_instances(sample_users, mock_request, global_mock):
                                 (
                                     tweet["id"],
                                     tweet["text"],
-                                    tweet["created_at"]
+                                    tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1113,7 +1498,7 @@ def test_original_date(sample_users, mock_request, global_mock):
 
             for user_item in users_date['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_date['config'], os.getcwd()
+                    user_item, users_date['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1137,6 +1522,8 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1164,7 +1551,7 @@ def test_original_date(sample_users, mock_request, global_mock):
 
             for user_item in users_no_date['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_date['config'], os.getcwd()
+                    user_item, users_date['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets_v2 = sample_user_obj._get_tweets(
@@ -1188,6 +1575,8 @@ def test_original_date(sample_users, mock_request, global_mock):
                                     tweet["id"],
                                     tweet["text"],
                                     tweet["created_at"],
+                                    None,
+                                    None
                                 ), None, False
                             )
                             history = mock.request_history
@@ -1222,7 +1611,7 @@ def test_tweet_order(sample_users, mock_request, global_mock):
 
             for user_item in users['user_dict']:
                 sample_user_obj = User(
-                    user_item, users['config'], os.getcwd()
+                    user_item, users['config'], os.getcwd(), {}
                 )
                 for t_user in sample_user_obj.twitter_username:
                     tweets = sample_user_obj._get_tweets(
@@ -1235,16 +1624,16 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                     tw_z = zip(tweets["data"], tweets_to_post["data"])
 
                     for prev, (f, b), nxt in previous_and_next(tw_z):
-                        assert f["created_at"] == b["created_at"]
+                        assert f["id"] == b["id"]
                         # prev and nxt are not None (start or end of list)
                         if all((prev, nxt)):
                             (prevf, prevb) = prev
                             (nxtf, nxtb) = nxt
-                            assert prevf["created_at"] > f["created_at"]
-                            assert f["created_at"] > nxtf["created_at"]
+                            assert prevf["id"] > f["id"]
+                            assert f["id"] > nxtf["id"]
 
-                            assert prevb["created_at"] > b["created_at"]
-                            assert b["created_at"] > nxtb["created_at"]
+                            assert prevb["id"] > b["id"]
+                            assert b["id"] > nxtb["id"]
 
                     # Test mp reverse order
                     tweets = sample_user_obj._get_tweets(
@@ -1259,16 +1648,16 @@ def test_tweet_order(sample_users, mock_request, global_mock):
                     )
                     tw_z = zip(tweets["data"], tweets_to_post["data"])
                     for prev, (f, b), nxt in previous_and_next(tw_z):
-                        assert f["created_at"] == b["created_at"]
+                        assert f["id"] == b["id"]
                         # prev and nxt are not None (start or end of list)
                         if all((prev, nxt)):
                             (prevf, prevb) = prev
                             (nxtf, nxtb) = nxt
-                            assert prevf["created_at"] < f["created_at"]
-                            assert f["created_at"] < nxtf["created_at"]
+                            assert prevf["id"] < f["id"]
+                            assert f["id"] < nxtf["id"]
 
-                            assert prevb["created_at"] < b["created_at"]
-                            assert b["created_at"] < nxtb["created_at"]
+                            assert prevb["id"] < b["id"]
+                            assert b["id"] < nxtb["id"]
                     for tweet in tweets_to_post["data"]:
                         # Clean up
                         tweet_folder = os.path.join(
@@ -1290,7 +1679,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
             users_no_keep = get_config_users('config_no_keep_media_links.yml')
             for user_item in users_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_keep['config'], os.getcwd()
+                    user_item, users_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1329,7 +1718,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
             users_no_keep = get_config_users('config_no_keep_media_links.yml')
             for user_item in users_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_keep['config'], os.getcwd()
+                    user_item, users_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1364,7 +1753,7 @@ def test_keep_media_links(sample_users, mock_request, global_mock):
                                     os.remove(file_path)
             for user_item in users_no_keep['user_dict']:
                 sample_user_obj = User(
-                    user_item, users_no_keep['config'], os.getcwd()
+                    user_item, users_no_keep['config'], os.getcwd(), {}
                 )
                 tweet_v2 = sample_user_obj._get_tweets(
                     "v2", sample_user_obj.pinned_tweet_id
@@ -1480,7 +1869,7 @@ def test_force_date_misskey(sample_users, monkeypatch):
     return mock
 
 
-def test_main(rootdir, global_mock, sample_users, monkeypatch):
+def test_main(rootdir, global_mock, sample_users, monkeypatch, mock_request):
     with global_mock as g_mock:
         test_files_dir = os.path.join(rootdir, 'test_files')
 
@@ -1517,7 +1906,13 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
 
         sample_data_dir = os.path.join(test_files_dir, 'sample_data')
         media_dir = os.path.join(sample_data_dir, 'media')
+
         archive = os.path.join(media_dir, 'twitter-archive.zip')
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
+        with patch.object(sys, 'argv', ['', '--archive', archive]):
+            assert cli.main() == 0
+
+        archive = os.path.join(media_dir, 'twitter-archive-new-format.zip')
         monkeypatch.setattr('builtins.input', lambda: "2021-12-11")
         with patch.object(sys, 'argv', ['', '--archive', archive]):
             assert cli.main() == 0
@@ -1531,6 +1926,16 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
                 sys, 'argv', ['', '--archive', archive, '--forceDate']
         ):
             assert cli.main() == 0
+
+        monkeypatch.setattr('builtins.input', lambda: "2021-12-13")
+        locker_path = os.path.join(test_files_dir, 'pleroma-bot.lock')
+        with pytest.raises(SystemExit) as pytest_wrapped_e:
+            with patch.object(
+                    sys, 'argv', ['', '--lockfile', locker_path, '--verbose']
+            ):
+                cli.init()
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 0
 
         with patch.object(
                 sys, 'argv', ['', '--forceDate', '2021-12-13']
@@ -1576,6 +1981,9 @@ def test_main(rootdir, global_mock, sample_users, monkeypatch):
         if os.path.isfile(backup_config):
             shutil.copy(backup_config, prev_config)
         archive_dir = os.path.join(media_dir, 'twitter-archive')
+        if os.path.isdir(archive_dir):
+            shutil.rmtree(archive_dir)
+        archive_dir = os.path.join(media_dir, 'twitter-archive-new-format')
         if os.path.isdir(archive_dir):
             shutil.rmtree(archive_dir)
         for sample_user in sample_users:

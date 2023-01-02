@@ -3,7 +3,7 @@ import sys
 import locale
 import logging
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 class StdOutFilter(logging.Filter):
@@ -22,7 +22,6 @@ class CustomFormatter(logging.Formatter):
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
         "(%(filename)s:%(lineno)d) "
     )
-
     if sys.platform != "win32" and sys.stdout.encoding.casefold() == 'utf-8':
         FORMATS = {
             logging.DEBUG: grey + format_r + reset,
@@ -33,11 +32,11 @@ class CustomFormatter(logging.Formatter):
         }
     else:  # pragma: win32 cover
         FORMATS = {
-            logging.DEBUG: format_r,
-            logging.INFO: "¡ " + format_r,
-            logging.WARNING: "!!" + format_l,
-            logging.ERROR: "× " + format_l,
-            logging.CRITICAL: "× " + format_l,
+            logging.DEBUG: '\n' + format_r,
+            logging.INFO: '\n' + "¡ " + format_r,
+            logging.WARNING: '\n' + "!!" + format_l,
+            logging.ERROR: '\n' + "× " + format_l,
+            logging.CRITICAL: '\n' + "× " + format_l,
         }
 
     def format(self, record):
