@@ -184,11 +184,13 @@ Using the `custom_replacements` mapping on your config you can set text to be re
 
 For example, this is particularly useful if you happen to have multiple mirrored accounts but their handles are not an exact match on the Fediverse instance.
 
-`@Linus__Torvalds` may be have the `@TorvaldsBot` handle on your instance, so you would want to replace it with the correct one when they are mentioned by another user you're also mirroring.
+The Twitter account `@Linus__Torvalds` may be have the `@TorvaldsBot` handle on your instance, so you would want to replace it with the correct one when they are mentioned by another user you're also mirroring.
 
 And not only that, you can replace any text you wish with whatever you may find useful or relevant for your usecase.
 
-You as key-value pairs on your config. The key at the left will be replaced by whatever value is associated to it:
+You can add as many replacements as you need as key-value pairs on your config.
+
+The key at the left will be replaced by whatever value is associated to it:
 
 ```yaml title="config.yml" hl_lines="2-6"
 pleroma_base_url: https://pleroma.instance

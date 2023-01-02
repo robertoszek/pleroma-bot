@@ -7,8 +7,6 @@ site_url: https://robertoszek.github.io/pleroma-bot/
 repo_name: robertoszek/pleroma-bot
 repo_url: https://github.com/robertoszek/pleroma-bot
 edit_uri: ""
-# Copyright
-# copyright: Copyright &copy; 2016 - 2020 Martin Donath
 
 # Configuration
 theme:

@@ -2,9 +2,11 @@
 
 Great, now you're all ready to go, you have installed ```pleroma-bot``` and created a config for your needs. But where's the fun in all of that if you have to run it manually everytime, right?
 
+There a few options for running the bot automatically, you can choose to use whichever is more relevant for you.
+
 ## Daemon mode
 
-`pleroma-bot` can run in the background by launching it in daemon mode:
+`pleroma-bot` can keep running in the background by launching it in daemon mode:
 ```console
 $ pleroma-bot -d
 ```
@@ -18,7 +20,7 @@ $ pleroma-bot -d -p 15
 
 The [AUR package :material-arch:](https://aur.archlinux.org/packages/python-pleroma-bot) will automatically install the systemd service `pleroma-bot.service`. 
 
-If you installed `pleroma-bot` by other methods, you will have to manually install it:
+If you installed `pleroma-bot` by other methods, you can manually install it:
 
 ???+ note "The `pleroma-bot.service` file can be found at the root of the code repository"
 
@@ -55,9 +57,13 @@ If you installed `pleroma-bot` by other methods, you will have to manually insta
 
 
 
-## Skip first run checks
+## Skip first-run checks
 
-It's worth noting that ```pleroma-bot``` accepts the flag ```--skipChecks```, which will ignore all of the first run checks (e.g. no user folder found, no posts/toots in the target Fediverse account, etc). Most importantly, if you pass this argument you can rest assured no input will be asked during the run. Which makes it perfect for our purposes of running it on a timer with no manual intervention.
+It's worth noting that you can use the argument ```--skipChecks```, which will ignore all of the first-run checks (e.g. no user folder found, no posts/toots in the target Fediverse account, etc).
+
+Most importantly, if you pass this argument you can rest assured no input will be asked during the run (like the starting date for tweet gathering).
+
+Which makes it perfect for our purposes of running it on a timer with no manual intervention.
 
 ```console
 $ pleroma-bot --skipChecks
@@ -93,10 +99,14 @@ In our example, we'll add some lines at the end of the crontab, which will:
         # Post tweets every 10 min
         */10 * * * * pleroma-bot --noProfile --skipChecks -c /path/to/config.yml -l /path/to/error.log 1> /dev/null
 
-        # Update pleroma profile with Twitter info every day at 6:15 AM
+        # Update pleroma profile with Twitter profile info every day at 6:15 AM
         15 6 * * * pleroma-bot --skipChecks -c /path/to/config.yml 1> /dev/null
         ```
-
+        
+        ???+ note 
+            If you have issues with cron running the bot you may have to specify the absolute path of your Python executable:
+            
+            ```*/10 * * * * /usr/bin/python /usr/local/bin/pleroma-bot```
     === "Virtual environment [:octicons-file-code-24:](https://docs.python.org/3/tutorial/venv.html)"
 
         ```bash

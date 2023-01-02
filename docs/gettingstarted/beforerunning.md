@@ -12,21 +12,24 @@ You can either choose to use:
 You'll need to create a [configuration file](/pleroma-bot/gettingstarted/configuration/) and obtain the [Fediverse tokens](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) for your accounts no matter what you choose to use.
 
 ## Guest tokens
-If you prefer not [applying for a Twitter developer account](https://developer.twitter.com/en/apply-for-access) or want to get up and running as soon as possible, you can opt to use just Guest tokens.
+If you prefer not [applying for a Twitter developer account](https://developer.twitter.com/en/apply-for-access) or want to get up and running as soon as possible, you can opt to use just Guest tokens for retrieving tweets and profile info from Twitter.
 
 The bot will automatically obtain them on its own when no `twitter_token` mapping is found [on your config file](/pleroma-bot/gettingstarted/configuration/#minimal-config).
 
 It has certain limitations, however:
 
-- No access to tweets from protected accounts
+- You'll have no access to tweets from protected accounts
 
-To get started with Guest Tokens you'll just need to obtain the [Fediverse tokens](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) and create a [configuration file](/pleroma-bot/gettingstarted/configuration/).
+To get started with Guest Tokens you'll just need to:
+
+- obtain the [Fediverse tokens](/pleroma-bot/gettingstarted/beforerunning/#fediverse-tokens) 
+- and create a [configuration file](/pleroma-bot/gettingstarted/configuration/).
 
 ## Twitter tokens
 
 !!! info "Not needed if using an archive, an RSS feed or Guest Tokens"
 
-To take full advantage of the bot, [applying for a Twitter developer account](https://developer.twitter.com/en/apply-for-access) is recommended.
+You can obtain your Twitter bearer token by [applying for a Twitter developer account](https://developer.twitter.com/en/apply-for-access).
 
 The process involves some review of the developer account application by Twitter and it's very likely you'll be asked for some details pertaining your usecase. It usually doesn't take longer than a day or two to complete the application, the back and forth is mostly automated on their part.
 

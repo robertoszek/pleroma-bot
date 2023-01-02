@@ -46,7 +46,7 @@ First you need to install ```pleroma-bot``` on your system. There are multiple m
 
 ## Test the installation
 
-Once installed using your preferred method, test that the package has been correctly installed using the appropiate command.
+Once installed using your preferred method, test that the package has been correctly installed using the following command.
 
 
 === ":material-language-python: Using PyPi"
