@@ -667,7 +667,8 @@ def main():
                     tweet_counter = 0
                     posted = {}
                     desc = _("Posting tweets... ")
-                    pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc)
+                    tweet_total = len(tweets_to_post["data"])
+                    pbar = tqdm(total=tweet_total, desc=desc, disable=None)
                     for tweet in tweets_to_post["data"]:
                         tweet_counter += 1
                         logger.debug(

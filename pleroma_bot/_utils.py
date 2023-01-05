@@ -116,7 +116,7 @@ def process_parallel(tweets, user, threads):
     with Pool(threads) as p:
         ret = []
         desc = _("Processing tweets... ")
-        with tqdm(total=len(dt), desc=desc) as pbar:
+        with tqdm(total=len(dt), desc=desc, disable=None) as pbar:
             for idx, res in enumerate(
                     p.imap_unordered(user.process_tweets, tweets_chunked)
             ):
@@ -849,7 +849,7 @@ def parse_rss_feed(self, rss_link, start_time, threads=1):  # pragma: todo
         with Pool(threads) as p:
             ret = []
             desc = _("Processing tweets... ")
-            with tqdm(total=len(dt), desc=desc) as pbar:
+            with tqdm(total=len(dt), desc=desc, disable=None) as pbar:
                 for idx, res in enumerate(
                         p.imap_unordered(
                             self._process_tweets_rss, chunks
@@ -886,7 +886,7 @@ def _process_tweets_rss(self, entries):  # pragma: todo
     }
     if self.threads == 1:
         desc = _("Processing tweets... ")
-        pbar = tqdm(total=len(entries), desc=desc)
+        pbar = tqdm(total=len(entries), desc=desc, disable=None)
     for item in entries[:self.max_tweets]:
         created_at = datetime.strftime(
             datetime.strptime(item.published, "%a, %d %b %Y %H:%M:%S %Z"),

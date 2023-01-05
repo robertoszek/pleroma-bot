@@ -80,7 +80,7 @@ def process_tweets(self, tweets_to_post):
     all_media = []
     if int(self.threads) == 1:
         desc = _("Processing tweets... ")
-        pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc)
+        pbar = tqdm(total=len(tweets_to_post["data"]), desc=desc, disable=None)
 
     for idx, tweet in enumerate(tweets_to_post["data"]):
         # logger.info(_("Processing: {}/{}").format(idx+1, total_tweets))

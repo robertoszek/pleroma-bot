@@ -787,7 +787,13 @@ def get_tweets(self, start_time):
         for t_user in self.twitter_username:
             desc = _("Gathering tweets... ")
             fmt = '{desc}{n_fmt}'
-            pbar = tqdm(desc=desc, position=0, total=10000, bar_format=fmt)
+            pbar = tqdm(
+                desc=desc,
+                position=0,
+                total=10000,
+                bar_format=fmt,
+                disable=None
+            )
             t_utweets[t_user] = self._get_tweets(
                 "v2",
                 start_time=start_time,
