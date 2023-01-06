@@ -1,3 +1,10 @@
+## Unreleased
+## Fixed
+- Bug: Content warning text being empty for Misskey instances in some cases
+
+## Enhancements
+- Progress bars will only be displayed on interactive TTYs/shells (removing unwanted noise from stderr on non-interactive shells like on cronjobs)
+
 ## [1.2.0] 02-01-2023
 ## Fixed
 - Bug: Handle exception when media attachments are geoblocked (403 Unauthorized)

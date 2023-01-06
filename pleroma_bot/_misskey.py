@@ -65,10 +65,9 @@ def post_misskey(
                 if media_id is not None:
                     media_ids.append(media_id)
 
-    data = {
-        "i": self.pleroma_token,
-        "cw": cw,
-    }
+    data = {"cw": cw} if cw else {}
+    data.update({"i": self.pleroma_token})
+
     if (
             tweet_id in posts
             and len(str(posts[tweet_id])) > 0
