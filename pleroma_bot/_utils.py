@@ -382,7 +382,7 @@ def check_pinned(self, posted=None):
             with open(
                     os.path.join(
                         self.user_path[t_user],
-                        "pinned_id_pleroma.txt"
+                        f"pinned_id_{self.instance}.txt"
                     ), "w"
             ) as file:
                 file.write(f"{pinned_post}\n")
@@ -392,7 +392,7 @@ def check_pinned(self, posted=None):
     ):
         pinned_file = os.path.join(
             self.user_path[t_user],
-            "pinned_id_pleroma.txt"
+            f"pinned_id_{self.instance}.txt"
         )
         self.unpin(pinned_file)
 

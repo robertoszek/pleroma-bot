@@ -355,7 +355,7 @@ def test_check_pinned_tweet_misskey(sample_users, mock_request):
                     os.getcwd(),
                     'users',
                     sample_user_obj.twitter_username[idx],
-                    'pinned_id_pleroma.txt'
+                    'pinned_id_misskey.txt'
                 )
                 with open(pinned_path, 'r', encoding='utf8') as f:
                     assert f.readline().rstrip() == test_user.pinned

@@ -68,7 +68,7 @@ def unpin_misskey(self, pinned_file):
             unpin_url, json.dumps(data), headers=headers
         )
         if not response.ok:
-            if response.status_code == 404:  # pragma
+            if response.status_code == 400:  # pragma
                 logger.warning(
                     _(
                         "Pinned post {} not found."
