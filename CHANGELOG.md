@@ -3,6 +3,7 @@
 - Bug: Content warning text being empty for Misskey instances in some cases
 - Bug: Unhandled error when unpinning if previous pinned post was deleted on Misskey. Thanks @ssmucny !
 - Bug: Pinned post ID being saved on wrong path on Misskey instances
+- Bug: Some signature links were not recognized as Twitter links by some third-party apps (like Twitter for Android). Thanks @wzyboy!
 
 ## Enhancements
 - Progress bars will only be displayed on interactive TTYs/shells (removing unwanted noise from stderr on non-interactive shells like on cronjobs)
