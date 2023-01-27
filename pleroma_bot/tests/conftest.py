@@ -90,7 +90,7 @@ def mock_request(rootdir):
             raw=empty_resp,
         )
         mock.head(
-            "http://twitter.com/BotPleroma/status/1323048312161947650"
+            "https://twitter.com/BotPleroma/status/1323048312161947650"
             "/photo/1",
             status_code=200,
             raw=empty_resp,

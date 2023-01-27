@@ -199,7 +199,7 @@ class User(object):
         self.twitter_username = t_users
 
         twitter_url = (
-            self.nitter_base_url if self.nitter else "http://twitter.com"
+            self.nitter_base_url if self.nitter else "https://twitter.com"
         )
         self.twitter_url_home = twitter_url
         if self.rich_text:
