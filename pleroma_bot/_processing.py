@@ -170,7 +170,7 @@ def process_tweets(self, tweets_to_post):
             if self.archive:  # pragma: todo
                 t_user = self.twitter_ids[list(self.twitter_ids.keys())[0]]
             else:
-                t_user = "i/web"
+                t_user = "_"
                 if tweet["author_id"] in self.twitter_ids:
                     t_user = self.twitter_ids[tweet["author_id"]]
             twitter_url_user = f"{self.twitter_url_home}/{t_user}"
