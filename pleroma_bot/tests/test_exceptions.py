@@ -97,7 +97,7 @@ def test_user_nitter_global(sample_users):
                         os.getcwd(),
                         {}
                     )
-                    twitter_url = f"http://twitter.com/" \
+                    twitter_url = f"https://twitter.com/" \
                                   f"{user_obj.twitter_username[idx]}"
                     assert user_obj.twitter_url[t_user] == twitter_url
         return mock
