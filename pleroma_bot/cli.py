@@ -692,7 +692,7 @@ def main():
                             tweet["polls"],
                             tweet["possibly_sensitive"],
                             tweets_to_post["media_processed"],
-                            cw=tweet["cw"]
+                            cw=tweet.get("cw")
                         )
                         posted[tweet["id"]] = post_id
                         posts_ids = user.posts_ids
