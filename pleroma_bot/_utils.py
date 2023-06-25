@@ -544,7 +544,7 @@ def _get_instance_info(self):
 
 def mastodon_enforce_limits(self):
     for t_user in self.twitter_username:
-        if len(self.display_name[t_user]) > 30:
+        if t_user in self.display_name and len(self.display_name[t_user]) > 30:
             self.display_name[t_user] = self.display_name[t_user][:30]
             log_msg = _(
                 "Mastodon doesn't support display names longer than 30 "
