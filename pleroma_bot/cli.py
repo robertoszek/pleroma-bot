@@ -103,6 +103,7 @@ class User(object):
     from ._utils import _update_bot_status
     from ._utils import _process_tweets_rss
     from ._utils import replace_vars_in_str
+    from ._utils import refresh_guest_account
     from ._utils import _get_fedi_profile_info
     from ._utils import _get_guest_token_header
     from ._utils import mastodon_enforce_limits
@@ -224,6 +225,7 @@ class User(object):
             self.twitter_token = guest_token
             self.header_twitter = headers
             self.guest = True
+            # self.refresh_guest_account()
 
         if all(
                 [

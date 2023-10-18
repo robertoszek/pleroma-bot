@@ -1090,11 +1090,18 @@ def _get_fedi_info(self):
     self._get_fedi_profile_info()
 
 
-def _get_guest_token_header(self):  # pragma: todo
-    _guest_token = (
-        "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7tt"
-        "fk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
-    )
+def _get_guest_token_header(self, retries=0, tok_list=None):  # pragma: todo
+    developer_tok = 'AAAAAAAAAAAAAAAAAAAAACHguwAAAAAAaSlT0G31NDEyg' \
+                    '%2BSnBN5JuyKjMCU%3Dlhg0gv0nE7KKyiJNEAojQbn8Y3wJm1x' \
+                    'idDK7VnKGBP4ByJwHPb',
+    tweetdeck_tok = 'AAAAAAAAAAAAAAAAAAAAAFQODgEAAAAAVHTp76lzh3rFzcHbmHV' \
+                    'vQxYYpTw%3DckAlMINMjmCwxUcaXbAN4XqJVdgMJaHqNOFgPMK0zN1' \
+                    'qLqLQCF',
+    ipad_tok = 'AAAAAAAAAAAAAAAAAAAAAGHtAgAAAAAA%2Bx7ILXNILCqkSGIzy6faIHZ9s' \
+               '3Q%3DQy97w6SIrzE7lQwPJEYQBsArEE2fC25caFwRBvAGi456G09vGR'
+    tok_list = tok_list if tok_list else [developer_tok, tweetdeck_tok,
+                                          ipad_tok]
+    _guest_token = random.choice(tok_list)
     guest_url = f"{self.twitter_base_url}/guest/activate.json"
     headers = {"Authorization": f"Bearer {_guest_token}"}
     user_agent = (
@@ -1117,6 +1124,13 @@ def _get_guest_token_header(self):  # pragma: todo
                 method='POST', url=guest_url, headers=headers
             )
         else:
+            tok_list.remove(_guest_token)
+            if len(tok_list) > 0:
+                _guest_token, headers = _get_guest_token_header(
+                    self, retries=retries, tok_list=tok_list
+                )
+                return _guest_token, headers
+            logger.warning("Ran out of tokens too try")
             response.raise_for_status()
     json_resp = response.json()
     guest_token = json_resp['guest_token']
@@ -1127,8 +1141,136 @@ def _get_guest_token_header(self):  # pragma: todo
         "accept-language": "de,en-US;q=0.7,en;q=0.3",
         "accept-encoding": "gzip, deflate, utf-8",
         "te": "trailers",
+        "x-twitter-active-user": "yes",
+        "Referer": "https://twitter.com",
     })
     return _guest_token, headers
+
+
+def refresh_guest_account(self):
+    url = 'https://api.twitter.com/1.1/onboarding/task.json?flow_name=welcome&api_version=1&known_device_token=&sim_country_code=us'
+    headers = {
+        'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F',
+        'Content-Type': 'application/json',
+        'User-Agent': 'TwitterAndroid/9.95.0-release.0 (29950000-r-0) ONEPLUS+A3010/9 (OnePlus;ONEPLUS+A3010;OnePlus;OnePlus3;0;;1;2016)',
+        'X-Twitter-API-Version': '5',
+        'X-Twitter-Client': 'TwitterAndroid',
+        'X-Twitter-Client-Version': '9.95.0-release.0',
+        'OS-Version': '28',
+        'System-User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9; ONEPLUS A3010 Build/PKQ1.181203.001)',
+        'X-Twitter-Active-User': 'yes',
+        "X-Guest-Token": self.twitter_token,
+    }
+    data = {
+        "flow_token": None,
+        "input_flow_data": {
+            "country_code": None,
+            "flow_context": {
+                "start_location": {
+                    "location": "splash_screen"
+                }
+            },
+            "requested_variant": None,
+            "target_user_id": 0
+        },
+        "subtask_versions": {
+            "generic_urt": 3,
+            "standard": 1,
+            "open_home_timeline": 1,
+            "app_locale_update": 1,
+            "enter_date": 1,
+            "email_verification": 3,
+            "enter_password": 5,
+            "enter_text": 5,
+            "one_tap": 2,
+            "cta": 7,
+            "single_sign_on": 1,
+            "fetch_persisted_data": 1,
+            "enter_username": 3,
+            "web_modal": 2,
+            "fetch_temporary_password": 1,
+            "menu_dialog": 1, "sign_up_review": 5,
+            "interest_picker": 4,
+            "user_recommendations_urt": 3,
+            "in_app_notification": 1,
+            "sign_up": 2, "typeahead_search": 1,
+            "user_recommendations_list": 4,
+            "cta_inline": 1,
+            "contacts_live_sync_permission_prompt": 3,
+            "choice_selection": 5,
+            "js_instrumentation": 1,
+            "alert_dialog_suppress_client_events": 1,
+            "privacy_options": 1,
+            "topics_selector": 1,
+            "wait_spinner": 3,
+            "tweet_selection_urt": 1,
+            "end_flow": 1,
+            "settings_list": 7,
+            "open_external_link": 1,
+            "phone_verification": 5,
+            "security_key": 3,
+            "select_banner": 2,
+            "upload_media": 1,
+            "web": 2,
+            "alert_dialog": 1,
+            "open_account": 2,
+            "action_list": 2,
+            "enter_phone": 2,
+            "open_link": 1,
+            "show_code": 1,
+            "update_users": 1,
+            "check_logged_in_account": 1,
+            "enter_email": 2,
+            "select_avatar": 4,
+            "location_permission_prompt": 2,
+            "notifications_permission_prompt": 4
+        }
+    }
+
+    response = self._request_proxy(
+        "POST", url,
+        data=data, headers=headers,
+    )
+    flow_token = None
+    data = {
+        "flow_token": flow_token,
+        "subtask_inputs": [
+            {
+                "open_link": {"link": "next_link"},
+                "subtask_id": "NextTaskOpenLink"}
+        ],
+        "subtask_versions": {
+            "generic_urt": 3, "standard": 1,
+            "open_home_timeline": 1, "app_locale_update": 1,
+            "enter_date": 1, "email_verification": 3,
+            "enter_password": 5, "enter_text": 5,
+            "one_tap": 2, "cta": 7, "single_sign_on": 1,
+            "fetch_persisted_data": 1, "enter_username": 3,
+            "web_modal": 2, "fetch_temporary_password": 1,
+            "menu_dialog": 1, "sign_up_review": 5,
+            "interest_picker": 4,
+            "user_recommendations_urt": 3,
+            "in_app_notification": 1, "sign_up": 2,
+            "typeahead_search": 1,
+            "user_recommendations_list": 4, "cta_inline": 1,
+            "contacts_live_sync_permission_prompt": 3,
+            "choice_selection": 5, "js_instrumentation": 1,
+            "alert_dialog_suppress_client_events": 1,
+            "privacy_options": 1, "topics_selector": 1,
+            "wait_spinner": 3, "tweet_selection_urt": 1,
+            "end_flow": 1, "settings_list": 7,
+            "open_external_link": 1, "phone_verification": 5,
+            "security_key": 3, "select_banner": 2,
+            "upload_media": 1, "web": 2, "alert_dialog": 1,
+            "open_account": 2, "action_list": 2,
+            "enter_phone": 2, "open_link": 1, "show_code": 1,
+            "update_users": 1, "check_logged_in_account": 1,
+            "enter_email": 2, "select_avatar": 4,
+            "location_permission_prompt": 2,
+            "notifications_permission_prompt": 4
+        }
+    }
+    # jq -r '.subtasks[0]|if(.open_account) then .open_account else empty end'
 
 
 def _request_proxy(
@@ -1138,13 +1280,16 @@ def _request_proxy(
         hooks=None, allow_redirects=True, stream=None,
         verify=None, cert=None, json=None
 ):  # pragma: todo
-    if not self.pool_iter:
+    if not self.pool_iter and proxies is None:
+        response = requests.get('https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt')
+
+        proxies = response.text.split('\n')
         response = requests.get('https://www.sslproxies.org/')
         matches = re.findall(
             r"<td>\d+.\d+.\d+.\d+</td><td>\d+</td>", response.text
         )
         entries = [m.replace('<td>', '') for m in matches]
-        proxies = [s[:-5].replace('</td>', ':') for s in entries]
+        proxies = proxies + [s[:-5].replace('</td>', ':') for s in entries]
         self.pool_iter = cycle(proxies)
     for i in range(100):
         proxy = next(self.pool_iter)
@@ -1169,6 +1314,9 @@ def _request_proxy(
                 cert=cert,
                 timeout=5.0
             )
+            logger.info(response)
+            if response.url == 'https://www.sslproxies.org/':
+                continue
             if response.status_code == 200:
                 return response
         except Exception as e:

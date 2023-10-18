@@ -128,18 +128,35 @@ def _get_twitter_info_guest(self):  # pragma: todo
     from pleroma_bot._processing import _expand_urls
 
     for t_user in self.twitter_username:
-        twitter_user_url = (
-            f"{self.twitter_base_url}"
-            f"/users/show.json?screen_name="
-            f"{t_user}"
-        )
+        twitter_user_url = f'https://api.twitter.com/graphql/oUZZZ8Oddwxs8C' \
+                           f'd3iW3UEA/UserByScreenName?variables=%7B%22scre' \
+                           f'en_name%22%3A%22{t_user}%22%2C%22withSafetyMod' \
+                           f'eUserFields%22%3Atrue%7D&features=%7B%22hidden' \
+                           f'_profile_likes_enabled%22%3Afalse%2C%22respons' \
+                           f'ive_web_graphql_exclude_directive_enabled%22%3' \
+                           f'Atrue%2C%22verified_phone_label_enabled%22%3Af' \
+                           f'alse%2C%22subscriptions_verification_info_veri' \
+                           f'fied_since_enabled%22%3Atrue%2C%22highlights_t' \
+                           f'weets_tab_ui_enabled%22%3Atrue%2C%22creator_su' \
+                           f'bscriptions_tweet_preview_api_enabled%22%3Atru' \
+                           f'e%2C%22responsive_web_graphql_skip_user_profil' \
+                           f'e_image_extensions_enabled%22%3Afalse%2C%22res' \
+                           f'ponsive_web_graphql_timeline_navigation_enable' \
+                           f'd%22%3Atrue%7D'
+
+        #twitter_user_url = (
+        #    f"{self.twitter_base_url}"
+        #    f"/users/show.json?screen_name="
+        #    f"{t_user}"
+        #)
         response = requests.get(
             twitter_user_url, headers=self.header_twitter, auth=self.auth
         )
         if not response.ok:
             response.raise_for_status()
-        user_twitter = response.json()
-
+        result = response.json()["data"]["user"]["result"]
+        user_twitter = result["legacy"]
+        user_twitter["id"] = result["rest_id"]
         bio_text = user_twitter["description"]
         # Expand bio urls if possible
         if self.twitter_bio:
@@ -169,7 +186,7 @@ def _get_twitter_info_guest(self):  # pragma: todo
             if "url" in user_twitter["entities"]:
                 wb = user_twitter["entities"]["url"]["urls"][0]["expanded_url"]
                 self.website = wb
-        if "pinned_tweet_ids" in user_twitter:
+        if "pinned_tweet_ids_str" in user_twitter:
             if len(user_twitter["pinned_tweet_ids_str"]) > 0:
                 self.pinned_tweet_id = user_twitter["pinned_tweet_ids_str"][0]
             else:
@@ -444,14 +461,48 @@ def _get_tweets(
 
             }
             if self.guest:  # pragma: todo
-                param.update({"pc": "1"})
+                data = {
+                    'variables': {
+                        'tweetId': tweet_id,
+                        'withCommunity': False,
+                        'includePromotedContent': False,
+                        'withVoice': False,
+                    },
+                    'features': {
+                        'creator_subscriptions_tweet_preview_api_enabled': True,
+                        'tweetypie_unmention_optimization_enabled': True,
+                        'responsive_web_edit_tweet_api_enabled': True,
+                        'graphql_is_translatable_rweb_tweet_is_translatable_enabled': True,
+                        'view_counts_everywhere_api_enabled': True,
+                        'longform_notetweets_consumption_enabled': True,
+                        'responsive_web_twitter_article_tweet_consumption_enabled': False,
+                        'tweet_awards_web_tipping_enabled': False,
+                        'freedom_of_speech_not_reach_fetch_enabled': True,
+                        'standardized_nudges_misinfo': True,
+                        'tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled': True,
+                        'longform_notetweets_rich_text_read_enabled': True,
+                        'longform_notetweets_inline_media_enabled': True,
+                        'responsive_web_graphql_exclude_directive_enabled': True,
+                        'verified_phone_label_enabled': False,
+                        'responsive_web_media_download_video_enabled': False,
+                        'responsive_web_graphql_skip_user_profile_image_extensions_enabled': False,
+                        'responsive_web_graphql_timeline_navigation_enabled': True,
+                        'responsive_web_enhance_cards_enabled': False
+                    },
+                    'fieldToggles': {
+                        'withArticleRichContentState': False
+                    }
+                }
+                param = {key: json.dumps(value, separators=(',', ':')) for
+                         key, value in data.items()}
+                twitter_status_url = "https://twitter.com/i/api/graphql/2ICDjqPd81tulZcYrtpTuQ/TweetResultByRestId"
 
             response = self.twitter_api_request(
                 'GET',
                 twitter_status_url,
                 params=param,
                 headers=self.header_twitter,
-                auth=self.auth
+                auth=self.auth,
             )
             if not response.ok:
                 if response.status_code == 404:  # pragma: todo
@@ -465,6 +516,8 @@ def _get_tweets(
                 response.raise_for_status()
             tweet = response.json()
             if self.guest:  # pragma: todo
+                tweet = tweet["data"]["tweetResult"]["result"]["legacy"]
+                tweet["id"] = tweet["id_str"]
                 tweet_v2 = _package_tweets_v2(tweet, self.twitter_ids)
                 tweet = tweet_v2
             return tweet
@@ -487,6 +540,68 @@ def _get_tweets(
                         response.raise_for_status()
                     tweets = response.json()
                 else:  # pragma: todo
+                    dic = self.twitter_ids
+                    user_id = [i for i in dic if dic[i] == t_user][0]
+                    data = {
+                        'variables': {
+                            "userId": user_id,
+                            "count": str(self.max_tweets),
+                            "includePromotedContent": True,
+                            "withCommunity": True,
+                            "withSuperFollowsUserFields": True,
+                            "withDownvotePerspective": False,
+                            "withReactionsMetadata": False,
+                            "withReactionsPerspective": False,
+                            "withSuperFollowsTweetFields": True,
+                            "withVoice": True,
+                            "withV2Timeline": True,
+                        },
+                        'features': {
+                            'creator_subscriptions_tweet_preview_api_enabled': True,
+                            'tweetypie_unmention_optimization_enabled': True,
+                            'responsive_web_edit_tweet_api_enabled': True,
+                            'graphql_is_translatable_rweb_tweet_is_translatable_enabled': True,
+                            'view_counts_everywhere_api_enabled': True,
+                            'longform_notetweets_consumption_enabled': True,
+                            'responsive_web_twitter_article_tweet_consumption_enabled': False,
+                            'tweet_awards_web_tipping_enabled': False,
+                            'freedom_of_speech_not_reach_fetch_enabled': True,
+                            'standardized_nudges_misinfo': True,
+                            'tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled': True,
+                            'longform_notetweets_rich_text_read_enabled': True,
+                            'longform_notetweets_inline_media_enabled': True,
+                            'responsive_web_graphql_exclude_directive_enabled': True,
+                            'verified_phone_label_enabled': False,
+                            'responsive_web_media_download_video_enabled': False,
+                            'responsive_web_graphql_skip_user_profile_image_extensions_enabled': False,
+                            'responsive_web_graphql_timeline_navigation_enabled': True,
+                            'responsive_web_enhance_cards_enabled': False
+                        },
+                        'fieldToggles': {
+                            'withArticleRichContentState': False
+                        }
+                    }
+                    param = {key: json.dumps(value, separators=(',', ':')) for
+                             key, value in data.items()}
+                    twitter_status_url = "https://api.twitter.com/graphql/8IS8MaO-2EN6GZZZb8jF0g/UserWithProfileTweetsAndRepliesQueryV2"
+
+                    url_test = f"https://api.twitter.com/graphql/8IS8MaO-2EN6GZZZb8jF0g/UserWithProfileTweetsAndRepliesQueryV2?variables=%7B%22userId%22%3A%22${user_id}%22,%22count%22%3A40,%22includePromotedContent%22%3Atrue,%22withCommunity%22%3Atrue,%22withSuperFollowsUserFields%22%3Atrue,%22withDownvotePerspective%22%3Afalse,%22withReactionsMetadata%22%3Afalse,%22withReactionsPerspective%22%3Afalse,%22withSuperFollowsTweetFields%22%3Atrue,%22withVoice%22%3Atrue,%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue,%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue,%22verified_phone_label_enabled%22%3Afalse,%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue,%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse,%22tweetypie_unmention_optimization_enabled%22%3Atrue,%22vibe_api_enabled%22%3Atrue,%22responsive_web_edit_tweet_api_enabled%22%3Atrue,%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue,%22view_counts_everywhere_api_enabled%22%3Atrue,%22longform_notetweets_consumption_enabled%22%3Atrue,%22tweet_awards_web_tipping_enabled%22%3Afalse,%22freedom_of_speech_not_reach_fetch_enabled%22%3Afalse,%22standardized_nudges_misinfo%22%3Atrue,%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse,%22interactive_text_enabled%22%3Atrue,%22responsive_web_text_conversations_enabled%22%3Afalse,%22longform_notetweets_richtext_consumption_enabled%22%3Afalse,%22responsive_web_enhance_cards_enabled%22%3Afalse%7D"
+
+                    response = self.twitter_api_request(
+                        'GET',
+                        url_test,
+                        headers=self.header_twitter,
+                        auth=self.auth,
+                    )
+
+                    response = self.twitter_api_request(
+                        'GET',
+                        twitter_status_url,
+                        params=param,
+                        headers=self.header_twitter,
+                        auth=self.auth,
+                    )
+
                     now_ts = int(datetime.now(tz=timezone.utc).timestamp())
                     fmt_date = ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ")
                     for fmt in fmt_date:

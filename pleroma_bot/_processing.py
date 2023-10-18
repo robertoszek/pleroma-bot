@@ -394,10 +394,8 @@ def _process_polls(self, tweet, media):
 def _download_media(self, media, tweet):
     for idx, item in enumerate(media):
         if item["type"] != "video" and item["type"] != "animated_gif":
-            if "media_url" in item:  # pragma: todo
-                media_url = item['media_url']
-                if len(media_url) == 0 and "media_url_https" in item:
-                    media_url = item['media_url_https']
+            if "media_url_https" in item:
+                media_url = item['media_url_https']
             else:
                 media_url = item["url"]
         else:
@@ -407,7 +405,12 @@ def _download_media(self, media, tweet):
             if "media_key" not in item:  # pragma: todo
                 item["media_key"] = str(item["id"])
             key = item["media_key"]
-            response = requests.get(media_url, stream=True)
+            response = requests.get(
+                media_url,
+                stream=True,
+                headers=self.header_twitter,
+                auth=self.auth
+            )
             try:
                 if not response.ok:
                     response.raise_for_status()
