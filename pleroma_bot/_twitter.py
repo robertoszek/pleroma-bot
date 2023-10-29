@@ -64,7 +64,7 @@ def twitter_api_request(self, method, url,
                 )
                 retries += 1
                 if retries <= max_retries:
-                    response = self._request_proxy(
+                    response, proxy = self._request_proxy(
                         method, url, params=params,
                         data=data, headers=headers,
                         cookies=cookies, files=files,

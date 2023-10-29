@@ -1122,7 +1122,7 @@ def _get_guest_token_header(self, retries=0, tok_list=None):  # pragma: todo
             )
             response = self._request_proxy(
                 method='POST', url=guest_url, headers=headers
-            )
+            )["response"]
         else:
             tok_list.remove(_guest_token)
             if len(tok_list) > 0:
@@ -1148,129 +1148,203 @@ def _get_guest_token_header(self, retries=0, tok_list=None):  # pragma: todo
 
 
 def refresh_guest_account(self):
-    url = 'https://api.twitter.com/1.1/onboarding/task.json?flow_name=welcome&api_version=1&known_device_token=&sim_country_code=us'
-    headers = {
-        'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F',
-        'Content-Type': 'application/json',
-        'User-Agent': 'TwitterAndroid/9.95.0-release.0 (29950000-r-0) ONEPLUS+A3010/9 (OnePlus;ONEPLUS+A3010;OnePlus;OnePlus3;0;;1;2016)',
-        'X-Twitter-API-Version': '5',
-        'X-Twitter-Client': 'TwitterAndroid',
-        'X-Twitter-Client-Version': '9.95.0-release.0',
-        'OS-Version': '28',
-        'System-User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9; ONEPLUS A3010 Build/PKQ1.181203.001)',
-        'X-Twitter-Active-User': 'yes',
-        "X-Guest-Token": self.twitter_token,
-    }
-    data = {
-        "flow_token": None,
-        "input_flow_data": {
-            "country_code": None,
-            "flow_context": {
-                "start_location": {
-                    "location": "splash_screen"
-                }
-            },
-            "requested_variant": None,
-            "target_user_id": 0
-        },
-        "subtask_versions": {
-            "generic_urt": 3,
-            "standard": 1,
-            "open_home_timeline": 1,
-            "app_locale_update": 1,
-            "enter_date": 1,
-            "email_verification": 3,
-            "enter_password": 5,
-            "enter_text": 5,
-            "one_tap": 2,
-            "cta": 7,
-            "single_sign_on": 1,
-            "fetch_persisted_data": 1,
-            "enter_username": 3,
-            "web_modal": 2,
-            "fetch_temporary_password": 1,
-            "menu_dialog": 1, "sign_up_review": 5,
-            "interest_picker": 4,
-            "user_recommendations_urt": 3,
-            "in_app_notification": 1,
-            "sign_up": 2, "typeahead_search": 1,
-            "user_recommendations_list": 4,
-            "cta_inline": 1,
-            "contacts_live_sync_permission_prompt": 3,
-            "choice_selection": 5,
-            "js_instrumentation": 1,
-            "alert_dialog_suppress_client_events": 1,
-            "privacy_options": 1,
-            "topics_selector": 1,
-            "wait_spinner": 3,
-            "tweet_selection_urt": 1,
-            "end_flow": 1,
-            "settings_list": 7,
-            "open_external_link": 1,
-            "phone_verification": 5,
-            "security_key": 3,
-            "select_banner": 2,
-            "upload_media": 1,
-            "web": 2,
-            "alert_dialog": 1,
-            "open_account": 2,
-            "action_list": 2,
-            "enter_phone": 2,
-            "open_link": 1,
-            "show_code": 1,
-            "update_users": 1,
-            "check_logged_in_account": 1,
-            "enter_email": 2,
-            "select_avatar": 4,
-            "location_permission_prompt": 2,
-            "notifications_permission_prompt": 4
+    found_account = False
+    while not found_account:
+        guest_url = "https://api.twitter.com/1.1/guest/activate.json"
+        guest_headers = {
+            "Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F"
         }
-    }
+        response_guest, proxy = self._request_proxy(
+            "POST", guest_url,
+            data=None, headers=guest_headers,
+        )
+        guest_token = response_guest.json()["guest_token"]
+        self.twitter_token = guest_token
 
-    response = self._request_proxy(
-        "POST", url,
-        data=data, headers=headers,
-    )
-    flow_token = None
-    data = {
-        "flow_token": flow_token,
-        "subtask_inputs": [
-            {
-                "open_link": {"link": "next_link"},
-                "subtask_id": "NextTaskOpenLink"}
-        ],
-        "subtask_versions": {
-            "generic_urt": 3, "standard": 1,
-            "open_home_timeline": 1, "app_locale_update": 1,
-            "enter_date": 1, "email_verification": 3,
-            "enter_password": 5, "enter_text": 5,
-            "one_tap": 2, "cta": 7, "single_sign_on": 1,
-            "fetch_persisted_data": 1, "enter_username": 3,
-            "web_modal": 2, "fetch_temporary_password": 1,
-            "menu_dialog": 1, "sign_up_review": 5,
-            "interest_picker": 4,
-            "user_recommendations_urt": 3,
-            "in_app_notification": 1, "sign_up": 2,
-            "typeahead_search": 1,
-            "user_recommendations_list": 4, "cta_inline": 1,
-            "contacts_live_sync_permission_prompt": 3,
-            "choice_selection": 5, "js_instrumentation": 1,
-            "alert_dialog_suppress_client_events": 1,
-            "privacy_options": 1, "topics_selector": 1,
-            "wait_spinner": 3, "tweet_selection_urt": 1,
-            "end_flow": 1, "settings_list": 7,
-            "open_external_link": 1, "phone_verification": 5,
-            "security_key": 3, "select_banner": 2,
-            "upload_media": 1, "web": 2, "alert_dialog": 1,
-            "open_account": 2, "action_list": 2,
-            "enter_phone": 2, "open_link": 1, "show_code": 1,
-            "update_users": 1, "check_logged_in_account": 1,
-            "enter_email": 2, "select_avatar": 4,
-            "location_permission_prompt": 2,
-            "notifications_permission_prompt": 4
+        url = 'https://api.twitter.com/1.1/onboarding/task.json?flow_name=welcome&api_version=1&known_device_token=&sim_country_code=us'
+        headers = {
+            'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d74hl6k4%3DRUMF4xAQLsbeBhTSRrCiQpJtxoGWeyHrDb5te2jpGskWDFW82F',
+            'Content-Type': 'application/json',
+            'User-Agent': 'TwitterAndroid/9.95.0-release.0 (29950000-r-0) ONEPLUS+A3010/9 (OnePlus;ONEPLUS+A3010;OnePlus;OnePlus3;0;;1;2016)',
+            'X-Twitter-API-Version': '5',
+            'X-Twitter-Client': 'TwitterAndroid',
+            'X-Twitter-Client-Version': '9.95.0-release.0',
+            'OS-Version': '28',
+            'System-User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9; ONEPLUS A3010 Build/PKQ1.181203.001)',
+            'X-Twitter-Active-User': 'yes',
+            "X-Guest-Token": str(guest_token),
         }
-    }
-    # jq -r '.subtasks[0]|if(.open_account) then .open_account else empty end'
+        data = {
+            "flow_token": None,
+            "input_flow_data": {
+                "country_code": None,
+                "flow_context": {
+                    "start_location": {
+                        "location": "splash_screen"
+                    }
+                },
+                "requested_variant": None,
+                "target_user_id": 0
+            },
+            "subtask_versions": {
+                "generic_urt": 3,
+                "standard": 1,
+                "open_home_timeline": 1,
+                "app_locale_update": 1,
+                "enter_date": 1,
+                "email_verification": 3,
+                "enter_password": 5,
+                "enter_text": 5,
+                "one_tap": 2,
+                "cta": 7,
+                "single_sign_on": 1,
+                "fetch_persisted_data": 1,
+                "enter_username": 3,
+                "web_modal": 2,
+                "fetch_temporary_password": 1,
+                "menu_dialog": 1, "sign_up_review": 5,
+                "interest_picker": 4,
+                "user_recommendations_urt": 3,
+                "in_app_notification": 1,
+                "sign_up": 2, "typeahead_search": 1,
+                "user_recommendations_list": 4,
+                "cta_inline": 1,
+                "contacts_live_sync_permission_prompt": 3,
+                "choice_selection": 5,
+                "js_instrumentation": 1,
+                "alert_dialog_suppress_client_events": 1,
+                "privacy_options": 1,
+                "topics_selector": 1,
+                "wait_spinner": 3,
+                "tweet_selection_urt": 1,
+                "end_flow": 1,
+                "settings_list": 7,
+                "open_external_link": 1,
+                "phone_verification": 5,
+                "security_key": 3,
+                "select_banner": 2,
+                "upload_media": 1,
+                "web": 2,
+                "alert_dialog": 1,
+                "open_account": 2,
+                "action_list": 2,
+                "enter_phone": 2,
+                "open_link": 1,
+                "show_code": 1,
+                "update_users": 1,
+                "check_logged_in_account": 1,
+                "enter_email": 2,
+                "select_avatar": 4,
+                "location_permission_prompt": 2,
+                "notifications_permission_prompt": 4
+            }
+        }
+
+        response, proxy = self._request_proxy(
+            "POST", url,
+            json=data, headers=headers, proxies=[proxy]*15
+        )
+        flow_token = response.json()["flow_token"]
+
+        url = 'https://api.twitter.com/1.1/onboarding/task.json'
+        data = {
+            "flow_token": flow_token,
+            "subtask_inputs": [
+                {
+                    "open_link": {"link": "next_link"},
+                    "subtask_id": "NextTaskOpenLink"}
+            ],
+            "subtask_versions": {
+                "generic_urt": 3, "standard": 1,
+                "open_home_timeline": 1, "app_locale_update": 1,
+                "enter_date": 1, "email_verification": 3,
+                "enter_password": 5, "enter_text": 5,
+                "one_tap": 2, "cta": 7, "single_sign_on": 1,
+                "fetch_persisted_data": 1, "enter_username": 3,
+                "web_modal": 2, "fetch_temporary_password": 1,
+                "menu_dialog": 1, "sign_up_review": 5,
+                "interest_picker": 4,
+                "user_recommendations_urt": 3,
+                "in_app_notification": 1, "sign_up": 2,
+                "typeahead_search": 1,
+                "user_recommendations_list": 4, "cta_inline": 1,
+                "contacts_live_sync_permission_prompt": 3,
+                "choice_selection": 5, "js_instrumentation": 1,
+                "alert_dialog_suppress_client_events": 1,
+                "privacy_options": 1, "topics_selector": 1,
+                "wait_spinner": 3, "tweet_selection_urt": 1,
+                "end_flow": 1, "settings_list": 7,
+                "open_external_link": 1, "phone_verification": 5,
+                "security_key": 3, "select_banner": 2,
+                "upload_media": 1, "web": 2, "alert_dialog": 1,
+                "open_account": 2, "action_list": 2,
+                "enter_phone": 2, "open_link": 1, "show_code": 1,
+                "update_users": 1, "check_logged_in_account": 1,
+                "enter_email": 2, "select_avatar": 4,
+                "location_permission_prompt": 2,
+                "notifications_permission_prompt": 4
+            }
+        }
+        response, proxy = self._request_proxy(
+            "POST", url,
+            json=data, headers=headers, proxies=[proxy]*15
+        )
+        try:
+            open_account = response.json()["subtasks"][0]["open_account"]
+            found_account = True
+        except KeyError:
+            logger.error("Guest account not found. Retrying...")
+            found_account = False
+            continue
+    self.guest_accounts.append(open_account)
+
+    logger.info("Guest account found, appending to guest_accounts.json...")
+    guest_path = os.path.join(self.base_path, "guest_accounts.json")
+    guest_accounts_f = self._load_guest_accounts_json()
+    self.guest_accounts.extend(guest_accounts_f)
+    with open(guest_path, "r+") as f:
+        f.write(json.dumps(self.guest_accounts, indent=4))
+
+
+def _get_guest_accounts(self):
+    guest_path = os.path.join(self.base_path, "guest_accounts.json")
+    if os.path.isfile(guest_path):
+        with open(guest_path) as f:
+            try:
+                guest_accounts = json.load(f)
+                self.guest_accounts = guest_accounts
+            except json.JSONDecodeError:  # pragma: todo
+                logger.warning(
+                    _(
+                        f"Failed to decode guest_accounts.json "
+                        f"file found at {self.base_path}. "
+                        f"Trying to get a new guest account..."
+                    )
+                )
+                self.guest_accounts = []
+                self.refresh_guest_account()
+    else:
+        logger.warning(
+            _(
+                f"No guest_accounts.json file found at {self.base_path}. "
+                f"Trying to get a new guest account...")
+        )
+        with open(guest_path, "w"):
+            pass
+        self.refresh_guest_account()
+
+
+def _load_guest_accounts_json(self):
+    guest_path = os.path.join(self.base_path, "guest_accounts.json")
+    if os.path.isfile(guest_path):
+        with open(guest_path) as f:
+            try:
+                guest_accounts = json.load(f)
+                return guest_accounts
+            except json.JSONDecodeError:  # pragma: todo
+                return []
+    else:
+        return []
 
 
 def _request_proxy(
@@ -1280,24 +1354,32 @@ def _request_proxy(
         hooks=None, allow_redirects=True, stream=None,
         verify=None, cert=None, json=None
 ):  # pragma: todo
-    if not self.pool_iter and proxies is None:
-        response = requests.get('https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt')
+    if proxies:
+        pool_iter = cycle(proxies)
+        range_len = len(proxies)
+    else:
+        pool_iter = self.pool_iter
+        if self.proxy_pool:
+            range_len = len(self.proxy_pool)
+        else:
+            range_len = 100
 
-        proxies = response.text.split('\n')
-        response = requests.get('https://www.sslproxies.org/')
-        matches = re.findall(
-            r"<td>\d+.\d+.\d+.\d+</td><td>\d+</td>", response.text
-        )
-        entries = [m.replace('<td>', '') for m in matches]
-        proxies = proxies + [s[:-5].replace('</td>', ':') for s in entries]
+    if not pool_iter and proxies is None:
+        proxies = _collect_proxies()
+        self.proxy_pool = proxies
+        range_len = len(self.proxy_pool)
+
+        random.shuffle(proxies)
         self.pool_iter = cycle(proxies)
-    for i in range(100):
-        proxy = next(self.pool_iter)
+        pool_iter = self.pool_iter
+
+    for i in range(range_len):
+        proxy = next(pool_iter)
         try:
-            logger.info(_("Trying {}").format(proxy))
+            logger.info(_(f"Trying with proxy {proxy} ({url})"))
             proxies = {
-                "http": 'http://' + proxy,
-                "https": 'http://' + proxy
+                "http": proxy,
+                "https": proxy
             }
             response = requests.request(
                 method,
@@ -1312,16 +1394,106 @@ def _request_proxy(
                 allow_redirects=allow_redirects,
                 stream=stream, verify=verify,
                 cert=cert,
-                timeout=5.0
+                timeout=15.0
             )
             logger.info(response)
             if response.url == 'https://www.sslproxies.org/':
                 continue
             if response.status_code == 200:
-                return response
+                return response, proxy
         except Exception as e:
             logger.debug(e)
             continue
+    logger.error("Ran out of proxies to try...")
+
+
+def _collect_proxies():
+    proxy_url = 'https://proxylist.geonode.com/api/proxy-list?limit=500' \
+                '&page=1&sort_by=lastChecked&sort_type=desc'
+    proxy_headers = {
+        'Accept': 'application/json, text/plain, */*',
+        'Origin': 'https://geonode.com',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Referer': 'https://geonode.com/',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-site',
+        'Sec-GPC': '1',
+        'TE': 'trailers',
+    }
+
+    response = requests.get(proxy_url, headers=proxy_headers, timeout=15)
+    if not response.ok:
+        logger.warning("Could not get Genode proxy list...")
+        proxies_genode = []
+    else:
+        proxies_genode = response.json()
+        proxies_genode = [
+            f"{p['protocols'][0]}://{p['ip']}:{p['port']}"
+            for p in proxies_genode['data']
+        ]
+
+    response = requests.get(
+        'https://raw.githubusercontent.com/monosans/proxy-list/main'
+        '/proxies_anonymous/http.txt', timeout=15
+    )
+    if not response.ok:
+        logger.warning("Could not get Monosans HTTP proxy list...")
+        proxies_monosans_http = []
+    else:
+        proxies_monosans_http = response.text.split('\n')
+        proxies_monosans_http = [
+            f"http://{p}"
+            for p in proxies_monosans_http
+        ]
+    response = requests.get(
+        'https://raw.githubusercontent.com/monosans/proxy-list/main'
+        '/proxies_anonymous/socks4.txt', timeout=15
+    )
+    if not response.ok:
+        logger.warning("Could not get Monosans SOCKS4 proxy list...")
+        proxies_monosans_socks4 = []
+    else:
+        proxies_monosans_socks4 = response.text.split('\n')
+        proxies_monosans_socks4 = [
+            f"socks4://{p}"
+            for p in proxies_monosans_socks4
+        ]
+    response = requests.get(
+        'https://raw.githubusercontent.com/monosans/proxy-list/main'
+        '/proxies_anonymous/socks5.txt', timeout=15
+    )
+    if not response.ok:
+        logger.warning("Could not get Monosans SOCKS5 proxy list...")
+        proxies_monosans_socks5 = []
+    else:
+        proxies_monosans_socks5 = response.text.split('\n')
+        proxies_monosans_socks5 = [
+            f"socks5://{p}"
+            for p in proxies_monosans_socks5
+        ]
+
+    response = requests.get('https://www.sslproxies.org/')
+    matches = re.findall(
+        r"<td>\d+.\d+.\d+.\d+</td><td>\d+</td>", response.text
+    )
+    if not response.ok:
+        logger.warning("Could not get Monosans SOCKS5 proxy list...")
+        proxies_ssl = []
+    else:
+        entries = [m.replace('<td>', '') for m in matches]
+        proxies_ssl = [s[:-5].replace('</td>', ':') for s in entries]
+        proxies_ssl = [f"http://{p}" for p in proxies_ssl]
+
+    proxies = (
+            proxies_genode +
+            proxies_monosans_http +
+            proxies_monosans_socks4 +
+            proxies_monosans_socks5 +
+            proxies_ssl
+    )
+    return proxies
 
 
 def config_wizard(base_path, config_path):  # pragma

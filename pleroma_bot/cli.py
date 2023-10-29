@@ -103,10 +103,12 @@ class User(object):
     from ._utils import _update_bot_status
     from ._utils import _process_tweets_rss
     from ._utils import replace_vars_in_str
+    from ._utils import _get_guest_accounts
     from ._utils import refresh_guest_account
     from ._utils import _get_fedi_profile_info
     from ._utils import _get_guest_token_header
     from ._utils import mastodon_enforce_limits
+    from ._utils import _load_guest_accounts_json
 
     from ._processing import process_tweets
 
@@ -194,6 +196,7 @@ class User(object):
         for user_attribute in user_cfg:
             self.__setattr__(user_attribute, user_cfg[user_attribute])
 
+        self.base_path = base_path
         t_users = self.twitter_username
         t_users_list = isinstance(t_users, list)
         t_users = [t_users] if not t_users_list else t_users
@@ -225,7 +228,8 @@ class User(object):
             self.twitter_token = guest_token
             self.header_twitter = headers
             self.guest = True
-            # self.refresh_guest_account()
+            self.guest_accounts = []
+            self._get_guest_accounts()
 
         if all(
                 [
@@ -253,7 +257,6 @@ class User(object):
         self.twitter_url = CaseInsensitiveDict()
         for t_user in t_users:
             self.twitter_url[t_user] = f"{twitter_url}/{t_user}"
-        self.base_path = base_path
         self.users_path = os.path.join(self.base_path, "users")
         self.tweets_temp_path = os.path.join(self.base_path, "tweets")
         if self.pleroma_base_url not in self.posts_ids:
