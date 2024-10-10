@@ -840,7 +840,9 @@ def parse_rss_feed(self, rss_link, start_time, threads=1):  # pragma: todo
         "media_processed": [],
         "meta": []
     }
-    d = feedparser.parse(rss_link)
+    headers = {"User-Agent": "pleromabot"}
+    req = requests.get(rss_link, headers=headers)
+    d = feedparser.parse(req.content)
     logger.info(_("Gathering tweets...{}").format(len(d.entries)))
 
     if threads > 1:
